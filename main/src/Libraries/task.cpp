@@ -61,15 +61,11 @@ bool _Task::notify_handle(){
   switch((notify_types)this->task_ptr->notify_take(1,0)){
     case stop:
       return true;
-    break;
+      break;
     case reset:
       printf("%s paused", this->name);
       this->task_ptr->suspend();
-
-    break;
-    default:
-
-    break;
+      break;
   }
   return false;
 }

@@ -1,5 +1,9 @@
 #include "main.h"
-
+#include "Libraries/geometry.hpp"
+#include "Libraries/pid.hpp"
+#include "Libraries/piston.hpp"
+#include "Libraries/task.hpp"
+#include "Libraries/timer.hpp"
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -55,5 +59,5 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	
+
 }
