@@ -1,4 +1,5 @@
 #include "main.h"
+#include "Libraries/async.hpp"
 #include "Libraries/geometry.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/piston.hpp"
@@ -58,6 +59,34 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+struct MoveToTargetParams{
+  Position target;
+  bool brake;
+  int max_power = 127;
+  int exit_power = 0;
+  bool overshoot = false;
+  double end_error_r = 0.5;
+  double end_error_a = 5.0;
+};
+
+void moveToTargetFn(void* params){
+  MoveToTargetParams* args_ptr = (MoveToTargetParams*)_Task::get_params(params); // stores args locally
+	MoveToTargetParams args = *args_ptr;
+
+  delete args_ptr;  // frees memory
+  args_ptr = nullptr; // params shouldn't point to anything
+
+  printf("started mtt\n");
+}
+
+
+
 void opcontrol() {
+	_Task move_task(moveToTargetFn);
+
+	AsyncObj<MoveToTargetParams> moveToTarget("moveToTarget", moveToTargetFn, move_task);
+
+	moveToTarget.sync({{4.2,4.4,2.4}});
+	moveToTarget.async({{4.2,4,2.4}});
 
 }

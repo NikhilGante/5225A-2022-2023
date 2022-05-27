@@ -70,7 +70,7 @@ bool _Task::notify_handle(){
   return false;
 }
 
-bool _Task::data_update(){
+bool _Task::suspend(){
   if(this->task_ptr == NULL ||this->task_ptr->get_state() >=3)return false;
   printf("%s pausing for data", this->name);
   this->task_ptr->notify_ext((int)reset, E_NOTIFY_ACTION_OWRITE,NULL);
@@ -78,7 +78,7 @@ bool _Task::data_update(){
   return true;
 }
 
-bool _Task::done_update(){
+bool _Task::resume(){
   if(this->task_ptr == NULL || this->task_ptr->get_state() !=3)return false;
   this->task_ptr->resume();
   printf("%s done data update, resuming", this->name);

@@ -45,6 +45,6 @@ public:
 
   pros::Task* get_task_ptr()const;
 
-  bool data_update(); // suspends task
-  bool done_update(); // resumes task
+  bool suspend(); // suspends task
+  bool resume(); // resumes task
 };
