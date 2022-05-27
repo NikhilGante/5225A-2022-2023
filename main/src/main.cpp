@@ -5,6 +5,10 @@
 #include "Libraries/piston.hpp"
 #include "Libraries/task.hpp"
 #include "Libraries/timer.hpp"
+
+#include "config.hpp"
+
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -69,6 +73,15 @@ struct MoveToTargetParams{
   double end_error_a = 5.0;
 };
 
+void moveDrive(double y, double a){
+  front_l.move(y+a);
+  front_r.move(y-a);
+  back_l.move(y+a);
+  back_r.move(y-a);
+  center_l.move(y+a);
+  center_r.move(y-a);
+}
+
 void moveToTargetFn(void* params){
   MoveToTargetParams* args_ptr = (MoveToTargetParams*)_Task::get_params(params); // stores args locally
 	MoveToTargetParams args = *args_ptr;
@@ -76,17 +89,45 @@ void moveToTargetFn(void* params){
   delete args_ptr;  // frees memory
   args_ptr = nullptr; // params shouldn't point to anything
 
-  printf("started mtt\n");
+  printf("started mtt, %lf %lf %lf\n", args.target.x, args.target.y, args.target.angle);
+	moveDrive(args.max_power, 0);
+	while(true){
+		delay(10);
+	}
 }
 
+struct turnParams{
+  double turn_power;
+	string ignore;
+};
 
+
+void turnFn(void* params){
+  turnParams* args_ptr = (turnParams*)_Task::get_params(params); // stores args locally
+	turnParams args = *args_ptr;
+
+  delete args_ptr;  // frees memory
+  args_ptr = nullptr; // params shouldn't point to anything
+
+  printf("started turnFn, %lf %s\n", args.turn_power, args.ignore.c_str());
+	moveDrive(0, args.turn_power);
+	while(true){
+		delay(10);
+	}
+}
 
 void opcontrol() {
+	// while(true){
+	// 	master.update_buttons();
+	// 	if(master.is_rising(DIGITAL_A)) printf("hi\n");
+	// }
 	_Task move_task(moveToTargetFn);
 
 	AsyncObj<MoveToTargetParams> moveToTarget("moveToTarget", moveToTargetFn, move_task);
+	AsyncObj<turnParams> turn("turn", turnFn, move_task);
 
-	moveToTarget.sync({{4.2,4.4,2.4}});
-	moveToTarget.async({{4.2,4,2.4}});
+	moveToTarget.async({{5345.5,46.8,887.8}, false, -30});
+	delay(500);
+	turn.async({60.32, "poggers"});
 
 }

@@ -9,7 +9,7 @@ _Task::_Task(pros::task_fn_t function, const char* name, void* params, std::uint
 }
 
 _Task::~_Task(){
-  printf("%s entered destructor", this->name);
+  printf("%s entered destructor\n", this->name);
   this->kill();
 }
 
@@ -28,15 +28,16 @@ pros::Task* _Task::get_task_ptr()const{
   return this->task_ptr;
 }
 
+// accepts regular params pointer
 void _Task::start(void* params){
-   printf("%s starting", this->name);
+   printf("%s starting\n", this->name);
    if(this->task_ptr != NULL){
      printf("%s was already started", this->name);
      this->kill();
    }
    this->params = std::make_tuple(this,std::move(params));
    this->task_ptr = new pros::Task(this->function, &this->params, this->prio, this->stack_depth, this->name);
-   printf("%s started", this->name);
+   printf("%s started\n", this->name);
 }
 
 void _Task::kill(){
@@ -47,13 +48,31 @@ void _Task::kill(){
     wait_until(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
       printf("%s state %d", this->name, this->task_ptr->get_state());
     }
-    printf("%s state check passed", this->name);
+    printf("%s state check passed\n", this->name);
+    delete this->task_ptr;
+    this->task_ptr = NULL;
+    printf("%s killed\n", this->name);
+  }
+  else {
+    printf("%s kill failed: already dead\n", this->name);
+  }
+}
+
+void _Task::kill_without_notify(){ // kills the task unsafely
+  if(this->task_ptr != NULL){
+    printf("%s killing", this->name);
+    this->task_ptr->remove();
+    printf("%s kill command sent", this->name);
+    wait_until(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
+      printf("%s state %d", this->name, this->task_ptr->get_state());
+    }
+    printf("%s state check passed\n", this->name);
     delete this->task_ptr;
     this->task_ptr = NULL;
     printf("%s killed", this->name);
   }
   else {
-    printf("%s kill failed: already dead", this->name);
+    printf("%s kill failed: already dead\n", this->name);
   }
 }
 
@@ -85,11 +104,17 @@ bool _Task::resume(){
   return true;
 }
 
-
-
 void _Task::rebind(pros::task_fn_t function, void* params){
   printf("%s rebinding", this->name);
   this->kill();
+  this->function = function;
+  this->start(params);
+  printf("%s rebound", this->name);
+}
+
+void _Task::rebind_without_notify(pros::task_fn_t function, void* params){ // rebinds the task unsafely
+  printf("%s rebinding", this->name);
+  this->kill_without_notify();
   this->function = function;
   this->start(params);
   printf("%s rebound", this->name);

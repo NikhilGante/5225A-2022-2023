@@ -41,7 +41,10 @@ public:
   bool notify_handle();
   void start(void* params = NULL);
   void kill();
+  void kill_without_notify(); // kills the task unsafely
   void rebind(pros::task_fn_t, void* params = NULL);
+  void rebind_without_notify(pros::task_fn_t, void* params = NULL); // rebinds the task unsafely
+
 
   pros::Task* get_task_ptr()const;
 

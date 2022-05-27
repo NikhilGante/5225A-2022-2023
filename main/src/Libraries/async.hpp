@@ -19,10 +19,11 @@ public:
 
   void sync(ParamType params){
     args = std::make_tuple(&task, new ParamType(params)); // allocates params on the heap to be passed in to the function
-    task.kill();  // ensures task isn't running anymore 
+    task.kill_without_notify();  // ensures task isn't running anymore 
     function(&args); 
   }
+
   void async(ParamType params){
-    task.rebind(function, new ParamType(params));
+    task.rebind_without_notify(function, new ParamType(params));
   }
 };
