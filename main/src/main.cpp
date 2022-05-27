@@ -64,6 +64,10 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 struct MoveToTargetParams{
+	// replaces default constructor
+	MoveToTargetParams(Position target,	bool brake,	int max_power = 127,	int exit_power = 0,	bool overshoot = false, double end_error_r = 0.5,	double end_error_a = 5.0):
+		target(target), brake(brake), max_power(max_power), exit_power(exit_power), overshoot(overshoot), end_error_r(end_error_r), end_error_a(end_error_a)
+		{}
   Position target;
   bool brake;
   int max_power = 127;
@@ -89,7 +93,7 @@ void moveToTargetFn(void* params){
   delete args_ptr;  // frees memory
   args_ptr = nullptr; // params shouldn't point to anything
 
-  printf("started mtt, %lf %lf %lf\n", args.target.x, args.target.y, args.target.angle);
+  printf("started mtt, %lf %lf %lf, %d\n", args.target.x, args.target.y, args.target.angle, args.max_power);
 	moveDrive(args.max_power, 0);
 	while(true){
 		delay(10);
@@ -125,8 +129,8 @@ void opcontrol() {
 
 	AsyncObj<MoveToTargetParams> moveToTarget("moveToTarget", moveToTargetFn, move_task);
 	AsyncObj<turnParams> turn("turn", turnFn, move_task);
-
-	moveToTarget.async({{5345.5,46.8,887.8}, false, -30});
+// {}, false, -30
+	moveToTarget.async({{3.52,35.3,224.5}, false});
 	delay(500);
 	turn.async({60.32, "poggers"});
 

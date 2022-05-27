@@ -3,7 +3,9 @@
 #include "geometry.hpp"
 #include "functional"
 
-template <typename ParamType>
+struct EmptyType{}; // default type that async library accepts
+
+template <typename ParamType = EmptyType>
 class AsyncObj{
   const char* name;
   pros::task_fn_t function;

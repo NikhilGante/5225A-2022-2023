@@ -97,20 +97,9 @@ bool contains(T& container, typename T::value_type item){
   return std::find(container.begin(), container.end(), item) != container.end();
 }
 
-/**
- * @brief Returns a scaled average between two numbers.
- * 
- * @param first The first number.
- * @param second The second number.
- * @param first_scale Percentage to scale first number by. (20% is 0.2)
- * @return double 
- */
-double weighted_avg(double first, double second, double first_scale = 0.5);
-
-//please rename map. With proper includes it conflicts with std::map
 // maps a value to a range
 template <typename T>
-T map(T x, T in_min, T in_max, T out_min, T out_max){
+T map_values(T x, T in_min, T in_max, T out_min, T out_max){
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 // base case for recrusive function map_set
