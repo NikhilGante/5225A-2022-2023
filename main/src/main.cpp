@@ -77,13 +77,18 @@ struct MoveToTargetParams{
   double end_error_a = 5.0;
 };
 
-void moveDrive(double y, double a){
-  front_l.move(y+a);
-  front_r.move(y-a);
-  back_l.move(y+a);
-  back_r.move(y-a);
-  center_l.move(y+a);
-  center_r.move(y-a);
+void moveDrive(double x, double y, double a){
+	front_l.move(x + y + a);
+  front_r.move(-x + y - a);
+  back_l.move(-x + y + a);
+  back_r.move(x + y - a);
+
+  // front_l.move(y+a);
+  // front_r.move(y-a);
+  // back_l.move(y+a);
+  // back_r.move(y-a);
+  // center_l.move(y+a);
+  // center_r.move(y-a);
 }
 
 void moveToTargetFn(void* params){
@@ -94,7 +99,7 @@ void moveToTargetFn(void* params){
   args_ptr = nullptr; // params shouldn't point to anything
 
   printf("started mtt, %lf %lf %lf, %d\n", args.target.x, args.target.y, args.target.angle, args.max_power);
-	moveDrive(args.max_power, 0);
+	// moveDrive(args.max_power, 0);
 	while(true){
 		delay(10);
 	}
@@ -114,24 +119,21 @@ void turnFn(void* params){
   args_ptr = nullptr; // params shouldn't point to anything
 
   printf("started turnFn, %lf %s\n", args.turn_power, args.ignore.c_str());
-	moveDrive(0, args.turn_power);
+	// moveDrive(0, args.turn_power);
 	while(true){
 		delay(10);
 	}
 }
 
+
 void opcontrol() {
-	// while(true){
-	// 	master.update_buttons();
-	// 	if(master.is_rising(DIGITAL_A)) printf("hi\n");
-	// }
-	_Task move_task(moveToTargetFn);
+	double power_x, power_y, power_a;
+	while(true){
+		power_a = master.get_analog(ANALOG_LEFT_X);
+    power_x = master.get_analog(ANALOG_RIGHT_X);
+    power_y = master.get_analog(ANALOG_LEFT_Y);
 
-	AsyncObj<MoveToTargetParams> moveToTarget("moveToTarget", moveToTargetFn, move_task);
-	AsyncObj<turnParams> turn("turn", turnFn, move_task);
-// {}, false, -30
-	moveToTarget.async({{3.52,35.3,224.5}, false});
-	delay(500);
-	turn.async({60.32, "poggers"});
-
+		moveDrive(power_x, power_y, power_a);
+		delay(10);
+	}
 }
