@@ -16,7 +16,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-
+	_Controller::init();
 }
 
 /**
@@ -82,13 +82,6 @@ void moveDrive(double x, double y, double a){
   front_r.move(-x + y - a);
   back_l.move(-x + y + a);
   back_r.move(x + y - a);
-
-  // front_l.move(y+a);
-  // front_r.move(y-a);
-  // back_l.move(y+a);
-  // back_r.move(y-a);
-  // center_l.move(y+a);
-  // center_r.move(y-a);
 }
 
 void moveToTargetFn(void* params){
@@ -128,12 +121,25 @@ void turnFn(void* params){
 
 void opcontrol() {
 	double power_x, power_y, power_a;
+	bool flywheel_on = false;
+	master.clear();
 	while(true){
-		power_a = master.get_analog(ANALOG_LEFT_X);
-    power_x = master.get_analog(ANALOG_RIGHT_X);
-    power_y = master.get_analog(ANALOG_LEFT_Y);
+		// power_a = master.get_analog(ANALOG_LEFT_X);
+    // power_x = master.get_analog(ANALOG_RIGHT_X);
+    // power_y = master.get_analog(ANALOG_LEFT_Y);
 
-		moveDrive(power_x, power_y, power_a);
+		// moveDrive(power_x, power_y, power_a);
+
+		if(master.get_digital_new_press(DIGITAL_A)) flywheel_on = !flywheel_on;
+		if(flywheel_on){
+			flywheel_back.move(127);
+			flywheel_front.move(127);
+		}
+		else{
+			flywheel_back.move(0);
+			flywheel_front.move(0);
+		}
+		master.print(0,0, "rpm:%lf", flywheel_back.get_actual_velocity());
 		delay(10);
 	}
 }
