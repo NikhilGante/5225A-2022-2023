@@ -5,6 +5,7 @@
 #include "Libraries/piston.hpp"
 #include "Libraries/task.hpp"
 #include "Libraries/timer.hpp"
+#include "Libraries/state.hpp"
 
 #include "lift.hpp"
 
@@ -122,8 +123,32 @@ void turnFn(void* params){
 	}
 }
 
+enum class angler_states{
+	idle,
+	top,
+	bottom
+};
+
+class Angler: public Subsystem<angler_states>{
+public:
+	Angler(): Subsystem<angler_states>("angler", angler_states::idle, std::unordered_map<angler_states, const char*>{
+		{angler_states::idle, "idle"},
+		{angler_states::top, "top"},
+		{angler_states::bottom, "bottom"},
+	})
+	{}
+	void handle(){
+
+	}
+	void handle_state_change(angler_states state){
+
+	}
+};
+
+Angler angler;
+
 void opcontrol() {
-	
+	angler.start_task();
 	while(true){
 		master.update_buttons();
 		if(master.is_rising(DIGITAL_R1) && lift_index < 4){

@@ -73,7 +73,7 @@ void _Controller::print_queue(void* params){
       objs[i]->queue_handle();
       delay(50);
     }
-    if(ptr->notify_handle())break;
+    // if(ptr->notify_handle())break; // TODO: fix this with special delay
 
   }
 }

@@ -1,9 +1,12 @@
 #include "task.hpp"
 
-_Task::_Task(pros::task_fn_t function, const char* name, void* params, std::uint32_t prio, std::uint16_t stack_depth){
+const char* TaskEndException::what(){
+  return "Task ending";
+}
+
+_Task::_Task(pros::task_fn_t function, const char* name, std::uint32_t prio, std::uint16_t stack_depth){
   this->function = function;
   this->name = name;
-  this->params = std::make_tuple(this,std::move(params));
   this->prio = prio;
   this->stack_depth = stack_depth;
 }
@@ -43,7 +46,7 @@ void _Task::start(void* params){
 void _Task::kill(){
   if(this->task_ptr != NULL){
     printf("%s killing", this->name);
-    this->task_ptr->notify_ext((int)stop, E_NOTIFY_ACTION_OWRITE,NULL);
+    this->task_ptr->notify_ext((int)interrupt, E_NOTIFY_ACTION_OWRITE,NULL);
     printf("%s notified", this->name);
     wait_until(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
       printf("%s state %d", this->name, this->task_ptr->get_state());
@@ -63,8 +66,9 @@ void _Task::kill_without_notify(){ // kills the task unsafely
     printf("%s killing", this->name);
     this->task_ptr->remove();
     printf("%s kill command sent", this->name);
-    wait_until(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
+    while(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
       printf("%s state %d", this->name, this->task_ptr->get_state());
+      _Task::sleep(10);
     }
     printf("%s state check passed\n", this->name);
     delete this->task_ptr;
@@ -76,17 +80,17 @@ void _Task::kill_without_notify(){ // kills the task unsafely
   }
 }
 
-bool _Task::notify_handle(){
+void _Task::notify_handle(){
   switch((notify_types)this->task_ptr->notify_take(1,0)){
-    case stop:
-      return true;
+    case interrupt:
+      // return true;
+      throw TaskEndException{};
       break;
     case reset:
       printf("%s paused", this->name);
       this->task_ptr->suspend();
       break;
   }
-  return false;
 }
 
 bool _Task::suspend(){
@@ -118,4 +122,12 @@ void _Task::rebind_without_notify(pros::task_fn_t function, void* params){ // re
   this->function = function;
   this->start(params);
   printf("%s rebound", this->name);
+}
+
+void _Task::sleep(uint32_t ms){
+  uint32_t start_time = millis();
+  while(millis() - start_time < ms){
+    pros::delay(10);
+    // notify_handle();
+  }
 }

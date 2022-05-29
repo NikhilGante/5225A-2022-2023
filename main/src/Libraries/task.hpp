@@ -2,7 +2,14 @@
 #include "main.h"
 #include "../util.hpp"
 #include <tuple>
+#include <exception>
 
+using namespace pros;
+
+class TaskEndException: public std::exception{
+public:
+  const char* what();
+};
 
 /*
   _Task take 10ms to start
@@ -17,7 +24,7 @@
 
 enum notify_types{
   none = 0,
-  stop = 1,
+  interrupt = 1,
   reset = 2,
 };
 
@@ -32,13 +39,13 @@ private:
 
 public:
   pros::Task* task_ptr = NULL;
-  _Task(pros::task_fn_t function, const char* name = "", void* params = NULL, std::uint32_t prio = TASK_PRIORITY_DEFAULT, std::uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT);
+  _Task(pros::task_fn_t function, const char* name = "", std::uint32_t prio = TASK_PRIORITY_DEFAULT, std::uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT);
   ~_Task();
 
   static _Task* get_obj(void* params);
   static void* get_params(void* params);
 
-  bool notify_handle();
+  void notify_handle();
   void start(void* params = NULL);
   void kill();
   void kill_without_notify(); // kills the task unsafely
@@ -50,4 +57,6 @@ public:
 
   bool suspend(); // suspends task
   bool resume(); // resumes task
+
+  static void sleep(uint32_t ms); // special delay that checks for task kill
 };
