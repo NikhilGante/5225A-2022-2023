@@ -7,7 +7,7 @@
 #include "Libraries/timer.hpp"
 
 #include "config.hpp"
-
+#include "tracking.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -17,6 +17,7 @@
  */
 void initialize() {
 	_Controller::init();
+	update_t.start();
 }
 
 /**
