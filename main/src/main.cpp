@@ -6,6 +6,8 @@
 #include "Libraries/task.hpp"
 #include "Libraries/timer.hpp"
 
+#include "lift.hpp"
+
 #include "config.hpp"
 
 
@@ -121,10 +123,23 @@ void turnFn(void* params){
 }
 
 void opcontrol() {
-	// while(true){
-	// 	master.update_buttons();
-	// 	if(master.is_rising(DIGITAL_A)) printf("hi\n");
-	// }
+	
+	while(true){
+		master.update_buttons();
+		if(master.is_rising(DIGITAL_R1) && lift_index < 4){
+			liftMoveToTarget.async(++lift_index);
+			printf("index:%d\n", lift_index);
+		}
+		if(master.is_rising(DIGITAL_R2) && lift_index > 0){
+			liftMoveToTarget.async(--lift_index);
+			printf("index:%d\n", lift_index);
+		}
+		printf("hi%d\n", millis());
+
+		// printf("index:%d\n", lift_index);
+		// printf("state:%d\n", lift_task.task_ptr->get_state());
+		delay(10);
+	}
 	_Task move_task(moveToTargetFn);
 
 	AsyncObj<MoveToTargetParams> moveToTarget("moveToTarget", moveToTargetFn, move_task);

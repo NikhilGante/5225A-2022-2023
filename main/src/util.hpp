@@ -11,7 +11,7 @@ class Timer;
 #define wait_until(condition) while(delay(10), !(condition))
 
 // cycle check macro (checks a condition for a specified amount of cycles)
-#define cycleCheck(condition, checkCount, delayTime) \
+#define CYCLE_CHECK(condition, checkCount, delayTime) \
 {\
     int successCount = 0;\
     while (successCount < checkCount){\

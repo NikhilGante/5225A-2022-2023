@@ -1,9 +1,15 @@
-// #include "main.h"
-// #include "async.hpp"
+#pragma once
+#include "main.h"
+#include "Libraries/async.hpp"
+#include "Libraries/task.hpp"
 
-// extern int index = 0;
-// int arr[5] = {1185, 1400, 1900, 2170, 2775};
-// void liftMoveToTargetFn(int index);
+extern int lift_index;
+extern int lift_arr[5];
+void liftMoveToTargetFn(void* params);
 
-
-// AsyncObj<
+struct LiftMoveToTargetParams{
+  LiftMoveToTargetParams(int lift_index): lift_index(lift_index){}
+  int lift_index;
+};
+extern _Task lift_task;
+extern AsyncObj<LiftMoveToTargetParams> liftMoveToTarget;

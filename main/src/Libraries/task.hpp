@@ -23,7 +23,6 @@ enum notify_types{
 
 class _Task{
 private:
-  pros::Task* task_ptr = NULL;
   pros::task_fn_t function;
   std::tuple<_Task*, void*>params;
   std::uint32_t prio;
@@ -32,6 +31,7 @@ private:
 
 
 public:
+  pros::Task* task_ptr = NULL;
   _Task(pros::task_fn_t function, const char* name = "", void* params = NULL, std::uint32_t prio = TASK_PRIORITY_DEFAULT, std::uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT);
   ~_Task();
 

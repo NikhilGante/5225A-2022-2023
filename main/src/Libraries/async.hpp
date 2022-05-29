@@ -1,7 +1,15 @@
+#pragma once
 #include <tuple>
 #include "task.hpp"
 #include "geometry.hpp"
 #include "functional"
+
+// should be called at beginning of every async function to free memory
+#define HANDLE_ARGS(type)\
+  type* args_ptr = (LiftMoveToTargetParams*)_Task::get_params(params);\
+	type args = *args_ptr;\
+  delete args_ptr;\
+  args_ptr = nullptr;\
 
 struct EmptyType{}; // default type that async library accepts
 
