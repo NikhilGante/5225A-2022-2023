@@ -17,7 +17,7 @@
  */
 void initialize() {
 	_Controller::init();
-	update_t.start();
+	// update_t.start();
 }
 
 /**
@@ -119,17 +119,33 @@ void turnFn(void* params){
 	}
 }
 
-
+/*
 void opcontrol() {
 	double power_x, power_y, power_a;
 	bool flywheel_on = false;
+	Timer flywheel_print_timer{"flywheel_timer"};
 	master.clear();
-	while(true){
-    power_x = master.get_analog(ANALOG_LEFT_X);
-    power_y = master.get_analog(ANALOG_LEFT_Y);
-		power_a = master.get_analog(ANALOG_RIGHT_X);
 
-		moveDrive(power_x, power_y, power_a);
+
+	pros::Rotation rotation_sensor(5);
+	rotation_sensor.reset_position();
+	int cur, last = 0;
+	int count = 0;
+	while(true){
+		cur = rotation_sensor.get_position();
+		printf("%d val: %d last: %d, mod360: %d\n", millis(), cur, last, rotation_sensor.get_position()%360);
+		if(cur != last){
+			printf("**********HEYcur: cur %d last %d diff %d count %d\n", cur, last, cur-last, count);
+			count = 0;
+		}
+		else count++;
+		last = cur;
+
+    // power_x = master.get_analog(ANALOG_LEFT_X);
+    // power_y = master.get_analog(ANALOG_LEFT_Y);
+		// power_a = master.get_analog(ANALOG_RIGHT_X);
+
+		// moveDrive(power_x, power_y, power_a);
 
 		// if(master.get_digital_new_press(DIGITAL_A)) flywheel_on = !flywheel_on;
 		// if(flywheel_on){
@@ -140,7 +156,28 @@ void opcontrol() {
 		// 	flywheel_back.move(0);
 		// 	flywheel_front.move(0);
 		// }
-		// master.print(0,0, "rpm:%lf", flywheel_back.get_actual_velocity());
-		delay(10);
+		// if(flywheel_print_timer.get_time() > 50){
+		// 	master.print(0,0, "rpm:%lf", flywheel_back.get_actual_velocity());
+		// 	flywheel_print_timer.reset();
+		// }
+		delay(1);
+	}
+}
+*/
+void opcontrol() {
+	pros::Rotation rotation_sensor(5);
+	rotation_sensor.reset_position();
+	int cur, last = 0;
+	int count = 0;
+	while(true){
+		cur = rotation_sensor.get_position();
+		printf("%d val: %d last: %d, mod360: %d\n", millis(), cur, last, rotation_sensor.get_position()%360);
+		if(cur != last){
+			printf("**********HEYcur: cur %d last %d diff %d count %d\n", cur, last, cur-last, count);
+			count = 0;
+		}
+		else count++;
+		last = cur;
+		delay(1);
 	}
 }

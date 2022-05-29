@@ -42,3 +42,4 @@ extern Tracking tracking;
 
 #define angle_to_point(x, y)\
   rad_to_deg(atan2(x - tracking.g_position.x, y - tracking.g_position.y))\
+
