@@ -175,7 +175,7 @@ void opcontrol() {
 		cur = rotation_sensor.get_position();
 		if(print_timer.get_time() > 20){
 		
-			printf("%d val: %d last: %d, mod360: %d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360);
+			printf("%d val: %d last: %d, mod360: %d, vel:%d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360, rotation_sensor.get_velocity());
 			print_timer.reset();
 		}
 		if(cur != last){
