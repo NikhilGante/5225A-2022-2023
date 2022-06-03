@@ -166,15 +166,21 @@ void opcontrol() {
 */
 void opcontrol() {
 	pros::Rotation rotation_sensor(5);
+	rotation_sensor.set_data_rate(5);
 	rotation_sensor.reset_position();
 	int cur, last = 0;
-	int count = 0;
+	int count = 1;
+	Timer print_timer{"print_timer"};
 	while(true){
 		cur = rotation_sensor.get_position();
-		printf("%d val: %d last: %d, mod360: %d\n", millis(), cur, last, rotation_sensor.get_position()%360);
+		if(print_timer.get_time() > 20){
+		
+			printf("%d val: %d last: %d, mod360: %d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360);
+			print_timer.reset();
+		}
 		if(cur != last){
 			printf("**********HEYcur: cur %d last %d diff %d count %d\n", cur, last, cur-last, count);
-			count = 0;
+			count = 1;
 		}
 		else count++;
 		last = cur;
