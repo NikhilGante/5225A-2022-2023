@@ -8,7 +8,8 @@ using namespace std;
 //forward declarations
 class Timer;
 
-#define wait_until(condition) while(delay(10), !(condition))
+#define wait_until(condition) while(!condition) delay(10);
+
 
 // cycle check macro (checks a condition for a specified amount of cycles)
 #define CYCLE_CHECK(condition, checkCount, delayTime) \

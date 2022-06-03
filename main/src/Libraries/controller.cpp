@@ -113,7 +113,8 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ..
   va_start(args, fmt);
   vsnprintf(buffer, 19, fmt, args);
   va_end(args);
-  std::function<void()> func = [=](){
+  string buffer_cpy = buffer;
+  std::function<void()> func = [&, line, col, buffer_cpy](){
     pros::Controller::print(line, col, buffer);
     printf("printing %s to %d", buffer, this->controller_num);
   };
@@ -122,7 +123,7 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ..
 
 }
 void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
-  std::function<void()> func = [=](){
+  std::function<void()> func = [&, line, col, str](){
     pros::Controller::print(line, col, str.c_str());
     printf("printing %s to %d", str.c_str(), this->controller_num);
   };
@@ -131,7 +132,7 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
 
 }
 void _Controller::clear_line (std::uint8_t line){
-  std::function<void()> func = [=](){
+  std::function<void()> func = [&, line](){
     pros::Controller::clear_line(line);
     printf("clearing line %d for controller %d", line, this->controller_num);
   };
@@ -140,7 +141,7 @@ void _Controller::clear_line (std::uint8_t line){
 }
 
 void _Controller::clear(){
-  std::function<void()> func = [=](){
+  std::function<void()> func = [&](){
     pros::Controller::clear();
     printf("clearing %d", this->controller_num);
   };
@@ -149,9 +150,9 @@ void _Controller::clear(){
 }
 
 
-void _Controller::rumble(const char* rumble_pattern){
-  std::function<void()> func = [=](){
-    pros::Controller::rumble(rumble_pattern);
+void _Controller::rumble(const string& rumble_pattern){
+  std::function<void()> func = [&, rumble_pattern](){
+    pros::Controller::rumble(rumble_pattern.c_str());
     printf("rumble controller %d", this->controller_num);
   };
   this->add_to_queue(func);

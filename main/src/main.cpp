@@ -19,7 +19,8 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-
+	printf("yo\n");
+	delay(1000);
 }
 
 /**
@@ -129,6 +130,16 @@ enum class angler_states{
 	bottom
 };
 
+// parameters
+struct AnglerBottomParams{
+	int power = -10;
+};
+struct AnglerTopParams{
+	int power = 10;
+};
+// struct AnglerBottomParams{
+// };
+
 class Angler: public Subsystem<angler_states>{
 public:
 	Angler(): Subsystem<angler_states>("angler", angler_states::idle, std::unordered_map<angler_states, const char*>{
@@ -143,11 +154,31 @@ public:
 	void handle_state_change(angler_states state){
 
 	}
+
+
+
 };
 
 Angler angler;
 
+void my_task_fn(void* param) {
+  std::cout << "Hello" << std::endl;
+  // ...
+	wait_until(false);
+}
+
 void opcontrol() {
+	task_t temp = pros::c::task_create(my_task_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT,
+                               TASK_STACK_DEPTH_DEFAULT, "My Task");
+	printf("hi\n");
+	delay(1000);
+
+	while (true) {
+		printf("%d deleted:%d\n", pros::c::task_get_state(temp), E_TASK_STATE_DELETED);
+		delay(1000);
+	}
+
+	/*
 	angler.start_task();
 	while(true){
 		master.update_buttons();
@@ -173,5 +204,5 @@ void opcontrol() {
 	moveToTarget.async({{3.52,35.3,224.5}, false});
 	delay(500);
 	turn.async({60.32, "poggers"});
-
+	*/
 }
