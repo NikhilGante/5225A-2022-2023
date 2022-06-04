@@ -6,6 +6,8 @@
 #include "Libraries/task.hpp"
 #include "Libraries/timer.hpp"
 
+#include "Libraries/logging.hpp"
+
 #include "config.hpp"
 #include "tracking.hpp"
 
@@ -17,6 +19,7 @@
  */
 void initialize() {
 	_Controller::init();
+	log_init();
 	// update_t.start();
 }
 
@@ -119,27 +122,22 @@ void turnFn(void* params){
 	}
 }
 
-/*
+
 void opcontrol() {
 	double power_x, power_y, power_a;
 	bool flywheel_on = false;
 	Timer flywheel_print_timer{"flywheel_timer"};
 	master.clear();
 
-
 	pros::Rotation rotation_sensor(5);
+	rotation_sensor.set_data_rate(5);
 	rotation_sensor.reset_position();
-	int cur, last = 0;
-	int count = 0;
+	Timer print_timer{"print_timer"};
+	Timer log_timer{"log_timer"};
+
+	long rot_vel;
+
 	while(true){
-		cur = rotation_sensor.get_position();
-		printf("%d val: %d last: %d, mod360: %d\n", millis(), cur, last, rotation_sensor.get_position()%360);
-		if(cur != last){
-			printf("**********HEYcur: cur %d last %d diff %d count %d\n", cur, last, cur-last, count);
-			count = 0;
-		}
-		else count++;
-		last = cur;
 
     // power_x = master.get_analog(ANALOG_LEFT_X);
     // power_y = master.get_analog(ANALOG_LEFT_Y);
@@ -147,23 +145,45 @@ void opcontrol() {
 
 		// moveDrive(power_x, power_y, power_a);
 
-		// if(master.get_digital_new_press(DIGITAL_A)) flywheel_on = !flywheel_on;
-		// if(flywheel_on){
-		// 	flywheel_back.move(127);
-		// 	flywheel_front.move(127);
-		// }
-		// else{
-		// 	flywheel_back.move(0);
-		// 	flywheel_front.move(0);
-		// }
-		// if(flywheel_print_timer.get_time() > 50){
-		// 	master.print(0,0, "rpm:%lf", flywheel_back.get_actual_velocity());
-		// 	flywheel_print_timer.reset();
-		// }
-		delay(1);
+		rot_vel = rotation_sensor.get_velocity();
+		if(print_timer.get_time() >= 50){
+			// log_timer.reset();
+			// log("%d val: %d last: %d, mod360: %d, vel:%d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360, rotation_sensor.get_velocity());
+			// log_timer.print();
+			
+			// printf("%d| rpm:%.2lf, deg/sec:%.2lf, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), 60*(double)(rot_vel)/36000, (double)(rot_vel)/100, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
+			printf("%d| rpm:%.2lf, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), flywheel_back.get_actual_velocity(), flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
+		
+			// logfile = fopen("/usd/log.txt","a");
+			// fprintf(logfile, "%d hi\n", millis());
+			// fclose(logfile);
+			print_timer.reset();
+		}
+
+
+
+		if(master.get_digital_new_press(DIGITAL_A)) flywheel_on = !flywheel_on;
+		if(flywheel_on){
+			flywheel_back.move(127);
+			flywheel_front.move(127);
+		}
+		else{
+			flywheel_back.move(0);
+			flywheel_front.move(0);
+		}
+		if(flywheel_print_timer.get_time() > 50){
+			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
+			master.print(0,0, "rpm:%.2lf", flywheel_back.get_actual_velocity());
+
+			
+			flywheel_print_timer.reset();
+		}
+		delay(10);
 	}
 }
-*/
+
+
+/*
 void opcontrol() {
 	pros::Rotation rotation_sensor(5);
 	rotation_sensor.set_data_rate(5);
@@ -171,11 +191,17 @@ void opcontrol() {
 	int cur, last = 0;
 	int count = 1;
 	Timer print_timer{"print_timer"};
+	Timer log_timer{"log_timer"};
 	while(true){
 		cur = rotation_sensor.get_position();
 		if(print_timer.get_time() > 20){
-		
+			log_timer.reset();
+			log("%d val: %d last: %d, mod360: %d, vel:%d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360, rotation_sensor.get_velocity());
+			log_timer.print();
 			printf("%d val: %d last: %d, mod360: %d, vel:%d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360, rotation_sensor.get_velocity());
+			// logfile = fopen("/usd/log.txt","a");
+			// fprintf(logfile, "%d hi\n", millis());
+			// fclose(logfile);
 			print_timer.reset();
 		}
 		if(cur != last){
@@ -187,3 +213,4 @@ void opcontrol() {
 		delay(1);
 	}
 }
+*/

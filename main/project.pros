@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "async-testing",
+    "project_name": "flywheel-testing",
     "target": "v5",
     "templates": {
       "kernel": {
