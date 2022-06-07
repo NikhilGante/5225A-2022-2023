@@ -1,5 +1,4 @@
 #include "main.h"
-#include "Libraries/async.hpp"
 #include "Libraries/geometry.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/piston.hpp"
@@ -20,7 +19,6 @@
  */
 void initialize() {
 	printf("yo\n");
-	delay(1000);
 }
 
 /**
@@ -67,19 +65,14 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-struct MoveToTargetParams{
-	// replaces default constructor
-	MoveToTargetParams(Position target,	bool brake,	int max_power = 127,	int exit_power = 0,	bool overshoot = false, double end_error_r = 0.5,	double end_error_a = 5.0):
-		target(target), brake(brake), max_power(max_power), exit_power(exit_power), overshoot(overshoot), end_error_r(end_error_r), end_error_a(end_error_a)
-		{}
-  Position target;
-  bool brake;
-  int max_power = 127;
-  int exit_power = 0;
-  bool overshoot = false;
-  double end_error_r = 0.5;
-  double end_error_a = 5.0;
-};
+
+// Position target;
+// bool brake;
+// int max_power = 127;
+// int exit_power = 0;
+// bool overshoot = false;
+// double end_error_r = 0.5;
+// double end_error_a = 5.0;
 
 void moveDrive(double y, double a){
   front_l.move(y+a);
@@ -90,76 +83,11 @@ void moveDrive(double y, double a){
   center_r.move(y-a);
 }
 
-void moveToTargetFn(void* params){
-  MoveToTargetParams* args_ptr = (MoveToTargetParams*)_Task::get_params(params); // stores args locally
-	MoveToTargetParams args = *args_ptr;
 
-  delete args_ptr;  // frees memory
-  args_ptr = nullptr; // params shouldn't point to anything
+// Angler angler;
 
-  printf("started mtt, %lf %lf %lf, %d\n", args.target.x, args.target.y, args.target.angle, args.max_power);
-	moveDrive(args.max_power, 0);
-	while(true){
-		delay(10);
-	}
-}
+Subsystem<LiftMttParams> lift("Lift", LiftMttParams{});
 
-struct turnParams{
-  double turn_power;
-	string ignore;
-};
-
-
-void turnFn(void* params){
-  turnParams* args_ptr = (turnParams*)_Task::get_params(params); // stores args locally
-	turnParams args = *args_ptr;
-
-  delete args_ptr;  // frees memory
-  args_ptr = nullptr; // params shouldn't point to anything
-
-  printf("started turnFn, %lf %s\n", args.turn_power, args.ignore.c_str());
-	moveDrive(0, args.turn_power);
-	while(true){
-		delay(10);
-	}
-}
-
-enum class angler_states{
-	idle,
-	top,
-	bottom
-};
-
-// parameters
-struct AnglerBottomParams{
-	int power = -10;
-};
-struct AnglerTopParams{
-	int power = 10;
-};
-// struct AnglerBottomParams{
-// };
-
-class Angler: public Subsystem<angler_states>{
-public:
-	Angler(): Subsystem<angler_states>("angler", angler_states::idle, std::unordered_map<angler_states, const char*>{
-		{angler_states::idle, "idle"},
-		{angler_states::top, "top"},
-		{angler_states::bottom, "bottom"},
-	})
-	{}
-	void handle(){
-
-	}
-	void handle_state_change(angler_states state){
-
-	}
-
-
-
-};
-
-Angler angler;
 
 void my_task_fn(void* param) {
   std::cout << "Hello" << std::endl;
@@ -168,41 +96,18 @@ void my_task_fn(void* param) {
 }
 
 void opcontrol() {
-	task_t temp = pros::c::task_create(my_task_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT,
+	// lift.run_machine();
+	// lift.change_state(LiftMttParams{});
+	task_t temp;
+	cout << temp << "done" << endl;
+	// cout << "before " << pros::c::task_get_state(temp) << endl;
+	// printf("%d before creation:%d\n", pros::c::task_get_state(temp), E_TASK_STATE_DELETED);
+	temp = pros::c::task_create(my_task_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT,
                                TASK_STACK_DEPTH_DEFAULT, "My Task");
-	printf("hi\n");
-	delay(1000);
-
+	// if(pros::c::task_get_state(temp) != E_TASK_STATE_DELETED)	printf("hi\n");
+	cout << "here "<< temp << "done2" << endl;
 	while (true) {
 		printf("%d deleted:%d\n", pros::c::task_get_state(temp), E_TASK_STATE_DELETED);
 		delay(1000);
 	}
-
-	/*
-	angler.start_task();
-	while(true){
-		master.update_buttons();
-		if(master.is_rising(DIGITAL_R1) && lift_index < 4){
-			liftMoveToTarget.async(++lift_index);
-			printf("index:%d\n", lift_index);
-		}
-		if(master.is_rising(DIGITAL_R2) && lift_index > 0){
-			liftMoveToTarget.async(--lift_index);
-			printf("index:%d\n", lift_index);
-		}
-		printf("hi%d\n", millis());
-
-		// printf("index:%d\n", lift_index);
-		// printf("state:%d\n", lift_task.task_ptr->get_state());
-		delay(10);
-	}
-	_Task move_task(moveToTargetFn);
-
-	AsyncObj<MoveToTargetParams> moveToTarget("moveToTarget", moveToTargetFn, move_task);
-	AsyncObj<turnParams> turn("turn", turnFn, move_task);
-// {}, false, -30
-	moveToTarget.async({{3.52,35.3,224.5}, false});
-	delay(500);
-	turn.async({60.32, "poggers"});
-	*/
 }

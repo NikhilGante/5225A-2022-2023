@@ -1,15 +1,26 @@
 #pragma once
 #include "main.h"
-#include "Libraries/async.hpp"
-#include "Libraries/task.hpp"
+#include "Libraries/state.hpp"
 
 extern int lift_index;
 extern int lift_arr[5];
-void liftMoveToTargetFn(void* params);
 
-struct LiftMoveToTargetParams{
-  LiftMoveToTargetParams(int lift_index): lift_index(lift_index){}
-  int lift_index;
+struct LiftMttParams{
+  const char* getName(){
+    return "Move to target";
+  }
+  void handle(){
+    // int output = b_lift_pid.compute(b_lift_pot.get_value(), lift_arr[lift_index]);
+    // if(abs(output) < 40) output = 40 * sgn(output); // enforces a minimum of 30 power
+    // b_lift_m.move(output);
+    // if(fabs(b_lift_pid.get_error()) < 10){
+    //   printf("Finished move, %d\n", b_lift_pot.get_value());
+    //   b_lift_m.move_velocity(0);
+    //   return;
+    // }
+    // delay(10);
+  }
+  void handleStateChange(size_t prev_state){
+    // if(prev_state == GET_ID(aParams)) 
+  }
 };
-extern _Task lift_task;
-extern AsyncObj<LiftMoveToTargetParams> liftMoveToTarget;

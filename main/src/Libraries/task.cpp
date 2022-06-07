@@ -1,8 +1,5 @@
 #include "task.hpp"
-
-const char* TaskEndException::what(){
-  return "Task ending";
-}
+#include "state.hpp"
 
 _Task::_Task(pros::task_fn_t function, const char* name, std::uint32_t prio, std::uint16_t stack_depth){
   this->function = function;

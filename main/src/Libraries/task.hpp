@@ -6,11 +6,6 @@
 
 using namespace pros;
 
-class TaskEndException: public std::exception{
-public:
-  const char* what();
-};
-
 /*
   _Task take 10ms to start
   task.get_state():
