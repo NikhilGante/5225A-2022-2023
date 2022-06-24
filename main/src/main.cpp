@@ -150,10 +150,10 @@ void opcontrol() {
 			// log_timer.reset();
 			// log("%d val: %d last: %d, mod360: %d, vel:%d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360, rotation_sensor.get_velocity());
 			// log_timer.print();
-			
+
 			// printf("%d| rpm:%.2lf, deg/sec:%.2lf, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), 60*(double)(rot_vel)/36000, (double)(rot_vel)/100, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
 			printf("%d| rpm:%.2lf, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), flywheel_back.get_actual_velocity(), flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
-		
+
 			// logfile = fopen("/usd/log.txt","a");
 			// fprintf(logfile, "%d hi\n", millis());
 			// fclose(logfile);
@@ -171,11 +171,12 @@ void opcontrol() {
 			flywheel_back.move(0);
 			flywheel_front.move(0);
 		}
-		if(flywheel_print_timer.get_time() > 50){
+		if(flywheel_print_timer.get_time() > 100){
 			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
-			master.print(0,0, "rpm:%.2lf", flywheel_back.get_actual_velocity());
+			master.print(0,0, "rpm:%d", (int)flywheel_back.get_actual_velocity());
+			master.print(1, 0, "f:%d b:%d", (int)flywheel_front.get_temperature(), (int)flywheel_back.get_temperature());
 
-			
+
 			flywheel_print_timer.reset();
 		}
 		delay(10);
