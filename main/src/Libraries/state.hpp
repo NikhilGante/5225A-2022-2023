@@ -6,16 +6,18 @@
 #include <atomic>
 #include "main.h"
 
+#include "task2.hpp"
+
 using namespace std;
 using namespace pros;
 
 #define GET_ID(type)\
   typeid(type).hash_code()
 
-class TaskEndException: public std::exception{
-public:
-  const char* what();
-};
+// class TaskEndException: public std::exception{
+// public:
+//   const char* what();
+// };
 
 // struct aParams{
 //   int speed;

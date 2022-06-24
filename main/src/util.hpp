@@ -8,7 +8,7 @@ using namespace std;
 //forward declarations
 class Timer;
 
-#define wait_until(condition) while(!condition) delay(10);
+#define WAIT_UNTIL(condition) while(!(condition)) pros::delay(10);
 
 
 // cycle check macro (checks a condition for a specified amount of cycles)

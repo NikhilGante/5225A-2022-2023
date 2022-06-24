@@ -45,7 +45,7 @@ void _Task::kill(){
     printf("%s killing", this->name);
     this->task_ptr->notify_ext((int)interrupt, E_NOTIFY_ACTION_OWRITE,NULL);
     printf("%s notified", this->name);
-    wait_until(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
+    WAIT_UNTIL(this->task_ptr->get_state() == E_TASK_STATE_DELETED){
       printf("%s state %d", this->name, this->task_ptr->get_state());
     }
     printf("%s state check passed\n", this->name);
@@ -94,7 +94,7 @@ bool _Task::suspend(){
   if(this->task_ptr == NULL ||this->task_ptr->get_state() >=3)return false;
   printf("%s pausing for data", this->name);
   this->task_ptr->notify_ext((int)reset, E_NOTIFY_ACTION_OWRITE,NULL);
-  wait_until (this->task_ptr->get_state() == E_TASK_STATE_SUSPENDED);
+  WAIT_UNTIL (this->task_ptr->get_state() == E_TASK_STATE_SUSPENDED);
   return true;
 }
 

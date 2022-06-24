@@ -108,13 +108,24 @@ void _Controller::queue_handle(){
 
 //template this at some point (done in header_clean)
 void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ... ){
+  // char buffer[19];
+  // std::va_list args;
+  // va_start(args, fmt);
+  // vsnprintf(buffer, 19, fmt, args);
+  // va_end(args);
+  // string buffer_cpy = buffer;
+  // std::function<void()> func = [&, line, col, buffer_cpy](){
+  //   pros::Controller::print(line, col, buffer);
+  //   printf("printing %s to %d", buffer, this->controller_num);
+  // };
+  // this->add_to_queue(func);
+  // printf("adding print to queue for controller %d", this->controller_num);
   char buffer[19];
   std::va_list args;
   va_start(args, fmt);
   vsnprintf(buffer, 19, fmt, args);
   va_end(args);
-  string buffer_cpy = buffer;
-  std::function<void()> func = [&, line, col, buffer_cpy](){
+  std::function<void()> func = [=](){
     pros::Controller::print(line, col, buffer);
     printf("printing %s to %d", buffer, this->controller_num);
   };
@@ -190,7 +201,7 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
   printf("waiting for button press from controller %d", this->controller_num);
   controller_digital_e_t button = static_cast<controller_digital_e_t>(0);
   
-  wait_until(button != static_cast<controller_digital_e_t>(0)){
+  WAIT_UNTIL(button != static_cast<controller_digital_e_t>(0)){
     for(std::vector<controller_digital_e_t>::const_iterator it = buttons.begin(); it != buttons.end(); it++){
       if(get_digital_new_press(*it)) button = *it;
     }
@@ -212,7 +223,7 @@ void _Controller::wait_for_press(controller_digital_e_t button, int timeout){
   int start_time = millis();
   printf("waiting for button %d from controller %d", button, this->controller_num);
   
-  wait_until(get_digital_new_press(button)){
+  WAIT_UNTIL(get_digital_new_press(button)){
     if(timeout != 0 && millis() - start_time > timeout){
       printf("timed out on waiting for button %d press from controller %d", button, this->controller_num);
       return;

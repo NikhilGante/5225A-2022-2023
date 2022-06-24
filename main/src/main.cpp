@@ -6,9 +6,13 @@
 #include "Libraries/timer.hpp"
 #include "Libraries/state.hpp"
 
+#include "Libraries/task2.hpp"
+
 #include "lift.hpp"
 
 #include "config.hpp"
+#include "pros/llemu.hpp"
+#include "pros/rtos.h"
 
 
 /**
@@ -18,7 +22,9 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	printf("yo\n");
+	_Controller::init();
+	lcd::initialize();
+	delay(500);
 }
 
 /**
@@ -92,10 +98,11 @@ Subsystem<LiftMttParams> lift("Lift", LiftMttParams{});
 void my_task_fn(void* param) {
   std::cout << "Hello" << std::endl;
   // ...
-	wait_until(false);
+	WAIT_UNTIL(false);
 }
 
 void opcontrol() {
+	/*
 	// lift.run_machine();
 	// lift.change_state(LiftMttParams{});
 	task_t temp;
@@ -110,4 +117,93 @@ void opcontrol() {
 		printf("%d deleted:%d\n", pros::c::task_get_state(temp), E_TASK_STATE_DELETED);
 		delay(1000);
 	}
+
+
+	*/
+	// pros::Motor mot(6, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
+	// mot.move(50);
+	_Task_ lcd_task("lcd_task");
+	_Task_ screen_task("lcd_task");
+
+
+	// task_t tarsk = task_create([](void* ignore){
+	// 	try{
+	// 		int counter = 0;
+	// 		while(true){
+	// 			lcd::print(0,"counter:%d", counter);
+	// 			counter++;
+	// 			_Task_::delay(10);
+	// 			// delay(10);
+	// 		}
+	// 	}
+	// 	catch(const TaskEndException& exception){
+	// 		lcd::print(3,"killed");
+	// 	}
+
+	// }, nullptr, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "tarsk");
+
+	lcd_task.start([](void* ignore){
+		try{
+			int counter = 0;
+			while(true){
+				lcd::print(0,"counter:%d", counter);
+				counter++;
+				_Task_::delay(10);
+				// delay(10);
+			}
+		}
+		catch(const TaskEndException& exception){
+			lcd::print(3,"killed");
+		}
+
+	});
+
+	// screen_task.start([](void* ignore){
+	// 	try{
+	// 		int counter = 0;
+	// 		while(true){
+	// 			lcd::print(3, "counter:%d", counter);
+	// 			counter++;
+	// 			_Task_::delay(10);
+	// 		}
+	// 	}
+	// 	catch(const TaskEndException& exception){
+	// 		lcd::print(3,"killed");
+	// 	}
+
+	// });
+	
+  // task_t arse_handle = task_create([](void* ignore){
+	// 	int counter = 0;
+	// 	while(true){
+	// 		lcd::print(1, "%d %d %s", task_get_current(), task_get_state(task_get_current()), task_get_name(task_get_current()));
+	// 		lcd::print(2,"counter:%d", counter);
+	// 		counter++;
+	// 		delay(10);
+	// 	}
+	// }, nullptr, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "arse_handle");
+
+	master.clear();
+	delay(50);
+	task_t arse_handle;
+	while(true){
+		// lcd::print(0, "%d %d", arse_handle, task_get_state(arse_handle));
+		// if(arse_handle)	lcd::print(0, "hi %d", arse_handle);
+		lcd::print(1, "hi %d", arse_handle);
+
+		if(master.get_digital_new_press(DIGITAL_A)){
+			lcd_task.kill();
+		}
+		if(master.get_digital_new_press(DIGITAL_B)){
+			lcd_task.suspend();
+			// task_suspend(tarsk);
+		}
+		if(master.get_digital_new_press(DIGITAL_X)){
+			lcd_task.resume();
+			// task_resume(tarsk);
+		}
+		delay(10);
+	}
+
+
 }
