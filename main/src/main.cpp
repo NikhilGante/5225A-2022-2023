@@ -137,62 +137,68 @@ void opcontrol() {
 
 	long rot_vel;
 	int motor_speed = 80;
-	master.print(2,0, "motor_speed:%d ", motor_speed);
+	// master.print(2,0, "motor_speed:%d ", motor_speed);
+
+	pros::Motor intk_m(4, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+	bool intk_on = false;
 
 	while(true){
 
-    // power_x = master.get_analog(ANALOG_LEFT_X);
-    // power_y = master.get_analog(ANALOG_LEFT_Y);
-		// power_a = master.get_analog(ANALOG_RIGHT_X);
-
-		// moveDrive(power_x, power_y, power_a);
-
-		rot_vel = 3*60*rotation_sensor.get_velocity()/360;
-		// rot_vel /= 36000;
-		if(print_timer.get_time() >= 50){
-			// log_timer.reset();
-			// log("%d val: %d last: %d, mod360: %d, vel:%d\n", millis(), cur, last, (rotation_sensor.get_position()/100)%360, rotation_sensor.get_velocity());
-			// log_timer.print();
-
-			// printf("%d| rpm:%.2lf, deg/sec:%.2lf, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), 60*(double)(rot_vel)/36000, (double)(rot_vel)/100, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
-			printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
-
-			// logfile = fopen("/usd/log.txt","a");
-			// fprintf(logfile, "%d hi\n", millis());
-			// fclose(logfile);
-			print_timer.reset();
-		}
-		if(master.get_digital_new_press(DIGITAL_UP)){
-			motor_speed += 5;
-			if(motor_speed > 127) motor_speed = 127;
-			master.print(2,0, "motor_speed:%d ", motor_speed);
-
-		}
-		if(master.get_digital_new_press(DIGITAL_DOWN)){
-			motor_speed -= 5;
-			if(motor_speed < 0) motor_speed = 0;
-			master.print(2,0, "motor_speed:%d ", motor_speed);
-		}
-
+		// /*
 		if(master.get_digital_new_press(DIGITAL_A)){
-			flywheel_on = !flywheel_on;
-			if(flywheel_on){
-				flywheel_back.move(motor_speed);
-				flywheel_front.move(motor_speed);
-			}
-			else{
-				flywheel_back.move(0);
-				flywheel_front.move(0);
-			}
+			intk_on = !intk_on;
+			if(intk_on)	intk_m.move(127);
+			else intk_m.move(0);
 		}
-		if(flywheel_print_timer.get_time() > 150){
-			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
-			master.print(0,0, "rpm:%ld", -rot_vel);
-			master.print(1, 0, "f:%d b:%d", (int)flywheel_front.get_temperature(), (int)flywheel_back.get_temperature());
+
+    power_x = master.get_analog(ANALOG_LEFT_X);
+    power_y = master.get_analog(ANALOG_LEFT_Y);
+		power_a = master.get_analog(ANALOG_RIGHT_X);
+
+		if(fabs(power_x) < 7) power_x = 0;
+		if(fabs(power_y) < 7) power_y = 0;
+		if(fabs(power_a) < 7) power_a = 0;
+
+		moveDrive(power_x, power_y, power_a);
+		// */
+
+	// 	rot_vel = 3*60*rotation_sensor.get_velocity()/360;
+	// 	if(print_timer.get_time() >= 50){
+
+	// 		printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
+	// 		print_timer.reset();
+	// 	}
+	// 	if(master.get_digital_new_press(DIGITAL_UP)){
+	// 		motor_speed += 5;
+	// 		if(motor_speed > 127) motor_speed = 127;
+	// 		master.print(2,0, "motor_speed:%d ", motor_speed);
+
+	// 	}
+	// 	if(master.get_digital_new_press(DIGITAL_DOWN)){
+	// 		motor_speed -= 5;
+	// 		if(motor_speed < 0) motor_speed = 0;
+	// 		master.print(2,0, "motor_speed:%d ", motor_speed);
+	// 	}
+
+	// 	if(master.get_digital_new_press(DIGITAL_A)){
+	// 		flywheel_on = !flywheel_on;
+	// 		if(flywheel_on){
+	// 			flywheel_back.move(motor_speed);
+	// 			flywheel_front.move(motor_speed);
+	// 		}
+	// 		else{
+	// 			flywheel_back.move(0);
+	// 			flywheel_front.move(0);
+	// 		}
+	// 	}
+	// 	if(flywheel_print_timer.get_time() > 150){
+	// 		// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
+	// 		master.print(0,0, "rpm:%ld", -rot_vel);
+	// 		master.print(1, 0, "f:%d b:%d", (int)flywheel_front.get_temperature(), (int)flywheel_back.get_temperature());
 
 
-			flywheel_print_timer.reset();
-		}
+	// 		flywheel_print_timer.reset();
+	// 	}
 		delay(10);
 	}
 }
