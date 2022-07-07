@@ -4,6 +4,7 @@
 using namespace pros;
 using namespace pros::c;
 
+int increment_controller_line();
 
 class TaskEndException: public std::exception{
 public:
@@ -14,19 +15,15 @@ enum class notify_types_2{
   none, // no notification received
   interrupt,  // kills the task safely
   suspend,  // suspends the task
-  resume,  // resumes the task
 };
 
-
+extern int controller_line_counter;
 
 class _Task_{
   task_t task_handle = 0; // handle to the pros task
   const char* name;
-  uint8_t id; // an int to represent the id of the task 
 
-  bool isAlive();
-  static std::unordered_map<task_t, _Task_*> task_handles;
-  void notify_handle(); // performs action based on notification value
+  bool isAlive(); // returns if the task is currently on the scheduler
 
 public:
   _Task_(const char* name = "");
@@ -34,9 +31,8 @@ public:
   void killUnsafe(); // removes task from scheduler
   void kill();  // sends a notification to kill the task
   void suspend();  // sends a notification to suspend the task
-  void resume();  // sends a notification to resume the task
+  void resume();  // resume the task
   
-  static void delay(uint32_t delay_time = 10);  // special delay that raises TaskEndException upon receiving interrupt notification
-  static _Task_* get_task_from_task_handle(task_t task_handle);  // return _Task_ given a handle to a pros task
+  static void delay(uint32_t delay_time = 10);  // special delay that handles notifications
 
 };

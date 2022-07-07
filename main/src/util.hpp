@@ -83,8 +83,6 @@ double near_angle(double angle, double reference);
 //Not a template because that won't allow implicit lambda
 std::function<long double (long double)> func_scale(std::function<long double(long double)> f, Point p1, Point p2 = {0.0, 0.0}, double control = 1.0);
 
-//removed constrain because std::clamp already exists
-
 int random_direction();
 
 // gets the sign of a value (0, 1 or -1)

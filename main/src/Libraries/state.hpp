@@ -11,9 +11,6 @@
 using namespace std;
 using namespace pros;
 
-#define GET_ID(type)\
-  typeid(type).hash_code()
-
 // class TaskEndException: public std::exception{
 // public:
 //   const char* what();
@@ -51,21 +48,30 @@ class Subsystem{
   pros::Mutex state_mutex, target_state_mutex;
   const char* name;
 
-  atomic<size_t> state_id, target_state_id;
-
+  atomic<bool> state_change_requested = false;
 
 public:
   template <typename base_state_type>
-  Subsystem(const char* name, base_state_type base_state):  name(name), state(base_state), state_id(typeid(base_state).hash_code()){
+  Subsystem(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){
 
   }
   template <typename next_state_type>
   void change_state(next_state_type next_state){
     printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+    set_target_state(next_state);
+    state_change_requested = true;
+  }
+
+  void set_state(variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
-    target_state = next_state;
-    target_state_id = typeid(next_state).hash_code();
+    state = state_param;
     state_mutex.give();
+  }
+
+  void set_target_state(variant<StateTypes...> target_state_param){
+    target_state_mutex.take(TIMEOUT_MAX);
+    target_state = target_state_param;
+    target_state_mutex.give();
   }
 
   variant<StateTypes...> get_state(){
@@ -75,10 +81,6 @@ public:
     return temp;
   }
 
-  size_t get_state_id(){
-    return state_id;
-  }
-
   variant<StateTypes...> get_target_state(){
     target_state_mutex.take(TIMEOUT_MAX);
     variant<StateTypes...> temp = target_state;
@@ -86,9 +88,6 @@ public:
     return temp;
   }
 
-  size_t get_target_state_id(){
-    return target_state_id;
-  }
 
   void run_machine(){
     while(true){
@@ -98,13 +97,16 @@ public:
       catch(const TaskEndException& exception){
       }
 
-      if(target_state.index() != state.index()){
-        printf("%s state change started from %s to %s\n", name, getStateName(state), getStateName(target_state));
-        visit([&](auto&& arg){arg.handleStateChange(state_id);}, target_state);
-        printf("%s state change finished from %s to %s\n", name, getStateName(state), getStateName(target_state));
-        state = target_state;
-        state_id = target_state_id.load();
+      if(state_change_requested){
+        variant<StateTypes...> target_state_cpy = get_target_state();
+        variant<StateTypes...> state_cpy = get_state();
 
+        printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+        visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
+        printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+        set_state(get_target_state());
+
+        state_change_requested = false;
       }
       delay(10);
     }
