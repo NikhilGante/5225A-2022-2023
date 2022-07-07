@@ -6,7 +6,6 @@
 using namespace pros;
 using namespace std;
 //forward declarations
-class Timer;
 
 #define wait_until(condition) while(delay(10), !(condition))
 

@@ -1,5 +1,4 @@
 #include "main.h"
-#include "Libraries/async.hpp"
 #include "Libraries/geometry.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/piston.hpp"
@@ -67,19 +66,6 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-struct MoveToTargetParams{
-	// replaces default constructor
-	MoveToTargetParams(Position target,	bool brake,	int max_power = 127,	int exit_power = 0,	bool overshoot = false, double end_error_r = 0.5,	double end_error_a = 5.0):
-		target(target), brake(brake), max_power(max_power), exit_power(exit_power), overshoot(overshoot), end_error_r(end_error_r), end_error_a(end_error_a)
-		{}
-  Position target;
-  bool brake;
-  int max_power = 127;
-  int exit_power = 0;
-  bool overshoot = false;
-  double end_error_r = 0.5;
-  double end_error_a = 5.0;
-};
 
 void moveDrive(double x, double y, double a){
 	front_l.move(x + y + a);
@@ -88,39 +74,6 @@ void moveDrive(double x, double y, double a){
   back_r.move(x + y - a);
 }
 
-void moveToTargetFn(void* params){
-  MoveToTargetParams* args_ptr = (MoveToTargetParams*)_Task::get_params(params); // stores args locally
-	MoveToTargetParams args = *args_ptr;
-
-  delete args_ptr;  // frees memory
-  args_ptr = nullptr; // params shouldn't point to anything
-
-  printf("started mtt, %lf %lf %lf, %d\n", args.target.x, args.target.y, args.target.angle, args.max_power);
-	// moveDrive(args.max_power, 0);
-	while(true){
-		delay(10);
-	}
-}
-
-struct turnParams{
-  double turn_power;
-	string ignore;
-};
-
-
-void turnFn(void* params){
-  turnParams* args_ptr = (turnParams*)_Task::get_params(params); // stores args locally
-	turnParams args = *args_ptr;
-
-  delete args_ptr;  // frees memory
-  args_ptr = nullptr; // params shouldn't point to anything
-
-  printf("started turnFn, %lf %s\n", args.turn_power, args.ignore.c_str());
-	// moveDrive(0, args.turn_power);
-	while(true){
-		delay(10);
-	}
-}
 
 
 void opcontrol() {
@@ -137,14 +90,14 @@ void opcontrol() {
 
 	long rot_vel;
 	int motor_speed = 80;
-	// master.print(2,0, "motor_speed:%d ", motor_speed);
+	master.print(2,0, "motor_speed:%d ", motor_speed);
 
-	pros::Motor intk_m(4, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-	bool intk_on = false;
+	// pros::Motor intk_m(4, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+	// bool intk_on = false;
 
 	while(true){
 
-		// /*
+		/*
 		if(master.get_digital_new_press(DIGITAL_A)){
 			intk_on = !intk_on;
 			if(intk_on)	intk_m.move(127);
@@ -160,45 +113,45 @@ void opcontrol() {
 		if(fabs(power_a) < 7) power_a = 0;
 
 		moveDrive(power_x, power_y, power_a);
-		// */
+		*/
 
-	// 	rot_vel = 3*60*rotation_sensor.get_velocity()/360;
-	// 	if(print_timer.get_time() >= 50){
+		rot_vel = 3*60*rotation_sensor.get_velocity()/360;
+		if(print_timer.get_time() >= 50){
 
-	// 		printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
-	// 		print_timer.reset();
-	// 	}
-	// 	if(master.get_digital_new_press(DIGITAL_UP)){
-	// 		motor_speed += 5;
-	// 		if(motor_speed > 127) motor_speed = 127;
-	// 		master.print(2,0, "motor_speed:%d ", motor_speed);
+			printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
+			print_timer.reset();
+		}
+		if(master.get_digital_new_press(DIGITAL_UP)){
+			motor_speed += 5;
+			if(motor_speed > 127) motor_speed = 127;
+			master.print(2,0, "motor_speed:%d ", motor_speed);
 
-	// 	}
-	// 	if(master.get_digital_new_press(DIGITAL_DOWN)){
-	// 		motor_speed -= 5;
-	// 		if(motor_speed < 0) motor_speed = 0;
-	// 		master.print(2,0, "motor_speed:%d ", motor_speed);
-	// 	}
+		}
+		if(master.get_digital_new_press(DIGITAL_DOWN)){
+			motor_speed -= 5;
+			if(motor_speed < 0) motor_speed = 0;
+			master.print(2,0, "motor_speed:%d ", motor_speed);
+		}
 
-	// 	if(master.get_digital_new_press(DIGITAL_A)){
-	// 		flywheel_on = !flywheel_on;
-	// 		if(flywheel_on){
-	// 			flywheel_back.move(motor_speed);
-	// 			flywheel_front.move(motor_speed);
-	// 		}
-	// 		else{
-	// 			flywheel_back.move(0);
-	// 			flywheel_front.move(0);
-	// 		}
-	// 	}
-	// 	if(flywheel_print_timer.get_time() > 150){
-	// 		// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
-	// 		master.print(0,0, "rpm:%ld", -rot_vel);
-	// 		master.print(1, 0, "f:%d b:%d", (int)flywheel_front.get_temperature(), (int)flywheel_back.get_temperature());
+		if(master.get_digital_new_press(DIGITAL_A)){
+			flywheel_on = !flywheel_on;
+			if(flywheel_on){
+				flywheel_back.move(motor_speed);
+				flywheel_front.move(motor_speed);
+			}
+			else{
+				flywheel_back.move(0);
+				flywheel_front.move(0);
+			}
+		}
+		if(flywheel_print_timer.get_time() > 150){
+			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
+			master.print(0,0, "rpm:%ld", -rot_vel);
+			master.print(1, 0, "f:%d b:%d", (int)flywheel_front.get_temperature(), (int)flywheel_back.get_temperature());
 
 
-	// 		flywheel_print_timer.reset();
-	// 	}
+			flywheel_print_timer.reset();
+		}
 		delay(10);
 	}
 }
