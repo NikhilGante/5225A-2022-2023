@@ -154,9 +154,9 @@ void screen_task_fn (void* ignore){
 
 void opcontrol() {
 
-	// lift.run_machine();
-	// lift.change_state(LiftMTTParams{lift_arr[0]});
-	// WAIT_UNTIL(false);
+	lift.run_machine();
+	lift.change_state(LiftMTTParams{lift_arr[0]});
+	WAIT_UNTIL(false);
 	_Task_ screen_task("lcd_task");
 	int start_num = 500;
 
@@ -171,7 +171,27 @@ void opcontrol() {
 		// lcd::print(0, "%d %d", arse_handle, task_get_state(arse_handle));
 		// if(arse_handle)	lcd::print(0, "hi %d", arse_handle);
 		// lcd::print(1, "hi %d", arse_handle);
-		if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn, &start_num);
+		if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start([=](){
+				try{
+					i++;
+					int cpy = i;
+					int counter = start_num;
+					while(true){
+						lcd::print(cpy,"counter:%d", counter);
+						// master.print(i, 0, "counter:%d", counter);
+						counter++;
+						// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.kill();
+						// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
+
+						_Task_::delay(100);
+						// delay(100);
+					}
+				}
+				catch(const TaskEndException& exception){
+					// master.print(increment_controller_line(), 0, "killed");
+				}
+			
+		}	, &start_num);
 		if(master.get_digital_new_press(DIGITAL_Y))	lcd_task.kill();
 
 		if(master.get_digital_new_press(DIGITAL_B)){

@@ -15,10 +15,9 @@ bool _Task_::isAlive(){
 }
 
 
-void _Task_::start(task_fn_t function, void* parameters, uint8_t prio, uint16_t stack_depth){
-  kill(); // kills task if it's alive
-  task_handle = task_create(function, parameters, prio, stack_depth, name);
-}
+// void _Task_::start(task_fn_t function, void* parameters, uint8_t prio, uint16_t stack_depth){
+
+// }
 
 void _Task_::killUnsafe(){
   if(isAlive()) task_delete(task_handle); // remove the task from scheduler if it's running

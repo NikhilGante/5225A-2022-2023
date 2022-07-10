@@ -27,7 +27,11 @@ class _Task_{
 
 public:
   _Task_(const char* name = "");
-  void start(task_fn_t function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT);
+  template <typename F>
+  void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
+    kill(); // kills task if it's alive
+    task_handle = Task::create(std::forward<F>(function), prio, stack_depth, name);
+  }
   void killUnsafe(); // removes task from scheduler
   void kill();  // sends a notification to kill the task
   void suspend();  // sends a notification to suspend the task

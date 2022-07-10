@@ -50,6 +50,8 @@ class Subsystem{
 
   atomic<bool> state_change_requested = false;
 
+  _Task_ task;
+
 public:
   template <typename base_state_type>
   Subsystem(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){
@@ -60,6 +62,7 @@ public:
     printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     set_target_state(next_state);
     state_change_requested = true;
+    task.kill();
   }
 
   void set_state(variant<StateTypes...> state_param){
@@ -90,26 +93,28 @@ public:
 
 
   void run_machine(){
-    while(true){
-      try{
-        visit([](auto&& arg){arg.handle();}, state);
-      }
-      catch(const TaskEndException& exception){
-      }
+    task.start([&](){
+      while(true){
+        try{
+          visit([](auto&& arg){arg.handle();}, state);
+        }
+        catch(const TaskEndException& exception){
+        }
 
-      if(state_change_requested){
-        variant<StateTypes...> target_state_cpy = get_target_state();
-        variant<StateTypes...> state_cpy = get_state();
+        if(state_change_requested){
+          variant<StateTypes...> target_state_cpy = get_target_state();
+          variant<StateTypes...> state_cpy = get_state();
 
-        printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
-        visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
-        printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
-        set_state(get_target_state());
+          printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
+          printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          set_state(target_state_cpy);
 
-        state_change_requested = false;
+          state_change_requested = false;
+        }
+        delay(10);
       }
-      delay(10);
-    }
+    });
   }
 
   const char* getStateName(variant<StateTypes...> state){
