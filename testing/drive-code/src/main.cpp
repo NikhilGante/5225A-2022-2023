@@ -1,6 +1,7 @@
 #include "main.h"
 #include "config.hpp"
 #include "drive.hpp"
+#include "pros/llemu.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -9,7 +10,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-
+	lcd::initialize();
 }
 
 /**
@@ -62,8 +63,15 @@ void autonomous() {}
 void opcontrol() {
 	bool intk_on = false;
 	master.clear();
-	delay(150);
+	delay(50);
 	master.print(0,0, "curvature: %lf    ", angle_curvature);
+	delay(50);
+	master.print(1,0, "press up or down to ");
+	delay(50);
+	master.print(2,0, "change curvature");
+	lcd::print(0, "press a to turn intake on & off");
+	lcd::print(1, "intake should be in port 4");
+
 	uint32_t screen_timer = millis();
 	while(true){
 
