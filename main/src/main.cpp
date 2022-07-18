@@ -11,7 +11,8 @@
 #include "Libraries/logging.hpp"
 
 #include "lift.hpp"
-
+#include "tracking.hpp"
+#include "drive.hpp"
 #include "config.hpp"
 
 #include "pros/llemu.hpp"
@@ -26,7 +27,7 @@
  */
 void initialize() {
 	log_init();
-	_Controller::init();
+	// _Controller::init();
 	lcd::initialize();
 	delay(500);
 }
@@ -83,15 +84,6 @@ void autonomous() {}
 // bool overshoot = false;
 // double end_error_r = 0.5;
 // double end_error_a = 5.0;
-
-void moveDrive(double y, double a){
-  front_l.move(y+a);
-  front_r.move(y-a);
-  back_l.move(y+a);
-  back_r.move(y-a);
-  center_l.move(y+a);
-  center_r.move(y-a);
-}
 
 
 // Angler angler;
@@ -153,6 +145,20 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
+	_Task_ tracking_t("tracking_task");
+	tracking_t.start(tracking_update);
+	// moveToTarget({0.0, 40.0, 0.0});
+
+	moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
+	moveToTarget({20.0, 30.0, -40.0});
+	moveToTarget({-20.0, 20.0, 50.0});
+
+	moveToTarget({0.0, 0.0, 0.0});
+
+	WAIT_UNTIL(false);
+
+	lcd::print(6, "DONE");
+	WAIT_UNTIL(false);
 
 	lift.run_machine();
 	lift.change_state(LiftMTTParams{lift_arr[0]});

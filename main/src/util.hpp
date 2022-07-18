@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
 #include <iostream>
-#include "Libraries/geometry.hpp"
 
 using namespace pros;
 using namespace std;
@@ -68,20 +67,6 @@ double deg_to_rad(double deg);
  * @return double 
  */
 double near_angle(double angle, double reference);
-
-/**
- * @brief 
- * 
- * @param f base function to scale
- * @param p1 1st point to pass through
- * @param p2 2nd point to pass through. Defaults to (0, 0)
- * @param control Control value
- * @return std::function<long double (long double)> 
- */
-//Scales a function using two points to pass through and a control value
-
-//Not a template because that won't allow implicit lambda
-std::function<long double (long double)> func_scale(std::function<long double(long double)> f, Point p1, Point p2 = {0.0, 0.0}, double control = 1.0);
 
 int random_direction();
 

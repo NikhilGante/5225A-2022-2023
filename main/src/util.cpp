@@ -1,4 +1,5 @@
 #include "util.hpp"
+#include <cmath>
 
 double operator "" _deg(long double degree){
   return deg_to_rad(degree);
