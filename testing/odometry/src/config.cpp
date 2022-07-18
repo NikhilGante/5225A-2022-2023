@@ -6,7 +6,7 @@ Controller partner(pros::E_CONTROLLER_PARTNER);
 
 static constexpr int e_port = 20;
 
-pros::ADIEncoder LeftEncoder({e_port, 1, 2}, false), RightEncoder({e_port, 5, 6}, true), BackEncoder({e_port, 3, 4}, false);
+pros::ADIEncoder LeftEncoder(1, 2, false), RightEncoder(5, 6, true), BackEncoder(3, 4, false);
 
 // x-drive motor config
 pros::Motor front_l(3, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);

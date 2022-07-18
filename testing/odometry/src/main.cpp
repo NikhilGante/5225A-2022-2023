@@ -1,6 +1,6 @@
 #include "main.h"
 #include "config.hpp"
-
+#include "tracking.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -10,7 +10,7 @@
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	delay(500);
 }
 
 /**
@@ -57,10 +57,20 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+
+
+
+
+ 
 void opcontrol() {
 
-	while (true) {
-		pros::lcd::print(0, "L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
-		delay(10);
-	}
+	tracking.update();
+	// while (true) {
+	// 	pros::lcd::print(0, "L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
+	// 	delay(10);
+	// }
+
+	
+
+
 }
