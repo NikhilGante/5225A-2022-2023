@@ -58,33 +58,33 @@ public:
 
   }
   template <typename next_state_type>
-  void change_state(next_state_type next_state){
+  void changeState(next_state_type next_state){
     printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
-    set_target_state(next_state);
+    setTargetState(next_state);
     state_change_requested = true;
     task.kill();
   }
 
-  void set_state(variant<StateTypes...> state_param){
+  void setState(variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
     state = state_param;
     state_mutex.give();
   }
 
-  void set_target_state(variant<StateTypes...> target_state_param){
+  void setTargetState(variant<StateTypes...> target_state_param){
     target_state_mutex.take(TIMEOUT_MAX);
     target_state = target_state_param;
     target_state_mutex.give();
   }
 
-  variant<StateTypes...> get_state(){
+  variant<StateTypes...> getState(){
     state_mutex.take(TIMEOUT_MAX);
     variant<StateTypes...> temp = state;
     state_mutex.give();
     return temp;
   }
 
-  variant<StateTypes...> get_target_state(){
+  variant<StateTypes...> getTargetState(){
     target_state_mutex.take(TIMEOUT_MAX);
     variant<StateTypes...> temp = target_state;
     target_state_mutex.give();
@@ -92,7 +92,7 @@ public:
   }
 
 
-  void run_machine(){
+  void runMachine(){
     task.start([&](){
       while(true){
         try{
@@ -102,13 +102,13 @@ public:
         }
 
         if(state_change_requested){
-          variant<StateTypes...> target_state_cpy = get_target_state();
-          variant<StateTypes...> state_cpy = get_state();
+          variant<StateTypes...> target_state_cpy = getTargetState();
+          variant<StateTypes...> state_cpy = getState();
 
           printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
           printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
-          set_state(target_state_cpy);
+          setState(target_state_cpy);
 
           state_change_requested = false;
         }

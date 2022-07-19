@@ -20,7 +20,7 @@ int CustomDrive::exponential(int x){
 // CustomDrive constructor
 CustomDrive::CustomDrive(double curvature): curvature(curvature){}
 
-void CustomDrive::fill_lookup_table(){
+void CustomDrive::fillLookupTable(){
   for (short x = -127; x < 128; x++){ // fills lookup table with values from appropriate function
     lookup_table[(unsigned char)x] = exponential(x);
     // UNCOMMENT THESE FOR DEBUGGING, comment for performance
@@ -40,7 +40,7 @@ void moveDrive(double x, double y, double a){
   back_r.move(x + y - a);
 }
 
-void drive_brake(){
+void driveBrake(){
 	front_l.move_relative(0, 200);
   front_r.move_relative(0, 200);
   back_l.move_relative(0, 200);

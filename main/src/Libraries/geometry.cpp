@@ -2,8 +2,8 @@
 
 // position constructors
 Position::Position(): x(0.0), y(0.0), a(0.0){}
-Position::Position(Vector point): x(point.getX()), y(point.getY()), a(0.0){}
-Position::Position(Vector point, double angle): x(point.getX()), y(point.getY()), a(angle){}
+Position::Position(const Vector& point): x(point.getX()), y(point.getY()), a(0.0){}
+Position::Position(const Vector& point, double angle): x(point.getX()), y(point.getY()), a(angle){}
 Position::Position(double x, double y, double angle): x(x), y(y), a(angle){}
 
 // Position operator overloads
@@ -20,6 +20,10 @@ Vector Position::operator -(const Position& p2) const{
 Vector::Vector(const double param_1, const double param_2, vector_types type){
   if (type == vector_types::POLAR)  setPolar(param_1, param_2);
   else  setCartesian(param_1, param_2);
+}
+
+Vector::Vector(const Position& position){
+  setCartesian(position.x, position.y);
 }
 
 // configures point as cartesian vector, with x and y coordinates

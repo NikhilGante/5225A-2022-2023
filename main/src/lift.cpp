@@ -1,4 +1,5 @@
 #include "lift.hpp"
+#include "util.hpp"
 #include "config.hpp"
 #include "Libraries/pid.hpp"
 
@@ -23,9 +24,9 @@ void LiftMTTParams::handle(){
     if(abs(output) > max_power) output = max_power * sgn(output); // ensures no more than max_power is outputted
 
     b_lift_m.move(output);
-    if(fabs(b_lift_pid.get_error()) < 10){
+    if(fabs(b_lift_pid.getError()) < 10){
       printf("Finished move, %lf\n", b_lift_m.get_position());
-      lift.change_state(LiftIdleParams{});
+      lift.changeState(LiftIdleParams{});
     }
     _Task_::delay(10);
   }

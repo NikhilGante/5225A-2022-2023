@@ -2,7 +2,6 @@
 #include "main.h"
 #include "timer.hpp"
 #include <float.h>
-//find a way to include tracking file
 
 
 using namespace pros;
@@ -16,8 +15,8 @@ public:
 
 public:
   PID(double kP, double kI, double kD, double bias, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = DBL_MAX);
-  double get_error() const;
-  double get_output() const;
-  double get_proportional() const;
+  double getError() const;
+  double getOutput() const;
+  double getProportional() const;
   double compute(double input, double target);
 };

@@ -12,12 +12,12 @@ class Timer{
   const char* name;
   bool paused;    // state of timer
   timing_units timing_unit;
-  uint64_t get_time_in_timing_unit(); // returns time in either millis micros
+  uint64_t getTimeInTimingUnit(); // returns time in either millis micros
 
 public:
 
   Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis);
-  uint64_t get_last_reset_time();
+  uint64_t getLastResetTime();
   void reset(bool play = true);
   uint64_t get_time();
   void play();

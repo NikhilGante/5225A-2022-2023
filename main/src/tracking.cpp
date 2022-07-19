@@ -9,7 +9,7 @@
 Tracking tracking; // singleton tracking object
 
 
-void tracking_update(){
+void TrackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   double dist_lr = 13.80, dist_b = 6.75;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back, last_left = LeftEncoder.get_value()/360.0 *(2.75*M_PI), last_right = RightEncoder.get_value()/360.0 *(2.75*M_PI), last_back = BackEncoder.get_value()/360.0 *(2.75*M_PI);
@@ -94,60 +94,79 @@ void tracking_update(){
   }
 }
 
+void Tracking::waitForComplete(){
+  // WAIT_UNTIL()  // state and next == idle
+}
+
+void Tracking::waitForDistance(double distance){
+  WAIT_UNTIL(drive_error <= distance);
+}
+
+void Tracking::supplyMinPower(const Position& error){
+  // ensures that each axis gets enough power to move, if it isn't well within its range of error
+  if (fabs(power.x) < min_move_power.x && fabs(error.x) > 0.3) power.x = sgn(power.x) * min_move_power.x;
+  if (fabs(power.y) < min_move_power.y && fabs(error.y) > 0.3) power.y = sgn(power.y) * min_move_power.y;
+  if (fabs(power.a) < min_move_power.x && fabs(error.a) > 3.0) power.a = sgn(power.a) * min_move_power.a;
+}
+
+void Tracking::scalePowers(uint8_t max_power, uint8_t min_angle_power){
+  double total_power = fabs(power.x) + fabs(power.y) + fabs(power.a);
+  if(total_power > max_power){
+    double power_scalar = max_power / total_power;
+    double pre_scaled_power_a = fabs(power.a);
+    power.x *= power_scalar,  power.y *= power_scalar, power.a *= power_scalar;
+    // ensures drivebase gets enough angle power AFTER scaling
+    guaranteeAnglePower(min_angle_power, pre_scaled_power_a, max_power);
+  }
+}
+
+void Tracking::guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_power_a, uint8_t max_power){
+  double power_xy = fabs(power.x) + fabs(power.y);
+  double post_power_a;  // angle power after angle power guarantee process
+  if(fabs(power.a) < min_angle_power && power_xy > 0){  // if angle power has been overshadowed by x and y
+    // if angle power was less than min_angle_power before scaling, give angle power what it had before scaling
+    if(pre_scaled_power_a < min_angle_power)  post_power_a = pre_scaled_power_a;
+    else post_power_a = min_angle_power; // otherwise, give it min_angle_power
+    double xy_scalar = (max_power - post_power_a)/power_xy;
+    power.x *= xy_scalar, power.y *= xy_scalar, power.a = sgn(power.a) * post_power_a;
+  }
+}
 
 
-void moveToTarget(Position target, brake_modes brake_mode, double max_power, double exit_power, bool overshoot, double end_error_d, double end_error_a){
+void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, uint8_t min_angle_power, uint8_t exit_power, bool overshoot, double end_error_d, double end_error_a){
   double error_a; // angular error 
   Vector error_pos(target - tracking.g_pos); // positional error
-  double error_d; // distance to target;
 
   PID pid_d(10.0, 0.0, 1000.0, 0.0);  // pid for distance to target
   PID pid_a(135.0, 0.0, 0.0, 0.0);  // pid for angle
 
   // angle of line from starting position to target, from the vertical
-  double line_angle = M_PI_2 - Vector(target - tracking.g_pos).getAngle();
+  double line_angle = M_PI_2 - error_pos.getAngle();
   error_pos.rotate(line_angle); 
   // sign of distance to target along line from starting position to target
   int8_t start_sgn_line_error_y = sgn(error_pos.getY()), sgn_line_error_y;
 
-  Position power; // power to apply to the drive motors
-  double total_power; // sum of the absulute values of each of the power
-  double power_scalar; // max_power / total_power
-  Position min_move_power(15.0, 15.0, 10.0);  
 
   while(true){
     // obtains error in angle and error in position (global x and y)
-    error_a = deg_to_rad(target.a) - tracking.g_pos.a;
+    error_a = degToRad(target.a) - tracking.g_pos.a;
     error_pos = target - tracking.g_pos;
+    tracking.drive_error = error_pos.getMagnitude();  // distance to target
 
     error_pos.rotate(line_angle); // now represents displacement along the line from starting position to target
     sgn_line_error_y = error_pos.getY();
 
-    error_pos.rotate(tracking.g_pos.a - line_angle); // now represents localc errors
-
-    error_d = error_pos.getMagnitude();
+    error_pos.rotate(tracking.g_pos.a - line_angle); // now represents local errors
 
     // computes PIDs' and saves them into the power position vector
-    power = Vector(pid_d.compute(-error_d, 0.0), error_pos.getAngle(), vector_types::POLAR);
-    power.a = pid_a.compute(-error_a, 0.0);
-    lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", power.x, power.y, power.a);
-    // if any axis has less than the min power, give it min power 
-    if (fabs(power.x) < min_move_power.x) power.x = sgn(power.x) * min_move_power.x;
-    if (fabs(power.y) < min_move_power.y) power.y = sgn(power.y) * min_move_power.y;
-    if (fabs(power.a) < min_move_power.x) power.a = sgn(power.a) * min_move_power.a;
-    
-    total_power = fabs(power.x) + fabs(power.y) + fabs(power.a);
-    // scales powers so that the drivebase doesn't travel faster than max_power
-    if(total_power > max_power){
-      power_scalar = max_power / total_power;
-      power.x *= power_scalar;
-      power.y *= power_scalar;
-      power.a *= power_scalar;
-    }
+    tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), vector_types::POLAR), pid_a.compute(-error_a, 0.0));
+    lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", tracking.power.x, tracking.power.y, tracking.power.a);
+
+    tracking.supplyMinPower(Position(error_pos, error_a)); // if any axis has less than the min power, give it min power 
+    tracking.scalePowers(max_power, min_angle_power); // scales powers so that the drivebase doesn't travel faster than max_power
 
     // exit conditions
-    if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || 
-    (error_d < end_error_d && fabs(rad_to_deg(error_a)) < end_error_a)){
+    if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)){
       switch(brake_mode){
         case brake_modes::none:
           break;
@@ -155,11 +174,11 @@ void moveToTarget(Position target, brake_modes brake_mode, double max_power, dou
           moveDrive(0.0, 0.0, 0.0);
           break;
         case brake_modes::brake:
-          drive_brake();
+          driveBrake();
       }
       return;
     }
-    moveDrive(power.x, power.y, power.a);
+    moveDrive(tracking.power.x, tracking.power.y, tracking.power.a);
     delay(10);
   }
 }

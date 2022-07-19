@@ -2,16 +2,14 @@
 #include "main.h"
 
 class Vector; // forward declares Vector class
-struct Position;
 
-struct Position{   // stores members variables for a coordinate: x, y and angle    MUST BE DEFINED HERE, OTHERWISE IT'LL CAUSE CIRCULAR HEADER FILE DEPENDENCY OCCURS
+struct Position{   // stores members variables for a coordinate: x, y and angle
   double x, y, a;
   Position(); // default constructor
-  Position(Vector point);
-  Position(Vector point, double angle);
+  Position(const Vector& point);
+  Position(const Vector& point, double angle);
   Position(double x, double y, double angle);
    
-
   // arithmetic operator overloads
   Vector operator +(const Position& p2) const;
   Vector operator -(const Position& p2) const;
@@ -26,6 +24,7 @@ class Vector{
   public:
     // constructors
     Vector(const double param_1, const double param_2, vector_types type = vector_types::CARTESIAN);
+    Vector(const Position& position);
 
     // configures vector as cartesian vector, with x and y coordinates
     void setCartesian(const double x, const double y);

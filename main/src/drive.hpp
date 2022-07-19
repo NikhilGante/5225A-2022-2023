@@ -15,11 +15,11 @@ public:
   double curvature;
 
   CustomDrive(double curvature); // constructor
-  void fill_lookup_table(); // transforms linear mapping to exponential mapping for a singular axis
+  void fillLookupTable(); // transforms linear mapping to exponential mapping for a singular axis
   int lookup(int x);  // returns transformed value from lookup table, taking in an x input
 };
 
 // moves the drivebase given 3 local powers: x, y and angle
 void moveDrive(double x, double y, double a);
-void drive_brake(); // holds all the drivebase motors
+void driveBrake(); // holds all the drivebase motors
 void handleInput(); // takes input from the joysticks and moves the drivebase

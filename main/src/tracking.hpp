@@ -9,15 +9,31 @@ enum class brake_modes{
 };
 
 class Tracking{
-
+  const Position min_move_power{15.0, 15.0, 10.0};  // min power to move the drivebase in each axis
+  
 public:
+  // odometry related variables
   double l_vel, r_vel, b_vel; // velocities of each of the tracking wheel in inches/sec
-  Position g_pos{0.0, 0.0, 0.0};
+  Position g_pos{};
   Position g_vel;
 
+  // movement related fields
+  Position power; // power to apply to the drive motors
+  double drive_error; // how far the robot is from it's target 
+  void waitForComplete(); // waits until the motion completes
+  void waitForDistance(double distance); // waits until the robot is within a certain distance from it's target
+
+  // helper methods for motion algorithms
+  void supplyMinPower(const Position& error);  // if any axis has less than the min power, give it min power 
+  void scalePowers(uint8_t max_power, uint8_t min_angle_power);  // scales powers so that the drivebase doesn't travel faster than max_power
+  // ensures drivebase gets enough angle power AFTER scaling
+  void guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_power_a, uint8_t max_power);
+
+  // // moveToTarget is declared a friend so it can access private tracking properties
+  // friend void moveToTarget(Position, brake_modes, double max_power, double exit_power, bool overshoot, double end_error_d, double end_error_a);
 
 };
 extern Tracking tracking;
 
-void tracking_update();
-void moveToTarget(Position target, brake_modes brake_mode = brake_modes::brake, double max_power = 127, double exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 3.0);
+void TrackingUpdate();
+void moveToTarget(Position target, brake_modes brake_mode = brake_modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 5.0);

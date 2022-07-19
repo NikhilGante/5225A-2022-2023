@@ -1,5 +1,6 @@
 #include "pid.hpp"
 #include "../util.hpp"
+#include <cmath>
 
 PID::PID(double kP, double kI, double kD, double bias, bool integral_sgn_reset, double integral_lower_bound, double integral_upper_bound):
   kP(kP), kI(kI), kD(kD),
@@ -8,15 +9,15 @@ PID::PID(double kP, double kI, double kD, double bias, bool integral_sgn_reset, 
   integral_upper_bound(integral_upper_bound), integral_lower_bound(integral_lower_bound)
 {}
 
-double PID::get_error() const {
+double PID::getError() const {
   return error;
 }
 
-double PID::get_output() const {
+double PID::getOutput() const {
   return output;
 }
 
-double PID::get_proportional() const{
+double PID::getProportional() const{
   return proportional;
 }
 

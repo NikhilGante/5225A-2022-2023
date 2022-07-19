@@ -146,7 +146,7 @@ void screen_task_fn (void* ignore){
 
 void opcontrol() {
 	_Task_ tracking_t("tracking_task");
-	tracking_t.start(tracking_update);
+	tracking_t.start(TrackingUpdate);
 	// moveToTarget({0.0, 40.0, 0.0});
 
 	moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
@@ -160,8 +160,8 @@ void opcontrol() {
 	lcd::print(6, "DONE");
 	WAIT_UNTIL(false);
 
-	lift.run_machine();
-	lift.change_state(LiftMTTParams{lift_arr[0]});
+	lift.runMachine();
+	lift.changeState(LiftMTTParams{lift_arr[0]});
 	WAIT_UNTIL(false);
 	_Task_ screen_task("lcd_task");
 	int start_num = 500;

@@ -30,7 +30,7 @@ class Timer;
  * @return whether value is between minimum and maximum. will work even if maximum < minimum
  */
 template <typename T>
-bool in_range(T value, T minimum, T maximum){
+bool inRange(T value, T minimum, T maximum){
   return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);
 }
 
@@ -49,7 +49,7 @@ double operator "" _rot(long double rotations);
  * @param rad 
  * @return degrees
  */
-double rad_to_deg(double rad);
+double radToDeg(double rad);
 
 /**
  * @brief converts degrees to radians
@@ -57,7 +57,7 @@ double rad_to_deg(double rad);
  * @param deg 
  * @return radians
  */
-double deg_to_rad(double deg);
+double degToRad(double deg);
 
 /**
  * @brief returns the closest equivalent angle to refrence in radians
@@ -66,7 +66,7 @@ double deg_to_rad(double deg);
  * @param reference 
  * @return double 
  */
-double near_angle(double angle, double reference);
+double nearAngle(double angle, double reference);
 
 int random_direction();
 
@@ -83,12 +83,12 @@ bool contains(T& container, typename T::value_type item){
 
 // maps a value to a range
 template <typename T>
-T map_values(T x, T in_min, T in_max, T out_min, T out_max){
+T mapValues(T x, T in_min, T in_max, T out_min, T out_max){
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 // base case for recrusive function map_set
 template <typename T>
-T map_set(T input, T in_min, T in_max, T out_min, T out_max, T range, T val){
+T mapSet(T input, T in_min, T in_max, T out_min, T out_max, T range, T val){
   if (input <= range) return map(input, in_min, range, out_min, val);
   else {
     printf("INVALID INPUT IN MAP FUNCTION");
@@ -97,7 +97,7 @@ T map_set(T input, T in_min, T in_max, T out_min, T out_max, T range, T val){
 }
 // maps a values to a set of maps (a piecewise function)
 template <typename T, typename... Ts>
-T map_set(T input, T in_min, T in_max, T out_min, T out_max, T range1, T val_1, Ts... args){
+T mapSet(T input, T in_min, T in_max, T out_min, T out_max, T range1, T val_1, Ts... args){
   if (input <= range1) return map(input, in_min, range1, out_min, val_1);
-  else return map_set(input, range1, in_max, val_1, out_max, args...);
+  else return mapSet(input, range1, in_max, val_1, out_max, args...);
 }
