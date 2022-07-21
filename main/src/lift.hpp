@@ -5,9 +5,12 @@
 extern int lift_index;
 extern int lift_arr[5];
 
+// forward declarations
 struct LiftIdleParams;
+struct LiftResetParams;
 
-#define LIFT_STATE_TYPES LiftMTTParams, LiftIdleParams
+
+#define LIFT_STATE_TYPES LiftMTTParams, LiftIdleParams, LiftResetParams
 
 #define LIFT_STATE_TYPES_VARIANT std::variant<LIFT_STATE_TYPES>
 
@@ -28,4 +31,10 @@ struct LiftIdleParams{
   void handleStateChange(LIFT_STATE_TYPES_VARIANT prev_state);
 };
 
-extern Subsystem<LiftMTTParams, LiftIdleParams> lift;
+struct LiftResetParams{
+  const char* getName();
+  void handle();
+  void handleStateChange(LIFT_STATE_TYPES_VARIANT prev_state);
+};
+
+extern Subsystem<LIFT_STATE_TYPES> lift;

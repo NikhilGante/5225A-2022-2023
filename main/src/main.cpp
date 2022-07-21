@@ -11,6 +11,7 @@
 #include "Libraries/logging.hpp"
 
 #include "lift.hpp"
+#include "pros/misc.h"
 #include "tracking.hpp"
 #include "drive.hpp"
 #include "config.hpp"
@@ -145,6 +146,30 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
+	lift.runMachine();
+
+	_Task_ tarsk{"tarsk"};
+	tarsk.start([](){
+		while(true){
+			lcd::print(0, "position: %lf", b_lift_m.get_position());
+			lcd::print(5, "index: %d", lift_index);
+
+			delay(10);
+		}
+	});
+	while(true){
+		if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
+		if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
+		if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
+
+		if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
+		if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
+
+
+		delay(10);
+	}
+	WAIT_UNTIL(false);
+
 	_Task_ tracking_t("tracking_task");
 	tracking_t.start(TrackingUpdate);
 	// moveToTarget({0.0, 40.0, 0.0});
@@ -160,9 +185,6 @@ void opcontrol() {
 	lcd::print(6, "DONE");
 	WAIT_UNTIL(false);
 
-	lift.runMachine();
-	lift.changeState(LiftMTTParams{lift_arr[0]});
-	WAIT_UNTIL(false);
 	_Task_ screen_task("lcd_task");
 	int start_num = 500;
 
