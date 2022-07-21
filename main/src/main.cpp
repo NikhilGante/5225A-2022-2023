@@ -31,6 +31,8 @@ void initialize() {
 	// _Controller::init();
 	lcd::initialize();
 	delay(500);
+	lift.runMachine();
+
 }
 
 /**
@@ -146,28 +148,27 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
-	lift.runMachine();
 
 	_Task_ tarsk{"tarsk"};
 	tarsk.start([](){
 		while(true){
 			lcd::print(0, "position: %lf", b_lift_m.get_position());
-			lcd::print(5, "index: %d", lift_index);
+			lcd::print(6, "index: %d", lift_index);
 
+			if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
+			if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
+			if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
+
+			if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
+			if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
+			
 			delay(10);
 		}
 	});
-	while(true){
-		if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
-		if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
-		if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
-
-		if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
-		if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
-
-
-		delay(10);
-	}
+	lcd::print(5, "hello");
+	delay(1000);
+	lift.waitToReachState(LiftResetParams{});
+	lcd::print(5, "Reset");
 	WAIT_UNTIL(false);
 
 	_Task_ tracking_t("tracking_task");

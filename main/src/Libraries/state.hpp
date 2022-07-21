@@ -43,7 +43,7 @@ using namespace pros;
 // };
 
 template <typename... StateTypes>
-class Subsystem{
+class Machine{
   variant<StateTypes...> state, target_state;
   pros::Mutex state_mutex, target_state_mutex;
   const char* name;
@@ -54,17 +54,17 @@ class Subsystem{
 
 public:
   template <typename base_state_type>
-  Subsystem(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){
+  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
 
-  }
   template <typename next_state_type>
   void changeState(next_state_type next_state){
     printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     setTargetState(next_state);
     state_change_requested = true;
-    task.kill();
+    task.kill();  // interrupts current state
   }
-
+  
+  // getters and setters for state and target state (since they need mutexes)
   void setState(variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
     state = state_param;
@@ -96,7 +96,7 @@ public:
     task.start([&](){
       while(true){
         try{
-          visit([](auto&& arg){arg.handle();}, state);
+          visit([](auto&& arg){arg.handle();}, state);  // calls handler for current state
         }
         catch(const TaskEndException& exception){
         }
@@ -104,7 +104,7 @@ public:
         if(state_change_requested){
           variant<StateTypes...> target_state_cpy = getTargetState();
           variant<StateTypes...> state_cpy = getState();
-
+          // calls handle state change method for target state and logs the change
           printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
           printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
@@ -119,6 +119,11 @@ public:
 
   const char* getStateName(variant<StateTypes...> state){
     return visit([](auto&& arg){return arg.getName();}, state);
+  }
+
+  void waitToReachState(variant<StateTypes...> state_param){  // blocks until desired state is reached
+    size_t index = state_param.index();
+    WAIT_UNTIL(getTargetState().index() == index && getState().index() == index);
   }
 
 };

@@ -37,4 +37,4 @@ struct LiftResetParams{
   void handleStateChange(LIFT_STATE_TYPES_VARIANT prev_state);
 };
 
-extern Subsystem<LIFT_STATE_TYPES> lift;
+extern Machine<LIFT_STATE_TYPES> lift;

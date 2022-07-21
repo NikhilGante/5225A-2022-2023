@@ -8,7 +8,7 @@ int lift_index = 0;
 int lift_arr[5] = {1185, 1400, 1900, 2170, 2775};
 
 
-Subsystem<LIFT_STATE_TYPES> lift("Lift", LiftMTTParams{100});
+Machine<LIFT_STATE_TYPES> lift("Lift", LiftMTTParams{100});
 
 // Lift move to target state
 
