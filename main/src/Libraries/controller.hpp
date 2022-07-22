@@ -2,12 +2,14 @@
 #include "main.h"
 #include "timer.hpp"
 #include "task.hpp"
+#include "../util.hpp"
 #include <vector>
 #include <cstdarg>
 #include <array>
 #include <functional>
 
 using namespace pros;
+using namespace std;
 
 // Buttons
 
@@ -32,8 +34,8 @@ private:
 
 public:
   _Controller(pros::controller_id_e_t id);
-  static void print_queue(void* params = NULL);
-  static _Task controller_task;
+  static void print_queue();
+  static _Task_ controller_task;
   static void init();
 
   void print(std::uint8_t line, std::uint8_t col, const char* fmt, ... );
@@ -41,7 +43,6 @@ public:
   void clear_line (std::uint8_t line);
   void clear();
   void rumble(const string & rumble_pattern);
-  bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
   void wait_for_press(controller_digital_e_t button, int timeout = 0);
   /**
    * @brief Waits for any button from param buttons to be pressed
@@ -55,10 +56,10 @@ public:
   // button handling methods
   // NOTE: all the following methods are only updated every cycle as opposed to every function call, unlike the pros API
 
-  void update_buttons();  // called once every loop, updates current and last state for every button
-  bool get_button_state(pros::controller_digital_e_t button); // returns current state of desired button
-  bool get_button_last_state(pros::controller_digital_e_t button); // returns last state of desired button
-  bool is_rising(pros::controller_digital_e_t button); // if button wasn't pressed but now is
-  bool is_falling(pros::controller_digital_e_t button); // if button was pressed but now is not
+  void updateButtons();  // called once every loop, updates current and last state for every button
+  bool getButtonState(pros::controller_digital_e_t button); // returns current state of desired button
+  bool getButtonLastState(pros::controller_digital_e_t button); // returns last state of desired button
+  bool isRising(pros::controller_digital_e_t button); // if button wasn't pressed but now is
+  bool isFalling(pros::controller_digital_e_t button); // if button was pressed but now is not
 
 };

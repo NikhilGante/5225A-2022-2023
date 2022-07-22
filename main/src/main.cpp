@@ -2,11 +2,10 @@
 #include "Libraries/geometry.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/piston.hpp"
-#include "Libraries/task.hpp"
 #include "Libraries/timer.hpp"
 #include "Libraries/state.hpp"
 
-#include "Libraries/task2.hpp"
+#include "Libraries/task.hpp"
 
 #include "Libraries/logging.hpp"
 
@@ -28,7 +27,7 @@
  */
 void initialize() {
 	log_init();
-	// _Controller::init();
+	_Controller::init();
 	lcd::initialize();
 	delay(500);
 	lift.runMachine();
@@ -148,7 +147,19 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
+	master.clear();
+	uint32_t i3 = 0;
+	string str = "ayoo";
+	master.print(0,0, str);
+	delay(1000);
+	master.clear_line(0);
 
+	while(true){
+		master.print(0,0, str);
+		master.clear_line(0);
+		master.rumble("-");
+		delay(50);
+	}
 	_Task_ tarsk{"tarsk"};
 	tarsk.start([](){
 		while(true){

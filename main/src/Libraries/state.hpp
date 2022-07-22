@@ -6,7 +6,8 @@
 #include <atomic>
 #include "main.h"
 
-#include "task2.hpp"
+#include "task.hpp"
+#include "../util.hpp"
 
 using namespace std;
 using namespace pros;
