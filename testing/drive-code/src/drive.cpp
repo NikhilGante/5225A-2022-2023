@@ -1,7 +1,7 @@
 #include "drive.hpp"
 #include <cmath>
 
-double angle_curvature = 0.0;
+double angle_curvature = 1.0;
 
 int polynomial(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
@@ -47,9 +47,9 @@ void handleInput(){
   power_y = master.get_analog(ANALOG_LEFT_Y);
   power_a = polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(abs(power_x) < 7) power_x = 0;
-  if(abs(power_y) < 7) power_y = 0;
-  if(abs(power_a) < 7) power_a = 0;
+  if(abs(power_x) < 10) power_x = 0;
+  if(abs(power_y) < 10) power_y = 0;
+  if(abs(power_a) < 10) power_a = 0;
 
   moveDrive(power_x, power_y, power_a);
 }
