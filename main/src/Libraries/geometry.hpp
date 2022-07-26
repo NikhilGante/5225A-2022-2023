@@ -15,7 +15,7 @@ struct Position{   // stores members variables for a coordinate: x, y and angle
   Vector operator -(const Position& p2) const;
 };
 
-enum class vector_types {CARTESIAN, POLAR};
+enum class E_Vector_Types {CARTESIAN, POLAR};
 
 class Vector{
 
@@ -23,7 +23,7 @@ class Vector{
 
   public:
     // constructors
-    Vector(const double param_1, const double param_2, vector_types type = vector_types::CARTESIAN);
+    Vector(const double param_1, const double param_2, E_Vector_Types type = E_Vector_Types::CARTESIAN);
     Vector(const Position& position);
 
     // configures vector as cartesian vector, with x and y coordinates

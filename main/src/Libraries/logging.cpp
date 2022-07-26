@@ -24,3 +24,34 @@ void log(const char * format, ...){
   fclose(logfile);
   va_end(arguments);
 }
+
+// ACTUAL LOGGING START
+
+// static data members
+E_Log_Levels Data::g_log_level = E_Log_Levels::debug;
+Queue<char, QUEUE_SIZE> Data::queue("log queue");
+_Task_ Data::task("log_task");
+
+ofstream Data::log_file;
+
+void Data::init(){
+  task.start(logHandle);
+}
+
+void Data::logHandle(){ // runs in task to flush out contents of queue to file
+  try{
+    while(true){
+      if(queue.getDataSize() > 10) queuePrintFile(queue, log_file, "/usd/log.txt");
+      _Task_::delay(10);
+    }
+  }
+  catch(const TaskEndException& exception){
+    queuePrintFile(queue, log_file, "/usd/log.txt");  // empty the queue when the taskgets killed
+  }
+}
+
+void Data::print(char* str){
+  queue.push(str, strlen(str));
+}
+
+

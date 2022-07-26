@@ -17,8 +17,8 @@ Vector Position::operator -(const Position& p2) const{
 
 
 // vector methods
-Vector::Vector(const double param_1, const double param_2, vector_types type){
-  if (type == vector_types::POLAR)  setPolar(param_1, param_2);
+Vector::Vector(const double param_1, const double param_2, E_Vector_Types type){
+  if (type == E_Vector_Types::POLAR)  setPolar(param_1, param_2);
   else  setCartesian(param_1, param_2);
 }
 
@@ -59,9 +59,9 @@ double Vector::getAngle() const{
 
 // Vector operator overloads
 Vector Vector::operator +(const Vector& p2) const{
-  return Vector(x + p2.getX(), y + p2.getY(), vector_types::CARTESIAN);
+  return Vector(x + p2.getX(), y + p2.getY(), E_Vector_Types::CARTESIAN);
 }
 
 Vector Vector::operator -(const Vector& p2) const{
-  return Vector(x - p2.getX(), y - p2.getY(), vector_types::CARTESIAN);
+  return Vector(x - p2.getX(), y - p2.getY(), E_Vector_Types::CARTESIAN);
 }

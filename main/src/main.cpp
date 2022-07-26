@@ -26,7 +26,8 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	log_init();
+	// log_init();
+	Data::init();
 	_Controller::init();
 	lcd::initialize();
 	delay(500);
@@ -147,6 +148,12 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
+	Data data;
+	char txt[] = "wassup beee\n";
+	data.print(txt);
+	char txt2[] = "hello uwu\n";
+	data.print(txt2);
+
 	master.clear();
 	uint32_t i3 = 0;
 	string str = "ayoo";
