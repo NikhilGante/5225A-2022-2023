@@ -26,12 +26,12 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	// log_init();
-	Data::init();
+	log_init();
+	// Data::init();
 	_Controller::init();
 	lcd::initialize();
 	delay(500);
-	lift.runMachine();
+	// lift.runMachine();
 
 }
 
@@ -149,55 +149,73 @@ void screen_task_fn (void* ignore){
 
 void opcontrol() {
 	Data data;
-	char txt[] = "wassup beee\n";
-	data.print(txt);
-	char txt2[] = "hello uwu\n";
-	data.print(txt2);
-
-	master.clear();
-	uint32_t i3 = 0;
-	string str = "ayoo";
-	master.print(0,0, str);
-	delay(1000);
-	master.clear_line(0);
-
-	while(true){
-		master.print(0,0, str);
-		master.clear_line(0);
-		master.rumble("-");
-		delay(50);
-	}
-	_Task_ tarsk{"tarsk"};
-	tarsk.start([](){
-		while(true){
-			lcd::print(0, "position: %lf", b_lift_m.get_position());
-			lcd::print(6, "index: %d", lift_index);
-
-			if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
-			if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
-			if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
-
-			if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
-			if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
-			
-			delay(10);
+	// char txt[] = "wassup beee\n";
+	// data.print(txt);
+	// char txt2[] = "hello uwu\n";
+	// data.print(txt2);
+	// data.print("hello\n");
+	// data.print("my name is ");
+	// data.print("bob");
+	// data.print("nice to\t eat you\n");
+	// data.print("kbye");
+	for(int i = 0; i < 100; i++){
+		for(int j = 0; j < 5; j++){	
+			log("aaaaaaaaaa");
 		}
-	});
-	lcd::print(5, "hello");
-	delay(1000);
-	lift.waitToReachState(LiftResetParams{});
-	lcd::print(5, "Reset");
+		// data.print("\n");
+		log("\n");
+		// delay(1);
+	}
+	log("omg I agre%de %lf\n", 5, 42.5);
+	// delay(5000);
+	lcd::print(0,"closed");
 	WAIT_UNTIL(false);
+
+	// master.clear();
+	// uint32_t i3 = 0;
+	// string str = "ayoo";
+	// master.print(0,0, str);
+	// delay(1000);
+	// master.clear_line(0);
+
+	// while(true){
+	// 	master.print(0,0, str);
+	// 	master.clear_line(0);
+	// 	master.rumble("-");
+	// 	delay(50);
+	// }
+	// _Task_ tarsk{"tarsk"};
+	// tarsk.start([](){
+	// 	while(true){
+	// 		lcd::print(0, "position: %lf", b_lift_m.get_position());
+	// 		lcd::print(6, "index: %d", lift_index);
+
+	// 		if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
+	// 		if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
+	// 		if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
+
+	// 		if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
+	// 		if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
+			
+	// 		delay(10);
+	// 	}
+	// });
+	// lcd::print(5, "hello");
+	// delay(1000);
+	// lift.waitToReachState(LiftResetParams{});
+	// lcd::print(5, "Reset");
+	// WAIT_UNTIL(false);
 
 	_Task_ tracking_t("tracking_task");
 	tracking_t.start(TrackingUpdate);
-	// moveToTarget({0.0, 40.0, 0.0});
 
-	moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
-	moveToTarget({20.0, 30.0, -40.0});
-	moveToTarget({-20.0, 20.0, 50.0});
+	moveToTarget({0.0, 40.0, 90.0}, E_Brake_Modes::brake, 127.0, 0.0, 127.0, true);
 
-	moveToTarget({0.0, 0.0, 0.0});
+	// moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
+	// moveToTarget({20.0, 30.0, -40.0});
+	// moveToTarget({-20.0, 20.0, 50.0});
+
+	// moveToTarget({0.0, 0.0, 0.0});
 
 	WAIT_UNTIL(false);
 

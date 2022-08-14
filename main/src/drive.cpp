@@ -41,10 +41,10 @@ void moveDrive(double x, double y, double a){
 }
 
 void driveBrake(){
-	front_l.move_relative(0, 200);
-  front_r.move_relative(0, 200);
-  back_l.move_relative(0, 200);
-  back_r.move_relative(0, 200);
+  front_l.brake();
+  front_r.brake();
+  back_l.brake();
+  back_r.brake();
 }
 
 void handleInput(){

@@ -133,11 +133,11 @@ void Tracking::guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_p
 }
 
 
-void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, uint8_t min_angle_power, uint8_t exit_power, bool overshoot, double end_error_d, double end_error_a){
+void moveToTarget(Position target, E_Brake_Modes brake_mode, double max_power, double min_angle_power, double exit_power, bool overshoot, double end_error_d, double end_error_a){
   double error_a; // angular error 
   Vector error_pos(target - tracking.g_pos); // positional error
 
-  PID pid_d(10.0, 0.0, 1000.0, 0.0);  // pid for distance to target
+  PID pid_d(10.0, 0.0, 700.0, 0.0);  // pid for distance to target
   PID pid_a(135.0, 0.0, 0.0, 0.0);  // pid for angle
 
   // angle of line from starting position to target, from the vertical
@@ -145,7 +145,7 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
   error_pos.rotate(line_angle); 
   // sign of distance to target along line from starting position to target
   int8_t start_sgn_line_error_y = sgn(error_pos.getY()), sgn_line_error_y;
-
+  const double decel_dist = max_power/pid_d.getProportional(); // distance at which robot stops going full speed
 
   while(true){
     // obtains error in angle and error in position (global x and y)
@@ -154,12 +154,17 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
     tracking.drive_error = error_pos.getMagnitude();  // distance to target
 
     error_pos.rotate(line_angle); // now represents displacement along the line from starting position to target
-    sgn_line_error_y = error_pos.getY();
+    sgn_line_error_y = sgn(error_pos.getY());
 
     error_pos.rotate(tracking.g_pos.a - line_angle); // now represents local errors
 
     // computes PIDs' and saves them into the power position vector
-    tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), vector_types::POLAR), pid_a.compute(-error_a, 0.0));
+    // if exit power is enabled, map the power from max_power to exit_power, otherwise use the PID like normal
+    if(exit_power)  tracking.power = Vector(mapValues(tracking.drive_error, 0.0, decel_dist, exit_power, max_power), error_pos.getAngle(), E_Vector_Types::POLAR);
+    else tracking.power = Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), E_Vector_Types::POLAR);
+  
+    tracking.power.a = pid_a.compute(-error_a, 0.0);
+
     lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", tracking.power.x, tracking.power.y, tracking.power.a);
 
     tracking.supplyMinPower(Position(error_pos, error_a)); // if any axis has less than the min power, give it min power 
@@ -168,12 +173,12 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
     // exit conditions
     if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)){
       switch(brake_mode){
-        case brake_modes::none:
+        case E_Brake_Modes::none:
           break;
-        case brake_modes::coast:
+        case E_Brake_Modes::coast:
           moveDrive(0.0, 0.0, 0.0);
           break;
-        case brake_modes::brake:
+        case E_Brake_Modes::brake:
           driveBrake();
       }
       return;

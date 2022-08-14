@@ -2,7 +2,7 @@
 #include "main.h"
 #include "Libraries/geometry.hpp"
 
-enum class brake_modes{
+enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
   coast,  // drivebase motors will turn off
   brake // the drivebase motors will hold
@@ -30,10 +30,10 @@ public:
   void guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_power_a, uint8_t max_power);
 
   // // moveToTarget is declared a friend so it can access private tracking properties
-  // friend void moveToTarget(Position, brake_modes, double max_power, double exit_power, bool overshoot, double end_error_d, double end_error_a);
+  // friend void moveToTarget(Position, E_Brake_Modes, double max_power, double exit_power, bool overshoot, double end_error_d, double end_error_a);
 
 };
 extern Tracking tracking;
 
 void TrackingUpdate();
-void moveToTarget(Position target, brake_modes brake_mode = brake_modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 5.0);
+void moveToTarget(Position target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = 127.0, double min_angle_power = 0.0, double exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 5.0);

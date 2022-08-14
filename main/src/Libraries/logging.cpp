@@ -16,8 +16,8 @@ void log(const char * format, ...){
   // mutex.take(50);
   va_list arguments;
   va_start(arguments,format);
-  vprintf(format,arguments);
-  printf("\n");
+  // vprintf(format,arguments);
+  // printf("\n");
   if(logfile == NULL) return;
   logfile = fopen("/usd/log.txt","a");
   vfprintf(logfile, format, arguments);
@@ -31,6 +31,7 @@ void log(const char * format, ...){
 E_Log_Levels Data::g_log_level = E_Log_Levels::debug;
 Queue<char, QUEUE_SIZE> Data::queue("log queue");
 _Task_ Data::task("log_task");
+Timer Data::log_timer("log_timer");
 
 ofstream Data::log_file;
 
@@ -39,19 +40,31 @@ void Data::init(){
 }
 
 void Data::logHandle(){ // runs in task to flush out contents of queue to file
+  log_timer.reset();
   try{
     while(true){
-      if(queue.getDataSize() > 10) queuePrintFile(queue, log_file, "/usd/log.txt");
+      if(queue.getDataSize() > 500 || log_timer.get_time() > 500){
+        queuePrintFile(queue, log_file, "/usd/log.txt");
+        log_timer.reset();
+      }
       _Task_::delay(10);
     }
   }
   catch(const TaskEndException& exception){
-    queuePrintFile(queue, log_file, "/usd/log.txt");  // empty the queue when the taskgets killed
+    queuePrintFile(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
   }
 }
 
-void Data::print(char* str){
-  queue.push(str, strlen(str));
+void Data::print(const char* format, ...){
+  const int buffer_size = 256;  // max amount of chars allowed to be printed
+  char buffer[buffer_size];
+  va_list args;
+  va_start (args, format);
+  int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
+  if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
+  va_end (args);
+
+  queue.push(buffer, strlen(buffer)); // pushes buffer to queue
 }
 
 

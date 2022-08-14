@@ -5,6 +5,7 @@
 
 #include "queue.hpp"
 #include "task.hpp"
+#include "timer.hpp"
 
 extern FILE* logfile;
 
@@ -36,6 +37,7 @@ class Data{
   static Queue<char, QUEUE_SIZE> queue;
   static _Task_ task;
   static void logHandle(); // runs in task to flush out contents of queue to file
+  static Timer log_timer;
 public:
   static ofstream log_file;
   static void init(); // starts log task
@@ -45,7 +47,7 @@ public:
   E_Log_Locations log_location;
   E_Log_Levels log_level;
 
-  void print(char* str);
+  void print(const char* format, ...);
 
 };
 

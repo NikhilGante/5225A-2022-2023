@@ -3,7 +3,7 @@
 Timer::Timer(const char* name, bool play, timing_units timing_unit):
 name(name), timing_unit(timing_unit)
 {
-  printf("%s's initialize time is: %lld\n", name, getTimeInTimingUnit());
+  // printf("%s's initialize time is: %lld\n", name, getTimeInTimingUnit());
   reset(play);
 }
 
