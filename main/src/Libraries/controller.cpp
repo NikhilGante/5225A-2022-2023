@@ -25,25 +25,10 @@ void _Controller::init(){
   controller_task.start(print_queue);
 }
 
-
-void _Controller::add_to_queue(std::function<void()> func){
-  if(this->back +1 != this->front || (this->back == this->queue.size() -1 && this->front == 0)){
-    printf("adding to controller: %d queue", this->controller_num);
-    this->queue[this->back] = func;
-    if(this->back == this->queue.size() -1){
-      this->back = 0;
-    }
-    else this->back++;
-
-  }
-}
-
 void _Controller::queue_handle(){
-  if(this->front != this->back){
-    printf("running command on controller %d", this->controller_num);
-    this->queue[this->front]();
-    if(this->front == this->queue.size()-1) this->front = 0;
-    else this->front++;
+  if(!queue.isEmpty()){
+    printf("running command on controller %d", controller_num);
+    queue.pop()();  // run the next function
   }
 }
 
@@ -59,7 +44,7 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ..
     pros::Controller::print(line, col, buffer_cpy.c_str());
     printf("printing %s to %d", buffer_cpy.c_str(), this->controller_num);
   };
-  this->add_to_queue(func);
+  queue.push(func);
   printf("adding print to queue for controller %d", this->controller_num);
 }
 void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
@@ -67,7 +52,7 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
     pros::Controller::print(line, col, str.c_str());
     printf("printing %s to %d", str.c_str(), this->controller_num);
   };
-  this->add_to_queue(func);
+  queue.push(func);
   printf("adding print to queue for controller %d", this->controller_num);
 }
 
@@ -76,7 +61,7 @@ void _Controller::clear_line (std::uint8_t line){
     pros::Controller::clear_line(line);
     printf("clearing line %d for controller %d", line, this->controller_num);
   };
-  this->add_to_queue(func);
+  queue.push(func);
   printf("adding clear_line to queue for controller %d", this->controller_num);
 }
 
@@ -85,7 +70,7 @@ void _Controller::clear(){
     pros::Controller::clear();
     printf("clearing %d", this->controller_num);
   };
-  this->add_to_queue(func);
+  queue.push(func);
   printf("adding clear to queue for controller %d", this->controller_num);
 }
 
@@ -95,7 +80,7 @@ void _Controller::rumble(const string& rumble_pattern){
     pros::Controller::rumble(rumble_pattern.c_str());
     printf("rumble controller %d", this->controller_num);
   };
-  this->add_to_queue(func);
+  queue.push(func);
   printf("adding rumble to queue for controller %d", this->controller_num);
 }
 

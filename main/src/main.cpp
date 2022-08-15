@@ -149,6 +149,13 @@ void screen_task_fn (void* ignore){
 
 void opcontrol() {
 	Data data;
+	for(int i = 0; i < 100; i++){
+		master.print(0,0, "h%d", i);
+		master.rumble("-");
+
+		delay(30);
+	}
+
 	// char txt[] = "wassup beee\n";
 	// data.print(txt);
 	// char txt2[] = "hello uwu\n";

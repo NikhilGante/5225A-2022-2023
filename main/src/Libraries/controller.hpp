@@ -3,6 +3,7 @@
 #include "timer.hpp"
 #include "task.hpp"
 #include "../util.hpp"
+#include "queue.hpp"
 #include <vector>
 #include <cstdarg>
 #include <array>
@@ -21,10 +22,9 @@ class _Task;
 
 class _Controller : public pros::Controller{
 private:
-  std::array<std::function<void()>,20> queue;
-  int front = 0, back = 0;
+  // std::array<std::function<void()>,20> queue;
+  Queue<std::function<void()>, 20> queue{"controller_queue"};
   static std::array<_Controller*, num_controller> objs;
-  void add_to_queue(std::function<void()>);
   void queue_handle();
   int controller_num;
 

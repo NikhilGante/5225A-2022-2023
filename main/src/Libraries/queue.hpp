@@ -1,3 +1,4 @@
+#pragma once
 #include "main.h"
 #include <iostream>
 #include <cstring>
@@ -17,6 +18,10 @@ class Queue{
   template<size_t size_cpy>
   friend void queuePrintFile (Queue<char, size_cpy>& queue, ofstream& file, const char* file_name);
 
+public:
+  Queue(const char* name):  name(name)
+  {}
+
   bool isFull(){
     return (front == 0 && rear == size - 1) || front - rear == 1;
   }
@@ -24,10 +29,6 @@ class Queue{
   bool isEmpty(){
     return front == -1;
   }
-
-public:
-  Queue(const char* name):  name(name)
-  {}
 
   void print(){ // prints all the elements in the queue
     if(isEmpty()){
@@ -49,7 +50,7 @@ public:
       printf("Queue \"%s\" is full, push of value \"%d\" failed\n", name, val);
       return;
     }
-    cout << "pushed" << val << endl;
+    // cout << "pushed" << val << endl;
     if (isEmpty()) front = rear = 0; // inserts first element if queue is empty
     else rear = (rear + 1) % size;  // otherwise move it forwards, wrapping around if necessary
     
