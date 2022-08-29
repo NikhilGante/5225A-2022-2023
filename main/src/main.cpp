@@ -77,13 +77,12 @@ void moveDrive(double x, double y, double a){
 
 
 void opcontrol() {
-	double power_x, power_y, power_a;
 	bool flywheel_on = false;
 	Timer flywheel_print_timer{"flywheel_timer"};
 	master.clear();
 
-	pros::Rotation rotation_sensor(5);
-	rotation_sensor.set_data_rate(5);
+	pros::Rotation rotation_sensor(5);	// configures rotation sensor in port 5
+	rotation_sensor.set_data_rate(5);	// gets data from rotation sensor every 5ms
 	rotation_sensor.reset_position();
 	Timer print_timer{"print_timer"};
 	Timer log_timer{"log_timer"};
@@ -92,48 +91,25 @@ void opcontrol() {
 	int motor_speed = 80;
 	master.print(2,0, "motor_speed:%d ", motor_speed);
 
-	// pros::Motor intk_m(4, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-	// bool intk_on = false;
-
 	while(true){
-
-		/*
-		if(master.get_digital_new_press(DIGITAL_A)){
-			intk_on = !intk_on;
-			if(intk_on)	intk_m.move(127);
-			else intk_m.move(0);
-		}
-
-    power_x = master.get_analog(ANALOG_LEFT_X);
-    power_y = master.get_analog(ANALOG_LEFT_Y);
-		power_a = master.get_analog(ANALOG_RIGHT_X);
-
-		if(fabs(power_x) < 7) power_x = 0;
-		if(fabs(power_y) < 7) power_y = 0;
-		if(fabs(power_a) < 7) power_a = 0;
-
-		moveDrive(power_x, power_y, power_a);
-		*/
-
 		rot_vel = 3*60*rotation_sensor.get_velocity()/360;
 		if(print_timer.get_time() >= 50){
 
 			printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
 			print_timer.reset();
 		}
-		if(master.get_digital_new_press(DIGITAL_UP)){
+		if(master.get_digital_new_press(DIGITAL_UP)){	// Increment the flywheel speed
 			motor_speed += 5;
 			if(motor_speed > 127) motor_speed = 127;
 			master.print(2,0, "motor_speed:%d ", motor_speed);
-
 		}
-		if(master.get_digital_new_press(DIGITAL_DOWN)){
+		if(master.get_digital_new_press(DIGITAL_DOWN)){	// Decrement the flywheel speed 
 			motor_speed -= 5;
 			if(motor_speed < 0) motor_speed = 0;
 			master.print(2,0, "motor_speed:%d ", motor_speed);
 		}
 
-		if(master.get_digital_new_press(DIGITAL_A)){
+		if(master.get_digital_new_press(DIGITAL_A)){	// Toggle the flywheel on/off when A is pressed
 			flywheel_on = !flywheel_on;
 			if(flywheel_on){
 				flywheel_back.move(motor_speed);
@@ -144,6 +120,7 @@ void opcontrol() {
 				flywheel_front.move(0);
 			}
 		}
+		// Print flywheel data to the controller screen
 		if(flywheel_print_timer.get_time() > 150){
 			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
 			master.print(0,0, "rpm:%ld", -rot_vel);
