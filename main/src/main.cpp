@@ -88,38 +88,59 @@ void opcontrol() {
 	Timer log_timer{"log_timer"};
 
 	long rot_vel;
-	int motor_speed = 80;
-	master.print(2,0, "motor_speed:%d ", motor_speed);
+	int vel_target = 1800;
+	master.print(2,0, "vel_target:%d ", vel_target);
 
+	// PID stuff
+	// Kp, Ki, kD, and bias
+	PID flywheel_PID(1.0, 0.0, 0.0, 0.0);
+	Timer pid_timer{"pid_timer"};
+	double error, last_error;
+	double kB = 5.0;	// this approximately converts a target velocity into a motor voltage
+	double kP = 0.0, Ki = 0.0, kD = 0.0;
+	double proportional, integral, derivative;
+	double output; // what power goes to the motors
 	while(true){
-		rot_vel = 3*60*rotation_sensor.get_velocity()/360;
+		rot_vel = 3*60*rotation_sensor.get_velocity()/360;	// actual velocity of flywheel
+		error = vel_target - rot_vel;
+		proportional = kP * error;
+		if(output < 127){	// don't integrate if power exceeds max
+			integral += Ki * error * pid_timer.get_time();
+		}
+		derivative = (error - last_error) / pid_timer.get_time();
+		pid_timer.reset();
+		output = vel_target * kB + proportional + integral + derivative;
+		flywheel_back.move(output);
+		flywheel_front.move(output);
+
+
 		if(print_timer.get_time() >= 50){
 
 			printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
 			print_timer.reset();
 		}
 		if(master.get_digital_new_press(DIGITAL_UP)){	// Increment the flywheel speed
-			motor_speed += 5;
-			if(motor_speed > 127) motor_speed = 127;
-			master.print(2,0, "motor_speed:%d ", motor_speed);
+			vel_target += 20;
+			if(vel_target > 3000) vel_target = 3000;
+			master.print(2,0, "vel_target:%d ", vel_target);
 		}
 		if(master.get_digital_new_press(DIGITAL_DOWN)){	// Decrement the flywheel speed 
-			motor_speed -= 5;
-			if(motor_speed < 0) motor_speed = 0;
-			master.print(2,0, "motor_speed:%d ", motor_speed);
+			vel_target -= 20;
+			if(vel_target < 0) vel_target = 0;
+			master.print(2,0, "vel_target:%d ", vel_target);
 		}
 
-		if(master.get_digital_new_press(DIGITAL_A)){	// Toggle the flywheel on/off when A is pressed
-			flywheel_on = !flywheel_on;
-			if(flywheel_on){
-				flywheel_back.move(motor_speed);
-				flywheel_front.move(motor_speed);
-			}
-			else{
-				flywheel_back.move(0);
-				flywheel_front.move(0);
-			}
-		}
+		// if(master.get_digital_new_press(DIGITAL_A)){	// Toggle the flywheel on/off when A is pressed
+		// 	flywheel_on = !flywheel_on;
+		// 	if(flywheel_on){
+		// 		flywheel_back.move(vel_target);
+		// 		flywheel_front.move(vel_target);
+		// 	}
+		// 	else{
+		// 		flywheel_back.move(0);
+		// 		flywheel_front.move(0);
+		// 	}
+		// }
 		// Print flywheel data to the controller screen
 		if(flywheel_print_timer.get_time() > 150){
 			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
