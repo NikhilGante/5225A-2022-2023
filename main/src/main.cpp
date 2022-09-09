@@ -4,6 +4,7 @@
 #include "Libraries/piston.hpp"
 #include "Libraries/task.hpp"
 #include "Libraries/timer.hpp"
+#include <atomic>
 
 #include "Libraries/logging.hpp"
 
@@ -17,6 +18,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	lcd::initialize();
 	_Controller::init();
 	log_init();
 	// update_t.start();
@@ -81,25 +83,43 @@ void opcontrol() {
 	Timer flywheel_print_timer{"flywheel_timer"};
 	master.clear();
 
-	pros::Rotation rotation_sensor(5);	// configures rotation sensor in port 5
+	pros::Rotation rotation_sensor(5, true);	// configures rotation sensor in port 5
 	rotation_sensor.set_data_rate(5);	// gets data from rotation sensor every 5ms
 	rotation_sensor.reset_position();
 	Timer print_timer{"print_timer"};
 	Timer log_timer{"log_timer"};
 
 	long rot_vel;
-	int vel_target = 1800;
+	int vel_target = 2350;
 	master.print(2,0, "vel_target:%d ", vel_target);
 
 	// PID stuff
 	// Kp, Ki, kD, and bias
-	PID flywheel_PID(1.0, 0.0, 0.0, 0.0);
+	// PID flywheel_PID(1.0, 0.0, 0.0, 0.0);
 	Timer pid_timer{"pid_timer"};
-	double error, last_error;
-	double kB = 5.0;	// this approximately converts a target velocity into a motor voltage
-	double kP = 0.0, Ki = 0.0, kD = 0.0;
+	atomic<double> error, last_error;
+	double kB = 0.0385;	// this approximately converts a target velocity into a motor voltage
+	double kP = 0.35, Ki = 0.0, kD = 0.0;
 	double proportional, integral, derivative;
 	double output; // what power goes to the motors
+	// pwm to vel
+	Task flywheel_t([&](){
+		int shot_counter = 0;
+		while(true){
+			if(master.get_digital_new_press(DIGITAL_A))	shot_counter = 0;
+			if(fabs(error.load()) < 30 && shot_counter < 3){
+					printf("STARTED SHOOTING\n");
+					indexer_p.set_state(HIGH);	
+					delay(75); // wait for indexer to extend
+					printf("FINISHED SHOT\n");
+					indexer_p.set_state(LOW);
+					delay(100);// wait for indexer to retract
+					printf("FINISHED Retraction\n");
+					shot_counter++;
+			}
+			delay(10);
+		}
+	});
 	while(true){
 		rot_vel = 3*60*rotation_sensor.get_velocity()/360;	// actual velocity of flywheel
 		error = vel_target - rot_vel;
@@ -107,18 +127,34 @@ void opcontrol() {
 		if(output < 127){	// don't integrate if power exceeds max
 			integral += Ki * error * pid_timer.get_time();
 		}
-		derivative = (error - last_error) / pid_timer.get_time();
+		derivative = kD * (error - last_error) / pid_timer.get_time();
+		last_error = error.load();
 		pid_timer.reset();
 		output = vel_target * kB + proportional + integral + derivative;
-		flywheel_back.move(output);
-		flywheel_front.move(output);
+		// for graphing purposes
+		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), disc_sensor.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, integral, derivative);
+		output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
+		flywheel_m.move(output);
 
-
+		// Uncomment to print flywheel data
+		/*
 		if(print_timer.get_time() >= 50){
 
-			printf("%d| rpm:%ld, temp| motor1:%lf, motor2:%lf current| motor1:%d, motor2:%d\n", millis(), rot_vel, flywheel_back.get_temperature(), flywheel_front.get_temperature(), flywheel_back.get_current_draw(), flywheel_front.get_current_draw());
+			printf("%d| rpm:%ld, temp:%lf current:%d\n", millis(), rot_vel, flywheel_m.get_temperature(), flywheel_m.get_current_draw());
 			print_timer.reset();
 		}
+		*/
+		// 120 -150ms between telling piston to fire before sensor detects disc
+		if(master.get_digital_new_press(DIGITAL_X)){
+			printf("TARGET CHANGED");
+			vel_target = 1680;
+			master.print(2,0, "vel_target:%d ", vel_target);
+		} 
+		if(master.get_digital_new_press(DIGITAL_Y)){
+			vel_target = 2350;
+			master.print(2,0, "vel_target:%d ", vel_target);
+		} 
+
 		if(master.get_digital_new_press(DIGITAL_UP)){	// Increment the flywheel speed
 			vel_target += 20;
 			if(vel_target > 3000) vel_target = 3000;
@@ -130,6 +166,10 @@ void opcontrol() {
 			master.print(2,0, "vel_target:%d ", vel_target);
 		}
 
+		if(flywheel_print_timer.get_time() > 50){
+			master.print(0,0, "rpm:%ld temp:%d", rot_vel, (int)flywheel_m.get_temperature());
+			flywheel_print_timer.reset();
+		}
 		// if(master.get_digital_new_press(DIGITAL_A)){	// Toggle the flywheel on/off when A is pressed
 		// 	flywheel_on = !flywheel_on;
 		// 	if(flywheel_on){
@@ -142,14 +182,6 @@ void opcontrol() {
 		// 	}
 		// }
 		// Print flywheel data to the controller screen
-		if(flywheel_print_timer.get_time() > 150){
-			// master.print(0,0, "rpm:%.2lf", 60*(double)(rot_vel)/36000);
-			master.print(0,0, "rpm:%ld", -rot_vel);
-			master.print(1, 0, "f:%d b:%d", (int)flywheel_front.get_temperature(), (int)flywheel_back.get_temperature());
-
-
-			flywheel_print_timer.reset();
-		}
 		delay(10);
 	}
 }
