@@ -19,7 +19,7 @@ public:
   int lookup(int x);  // returns transformed value from lookup table, taking in an x input
 };
 
-// moves the drivebase given 3 local powers: x, y and angle
-void moveDrive(double x, double y, double a);
+// moves the drivebase given 2 local powers: y and angle
+void moveDrive(double y, double a);
 void driveBrake(); // holds all the drivebase motors
 void handleInput(); // takes input from the joysticks and moves the drivebase

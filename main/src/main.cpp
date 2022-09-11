@@ -26,9 +26,11 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	log_init();
+	// log_init();
+	_Task_ tracking_task("tracking_update_task");
+	tracking_task.start(trackingUpdate);
 	// Data::init();
-	_Controller::init();
+	// _Controller::init();
 	lcd::initialize();
 	delay(500);
 	// lift.runMachine();
@@ -148,6 +150,14 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
+	while(true){
+		moveDrive(master.get_analog(ANALOG_RIGHT_Y), master.get_analog(ANALOG_RIGHT_X));
+		delay(10);
+	}
+
+
+	WAIT_UNTIL(false);
+
 	Data data;
 	for(int i = 0; i < 100; i++){
 		master.print(0,0, "h%d", i);
@@ -212,9 +222,6 @@ void opcontrol() {
 	// lift.waitToReachState(LiftResetParams{});
 	// lcd::print(5, "Reset");
 	// WAIT_UNTIL(false);
-
-	_Task_ tracking_t("tracking_task");
-	tracking_t.start(TrackingUpdate);
 
 	moveToTarget({0.0, 40.0, 90.0}, E_Brake_Modes::brake, 127.0, 0.0, 127.0, true);
 

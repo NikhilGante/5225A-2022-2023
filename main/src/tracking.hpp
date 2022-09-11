@@ -8,6 +8,12 @@ enum class E_Brake_Modes{
   brake // the drivebase motors will hold
 };
 
+enum class E_Robot_Sides{
+  front,
+  back,
+  automatic // automatically deduce which side
+};
+
 class Tracking{
   const Position min_move_power{15.0, 15.0, 10.0};  // min power to move the drivebase in each axis
   
@@ -35,5 +41,5 @@ public:
 };
 extern Tracking tracking;
 
-void TrackingUpdate();
+void trackingUpdate();
 void moveToTarget(Position target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = 127.0, double min_angle_power = 0.0, double exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 5.0);

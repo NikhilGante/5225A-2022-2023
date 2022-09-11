@@ -33,11 +33,13 @@ int CustomDrive::lookup(int x){
   return lookup_table[(unsigned char)x];
 }
 
-void moveDrive(double x, double y, double a){
-	front_l.move(x + y + a);
-  front_r.move(-x + y - a);
-  back_l.move(-x + y + a);
-  back_r.move(x + y - a);
+void moveDrive(double y, double a){
+  front_l.move(y+a);
+  front_r.move(y-a);
+  back_l.move(y+a);
+  back_r.move(y-a);
+  centre_l.move(y+a);
+  centre_r.move(y-a);
 }
 
 void driveBrake(){
@@ -50,13 +52,11 @@ void driveBrake(){
 void handleInput(){
   int power_x, power_y, power_a;
 
-  power_x = master.get_analog(ANALOG_LEFT_X);
   power_y = master.get_analog(ANALOG_LEFT_Y);
   power_a = polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(abs(power_x) < 7) power_x = 0;
   if(abs(power_y) < 7) power_y = 0;
   if(abs(power_a) < 7) power_a = 0;
 
-  moveDrive(power_x, power_y, power_a);
+  moveDrive(power_y, power_a);
 }
