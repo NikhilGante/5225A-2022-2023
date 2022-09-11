@@ -19,6 +19,18 @@
 #include "pros/rtos.h"
 
 
+/* Nathan's THoughts
+why is queuePrintFile not a member function of Queue?
+change most #defines to constexpr
+replace C macros with C++ equivalents (M_PI) - not super important
+std::string instead of const char*
+const after type
+acivate using namespace pros in main.h
+try to remove using namespace std if everyone is ok with that
+switch variadic functions to variadic templates
+*/
+
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstring>
 #include <array>
-#include <limits.h>
+#include <limits>
 #include <fstream>
 using namespace std;
 
@@ -84,7 +84,7 @@ public:
   T pop(){ // dequeue
     if(isEmpty()){
       printf("Queue \"%s\" is empty, pop failed\n", name);
-      return INT_MIN;
+      return std::numeric_limits<T>::max(); //returns T() if not a number
     }
 
     T result = data[front];
