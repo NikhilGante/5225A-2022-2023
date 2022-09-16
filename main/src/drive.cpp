@@ -35,18 +35,29 @@ int CustomDrive::lookup(int x){
 
 void moveDrive(double y, double a){
   front_l.move(y+a);
-  front_r.move(y-a);
-  back_l.move(y+a);
-  back_r.move(y-a);
   centre_l.move(y+a);
+  back_l.move(y+a);
+  front_r.move(y-a);
   centre_r.move(y-a);
+  back_r.move(y-a);
+}
+
+void moveDriveSide(double l, double r){
+  front_l.move(l);
+  centre_l.move(l);
+  back_l.move(l);
+  front_r.move(r);
+  centre_r.move(r);
+  back_r.move(r);
 }
 
 void driveBrake(){
-  front_l.brake();
-  front_r.brake();
-  back_l.brake();
-  back_r.brake();
+  front_l.move_relative(0, 200);
+  front_r.move_relative(0, 200);
+  back_l.move_relative(0, 200);
+  back_r.move_relative(0, 200);
+  centre_l.move_relative(0, 200);
+  centre_r.move_relative(0, 200);
 }
 
 void handleInput(){

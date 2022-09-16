@@ -27,11 +27,14 @@
  */
 void initialize() {
 	// log_init();
+	lcd::initialize();
+	tracking.g_pos = {31.0, 11.5, 0.0};
+	// tracking.g_pos = {70.0, 129.5, M_PI};
 	_Task_ tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 	// Data::init();
 	// _Controller::init();
-	lcd::initialize();
+	log_init();
 	delay(500);
 	// lift.runMachine();
 
@@ -148,12 +151,32 @@ void screen_task_fn (void* ignore){
 	}
 
 };
+// start (70, 129.5)
+// end: (71, 11.5)
+
 
 void opcontrol() {
-	while(true){
-		moveDrive(master.get_analog(ANALOG_RIGHT_Y), master.get_analog(ANALOG_RIGHT_X));
-		delay(10);
-	}
+	// moveDrive(0.0, 127);
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// moveDrive(0.0, 0.0);
+	// WAIT_UNTIL(false);
+
+	// while(true){
+	// 	moveDriveSide(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
+	// 	delay(10);
+	// }
+	// driveBrake();
+	// moveDriveSide(0.0, 20.0);
+	// moveDrive(20.0, 0.0);
+	// WAIT_UNTIL(false);
+	// {31.0, 11.5, 0.0}
+	turnToAngle(180.0);
+
+	// moveToTarget({21.5, 25.5});
+	// while(true){
+	// 	moveDrive(master.get_analog(ANALOG_RIGHT_Y), master.get_analog(ANALOG_RIGHT_X));
+	// 	delay(10);
+	// }
 
 
 	WAIT_UNTIL(false);
@@ -223,7 +246,6 @@ void opcontrol() {
 	// lcd::print(5, "Reset");
 	// WAIT_UNTIL(false);
 
-	moveToTarget({0.0, 40.0, 90.0}, E_Brake_Modes::brake, 127.0, 0.0, 127.0, true);
 
 	// moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
 	// moveToTarget({20.0, 30.0, -40.0});

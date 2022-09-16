@@ -30,6 +30,7 @@ void trackingUpdate(){
 
   Position last_position; // last position of robot
   Timer velocity_timer{"velocity_timer"};
+  Timer tracking_timer{"timer"};
 
   while(true){
     new_left = left_tracker.get_position()*TICKS_TO_INCHES;
@@ -41,7 +42,7 @@ void trackingUpdate(){
     right = new_right - last_right;
     back = new_back - last_back;
 
-    if(velocity_timer.get_time() > 20){  // velocity is updated every 20 
+    if(velocity_timer.get_time() > 50){  // velocity is updated every 20 
       uint32_t velocity_update_time = velocity_timer.get_time(); // time since last velocity update
       tracking.l_vel = (new_left - last_vel_l) / velocity_update_time * 1000; // velocities are in inches per second
       tracking.r_vel = (new_right - last_vel_r) / velocity_update_time * 1000;
@@ -93,7 +94,13 @@ void trackingUpdate(){
     tracking.g_pos.a += theta;
 
     // printf("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
-    // printf("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+    // if(tracking_timer.get_time() > 50){
+    //   // log("%lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+    //   log("%lf\n", radToDeg(tracking.g_vel.a));
+
+    //   // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+    //   tracking_timer.reset();
+    // }
     // printf("L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
 		pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
 		pros::lcd::print(1, "x:%lf y:%lf a:%lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
@@ -110,11 +117,27 @@ void Tracking::waitForDistance(double distance){
   WAIT_UNTIL(drive_error <= distance);
 }
 
-void moveToTarget(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 0.5, double decel_start = 0.0, uint8_t exit_power = 0, E_Robot_Sides robot_side = E_Robot_Sides::automatic){
+void handleBrake(E_Brake_Modes brake_mode){
+  switch(brake_mode){
+    case E_Brake_Modes::none:
+      break;
+    case E_Brake_Modes::coast:
+      moveDrive(0.0, 0.0);
+      break;
+    case E_Brake_Modes::brake:
+      log("drivebrake\n");
+      driveBrake();
+      break;
+  }
+}
+
+void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side){
   Vector line_error = target - tracking.g_pos;  // Displacement from robot's position to target
   double line_angle = M_PI_2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
+  Timer motion_timer{"motion_timer"};
+  PID y_pid(5.0, 0.001, 0.0, 0.0);
   switch(robot_side){
     case E_Robot_Sides::front:
       power_sgn = 1;
@@ -127,18 +150,21 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake
       if(!power_sgn) power_sgn = 1; // Doesn't let power_sgn be 0
       break;
   }
-  const double kP_a = 1.0;  // proportional multiplier for angular error ~8.0
+  log("power_sgn: %d\n", power_sgn);
+  const double kP_a = 6.0;  // proportional multiplier for angular error
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
+    log("vals %lf %lf\n", M_PI_2 - line_error.getAngle(), (power_sgn == -1 ? M_PI : 0));
     double error_a = nearAngle((M_PI_2 - line_error.getAngle()) + (power_sgn == -1 ? M_PI : 0), tracking.g_pos.a);
     line_error.rotate(line_angle);  // Now represents displacement relative to the line the robot is following
-    double power_y = line_error.getY();  // RUN PID HERE
+    double power_y = y_pid.compute(-power_sgn*line_error.getY(), 0.0);  // RUN PID HERE
+    if(fabs(power_y) < tracking.min_move_power_y) power_y = sgn(power_y) * tracking.min_move_power_y;
     // Perpendicular distance robot will land from the target travelling at the current orientation
     double error_x = line_error.getX() + line_error.getY() * tan(nearAngle(tracking.g_pos.a, line_angle));
     // Only corrects if necessary (if robot won't land within an acceptable distance from the target)
-    double correction = fabs(error_x) > end_error_x? kP_a * error_a: 0.0;
-    printf("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
+    double correction = fabs(error_x) > end_error_x? kP_a * error_a * sgn(power_sgn): 0.0;
+    // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
     double left_power, right_power;
     switch(sgn(correction)){
       case 0:
@@ -151,107 +177,45 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake
         left_power = power_y * exp(correction), right_power = power_y;
         break;
     }
+    // x, y, a, l, r, errA
+    log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
+
+    // log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
+    moveDriveSide(left_power, right_power);
     delay(10);
   }
-  // while(false); // runs once
   while(line_error.getY() > 0.5);
-  switch(brake_mode){
-    case E_Brake_Modes::none:
-      break;
-    case E_Brake_Modes::coast:
-      moveDrive(0.0, 0.0);
-      break;
-    case E_Brake_Modes::brake:
-      driveBrake();
-  }
-  driveBrake();
+  log("MOTION DONE %lld\n", motion_timer.get_time());
+  handleBrake(brake_mode);
 }
 
-// Below lies old x-drive code
-/*
-void Tracking::supplyMinPower(const Position& error){
-  // ensures that each axis gets enough power to move, if it isn't well within its range of error
-  if (fabs(power.x) < min_move_power.x && fabs(error.x) > 0.3) power.x = sgn(power.x) * min_move_power.x;
-  if (fabs(power.y) < min_move_power.y && fabs(error.y) > 0.3) power.y = sgn(power.y) * min_move_power.y;
-  if (fabs(power.a) < min_move_power.x && fabs(error.a) > 3.0) power.a = sgn(power.a) * min_move_power.a;
-}
-
-void Tracking::scalePowers(uint8_t max_power, uint8_t min_angle_power){
-  double total_power = fabs(power.x) + fabs(power.y) + fabs(power.a);
-  if(total_power > max_power){
-    double power_scalar = max_power / total_power;
-    double pre_scaled_power_a = fabs(power.a);
-    power.x *= power_scalar,  power.y *= power_scalar, power.a *= power_scalar;
-    // ensures drivebase gets enough angle power AFTER scaling
-    guaranteeAnglePower(min_angle_power, pre_scaled_power_a, max_power);
-  }
-}
-
-void Tracking::guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_power_a, uint8_t max_power){
-  double power_xy = fabs(power.x) + fabs(power.y);
-  double post_power_a;  // angle power after angle power guarantee process
-  if(fabs(power.a) < min_angle_power && power_xy > 0){  // if angle power has been overshadowed by x and y
-    // if angle power was less than min_angle_power before scaling, give angle power what it had before scaling
-    if(pre_scaled_power_a < min_angle_power)  post_power_a = pre_scaled_power_a;
-    else post_power_a = min_angle_power; // otherwise, give it min_angle_power
-    double xy_scalar = (max_power - post_power_a)/power_xy;
-    power.x *= xy_scalar, power.y *= xy_scalar, power.a = sgn(power.a) * post_power_a;
-  }
-}
-
-
-void moveToTarget(Position target, E_Brake_Modes brake_mode, double max_power, double min_angle_power, double exit_power, bool overshoot, double end_error_d, double end_error_a){
-  double error_a; // angular error 
-  Vector error_pos(target - tracking.g_pos); // positional error
-
-  PID pid_d(10.0, 0.0, 700.0, 0.0);  // pid for distance to target
-  PID pid_a(135.0, 0.0, 0.0, 0.0);  // pid for angle
-
-  // angle of line from starting position to target, from the vertical
-  double line_angle = M_PI_2 - error_pos.getAngle();
-  error_pos.rotate(line_angle); 
-  // sign of distance to target along line from starting position to target
-  int8_t start_sgn_line_error_y = sgn(error_pos.getY()), sgn_line_error_y;
-  const double decel_dist = max_power/pid_d.getProportional(); // distance at which robot stops going full speed
-
-  while(true){
-    // obtains error in angle and error in position (global x and y)
-    error_a = degToRad(target.a) - tracking.g_pos.a;
-    error_pos = target - tracking.g_pos;
-    tracking.drive_error = error_pos.getMagnitude();  // distance to target
-
-    error_pos.rotate(line_angle); // now represents displacement along the line from starting position to target
-    sgn_line_error_y = sgn(error_pos.getY());
-
-    error_pos.rotate(tracking.g_pos.a - line_angle); // now represents local errors
-
-    // computes PIDs' and saves them into the power position vector
-    // if exit power is enabled, map the power from max_power to exit_power, otherwise use the PID like normal
-    if(exit_power)  tracking.power = Vector(mapValues(tracking.drive_error, 0.0, decel_dist, exit_power, max_power), error_pos.getAngle(), E_Vector_Types::POLAR);
-    else tracking.power = Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), E_Vector_Types::POLAR);
-  
-    tracking.power.a = pid_a.compute(-error_a, 0.0);
-
-    lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", tracking.power.x, tracking.power.y, tracking.power.a);
-
-    tracking.supplyMinPower(Position(error_pos, error_a)); // if any axis has less than the min power, give it min power 
-    tracking.scalePowers(max_power, min_angle_power); // scales powers so that the drivebase doesn't travel faster than max_power
-
-    // exit conditions
-    if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)){
-      switch(brake_mode){
-        case E_Brake_Modes::none:
-          break;
-        case E_Brake_Modes::coast:
-          moveDrive(0.0, 0.0, 0.0);
-          break;
-        case E_Brake_Modes::brake:
-          driveBrake();
-      }
-      return;
-    }
-    moveDrive(tracking.power.x, tracking.power.y, tracking.power.a);
+void turnToAngle(double angle, E_Brake_Modes brake_mode, double end_error){
+  end_error = degToRad(end_error);
+  angle = degToRad(angle);
+  PID angle_pid(5.0, 0.02, 40.0, 0.0, true, 0.0, degToRad(10.0));
+  PID velocity_pid(0.0, 0.0, 0.0, 0.0);
+  double kB = 18.2; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  Timer motion_timer{"motion_timer"};
+  double power;
+  double kP_vel = 15.0;
+  do{
+    double target_velocity = angle_pid.compute(-nearAngle(angle, tracking.g_pos.a), 0.0);
+    power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
+    if(fabs(power) > 127) power = sgn(power) * 127;
+    log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
+    moveDrive(0.0, power);
     delay(10);
   }
+  while(fabs(angle_pid.getError()) > end_error);
+  handleBrake(brake_mode);
+  log("MOTION DONE %lld\n", motion_timer.get_time());
+  lcd::print(7, "MOTION DONE %lld\n", motion_timer.get_time());
 }
-*/
+
+// 3.606818, -11.877213, -62.104642, -66.909224, -0.000218, 120.628709
+// vals 4.183958 3.141593
+
+
+// this one
+// vals 3.605240 3.141593
+// 0.000000, 0.000000, 0.000000, -111.803399, -6.923049, 26.565051
