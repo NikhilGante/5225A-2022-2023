@@ -1,4 +1,5 @@
 #pragma once
+#include "Libraries/logging.hpp"
 #include "main.h"
 #include "Libraries/geometry.hpp"
 
@@ -15,9 +16,9 @@ enum class E_Robot_Sides{
 };
 
 class Tracking{
-  const Position min_move_power{15.0, 15.0, 10.0};  // min power to move the drivebase in each axis
   
 public:
+  const double min_move_power_y = 25.0, min_move_power_a = 30.0;
   // odometry related variables
   double l_vel, r_vel, b_vel; // velocities of each of the tracking wheel in inches/sec
   Position g_pos{};
@@ -42,4 +43,6 @@ public:
 extern Tracking tracking;
 
 void trackingUpdate();
-void moveToTarget(Position target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = 127.0, double min_angle_power = 0.0, double exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 5.0);
+void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in
+void moveToTarget(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void turnToAngle(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.5);

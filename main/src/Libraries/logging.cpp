@@ -16,7 +16,7 @@ void log(const char * format, ...){
   // mutex.take(50);
   va_list arguments;
   va_start(arguments,format);
-  // vprintf(format,arguments);
+  vprintf(format,arguments);
   // printf("\n");
   if(logfile == NULL) return;
   logfile = fopen("/usd/log.txt","a");
