@@ -6,7 +6,7 @@ Controller partner(pros::E_CONTROLLER_PARTNER);
 
 static constexpr int e_port = 20;
 
-pros::ADIEncoder LeftEncoder(1, 2, false), RightEncoder(5, 6, true), BackEncoder(3, 4, false);
+pros::ADIEncoder LeftEncoder(1, 2, false), RightEncoder(5, 6, true), BackEncoder(3, 4, false); //remove
 
 // tank-drive motor config
 pros::Rotation left_tracker(1), right_tracker(2), back_tracker(3);

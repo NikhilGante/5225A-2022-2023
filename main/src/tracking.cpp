@@ -8,7 +8,7 @@
 
 Tracking tracking; // singleton tracking object
 
-#define TICKS_TO_INCHES 1/36000.0 *(2.75*M_PI);
+#define TICKS_TO_INCHES (1/36000.0 *(2.75*M_PI));
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
