@@ -3,7 +3,7 @@
 #include "printing.hpp"
 #include "timer.hpp"
 
-using namespace pros;
+using pros::text_format_e_t;
 
 //Forward-Declaration
 class _Task_;
