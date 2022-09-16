@@ -9,3 +9,6 @@ extern pros::Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywhee
 extern pros::Rotation left_tracker, right_tracker, back_tracker;
 
 extern pros::Motor b_lift_m; //should this still be here?
+
+inline void deprecated() {printf("Trying to use a deprecated feature.\n");}
+inline void not_implemented() {printf("Trying to use a feature that is not yet implemented.\n");}

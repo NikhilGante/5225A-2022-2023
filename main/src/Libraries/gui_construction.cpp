@@ -14,10 +14,6 @@
 /*Field array*/ static std::vector<std::bitset<200>> field (200, std::bitset<200>{}); //Initializes to 200 blank bitsets
 /*Temperature Alert Flag*/ static bool temp_flashed = false;
 
-void deprecated(){
-  printf("Trying to use a deprecated feature.\n");
-}
-
 //Var init for text monitoring
   int enc_val;
   c::ext_adi_encoder_t ext_test_enc;
@@ -36,14 +32,12 @@ void deprecated(){
     {&back_l, "Back Left", "BL", 0, nullptr, nullptr, nullptr, nullptr},
     {&centre_l, "Center Left", "CL", 0, nullptr, nullptr, nullptr, nullptr},
     {&front_l, "Front Left", "FL", 0, nullptr, nullptr, nullptr, nullptr},
-    {&flywheel_front, "Front Flywheel", "F", 0, nullptr, nullptr, nullptr, nullptr},
-    {&flywheel_back, "Back Flywheel", "B", 0, nullptr, nullptr, nullptr, nullptr},
-  }}; //{nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr},
+    // {&flywheel_front, "Front Flywheel", "F", 0, nullptr, nullptr, nullptr, nullptr},
+    // {&flywheel_back, "Back Flywheel", "B", 0, nullptr, nullptr, nullptr, nullptr},
+  }}; //    {nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr},
   //Motor*, Long name, Short Name, Temperature, Temperature Text, Name Text, On Button, Off button
-
-  //For gui to use
-  extern int elastic_b_up_time, elastic_b_down_time; //Declared in b_lift.cpp
-  extern int elastic_f_up_time, elastic_f_down_time; //Declared in f_lift.cpp
 
 //Constructors
   //Main GUI
@@ -105,10 +99,15 @@ void deprecated(){
     Page elastic ("Elastic Test"); //Testing the elastics on the lift
       Button check_b_elastic(145, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Back Elastic Test");
       Button check_f_elastic(335, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Front Elastic Test");
-      Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_b_up_time);
-      Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_b_down_time);
-      Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_f_up_time);
-      Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_f_down_time);
+      // Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_b_up_time);
+      // Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_b_down_time);
+      // Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_f_up_time);
+      // Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_f_down_time);
+      Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
+      Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
+      Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
+      Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
+      
 
     Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
       Text tuning_instructions_1(MID_X, 35, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow");

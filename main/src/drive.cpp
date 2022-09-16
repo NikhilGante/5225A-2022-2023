@@ -49,6 +49,9 @@ void driveBrake(){
   back_r.brake();
 }
 
+void resetDrive(){not_implemented();}
+void flattenToWall(){not_implemented();};
+
 void handleInput(){
   int power_x, power_y, power_a;
 

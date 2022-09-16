@@ -4,7 +4,7 @@
 #include "Libraries/piston.hpp"
 #include "Libraries/timer.hpp"
 #include "Libraries/state.hpp"
-
+#include "Libraries/gui.hpp"
 #include "Libraries/task.hpp"
 
 #include "Libraries/logging.hpp"
@@ -17,6 +17,8 @@
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
+
+const GUI* GUI::current_gui = &main_obj;
 
 
 /* Nathan's Thoughts
