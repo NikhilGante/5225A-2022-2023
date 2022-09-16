@@ -60,8 +60,8 @@ void driveBrake(){
   centre_r.move_relative(0, 200);
 }
 
-void resetDrive(){not_implemented();}
-void flattenToWall(){not_implemented();};
+void resetDrive(){TO_IMPLEMENT}
+void flattenToWall(){TO_IMPLEMENT};
 
 void handleInput(){
   int power_x, power_y, power_a;

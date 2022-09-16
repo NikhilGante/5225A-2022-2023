@@ -334,7 +334,7 @@ void main_setup(){
 
     intakes.set_func([](){
       if(GUI::prompt("Press to check intake", "", 1000)){
-        deprecated();
+        DEPRECATE;
         // b_lift.Subsystem::set_state(b_lift_states::intake_on);
         // delay(1000);
 
@@ -350,7 +350,7 @@ void main_setup(){
 
     lifts.set_func([](){
       if(GUI::prompt("Press to check lifts", "", 1000)){
-        deprecated();
+        DEPRECATE;
         // b_lift.set_state(b_lift_states::move_to_target, 0);
         // f_lift.set_state(f_lift_states::move_to_target, 0);
         // delay(1000);
@@ -384,7 +384,7 @@ void main_setup(){
     });
 
     dist.set_func([](){
-      deprecated();
+      DEPRECATE;
       // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Back");
       // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Front");
       // if(!inRange(static_cast<int>(r_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Right");
@@ -400,8 +400,8 @@ void main_setup(){
       else(screen_flash::start("No Errors Found", term_colours::GREEN));
     });
 
-    save_pos.set_func(deprecated);
-    auton_selector.set_func(deprecated);
+    save_pos.set_func([](){DEPRECATE});
+    auton_selector.set_func([](){DEPRECATE});
 
   //Tracking
     for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
@@ -428,15 +428,15 @@ void main_setup(){
       }
     });
 
-    res_y.set_func([](){deprecated();/*tracking.reset(tracking.g_pos.x, 0.0, tracking.g_pos.a);*/});
-    res_x.set_func([](){deprecated();/*tracking.reset(0.0, tracking.g_pos.y, tracking.g_pos.a);*/});
-    res_a.set_func([](){deprecated();/*tracking.reset(tracking.g_pos.x, tracking.g_pos.y, 0.0);*/});
+    res_y.set_func([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, 0.0, tracking.g_pos.a);*/});
+    res_x.set_func([](){DEPRECATE;/*tracking.reset(0.0, tracking.g_pos.y, tracking.g_pos.a);*/});
+    res_a.set_func([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, tracking.g_pos.y, 0.0);*/});
 
     res_all.set_func([](){
       right_tracker.reset();
       left_tracker.reset();
       back_tracker.reset();
-      deprecated();
+      DEPRECATE;
       // tracking.reset();
     });
 
@@ -444,13 +444,13 @@ void main_setup(){
       right_tracker.reset();
       left_tracker.reset();
       back_tracker.reset();
-      deprecated();
+      DEPRECATE;
       // tracking.reset(Position(x_val.get_value(), y_val.get_value(), a_val.get_value()));
     });
 
   //Driving
-    prev_drivr.set_func([](){deprecated();/*drivebase.prev_driver();*/});
-    next_drivr.set_func([](){deprecated();/*drivebase.next_driver();*/});
+    prev_drivr.set_func([](){DEPRECATE;/*drivebase.prev_driver();*/});
+    next_drivr.set_func([](){DEPRECATE;/*drivebase.next_driver();*/});
 
   //Moving
     moving.set_setup_func([](){
@@ -479,34 +479,34 @@ void main_setup(){
     // f_lift_val.max = f_lift.prog_positions.back();
 
     lift_move.set_setup_func([](){
-      deprecated();
+      DEPRECATE;
       // b_lift_val.set_value(b_lift_pot.get_value());
       // f_lift_val.set_value(f_lift_pot.get_value());
       // if(f_claw_o.get_state()) front_claw.select();
       // if(b_claw.get_state()) back_claw.select();
     });
 
-    front_claw.set_func([](){deprecated();/*f_claw(HIGH);*/});
-    front_claw.set_off_func([](){deprecated();/*f_claw(LOW);*/});
-    back_claw.set_func([](){deprecated();/*b_claw.set_state(HIGH);*/});
-    back_claw.set_off_func([](){deprecated();/*b_claw.set_state(LOW);*/});
+    front_claw.set_func([](){DEPRECATE;/*f_claw(HIGH);*/});
+    front_claw.set_off_func([](){DEPRECATE;/*f_claw(LOW);*/});
+    back_claw.set_func([](){DEPRECATE;/*b_claw.set_state(HIGH);*/});
+    back_claw.set_off_func([](){DEPRECATE;/*b_claw.set_state(LOW);*/});
 
     f_lift_move.set_func([&](){
       if (GUI::prompt("Press to move front lift to " + std::to_string(f_lift_val.get_value()), "", 1000)){
-        deprecated();
+        DEPRECATE;
         // f_lift.move_absolute(f_lift_val.get_value());
       }
     });
     b_lift_move.set_func([&](){
       if (GUI::prompt("Press to move back lift to " + std::to_string(b_lift_val.get_value()), "", 1000)){
-        deprecated();
+        DEPRECATE;
         // b_lift.move_absolute(b_lift_val.get_value());
       }
     });
 
   //Elastic Test
-    check_b_elastic.set_func([](){deprecated();/*b_lift.elastic_util(1011);*/});
-    check_f_elastic.set_func([](){deprecated();/*f_lift.elastic_util(935);*/});
+    check_b_elastic.set_func([](){DEPRECATE;/*b_lift.elastic_util(1011);*/});
+    check_f_elastic.set_func([](){DEPRECATE;/*f_lift.elastic_util(935);*/});
 
   //Tuning Tracking
     manual.select();
