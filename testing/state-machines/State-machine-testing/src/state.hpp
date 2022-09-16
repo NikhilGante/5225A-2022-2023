@@ -7,7 +7,6 @@
 #include "main.h"
 
 using namespace std;
-using namespace pros;
 
 #define GET_ID(type)\
   typeid(type).hash_code()

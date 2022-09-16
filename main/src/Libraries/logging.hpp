@@ -24,8 +24,7 @@ enum E_Log_Levels{
   off = 0,
 };
 
-enum class E_Log_Locations
-{
+enum class E_Log_Locations{
   terminal,
   sd,
   both,

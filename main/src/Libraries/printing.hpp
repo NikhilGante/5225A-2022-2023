@@ -72,34 +72,14 @@ void newline(int count = 1);
   std::string sprintf2(std::string fmt, const Param& arg, const Params&... args);
 
   /**
-  * @brief printf that handles strings and automatically newlines. Can print coloured and a timestamp
+  * @brief printf that handles strings and automatically newlines
   * 
   * @param colour The colour to print in 
   * @param fmt printf format string
   * @param args printf args
   */
   template <typename... Params>
-  std::string sprintf2_format(term_colours colour, int time_type, std::string fmt, Params... args);
-
-  /**
-  * @brief printf that handles strings and automatically newlines. Can print coloured and a timestamp
-  * 
-  * @param colour The colour to print in 
-  * @param fmt printf format string
-  * @param args printf args
-  */
-  template <typename... Params>
-  std::string sprintf2_no_colour(int time_type, std::string fmt, Params... args);
-
-  /**
-  * @brief printf that handles all datatypes and automatically newlines. Can print coloured and a timestamp
-  *
-  * @param colour The colour to print in 
-  * @param fmt printf format string
-  * @param args printf args
-  */
-  template <typename... Params>
-  int printf2(term_colours colour, int time_type, const char* fmt, Params... args);
+  std::string sprintf2_colour(term_colours colour, std::string fmt, Params... args);
 
   /**
   * @brief printf that handles all datatypes and automatically newlines. Can print coloured
@@ -118,7 +98,7 @@ void newline(int count = 1);
   * @param args printf args
   */
   template <typename... Params>
-  int printf2(const char* fmt, Params... args);
+  int printf2(std::string fmt, Params... args);
 
 //Convert Args Definitions
   template <typename T, typename> //Forces double / int overload instead
@@ -284,14 +264,10 @@ void newline(int count = 1);
     return whitespace + get_term_colour(colour) + str + get_term_colour(term_colours::NONE);
   }
   template <typename... Params>
-  int printf2(term_colours colour, int time_type, const char* fmt, Params... args){
-    return printf("%s\n", sprintf2_format(colour, fmt, args...).c_str());
-  }
-  template <typename... Params>
   int printf2(term_colours colour, std::string fmt, Params... args){
-    return printf("%s\n", sprintf2_format(colour, fmt, args...).c_str());
+    return printf("%s\n", sprintf2_colour(colour, fmt, args...).c_str());
   }
   template <typename... Params>
-  int printf2(const char* fmt, Params... args){
+  int printf2(std::string fmt, Params... args){
     return printf("%s\n", sprintf2(fmt, args...).c_str());
   }

@@ -2,7 +2,6 @@
 #include "main.h"
 #include <iostream>
 
-using namespace pros;
 using namespace std;
 //forward declarations
 class Timer;
@@ -67,8 +66,6 @@ double degToRad(double deg);
  * @return double 
  */
 double nearAngle(double angle, double reference);
-
-int random_direction();
 
 // gets the sign of a value (0, 1 or -1)
 template <typename T>

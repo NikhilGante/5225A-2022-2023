@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
 #include "Libraries/controller.hpp"
-using namespace pros;
 
 extern Controller master;
 extern Controller partner;
