@@ -42,7 +42,13 @@ public:
 };
 extern Tracking tracking;
 
+extern Vector r_goal, b_goal;
+
 void trackingUpdate();
 void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in
 void moveToTarget(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
-void turnToAngle(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.5);
+void turnToAngle(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+void turnToTarget(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+
+void aimAtRed();
+void aimAtBlue();

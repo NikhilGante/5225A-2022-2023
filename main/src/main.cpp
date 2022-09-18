@@ -8,6 +8,7 @@
 #include "Libraries/task.hpp"
 
 #include "Libraries/logging.hpp"
+#include "auton.hpp"
 
 #include "lift.hpp"
 #include "pros/misc.h"
@@ -28,13 +29,17 @@
 void initialize() {
 	// log_init();
 	lcd::initialize();
-	tracking.g_pos = {31.0, 11.5, 0.0};
-	// tracking.g_pos = {70.0, 129.5, M_PI};
+	// tracking.g_pos = {35.25, 11.25, 0.0};	// skills1
+	// tracking.g_pos = {68.00, 129.25, M_PI};	// skills2
+	tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
+
+	// tracking.g_pos = {0.0, 0.0, 0.0};
+
+	log_init();
 	_Task_ tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 	// Data::init();
 	// _Controller::init();
-	log_init();
 	delay(500);
 	// lift.runMachine();
 
@@ -154,29 +159,35 @@ void screen_task_fn (void* ignore){
 // start (70, 129.5)
 // end: (71, 11.5)
 
+// coords of high goal (approx)
+// Red: (18.0, 123.0)
+#define AIM_AT_RED radToDeg(M_PI_2 - (r_goal - tracking.g_pos).getAngle())
+#define AIM_AT_BLUE radToDeg(M_PI_2 - (b_goal - tracking.g_pos).getAngle())
+
+// STACK TRACE
+// 0x39083ec
+// 0x39083e0
+// 0x7800440
+// 0x780150c
+// 0x7801118
+// 0x384cd54
+// 0x384b410
+// 0x38458a0
+
 
 void opcontrol() {
-	// moveDrive(0.0, 127);
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// moveDrive(0.0, 0.0);
-	// WAIT_UNTIL(false);
-
 	// while(true){
-	// 	moveDriveSide(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
+	// 	handleInput();
 	// 	delay(10);
 	// }
-	// driveBrake();
-	// moveDriveSide(0.0, 20.0);
-	// moveDrive(20.0, 0.0);
-	// WAIT_UNTIL(false);
-	// {31.0, 11.5, 0.0}
-	turnToAngle(180.0);
+	// skills1();
+	// skills2();
+	skills3();
 
-	// moveToTarget({21.5, 25.5});
-	// while(true){
-	// 	moveDrive(master.get_analog(ANALOG_RIGHT_Y), master.get_analog(ANALOG_RIGHT_X));
-	// 	delay(10);
-	// }
+
+
+	// lcd::print(7, "total: %d", total.get_time());
+	// log("total: %d", total.get_time());
 
 
 	WAIT_UNTIL(false);

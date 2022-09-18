@@ -3,6 +3,7 @@ using namespace std;
 using namespace pros;
 FILE* logfile = NULL;
 
+pros::Mutex log_mutex;
 
 void log_init() {
   logfile = fopen("/usd/log.txt","w");
@@ -13,16 +14,17 @@ void log_init() {
 }
 
 void log(const char * format, ...){
-  // mutex.take(50);
   va_list arguments;
   va_start(arguments,format);
   vprintf(format,arguments);
   // printf("\n");
   if(logfile == NULL) return;
+  log_mutex.take();
   logfile = fopen("/usd/log.txt","a");
   vfprintf(logfile, format, arguments);
   fclose(logfile);
   va_end(arguments);
+  log_mutex.give();
 }
 
 // ACTUAL LOGGING START
