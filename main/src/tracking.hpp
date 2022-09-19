@@ -1,7 +1,10 @@
 #pragma once
-#include "Libraries/logging.hpp"
 #include "main.h"
+#include "Libraries/logging.hpp"
 #include "Libraries/geometry.hpp"
+#include "drive.hpp"
+#include "Libraries/pid.hpp"
+#include "Libraries/state.hpp"
 
 enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
@@ -26,15 +29,9 @@ public:
 
   // movement related fields
   Position power; // power to apply to the drive motors
-  double drive_error; // how far the robot is from it's target 
+  atomic<double> drive_error; // how far the robot is from it's target 
   void waitForComplete(); // waits until the motion completes
   void waitForDistance(double distance); // waits until the robot is within a certain distance from it's target
-
-  // helper methods for motion algorithms
-  void supplyMinPower(const Position& error);  // if any axis has less than the min power, give it min power 
-  void scalePowers(uint8_t max_power, uint8_t min_angle_power);  // scales powers so that the drivebase doesn't travel faster than max_power
-  // ensures drivebase gets enough angle power AFTER scaling
-  void guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_power_a, uint8_t max_power);
 
   // // moveToTarget is declared a friend so it can access private tracking properties
   // friend void moveToTarget(Position, E_Brake_Modes, double max_power, double exit_power, bool overshoot, double end_error_d, double end_error_a);
@@ -46,9 +43,85 @@ extern Vector r_goal, b_goal;
 
 void trackingUpdate();
 void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in
-void moveToTarget(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
-void turnToAngle(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
-void turnToTarget(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
+// Wrapper functions for drive states (motion algorithms)
+void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+
+void turnToAngleSync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+
+void turnToTargetSync(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+void turnToTargetAsync(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+
+
+// Takes a function that returns an angle in radians
+void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 void aimAtRed();
 void aimAtBlue();
+
+// state machine stuff
+
+// Forward declarations
+struct DriveIdleParams;
+struct DriveMttParams;
+struct DriveTurnToAngleParams;
+struct DriveTurnToTargetParams;
+struct DriveResetParams;
+
+#define DRIVE_STATE_TYPES DriveIdleParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveResetParams
+
+#define DRIVE_STATE_TYPES_VARIANT std::variant<DRIVE_STATE_TYPES>
+
+struct DriveIdleParams{
+  const char* getName();
+  void handle();
+  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+};
+
+struct DriveMttParams{
+  Vector target;
+  E_Brake_Modes brake_mode = E_Brake_Modes::brake;
+  uint8_t max_power = 127;
+  double end_error_x = 1.0;
+  E_Robot_Sides robot_side = E_Robot_Sides::automatic;
+
+  DriveMttParams(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+
+  const char* getName();
+  void handle();
+  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+};
+
+struct DriveTurnToAngleParams{
+  double angle;
+  E_Brake_Modes brake_mode = E_Brake_Modes::brake;
+  double end_error = 2.0;
+  
+  DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+
+  const char* getName();
+  void handle();
+  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+};
+
+struct DriveTurnToTargetParams{
+  Vector target;
+  bool reverse = false;
+  E_Brake_Modes brake_mode = E_Brake_Modes::brake;
+  double end_error = 2.0;
+  
+  DriveTurnToTargetParams(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+
+  const char* getName();
+  void handle();
+  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+};
+
+struct DriveResetParams{
+  const char* getName();
+  void handle();
+  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+};
+
+extern Machine<DRIVE_STATE_TYPES> drive;

@@ -29,9 +29,9 @@
 void initialize() {
 	// log_init();
 	lcd::initialize();
-	// tracking.g_pos = {35.25, 11.25, 0.0};	// skills1
+	tracking.g_pos = {35.25, 11.25, 0.0};	// skills1
 	// tracking.g_pos = {68.00, 129.25, M_PI};	// skills2
-	tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
+	// tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
 
 	// tracking.g_pos = {0.0, 0.0, 0.0};
 
@@ -42,6 +42,7 @@ void initialize() {
 	// _Controller::init();
 	delay(500);
 	// lift.runMachine();
+	drive.runMachine();
 
 }
 
@@ -161,8 +162,6 @@ void screen_task_fn (void* ignore){
 
 // coords of high goal (approx)
 // Red: (18.0, 123.0)
-#define AIM_AT_RED radToDeg(M_PI_2 - (r_goal - tracking.g_pos).getAngle())
-#define AIM_AT_BLUE radToDeg(M_PI_2 - (b_goal - tracking.g_pos).getAngle())
 
 // STACK TRACE
 // 0x39083ec
@@ -176,13 +175,30 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
-	// while(true){
-	// 	handleInput();
-	// 	delay(10);
-	// }
-	// skills1();
+	// front_r.move_relative(0, 200);
+  // centre_r.move_relative(0, 200);
+  // back_r.move_relative(0, 200);
+	while(true){
+		handleInput();
+		// int l = master.get_analog(ANALOG_LEFT_Y);
+		// front_l.move(l);
+		// centre_l.move(l);
+		// back_l.move(l);
+		// moveDriveSide(l, -10);
+		delay(10);
+	}
+	// turnToTargetAsync({-25.0, 40.0});
+	// tracking.waitForComplete();
+	// drive.changeState(DriveMttParams{{5.0, 30.0}});
+	// tracking.waitForComplete();
+	// drive.changeState(DriveTurnToAngleParams{50.0});
+	// drive.changeState(DriveTurnToTargetParams{{10.0, 5.0}});
+	// turnToTargetSync({10.0, 10.0});
+
+	// auton50pts();
+	skills1();
 	// skills2();
-	skills3();
+	// skills3();
 
 
 
@@ -205,7 +221,7 @@ void opcontrol() {
 	// char txt2[] = "hello uwu\n";
 	// data.print(txt2);
 	// data.print("hello\n");
-	// data.print("my name is ");
+	data.print("my name is ");
 	// data.print("bob");
 	// data.print("nice to\t eat you\n");
 	// data.print("kbye");

@@ -1,10 +1,8 @@
 #include <cmath>
 #include "config.hpp"
 #include "tracking.hpp"
-#include "Libraries/pid.hpp"
 #include "Libraries/timer.hpp"
 #include "util.hpp"
-#include "drive.hpp"
 
 // Coords of high goal
 Vector r_goal = {18.0, 123.0}, b_goal = {123.0, 18.0};
@@ -118,10 +116,11 @@ void trackingUpdate(){
 
 void Tracking::waitForComplete(){
   // WAIT_UNTIL()  // state and next == idle
+  drive.waitToReachState(DriveIdleParams{});
 }
 
 void Tracking::waitForDistance(double distance){
-  WAIT_UNTIL(drive_error <= distance);
+  WAIT_UNTIL(fabs(drive_error.load()) <= distance);
 }
 
 void handleBrake(E_Brake_Modes brake_mode){
@@ -138,13 +137,102 @@ void handleBrake(E_Brake_Modes brake_mode){
   }
 }
 
-void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side){
+// void turnToAngle(double angle, E_Brake_Modes brake_mode, double end_error){
+//   turnToAngleInternal(function([=](){return degToRad(angle);}), brake_mode, end_error);
+// };
+// void turnToTarget(Vector target, bool reversed, E_Brake_Modes brake_mode, double end_error){
+//   turnToAngleInternal(function([=](){
+//     return M_PI_2 - (target - tracking.g_pos).getAngle() + (reversed? M_PI : 0);
+//   }), brake_mode, end_error);
+// };
+
+// Wrapper functions for drive states (motion algorithms)
+void moveToTargetSync(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side){
+  drive.changeState(DriveMttParams{target, brake_mode, max_power, end_error_x, robot_side});
+  tracking.waitForComplete();
+}
+void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side){
+  drive.changeState(DriveMttParams{target, brake_mode, max_power, end_error_x, robot_side});
+}
+
+void turnToAngleSync(double angle, E_Brake_Modes brake_mode, double end_error){
+  drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error});
+  tracking.waitForComplete();
+}
+void turnToAngleAsync(double angle, E_Brake_Modes brake_mode, double end_error){
+  drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error});
+}
+
+void turnToTargetSync(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error){
+  drive.changeState(DriveTurnToTargetParams{target, reverse, brake_mode, end_error});
+  tracking.waitForComplete();
+}
+
+void turnToTargetAsync(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error){
+  drive.changeState(DriveTurnToTargetParams{target, reverse, brake_mode, end_error});
+  tracking.waitForComplete();
+}
+
+void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error){
+  end_error = degToRad(end_error);
+  PID angle_pid(5.0, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
+  PID velocity_pid(0.0, 0.0, 0.0, 0.0);
+  double kB = 18.2; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  Timer motion_timer{"motion_timer"};
+  double kP_vel = 15.0;
+  do{
+    tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
+    double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
+    double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
+    if(fabs(power) > 127) power = sgn(power) * 127;
+    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 5.0) power = sgn(power) * tracking.min_move_power_a;
+    // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
+    moveDrive(0.0, power);
+    _Task_::delay(10);
+  }
+  while(fabs(angle_pid.getError()) > end_error);
+  handleBrake(brake_mode);
+  log("%lld TURN TO ANGLE MOTION DONE x:%lf y:%lf, a:%lf\n", motion_timer.get_time(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  drive.changeState(DriveIdleParams{});
+}
+
+
+void aimAtRed(){
+  turnToTargetSync(r_goal);
+}
+void aimAtBlue(){
+  turnToTargetSync(b_goal);
+}
+
+
+
+
+// STATE MACHINE STUFF 
+
+Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
+
+// drive idle state
+const char* DriveIdleParams::getName(){
+  return "DriveIdle";
+}
+void DriveIdleParams::handle(){}
+void DriveIdleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+
+// Drive move to target state
+DriveMttParams::DriveMttParams(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side) :
+ target(target), brake_mode(brake_mode), max_power(max_power), end_error_x(end_error_x), robot_side(robot_side){}
+
+const char* DriveMttParams::getName(){
+  return "DriveMoveToTarget";
+}
+void DriveMttParams::handle(){
   Vector line_error = target - tracking.g_pos;  // Displacement from robot's position to target
   double line_angle = M_PI_2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
-  PID y_pid(4.0, 0.008, 200.0, 0.0, true, 0.0, 8.0);
+  PID y_pid(4.5, 0.01, 100.0, 0.0, true, 0.0, 8.0);
+  // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:
       power_sgn = 1;
@@ -158,13 +246,14 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, do
       break;
   }
   // log("power_sgn: %d\n", power_sgn);
-  const double kP_a = 3.0;  // proportional multiplier for angular error
+  const double kP_a = 2.0;  // proportional multiplier for angular error
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
     // log("vals %lf %lf\n", M_PI_2 - line_error.getAngle(), (power_sgn == -1 ? M_PI : 0));
     double error_a = nearAngle((M_PI_2 - line_error.getAngle()) + (power_sgn == -1 ? M_PI : 0), tracking.g_pos.a);
     line_error.rotate(line_angle);  // Now represents displacement relative to the line the robot is following
+    tracking.drive_error = line_error.getY(); 
     double power_y = y_pid.compute(-power_sgn*line_error.getY(), 0.0);  // RUN PID HERE
     if(fabs(power_y) > max_power) power_y = sgn(power_y) * max_power;
     else if(fabs(power_y) < tracking.min_move_power_y) power_y = sgn(power_y) * tracking.min_move_power_y;
@@ -189,71 +278,57 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, do
     // log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
 
     // log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
+    log("%lf %lf\n", left_power, right_power);
     moveDriveSide(left_power, right_power);
-    delay(10);
-  }
+    _Task_::delay(10);
+  }  
   while(line_error.getY() > 0.5);
   log("%lld MOTION DONE x:%lf y:%lf, a:%lf\n", motion_timer.get_time(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   handleBrake(brake_mode);
+  drive.changeState(DriveIdleParams{});
 }
+void DriveMttParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
-void turnToAngle(double angle, E_Brake_Modes brake_mode, double end_error){
-  end_error = degToRad(end_error);
-  angle = degToRad(angle);
-  PID angle_pid(5.0, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
-  PID velocity_pid(0.0, 0.0, 0.0, 0.0);
-  double kB = 18.2; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
-  Timer motion_timer{"motion_timer"};
-  double kP_vel = 15.0;
-  do{
-    double target_velocity = angle_pid.compute(-nearAngle(angle, tracking.g_pos.a), 0.0);
-    double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
-    if(fabs(power) > 127) power = sgn(power) * 127;
-    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 5.0) power = sgn(power) * tracking.min_move_power_a;
-    // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
-    moveDrive(0.0, power);
-    delay(10);
-  }
-  while(fabs(angle_pid.getError()) > end_error);
-  handleBrake(brake_mode);
-  log("%lld TURN TO ANGLE MOTION DONE x:%lf y:%lf, a:%lf\n", motion_timer.get_time(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
-  // lcd::print(7, "MOTION DONE %lld\n", motion_timer.get_time());
+// Drive Turn to Angle State
+DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode, double end_error):
+  angle(angle), brake_mode(brake_mode), end_error(end_error){}
+
+const char* DriveTurnToAngleParams::getName(){
+  return "DriveTurnToAngle";
 }
-
-void turnToTarget(Vector target, bool reversed, E_Brake_Modes brake_mode, double end_error){
-  end_error = degToRad(end_error);
-  PID angle_pid(5.0, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
-  PID velocity_pid(0.0, 0.0, 0.0, 0.0);
-  double kB = 18.2; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
-  Timer motion_timer{"motion_timer"};
-  double kP_vel = 15.0;
-  do{
-    double angle = M_PI_2 - (target - tracking.g_pos).getAngle() + (reversed? M_PI : 0); // target
-    double target_velocity = angle_pid.compute(-nearAngle(angle, tracking.g_pos.a), 0.0);
-    double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
-    if(fabs(power) > 127) power = sgn(power) * 127;
-    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 5.0) power = sgn(power) * tracking.min_move_power_a;
-    log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
-    moveDrive(0.0, power);
-    delay(10);
-  }
-  while(fabs(angle_pid.getError()) > end_error);
-  handleBrake(brake_mode);
-  log("%lld TURN TO POINT MOTION DONE x:%lf y:%lf, a:%lf\n", motion_timer.get_time(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
-  // lcd::print(7, "MOTION DONE %lld\n", motion_timer.get_time());
+void DriveTurnToAngleParams::handle(){
+  turnToAngleInternal(function([=](){return degToRad(angle);}), brake_mode, end_error);
 }
+void DriveTurnToAngleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
-void aimAtRed(){
-  turnToTarget(r_goal);
+// Drive Turn to Target State
+DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error):
+  target(target), brake_mode(brake_mode), end_error(end_error){}
+
+const char* DriveTurnToTargetParams::getName(){
+  return "DriveTurnToAngle";
 }
-void aimAtBlue(){
-  turnToTarget(b_goal);
+void DriveTurnToTargetParams::handle(){
+  turnToAngleInternal(function([=](){
+    return M_PI_2 - (target - tracking.g_pos).getAngle() + (reverse? M_PI : 0);
+  }), brake_mode, end_error);
 }
+void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
-// 3.606818, -11.877213, -62.104642, -66.909224, -0.000218, 120.628709
-// vals 4.183958 3.141593
+// Drive reset state
 
 
-// this one
-// vals 3.605240 3.141593
-// 0.000000, 0.000000, 0.000000, -111.803399, -6.923049, 26.565051
+const char* DriveResetParams::getName(){
+  return "DriveReset";
+}
+void DriveResetParams::handle(){
+  // b_lift_m.move(-20);
+  // Timer vel_rise_timer{"vel_rise_timer"};
+  // while(fabs(b_lift_m.get_actual_velocity()) < 20 && vel_rise_timer.get_time() < 100) _Task_::delay(10);
+  // while(fabs(b_lift_m.get_actual_velocity()) > 10) _Task_::delay(10);
+  // b_lift_m.tare_position();
+	// lift.changeState(DriveIdleParams{});
+  drive.changeState(DriveIdleParams{});
+}
+void DriveResetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+
