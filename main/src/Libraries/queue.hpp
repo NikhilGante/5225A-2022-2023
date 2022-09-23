@@ -30,6 +30,8 @@ public:
     return front == -1;
   }
 
+  
+
   void print(){ // prints all the elements in the queue
     if(isEmpty()){
       printf("Queue \"%s\" is empty, nothing to print\n", name);
@@ -58,18 +60,19 @@ public:
   }
 
   void push(T arr[], size_t arr_len){ // enqueue multiple elements
-    size_t elements_available = size - getDataSize();
+    const size_t elements_available = size - getDataSize();
     if(arr_len > elements_available){
       // pros::lcd::print();
       pros::lcd::print(0, "%s | More elements pushed than elements available: pushing %d elements of %d elements requested.\n", name, elements_available, arr_len);
       arr_len = elements_available;
     }
-    size_t elements_till_end = size - rear - 1;
+
+    const size_t elements_till_end = size - rear - 1;
     if(arr_len > elements_till_end){ // if the push needs to rollover
+      const size_t leftover = arr_len - elements_till_end;
       memcpy(data + rear + 1, arr, elements_till_end * t_size);  // copies from rear to end of queue
-      size_t leftover = arr_len - elements_till_end;
       memcpy(data, arr + elements_till_end, leftover * t_size);  // copies leftover to start of queue
-      rear = leftover - 1;
+      rear += arr_len - size;
     }
     else{
       if (isEmpty()){

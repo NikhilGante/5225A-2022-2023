@@ -55,16 +55,4 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   }
 }
 
-void Data::print(const char* format, ...){
-  const int buffer_size = 256;  // max amount of chars allowed to be printed
-  char buffer[buffer_size];
-  va_list args;
-  va_start (args, format);
-  int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
-  if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
-  va_end (args);
-
-  queue.push(buffer, strlen(buffer)); // pushes buffer to queue
-}
-
 

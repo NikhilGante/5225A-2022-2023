@@ -742,7 +742,7 @@ namespace screen_flash{
     current_gui->setup();
     if(terminal.active) terminal.go_to();
     else go_to(1); //Sets it to page 1 for program start. Don't delete this. If you want to change the starting page, call GUI::go_to(Page Number) in initialize()
-    //update();
+    
     GUI::task.start(update);
   }
 

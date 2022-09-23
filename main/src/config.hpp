@@ -11,5 +11,8 @@ extern pros::Rotation left_tracker, right_tracker, back_tracker;
 
 extern pros::Motor b_lift_m; //should this still be here?
 
-#define DEPRECATE do{printf("Trying to use a deprecated feature. File:%s | Function:%s | Line:%d\n", __FILE__, __PRETTY_FUNCTION__, __LINE__); screen_flash::start("DEPRECATED");} while(0);
-#define TO_IMPLEMENT do{printf("Trying to use a feature that is not yet implemented. File:%s | Function:%s | Line:%d\n", __FILE__, __PRETTY_FUNCTION__, __LINE__); screen_flash::start("NOT IMPLEMENTED");} while(0);
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define DEBUG printf("DEBUG INFO - File:%s | Function:%s | Line:%d\n", __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
+#define DEPRECATE do{printf("Trying to use a deprecated feature:  "); DEBUG; screen_flash::start("DEPRECATED");} while(0);
+#define TO_IMPLEMENT do{printf("Trying to use a feature that is not yet implemented: "); DEBUG; screen_flash::start("NOT IMPLEMENTED");} while(0);
