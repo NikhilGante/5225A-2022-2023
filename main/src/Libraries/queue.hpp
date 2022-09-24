@@ -5,6 +5,7 @@
 #include <array>
 #include <limits.h>
 #include <fstream>
+#include <limits>
 using namespace std;
 
 template <typename T, size_t size>
@@ -84,7 +85,7 @@ public:
   T pop(){ // dequeue
     if(isEmpty()){
       printf("Queue \"%s\" is empty, pop failed\n", name);
-      return INT_MIN;
+      return std::numeric_limits<T>::min();
     }
 
     T result = data[front];
