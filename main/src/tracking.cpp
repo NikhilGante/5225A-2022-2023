@@ -5,7 +5,7 @@
 #include "util.hpp"
 
 // Coords of high goal
-Vector r_goal = {18.0, 123.0}, b_goal = {123.0, 18.0};
+Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
 
@@ -97,7 +97,8 @@ void trackingUpdate(){
 
     // printf("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     if(tracking_timer.get_time() > 50){
-      // log("%lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+      // log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
+      log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // log("%lf\n", radToDeg(tracking.g_vel.a));
 
       log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
@@ -278,12 +279,12 @@ void DriveMttParams::handle(){
     // log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
 
     // log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
-    log("%lf %lf\n", left_power, right_power);
+    // log("%lf %lf\n", left_power, right_power);
     moveDriveSide(left_power, right_power);
     _Task_::delay(10);
   }  
   while(line_error.getY() > 0.5);
-  log("%lld MOTION DONE x:%lf y:%lf, a:%lf\n", motion_timer.get_time(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  log("%lld MTT MOTION DONE to x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.get_time(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   handleBrake(brake_mode);
   drive.changeState(DriveIdleParams{});
 }
@@ -297,7 +298,7 @@ const char* DriveTurnToAngleParams::getName(){
   return "DriveTurnToAngle";
 }
 void DriveTurnToAngleParams::handle(){
-  turnToAngleInternal(function([=](){return degToRad(angle);}), brake_mode, end_error);
+  turnToAngleInternal(function([&](){return degToRad(angle);}), brake_mode, end_error);
 }
 void DriveTurnToAngleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
@@ -309,7 +310,7 @@ const char* DriveTurnToTargetParams::getName(){
   return "DriveTurnToAngle";
 }
 void DriveTurnToTargetParams::handle(){
-  turnToAngleInternal(function([=](){
+  turnToAngleInternal(function([&](){
     return M_PI_2 - (target - tracking.g_pos).getAngle() + (reverse? M_PI : 0);
   }), brake_mode, end_error);
 }

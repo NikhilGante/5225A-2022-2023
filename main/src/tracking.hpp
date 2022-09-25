@@ -21,7 +21,7 @@ enum class E_Robot_Sides{
 class Tracking{
   
 public:
-  const double min_move_power_y = 25.0, min_move_power_a = 30.0;
+  const double min_move_power_y = 30.0, min_move_power_a = 30.0;
   // odometry related variables
   double l_vel, r_vel, b_vel; // velocities of each of the tracking wheel in inches/sec
   Position g_pos{};

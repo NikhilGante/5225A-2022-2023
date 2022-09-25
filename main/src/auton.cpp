@@ -85,3 +85,78 @@ void auton50pts(){
   log("total: %d", total.get_time());
 	lcd::print(7, "total: %d", total.get_time());
 }
+
+// NEW SKILLS
+
+// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};
+void new_skills1(){ // 12 seconds
+  Timer total{"total_timer"};
+  moveToTargetSync({34.75, 46.00}, E_Brake_Modes::brake, 65);
+  aimAtBlue();
+  delay(1500);// shoot 3 discs
+  moveToTargetSync({59.00, 83.00}); // intake line of 3 discs
+  aimAtBlue();
+  delay(1500);// shoot 3 discs
+
+  turnToTargetSync({109.0, 129.0}); 
+  moveToTargetSync({109.0, 129.0}, E_Brake_Modes::brake, 80); // intake stack of discs
+  turnToAngleSync(180);
+  delay(1000);  // "reset"
+
+  log("total: %d", total.get_time());
+	lcd::print(7, "total: %d", total.get_time());
+}
+
+
+// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};
+void new_skills2(){ // 18 seconds
+  Timer total{"total_timer"};
+  moveToTargetSync({106.5, 115.0});
+  aimAtRed();
+  delay(1500);  // shoot 3 discs
+  moveToTargetSync({112.0, 99.0});  // intake stack
+  aimAtRed();
+  delay(1500);  // shoot 3 discs
+  moveToTargetSync({83.0, 57.0});   // intake line of 3 discs
+  aimAtRed();
+  delay(1500);  // shoot 3 discs
+
+  moveToTargetSync({75.0, 65.0});   // backup on to centreline
+  turnToTargetSync({20.0, 20.0});   // turn to face line
+  moveToTargetSync({20.0, 20.0}, E_Brake_Modes::brake, 80, 2.0);   // go to corner
+
+  turnToAngleSync(90.0);  // face wall
+  delay(2000); // reset
+
+  log("total: %d", total.get_time());
+	lcd::print(7, "total: %d", total.get_time());
+}
+
+// tracking.g_pos = {11.25, 23.5, degToRad(90.0)};
+void new_skills3(){ // 14 seconds
+  Timer total{"total_timer"};
+  moveToTargetSync({48.0, 35.0});   // go to stack
+  aimAtRed();
+  delay(1500);  // shoot 3 discs
+  moveToTargetSync({80.0, 35.0});   // intake stack
+  aimAtRed();
+  delay(1500);  // shoot 3 discs
+
+  turnToTargetSync({73.0, 63.0});   // face centreline
+  moveToTargetSync({73.0, 63.0}, E_Brake_Modes::coast);   // go to centreline
+
+  moveToTargetSync({118.0, 118.0}, E_Brake_Modes::brake, 80);   // go to corner
+  turnToAngleSync(-90); // face wall
+  moveToTargetSync({127.0, 118.0}); // move to wall
+
+  delay(1000); // reset
+
+  log("total: %d", total.get_time());
+	lcd::print(7, "total: %d", total.get_time());
+}
+
+// tracking.g_pos = {116.5, 116.5, degToRad(-90.0)};
+void new_skills4(){ // 
+  moveToTargetSync({127.0, 118.0}); // move away from wall
+
+}
