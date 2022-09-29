@@ -29,10 +29,10 @@
 void initialize() {
 	// log_init();
 	lcd::initialize();
-	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
+	tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
 	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
 	// tracking.g_pos = {11.25, 23.5, degToRad(90.0)};	// new_skills3
-	tracking.g_pos = {129.75, 116.5, degToRad(-90.0)}; // new_skills4
+	// tracking.g_pos = {129.75, 116.5, degToRad(-90.0)}; // new_skills4
 
 
 	// tracking.g_pos = {35.25, 11.25, 0.0};	// skills1
@@ -181,10 +181,14 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
+	flattenAgainstWallSync();	
+	tracking.reset();
+	// turnToTargetSync({40.0, -40.0}, true);
+	// WAIT_UNTIL(false);
 	// new_skills1();
 	// new_skills2();
 	// new_skills3();
-	new_skills4();
+	// new_skills4();
 	WAIT_UNTIL(false);
 	// front_r.move_relative(0, 200);
   // centre_r.move_relative(0, 200);
@@ -202,7 +206,7 @@ void opcontrol() {
 	// turnToTargetSync({10.0, 10.0});
 
 	// auton50pts();
-	skills1();
+	// skills1();
 	// skills2();
 	// skills3();
 

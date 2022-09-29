@@ -67,8 +67,8 @@ void _Task_::delay(uint32_t delay_time){
         break;
     }
     // ensures to sleep at most 10ms, or time left if that's less than 10ms 
-    int32_t time_left = delay_time - delay_timer.get_time();
+    int32_t time_left = delay_time - delay_timer.getTime();
     pros::delay(min<int32_t>(time_left < 0 ? 0: time_left, 10l));
   }
-  while(delay_timer.get_time() < delay_time);
+  while(delay_timer.getTime() < delay_time);
 }

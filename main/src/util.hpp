@@ -11,13 +11,13 @@ class Timer;
 
 
 // cycle check macro (checks a condition for a specified amount of cycles)
-#define CYCLE_CHECK(condition, checkCount, delayTime) \
+#define CYCLE_CHECK(exit_condition, checkCount, delayTime) \
 {\
     int successCount = 0;\
     while (successCount < checkCount){\
-      if (condition) successCount++;\
+      if (exit_condition) successCount++;\
       else successCount = 0;\
-      delay(delayTime);\
+      _Task_::delay(delayTime);\
     }\
 }
 

@@ -22,20 +22,18 @@ class Tracking{
   
 public:
   const double min_move_power_y = 30.0, min_move_power_a = 30.0;
-  // odometry related variables
-  double l_vel, r_vel, b_vel; // velocities of each of the tracking wheel in inches/sec
+  // Odometry related variables
+  double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
+  Mutex pos_mutex; // locks g_pos
   Position g_pos{};
   Position g_vel;
 
-  // movement related fields
+  // Movement related fields
   Position power; // power to apply to the drive motors
-  atomic<double> drive_error; // how far the robot is from it's target 
-  void waitForComplete(); // waits until the motion completes
-  void waitForDistance(double distance); // waits until the robot is within a certain distance from it's target
-
-  // // moveToTarget is declared a friend so it can access private tracking properties
-  // friend void moveToTarget(Position, E_Brake_Modes, double max_power, double exit_power, bool overshoot, double end_error_d, double end_error_a);
-
+  atomic<double> drive_error; // How far the robot is from it's target 
+  void waitForComplete(); // Waits until the motion completes
+  void waitForDistance(double distance); // Waits until the robot is within a certain distance from it's target
+  void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
 };
 extern Tracking tracking;
 
@@ -54,22 +52,24 @@ void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::br
 void turnToTargetSync(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 void turnToTargetAsync(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
+void flattenAgainstWallSync();
+void flattenAgainstWallAsync();
 
 // Takes a function that returns an angle in radians
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 void aimAtRed();
 void aimAtBlue();
 
-// state machine stuff
+// State machine stuff
 
 // Forward declarations
 struct DriveIdleParams;
 struct DriveMttParams;
 struct DriveTurnToAngleParams;
 struct DriveTurnToTargetParams;
-struct DriveResetParams;
+struct DriveFlattenParams;
 
-#define DRIVE_STATE_TYPES DriveIdleParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveResetParams
+#define DRIVE_STATE_TYPES DriveIdleParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveFlattenParams
 
 #define DRIVE_STATE_TYPES_VARIANT std::variant<DRIVE_STATE_TYPES>
 
@@ -118,7 +118,7 @@ struct DriveTurnToTargetParams{
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
 
-struct DriveResetParams{
+struct DriveFlattenParams{
   const char* getName();
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);

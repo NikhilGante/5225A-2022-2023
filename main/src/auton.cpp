@@ -24,8 +24,8 @@ void skills1(){
 	moveToTargetSync({71.0, 126.5}); // goes to match loader
 	turnToAngleSync(180);
 	delay(1000); // reset
-	log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+	log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
 }
 
 // tracking.g_pos = {68.0, 129.25, M_PI};
@@ -50,8 +50,8 @@ void skills2(){
   turnToAngleSync(0.0);
   delay(1000);  // reset
 
-	log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+	log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
   // shoot match loads here
 }
 // tracking.g_pos = {72.0, 11.25, 0.0};
@@ -62,8 +62,8 @@ void skills3(){
   delay(5000);
   moveToTargetSync({24.0, 24.0});
   turnToAngleSync(45.0);
-  log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+  log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
   // expand
 }
 
@@ -82,8 +82,8 @@ void auton50pts(){
   delay(1000);  // reset
   delay(2500); // move and face red goal
   delay(1500);// shoot 3 discs
-  log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+  log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
 }
 
 // NEW SKILLS
@@ -103,15 +103,15 @@ void new_skills1(){ // 12 seconds
   turnToAngleSync(180);
   delay(1000);  // "reset"
 
-  log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+  log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
 }
 
 
 // tracking.g_pos = {108.0, 129.75, degToRad(180.0)};
-void new_skills2(){ // 18 seconds
+void new_skills2(){ // 17 seconds
   Timer total{"total_timer"};
-  moveToTargetSync({106.5, 115.0});
+  moveToTargetSync({104.0, 117.0}); // move away from wall
   aimAtRed();
   delay(1500);  // shoot 3 discs
   moveToTargetSync({112.0, 99.0});  // intake stack
@@ -128,8 +128,8 @@ void new_skills2(){ // 18 seconds
   turnToAngleSync(90.0);  // face wall
   delay(2000); // reset
 
-  log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+  log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
 }
 
 // tracking.g_pos = {11.25, 23.5, degToRad(90.0)};
@@ -151,12 +151,20 @@ void new_skills3(){ // 14 seconds
 
   delay(1000); // reset
 
-  log("total: %d", total.get_time());
-	lcd::print(7, "total: %d", total.get_time());
+  log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
 }
 
 // tracking.g_pos = {116.5, 116.5, degToRad(-90.0)};
-void new_skills4(){ // 
+void new_skills4(){ // takes 5 seconds
+  Timer total{"total_timer"};
   moveToTargetSync({127.0, 118.0}); // move away from wall
-
+  aimAtRed();
+  delay(1500);  // shoot 3 discs
+  turnToTargetSync({118.0, 118.0}, false);
+  moveToTargetSync({118.0, 118.0}, E_Brake_Modes::brake, 80.0); // goes to corner tile
+  turnToAngleSync(-135.0); // face centreline
+  log("total: %d", total.getTime());
+	lcd::print(7, "total: %d", total.getTime());
+  // expand
 }

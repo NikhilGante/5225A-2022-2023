@@ -64,7 +64,7 @@ void handleInput(){
   int power_x, power_y, power_a;
 
   power_y = master.get_analog(ANALOG_LEFT_Y);
-  power_a = polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
   if(abs(power_y) < 7) power_y = 0;
   if(abs(power_a) < 7) power_a = 0;

@@ -19,7 +19,7 @@ public:
   Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis);
   uint64_t getLastResetTime();
   void reset(bool play = true);
-  uint64_t get_time();
+  uint64_t getTime();
   void play();
   void pause();
   void print(const char* str = ""); // prints to the terminal with custom message

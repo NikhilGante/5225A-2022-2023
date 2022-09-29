@@ -20,7 +20,7 @@ void Timer::reset(bool play){
   else  paused = true;
 }
 
-uint64_t Timer::get_time(){
+uint64_t Timer::getTime(){
   if (paused) return time;
   else  return getTimeInTimingUnit() - last_play_time + time;
 }
@@ -42,7 +42,7 @@ void Timer::pause(){
 }
 
 void Timer::print(const char* str){
-  printf("%s's current time is: %lld | %s\n", name, get_time(), str);
+  printf("%s's current time is: %lld | %s\n", name, getTime(), str);
 }
 
 uint64_t Timer::getTimeInTimingUnit(){ // returns time in either millis or micros
