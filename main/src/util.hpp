@@ -6,7 +6,7 @@ using namespace std;
 //forward declarations
 class Timer;
 
-#define WAIT_UNTIL(condition) while(pros::delay(10), !(condition));
+#define WAIT_UNTIL(condition) while(pros::delay(10), !(condition)) //! DO NOT ADD A SEMICOLON
 
 
 // cycle check macro (checks a condition for a specified amount of cycles)

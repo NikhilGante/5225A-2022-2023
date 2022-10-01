@@ -423,7 +423,7 @@ namespace screen_flash{
 
 //Methods
   Page* Page::page_id(int page_num){
-    return GUI::current_gui->pages[page_num];
+    return GUI::current_gui->pages.at(page_num);
   }
 
   int Page::page_num(const Page* page_id){
@@ -741,8 +741,10 @@ namespace screen_flash{
 
     current_gui->setup();
     if(terminal.active) terminal.go_to();
-    else go_to(1); //Sets it to page 1 for program start. Don't delete this. If you want to change the starting page, call GUI::go_to(Page Number) in initialize()
-    
+    else go_to(1); //! Sets it to page 1 for program start. Don't delete this. If you want to change the starting page, call GUI::go_to(Page Number) in initialize()
+
+    current_page->go_to(); //? I should not need to go to a page I'm already on, but it doesn't draw the page fully the first time
+
     GUI::task.start(update);
   }
 
