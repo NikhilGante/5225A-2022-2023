@@ -287,7 +287,7 @@ void DriveMttParams::handle(){
     // log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
 
     // log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
-    // log("%lf %lf\n", left_power, right_power);
+    log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
     moveDriveSide(left_power, right_power);
     _Task_::delay(10);
   }  

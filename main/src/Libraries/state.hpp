@@ -62,10 +62,10 @@ public:
     printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     setTargetState(next_state);
     state_change_requested = true;
-    task.kill();  // interrupts current state
+    task.kill();  // Interrupts current state
   }
   
-  // getters and setters for state and target state (since they need mutexes)
+  // Getters and setters for state and target state (since they need mutexes)
   void setState(variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
     state = state_param;
@@ -97,7 +97,7 @@ public:
     task.start([&](){
       while(true){
         try{
-          visit([](auto&& arg){arg.handle();}, state);  // calls handler for current state
+          visit([](auto&& arg){arg.handle();}, state);  // Calls handler for current state
         }
         catch(const TaskEndException& exception){
         }
@@ -105,7 +105,7 @@ public:
         if(state_change_requested){
           variant<StateTypes...> target_state_cpy = getTargetState();
           variant<StateTypes...> state_cpy = getState();
-          // calls handle state change method for target state and logs the change
+          // Calls handle state change method for target state and logs the change
           printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
           printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
@@ -122,7 +122,7 @@ public:
     return visit([](auto&& arg){return arg.getName();}, state);
   }
 
-  void waitToReachState(variant<StateTypes...> state_param){  // blocks until desired state is reached
+  void waitToReachState(variant<StateTypes...> state_param){  // Blocks until desired state is reached
     size_t index = state_param.index();
     WAIT_UNTIL(getTargetState().index() == index && getState().index() == index);
   }

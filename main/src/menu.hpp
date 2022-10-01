@@ -1,11 +1,12 @@
-#pragma once
-#include "auton.hpp"
-#include <functional>
-using namespace std;
+// #pragma once
+// #include "auton.hpp"
+// #include <array>
+// #include <functional>
+// using namespace std;
 
-class Auton{
-private:
+// struct Auton{
+//   const char* name;
+//   function<void()> func;
+// };
 
-public:
-  Auton(const char* name, function<void()> func);
-};
+// extern std::vecotr<Auton>;

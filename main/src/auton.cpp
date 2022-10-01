@@ -32,17 +32,20 @@ void skills1(){
 void skills2(){
   Timer total{"total_timer"};
 	moveToTargetSync({68.00, 125.5}); // moves away from wall
-	aimAtRed();
-  delay(6000);
+	aimAtBlue();
+  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  // delay(6000);
   turnToTargetSync({118.0, 102.0});
   moveToTargetSync({118.0, 102.0}, E_Brake_Modes::none, 80.0); // intake stack
-	aimAtBlue();
+	aimAtRed();
+  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   delay(1500);
   
   turnToTargetSync({78.0, 54.0});
   moveToTargetSync({78.0, 54.0}); // go to blue low goal
-	aimAtBlue();
-  delay(1500);
+	aimAtRed();
+  // delay(1500);
+  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   turnToTargetSync({54.0, 30.0});
   moveToTargetSync({54.0, 30.0}, E_Brake_Modes::none);
   turnToTargetSync({67.0, 13.0}, true);
@@ -94,7 +97,7 @@ void new_skills1(){ // 12 seconds
   moveToTargetSync({34.75, 46.00}, E_Brake_Modes::brake, 65);
   aimAtBlue();
   delay(1500);// shoot 3 discs
-  moveToTargetSync({59.00, 83.00}); // intake line of 3 discs
+  moveToTargetSync({61.00, 88.00}, E_Brake_Modes::brake, 127, 2.5); // intake line of 3 discs
   aimAtBlue();
   delay(1500);// shoot 3 discs
 
