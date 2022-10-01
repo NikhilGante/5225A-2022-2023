@@ -897,9 +897,14 @@ void util_background(){
         else stall_count = 0;
         if (stall_count > 10){
           stall_count = 0;
-          screen_flash::start(term_colours::ERROR, "Stopping Motor %d\n", port);
+          screen_flash::start(term_colours::ERROR, "Motor %d Jammed\n", port);
           c::motor_move(port, 0);
         }
+      }
+
+      if (c::motor_get_target_velocity(port) && c::motor_get_temperature(port) > 40){
+        screen_flash::start(term_colours::ERROR, 5000, "Motor %d Overheated to %d\n", port, c::motor_get_temperature(port));
+        c::motor_move(port, 0);
       }
     }
   }

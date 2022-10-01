@@ -124,13 +124,12 @@ namespace screen_flash{
   }
 
   bool GUI::prompt(std::string screen, std::string term, std::uint32_t delay_time){
-  if(!prompt_enabled) return true;
+    if(!prompt_enabled) return true;
     prompt_string = screen;
     if(term == "") term = screen;
-    printf2(term_colours::BLUE, 0, "\n\n%s\nPress the screen big button or the controller OK button when ready.", term);
+    printf2(term_colours::BLUE, "\n\n%s\nPress the screen big button or the controller OK button when ready.", term);
     master.clear();
     master.print(0, 0, "Press OK btn");
-
     bool interrupted = false;
     const Page* page = GUI::current_page;
     prompt_sequence.go_to();
@@ -156,23 +155,23 @@ namespace screen_flash{
 
 
     // Alternative until Controller class is restored
-    //Wait for Release
-    WAIT_UNTIL(!prompt_button.pressed() || interrupted){ //checks that no button is being pressed
-      GUI::update_screen_status();
-      if (prompt_back_button.pressed()) interrupted = true;
-    }
+      //Wait for Release
+      WAIT_UNTIL(!prompt_button.pressed() || interrupted){ //checks that no button is being pressed
+        GUI::update_screen_status();
+        if (prompt_back_button.pressed()) interrupted = true;
+      }
 
-    //Wait for Press
-    WAIT_UNTIL(prompt_button.pressed() || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-      GUI::update_screen_status();
-      if (prompt_back_button.pressed()) interrupted = true;
-    }
-    
-    //Wait for Release
-    WAIT_UNTIL(!(prompt_button.pressed()) || interrupted){ //checks that no button is being pressed
-      GUI::update_screen_status();
-      if (prompt_back_button.pressed()) interrupted = true;
-    }
+      //Wait for Press
+      WAIT_UNTIL(prompt_button.pressed() || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
+        GUI::update_screen_status();
+        if (prompt_back_button.pressed()) interrupted = true;
+      }
+      
+      //Wait for Release
+      WAIT_UNTIL(!(prompt_button.pressed()) || interrupted){ //checks that no button is being pressed
+        GUI::update_screen_status();
+        if (prompt_back_button.pressed()) interrupted = true;
+      }
 
     if (!interrupted){
       if(delay_time){
@@ -181,7 +180,7 @@ namespace screen_flash{
       }
       printf2("\nRunning\n");
     }
-    else printf2(term_colours::ERROR, 0, "Interrupted\n");
+    else printf2(term_colours::ERROR, "Interrupted\n");
 
     page->go_to();
     master.clear();

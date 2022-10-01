@@ -18,7 +18,7 @@
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
 
-const GUI* GUI::current_gui = &main_obj;
+const GUI* GUI::current_gui = &util_obj;
 
 
 /* Nathan's Thoughts
@@ -101,32 +101,20 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
-// Position target;
-// bool brake;
-// int max_power = 127;
-// int exit_power = 0;
-// bool overshoot = false;
-// double end_error_r = 0.5;
-// double end_error_a = 5.0;
-
-
-// Angler angler;
-
-Data data1;
+// Data data1;
  
 void opcontrol() {
-  data1.log_file.open("/usd/log.txt");
-  // for(int i = 0; i < 100; i++){
-	// 	for(int j = 0; j < 5; j++){	
-	// 		data1.print("aaaaaaaaaa");
-	// 	}
-	// 	// data.print("\n");
-	// 	data1.print("\n");
-	// 	// delay(1);
-	// }
+  // data1.log_file.open("/usd/log.txt");
+  // // for(int i = 0; i < 100; i++){
+	// // 	for(int j = 0; j < 5; j++){	
+	// // 		data1.print("aaaaaaaaaa");
+	// // 	}
+	// // 	// data.print("\n");
+	// // 	data1.print("\n");
+	// // 	// delay(1);
+	// // }
 
-  data1.print("abcdefghijklmnopqrstuvwxyz\n");
+  // data1.print("abcdefghijklmnopqrstuvwxyz\n");
 
-  DEBUG;
-
+  // DEBUG;
 }
