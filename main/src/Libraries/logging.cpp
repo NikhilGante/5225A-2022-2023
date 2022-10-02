@@ -45,7 +45,7 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
     while(true){
-      if(queue.getDataSize() > 500 || log_timer.get_time() > 500){
+      if(queue.getDataSize() > 500 || log_timer.getTime() > 500){
         queuePrintFile(queue, log_file, "/usd/log.txt");
         log_timer.reset();
       }

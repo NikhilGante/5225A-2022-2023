@@ -97,10 +97,11 @@ void new_skills1(){ // 12 seconds
   moveToTargetSync({34.75, 46.00}, E_Brake_Modes::brake, 65);
   aimAtBlue();
   delay(1500);// shoot 3 discs
+  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   moveToTargetSync({61.00, 88.00}, E_Brake_Modes::brake, 127, 2.5); // intake line of 3 discs
   aimAtBlue();
   delay(1500);// shoot 3 discs
-
+  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   turnToTargetSync({109.0, 129.0}); 
   moveToTargetSync({109.0, 129.0}, E_Brake_Modes::brake, 80); // intake stack of discs
   turnToAngleSync(180);
