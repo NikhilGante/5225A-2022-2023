@@ -90,7 +90,7 @@ void update(void* params){
 
     if(data_timer.get_time() > 1000){
       printf("%d || x: %.2lf, y: %.2lf, a: %.2lf\n", millis(), tracking.g_position.x, tracking.g_position.y, rad_to_deg(tracking.g_position.angle));
-      printf("ENCODER L: %d, R: %d, B:%d \n", millis(), LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
+      printf("%d ENCODER L: %d, R: %d, B:%d \n", millis(), LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
 
       data_timer.reset();
     }
