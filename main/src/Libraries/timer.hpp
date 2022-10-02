@@ -23,4 +23,5 @@ public:
   void play();
   void pause();
   void print(const char* str = ""); // prints to the terminal with custom message
+  bool playing() const;
 };

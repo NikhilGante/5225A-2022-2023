@@ -2,12 +2,11 @@
 #include "main.h"
 #include <iostream>
 
-using namespace pros;
 using namespace std;
 //forward declarations
 class Timer;
 
-#define WAIT_UNTIL(condition) while(pros::delay(10), !(condition));
+#define WAIT_UNTIL(condition) while(pros::delay(10), !(condition)) //! DO NOT ADD A SEMICOLON
 
 
 // cycle check macro (checks a condition for a specified amount of cycles)
@@ -67,8 +66,6 @@ double degToRad(double deg);
  * @return double 
  */
 double nearAngle(double angle, double reference);
-
-int random_direction();
 
 // gets the sign of a value (0, 1 or -1)
 template <typename T>

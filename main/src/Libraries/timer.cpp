@@ -45,6 +45,10 @@ void Timer::print(const char* str){
   printf("%s's current time is: %lld | %s\n", name, get_time(), str);
 }
 
+bool Timer::playing() const {
+  return !paused;
+}
+
 uint64_t Timer::getTimeInTimingUnit(){ // returns time in either millis or micros
   return pros::micros() * (timing_unit == timing_units::micros ? 1 : 0.001);
 }
