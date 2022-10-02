@@ -35,19 +35,19 @@ void skills2(){
 	aimAtBlue();
   WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   // delay(6000);
-  turnToTargetSync({118.0, 102.0});
-  moveToTargetSync({118.0, 102.0}, E_Brake_Modes::none, 80.0); // intake stack
+  turnToTargetSync({123.0, 98.0});
+  moveToTargetSync({123.0, 98.0}, E_Brake_Modes::none, 80.0); // intake stack
 	aimAtRed();
-  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   delay(1500);
   
-  turnToTargetSync({78.0, 54.0});
-  moveToTargetSync({78.0, 54.0}); // go to blue low goal
+  turnToTargetSync({76.0, 53.0});
+  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  moveToTargetSync({76.0, 53.0}); // go to blue low goal
 	aimAtRed();
   // delay(1500);
   WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-  turnToTargetSync({54.0, 30.0});
-  moveToTargetSync({54.0, 30.0}, E_Brake_Modes::none);
+  turnToTargetSync({52.0, 28.0});
+  moveToTargetSync({52.0, 28.0}, E_Brake_Modes::none);
   turnToTargetSync({67.0, 13.0}, true);
   moveToTargetSync({67.0, 13.0}, E_Brake_Modes::none);
   turnToAngleSync(0.0);
