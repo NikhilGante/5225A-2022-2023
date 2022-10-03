@@ -15,8 +15,13 @@
 #include "drive.hpp"
 #include "config.hpp"
 
+
+#include "Libraries/motor.hpp"
+#include "Libraries/ControllerButtons.hpp"
+
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
+
 
 const GUI* GUI::current_gui = &util_obj;
 
@@ -47,11 +52,13 @@ void initialize() {
 	// tracking.g_pos = {70.0, 129.5, M_PI};
 	_Task_ tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
-  GUI::init();
+  	GUI::init();
 	Data::init();
+	ControllerButton::init();
+
 	// _Controller::init();
 	// log_init();
-	delay(500);
+	pros::delay(500);
 	// lift.runMachine();
 
 }
@@ -101,20 +108,45 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
-// Data data1;
- 
+vector<string> textSplit(string text, int lineChar){
+	vector<string> output;
+	int temp;
+	int maxChars = lineChar;
+	int index = 0;
+	int length = text.length();
+	for (int i = 0; i < lineChar; i ++) text.push_back(' ');
+
+
+    while (index < length){
+    	temp = -1;
+    	for(int i = index+maxChars+1; i >= index+maxChars-10; i--){
+    		if (text[i] == ' '){
+    			temp = i;
+    			break;
+    		}
+    	} 
+    	if (temp>=0) output.push_back(text.substr(index, temp-index));
+    	index = temp+1;
+    	//cout << index << endl;
+
+    }
+	return output;
+
+}
+
 void opcontrol() {
-  // data1.log_file.open("/usd/log.txt");
-  // // for(int i = 0; i < 100; i++){
-	// // 	for(int j = 0; j < 5; j++){	
-	// // 		data1.print("aaaaaaaaaa");
-	// // 	}
-	// // 	// data.print("\n");
-	// // 	data1.print("\n");
-	// // 	// delay(1);
-	// // }
 
-  // data1.print("abcdefghijklmnopqrstuvwxyz\n");
 
-  // DEBUG;
+	WAIT_UNTIL(false){
+		if (ButtonA.holdClick()) printf("HoldClick\n");
+		else if (ButtonA.doubleClick()) printf("DoubleClick\n");
+
+	}
+
+
+	
+
+
+
+
 }

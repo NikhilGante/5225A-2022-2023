@@ -278,7 +278,7 @@ class Button{
 
     //Vars
       Colour l_col, b_col, b_col_dark;
-      std::string label, label1 = "";
+      std::string name, name1 = "";
       int x1, y1, x2, y2, text_x, text_y, text_x1, text_y1;
       bool last_pressed = 0;
       press_type form; //What type of button

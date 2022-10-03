@@ -336,18 +336,18 @@ namespace screen_flash{
     std::size_t space = (next_space-text.length() / 2 < text.length() / 2-prev_space) ? next_space : prev_space;
 
     if (space != std::string::npos && 8*text.length() + 5 > this->x2-this->x1){ //Spaces it if it's too long for one line
-      this->label = text.substr(0, space);
-      this->label1 = text.substr(space+1);
+      this->name = text.substr(0, space);
+      this-> name1 = text.substr(space+1);
 
-      this->text_x = (this->x1+ this->x2-(this->label.length() * CHAR_WIDTH_SMALL)) / 2;
-      this->text_x1 = (this->x1+ this->x2-(this->label1.length() * CHAR_WIDTH_SMALL)) / 2;
+      this->text_x = (this->x1+ this->x2-(this->name.length() * CHAR_WIDTH_SMALL)) / 2;
+      this->text_x1 = (this->x1+ this->x2-(this-> name1.length() * CHAR_WIDTH_SMALL)) / 2;
       this->text_y = (this->y1+ this->y2-CHAR_HEIGHT_SMALL) / 2 - CHAR_HEIGHT_SMALL;
       this->text_y1 = (this->y1+ this->y2-CHAR_HEIGHT_SMALL) / 2 + CHAR_HEIGHT_SMALL;
     }
     else{
       this->text_x = (this->x1+ this->x2-(text.length() * CHAR_WIDTH_SMALL)) / 2;
       this->text_y = (this->y1+ this->y2-CHAR_HEIGHT_SMALL) / 2;
-      this->label = text;
+      this->name = text;
     }
   }
 
@@ -475,7 +475,7 @@ namespace screen_flash{
     for (it = buttons.begin(); it != buttons.end(); it++){
       Button* btn_id = *it;
       if (btn_id->form != LATCH && btn_id->form != TOGGLE){
-        throw std::invalid_argument(sprintf2("Option Feature is only available for latch and toggle buttons! Failed on \"%s\" button.\n", btn_id->label));
+        throw std::invalid_argument(sprintf2("Option Feature is only available for latch and toggle buttons! Failed on \"%s\" button.\n", btn_id->name));
         return;
       }
     }
@@ -499,7 +499,7 @@ namespace screen_flash{
 
   void Button::add_text(Text_& text_ref, bool overwrite){
     if(page != text_ref.page){
-      throw std::invalid_argument(sprintf2("Text can only be linked to a button on the same page! Failed on \"%s\" button and \"%s\" text.", label, text_ref.label));
+      throw std::invalid_argument(sprintf2("Text can only be linked to a button on the same page! Failed on \"%s\" button and \"%s\" text.", name, text_ref.label));
       return;
     }
     title = &text_ref;
@@ -515,8 +515,8 @@ namespace screen_flash{
     text_ref.y2 = USER_UP;
 
     if (overwrite){
-      label = "";
-      label1 = "";
+      name = "";
+       name1 = "";
     }
     else{
       text_ref.y += GUI::get_height(text_ref.txt_size);
@@ -652,8 +652,8 @@ namespace screen_flash{
     GUI::draw_oblong(x1, y1, x2, y2, 0, 0.15);
     screen::set_pen(l_col);
     screen::set_eraser(b_col);
-    screen::print(TEXT_SMALL, text_x, text_y, "%s", label);
-    screen::print(TEXT_SMALL, text_x1, text_y1, "%s", label1);
+    screen::print(TEXT_SMALL, text_x, text_y, "%s", name);
+    screen::print(TEXT_SMALL, text_x1, text_y1, "%s",  name1);
     if(title){
       title->b_col = b_col;
       title->draw();
@@ -670,8 +670,8 @@ namespace screen_flash{
     GUI::draw_oblong(x1, y1, x2, y2, 0.04, 0.2);
     screen::set_pen(l_col);
     screen::set_eraser(b_col_dark);
-    screen::print(TEXT_SMALL, text_x, text_y, "%s", label);
-    screen::print(TEXT_SMALL, text_x1, text_y1, "%s", label1);
+    screen::print(TEXT_SMALL, text_x, text_y, "%s", name);
+    screen::print(TEXT_SMALL, text_x1, text_y1, "%s",  name1);
     if(title){
       title->b_col = b_col_dark;
       title->draw();
