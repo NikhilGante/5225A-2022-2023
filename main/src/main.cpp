@@ -108,6 +108,10 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
+
+
+
+// Text Splitter which takes the text and how many characters per line and splits the texts on spaces to match that parameter
 vector<string> textSplit(string text, int lineChar){
 	vector<string> output;
 	int temp;

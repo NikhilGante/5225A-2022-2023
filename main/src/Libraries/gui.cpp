@@ -278,7 +278,7 @@ namespace screen_flash{
     int y = USER_UP;
     for (std::vector<Text_*>::const_iterator it = terminal.texts.begin(); it != terminal.texts.end(); it++){
       if ((*it)->txt_size != 4) y += get_height((*it)->txt_size) + 5;
-      if(get_width(TEXT_SMALL) * (*it)->label.length() + 5 > 480){
+      if(get_width(TEXT_SMALL) * (*it)->name.length() + 5 > 480){
           throw std::length_error("Item too long to print\n");
           return;
         }
@@ -296,10 +296,10 @@ namespace screen_flash{
     }
 
     for (std::vector<Text_*>::const_iterator it = terminal.texts.begin(); it != terminal.texts.end(); it++){
-      if (get_width(fmt) * (*it)->label.length() + 5 > 480){
+      if (get_width(fmt) * (*it)->name.length() + 5 > 480){
         if(fmt == TEXT_LARGE){
-          if(get_width(TEXT_MEDIUM) * (*it)->label.length() + 5 < 480) (*it)->txt_size = TEXT_MEDIUM;
-          else if(get_width(TEXT_SMALL) * (*it)->label.length() + 5 < 480) (*it)->txt_size = TEXT_SMALL;
+          if(get_width(TEXT_MEDIUM) * (*it)->name.length() + 5 < 480) (*it)->txt_size = TEXT_MEDIUM;
+          else if(get_width(TEXT_SMALL) * (*it)->name.length() + 5 < 480) (*it)->txt_size = TEXT_SMALL;
         }
 
         else if(fmt == TEXT_MEDIUM) (*it)->txt_size = TEXT_SMALL;
@@ -366,11 +366,11 @@ namespace screen_flash{
     this->background = background;
   }
 
-  Button::Button(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page& page, std::string text, Colour background_colour, Colour label_colour){
-    construct(x1, y1, x2, y2, type, form, &page, text, background_colour, label_colour);
+  Button::Button(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page& page, std::string text, Colour background_colour, Colour name_colour){
+    construct(x1, y1, x2, y2, type, form, &page, text, background_colour, name_colour);
   }
 
-  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, int min, int max, Page& page, std::string label, int increment, Colour background_colour, Colour label_colour){
+  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, int min, int max, Page& page, std::string name, int increment, Colour background_colour, Colour name_colour){
     //Saves params to class private vars
     this->dir = dir;
     this->min = min;
@@ -378,7 +378,7 @@ namespace screen_flash{
     this->page = &page;
     this->val = inRange(0, min, max) ? 0 : (inRange(1, min, max) ? 1 : (min + max) / 2); //0 if that's the min, otherwise the average
     this->b_col = background_colour;
-    this->l_col = label_colour;
+    this->l_col = name_colour;
     this->page->sliders.push_back(this);
 
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
@@ -389,9 +389,9 @@ namespace screen_flash{
         text_y = this->y1-CHAR_HEIGHT_SMALL / 2-2;
         inc.construct(this->x2 + 5, this->y1, this->x2 + 25, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, ">", l_col, b_col);
         dec.construct(this->x1-25, this->y1, this->x1-5, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, "<", l_col, b_col);
-        title.construct(text_x, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, l_col); //why not pass val by reference
-        min_title.construct(this->x1, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, l_col);
-        max_title.construct(this->x2, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, l_col);
+        Slider::name.construct(text_x, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, name + ":%d", [&](){return val;}, l_col); //why not pass val by reference
+        Slider::min_name.construct(this->x1, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, l_col);
+        Slider::max_name.construct(this->x2, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, l_col);
         break;
 
       case VERTICAL:
@@ -399,9 +399,9 @@ namespace screen_flash{
         text_y = (this->y1+ this->y2) / 2;
         inc.construct(this->x1, this->y1-17, this->x2-this->x1, -20, GUI::Style::SIZE, Button::SINGLE, this->page, "^", l_col, b_col);
         dec.construct(this->x1, this->y2+17, this->x2-this->x1, 20, GUI::Style::SIZE, Button::SINGLE, this->page, "v", l_col, b_col);
-        title.construct(text_x, this->y1-17-22-CHAR_HEIGHT_SMALL, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, l_col);
-        min_title.construct(text_x, this->y2 + (CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, l_col);
-        max_title.construct(text_x, this->y1-(CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, l_col);
+        Slider::name.construct(text_x, this->y1-17-22-CHAR_HEIGHT_SMALL, GUI::Style::CENTRE, TEXT_SMALL, this->page, name + ":%d", [&](){return val;}, l_col);
+        Slider::min_name.construct(text_x, this->y2 + (CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, l_col);
+        Slider::max_name.construct(text_x, this->y1-(CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, l_col);
         break;
     }
 
@@ -411,10 +411,10 @@ namespace screen_flash{
     inc.set_func([&, increment](){this->val +=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
   }
 
-  Page::Page(std::string title, Colour background_colour){
+  Page::Page(std::string name, Colour background_colour){
     this->b_col = background_colour;
-    this->title = title;
-    if (!(title == "PERM BTNS" || title == "Prompt")){
+    this->name = name;
+    if (!(name == "PERM BTNS" || name == "Prompt")){
       for (std::vector<Button*>::const_iterator it = perm.buttons.begin(); it != perm.buttons.end(); it++) buttons.push_back(*it);
     }
   }
@@ -499,10 +499,10 @@ namespace screen_flash{
 
   void Button::add_text(Text_& text_ref, bool overwrite){
     if(page != text_ref.page){
-      throw std::invalid_argument(sprintf2("Text can only be linked to a button on the same page! Failed on \"%s\" button and \"%s\" text.", name, text_ref.label));
+      throw std::invalid_argument(sprintf2("Text can only be linked to a button on the same page! Failed on \"%s\" button and \"%s\" text.", name, text_ref.name));
       return;
     }
-    title = &text_ref;
+    text_name = &text_ref;
     text_ref.l_col = l_col;
     text_ref.b_col = b_col;
     text_ref.active = active;
@@ -554,7 +554,7 @@ namespace screen_flash{
   }
 
   void Button::set_background (Colour colour){
-    if (title) title->set_background(colour);
+    if (text_name) text_name->set_background(colour);
     if (b_col != colour){
       b_col = colour;
       b_col_dark = RGB2COLOR(static_cast<int>(COLOR2R(b_col) * 0.8), static_cast<int>(COLOR2G(b_col) * 0.8), static_cast<int>(COLOR2B(b_col) * 0.8));
@@ -594,7 +594,7 @@ namespace screen_flash{
 
   void Button::set_active(bool active){
     this->active = active;
-    if (title) title->set_active(active);
+    if (text_name) text_name->set_active(active);
     if (page == GUI::current_page){
       if (active) draw();
       else{
@@ -634,7 +634,7 @@ namespace screen_flash{
     screen::set_eraser(b_col);
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, 20);
     screen::set_pen(COLOUR(WHITE));
-    screen::print(TEXT_SMALL, MID_X-(title.length() + 3 + std::to_string(page_num(this)).length()) * CHAR_WIDTH_SMALL / 2, 5, "%s - %d", title, page_num(this));
+    screen::print(TEXT_SMALL, MID_X-(name.length() + 3 + std::to_string(page_num(this)).length()) * CHAR_WIDTH_SMALL / 2, 5, "%s - %d", name, page_num(this));
     for (std::vector<Button*>::const_iterator it = buttons.begin(); it != buttons.end(); it++) (*it)->draw();
     for (std::vector<Slider*>::const_iterator it = sliders.begin(); it != sliders.end(); it++) (*it)->draw();
     for (std::vector<Text_*>::const_iterator it = texts.begin(); it != texts.end(); it++) (*it)->draw();
@@ -654,9 +654,9 @@ namespace screen_flash{
     screen::set_eraser(b_col);
     screen::print(TEXT_SMALL, text_x, text_y, "%s", name);
     screen::print(TEXT_SMALL, text_x1, text_y1, "%s",  name1);
-    if(title){
-      title->b_col = b_col;
-      title->draw();
+    if(text_name){
+      text_name->b_col = b_col;
+      text_name->draw();
     }
   }
 
@@ -672,9 +672,9 @@ namespace screen_flash{
     screen::set_eraser(b_col_dark);
     screen::print(TEXT_SMALL, text_x, text_y, "%s", name);
     screen::print(TEXT_SMALL, text_x1, text_y1, "%s",  name1);
-    if(title){
-      title->b_col = b_col_dark;
-      title->draw();
+    if(text_name){
+      text_name->b_col = b_col_dark;
+      text_name->draw();
     }
   }
 

@@ -42,19 +42,18 @@ void ControllerButton::updateLoop(){
 }
 
 void ControllerButton::update(){
-  
   master.get_digital(button); 
   cur = controller.get_digital(button); 
   if (cur && ! prev){
     L_last_press = last_press;
     last_press = pros::c::millis();
-    // --------------------- Log Function ---------------------
+    //  Log Function ---------------------
   }
   
   else if (!cur && prev) {
     L_last_release = last_release;
     last_release = pros::c::millis();
-    // ------------------------------------------ Log Function ---------------------
+    //  Log Function ---------------------
   }
   prev = cur;
 }
@@ -64,9 +63,10 @@ void ControllerButton::update(){
 
 // ------------------------------------------ Press Functions ------------------------------------------
 bool ControllerButton::holdClick(){
-  if (last_press>last_release && pros::c::millis()>last_press+250 && pros::c::millis()<last_press+400) return true;
+  if (last_press>last_release && pros::c::millis()>last_press+250) return true;
   else return false;
 }
+
 
 bool ControllerButton::doubleClick(){
   if (last_press>last_release && abs(last_press-last_release)<200) return true;
@@ -78,13 +78,5 @@ bool ControllerButton::tripleClick(){
   else return false;
 }
 
-/*
-L_last_release = 50
-L_last_press = 100
-last_release = 150
-last_press = 200
 
-check code here
 
-release is here....
-*/
