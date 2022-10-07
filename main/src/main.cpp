@@ -18,7 +18,7 @@
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
 
-const GUI* GUI::current_gui = &util_obj;
+const GUI* GUI::current_gui = &main_obj;
 
 
 /* Nathan's Thoughts
@@ -101,7 +101,9 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
-// Data data1;
+Data data1;
+
+//check screen printing
  
 void opcontrol() {
   // data1.log_file.open("/usd/log.txt");
@@ -116,5 +118,5 @@ void opcontrol() {
 
   // data1.print("abcdefghijklmnopqrstuvwxyz\n");
 
-  // DEBUG;
+  DEBUG;
 }

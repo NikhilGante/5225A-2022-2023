@@ -385,19 +385,19 @@ void main_setup(){
 
     dist.set_func([](){
       DEPRECATE;
-      // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Back");
-      // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Front");
-      // if(!inRange(static_cast<int>(r_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Right");
-      // if(!inRange(static_cast<int>(l_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Left");
-      // if(!inRange(static_cast<int>(hitch_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Hitch");
-      // if(!inRange(static_cast<int>(r_reset_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Right Reset");
-      // if(!inRange(static_cast<int>(l_reset_dist.get()), 20, 2000)) screen_flash::start("Distance Sensor: Left Reset");
-      // else(screen_flash::start("All Distance Sensors Good", term_colours::GREEN));
+      // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) alert::start("Distance Sensor: Back");
+      // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) alert::start("Distance Sensor: Front");
+      // if(!inRange(static_cast<int>(r_dist.get()), 20, 2000)) alert::start("Distance Sensor: Right");
+      // if(!inRange(static_cast<int>(l_dist.get()), 20, 2000)) alert::start("Distance Sensor: Left");
+      // if(!inRange(static_cast<int>(hitch_dist.get()), 20, 2000)) alert::start("Distance Sensor: Hitch");
+      // if(!inRange(static_cast<int>(r_reset_dist.get()), 20, 2000)) alert::start("Distance Sensor: Right Reset");
+      // if(!inRange(static_cast<int>(l_reset_dist.get()), 20, 2000)) alert::start("Distance Sensor: Left Reset");
+      // else(alert::start("All Distance Sensors Good", term_colours::GREEN));
     });
 
     misc_checks.set_func([](){
-      if (!usd::is_installed()) screen_flash::start("No SD Card!");
-      else(screen_flash::start("No Errors Found", term_colours::GREEN));
+      if (!usd::is_installed()) alert::start("No SD Card!");
+      else(alert::start("No Errors Found", term_colours::GREEN));
     });
 
     save_pos.set_func([](){DEPRECATE});
@@ -570,7 +570,7 @@ void main_setup(){
         }
       }
       else{
-        screen_flash::start("No Automatic Option");
+        alert::start("No Automatic Option");
       }
     });
 
@@ -619,7 +619,7 @@ void main_setup(){
         }
       }
       else{
-        screen_flash::start("I cannot strafe");
+        alert::start("I cannot strafe");
       }
     });
 
@@ -660,7 +660,7 @@ void main_setup(){
         }
       }
       else{
-        screen_flash::start("I cannot strafe");
+        alert::start("I cannot strafe");
       }
     });
 
@@ -753,10 +753,10 @@ void main_background(){
     std::tuple<Motor*, std::string, std::string, int, Text_*, Text_*, Button*, Button*>& mot_tup = *it;
     std::get<int>(mot_tup) = std::get<Motor*>(mot_tup) ? std::get<Motor*>(mot_tup)->get_temperature() : std::numeric_limits<int>::max();
 
-    if (!temp_flashed && std::get<Motor*>(mot_tup) && inRange(std::get<int>(mot_tup), 55, std::numeric_limits<int>::max() - 1) && screen_flash::timer.playing()){ //Overheating
+    if (!temp_flashed && std::get<Motor*>(mot_tup) && inRange(std::get<int>(mot_tup), 55, std::numeric_limits<int>::max() - 1) && alert::timer.playing()){ //Overheating
       temp_flashed = true;
       temps.go_to();
-      screen_flash::start(term_colours::ERROR, 10000, "%s motor is at %dC\n", std::get<1>(mot_tup).c_str(), std::get<int>(mot_tup));
+      alert::start(term_colours::ERROR, 10000, "%s motor is at %dC\n", std::get<1>(mot_tup).c_str(), std::get<int>(mot_tup));
       break;
     }
   }
@@ -767,12 +767,12 @@ void util_setup(){
     enc_set.set_func([](){
       int port = expander_1.get_value();
       if(abs(port_1.get_value() - port_2.get_value()) != 1 || std::min(port_1.get_value(), port_2.get_value()) % 2 == 0){
-        screen_flash::start(term_colours::ERROR, "Invalid Ports %c%c", port_1.get_value() + 64, port_2.get_value() + 64);
+        alert::start(term_colours::ERROR, "Invalid Ports %c%c", port_1.get_value() + 64, port_2.get_value() + 64);
         return;
       }
       if(port){
         if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
-          screen_flash::start(term_colours::ERROR, "No Expander in port %d", port);
+          alert::start(term_colours::ERROR, "No Expander in port %d", port);
           return;
         }
         ext_test_enc = c::ext_adi_encoder_init(port, port_1.get_value(), port_2.get_value(), false);
@@ -853,7 +853,7 @@ void util_setup(){
         int port = expander.get_value();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
-            screen_flash::start(term_colours::ERROR, "No Expander in port %d", port);
+            alert::start(term_colours::ERROR, "No Expander in port %d", port);
             return;
           }
           c::ext_adi_port_set_config(port, i, E_ADI_DIGITAL_OUT);
@@ -868,7 +868,7 @@ void util_setup(){
         int port = expander.get_value();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
-            screen_flash::start(term_colours::ERROR, "No Expander in port %d", port);
+            alert::start(term_colours::ERROR, "No Expander in port %d", port);
             return;
           }
           c::ext_adi_port_set_config(port, i, E_ADI_DIGITAL_OUT);
@@ -897,13 +897,13 @@ void util_background(){
         else stall_count = 0;
         if (stall_count > 10){
           stall_count = 0;
-          screen_flash::start(term_colours::ERROR, "Motor %d Jammed\n", port);
+          alert::start(term_colours::ERROR, "Motor %d Jammed\n", port);
           c::motor_move(port, 0);
         }
       }
 
       if (c::motor_get_target_velocity(port) && c::motor_get_temperature(port) > 40){
-        screen_flash::start(term_colours::ERROR, 5000, "Motor %d Overheated to %d\n", port, c::motor_get_temperature(port));
+        alert::start(term_colours::ERROR, 5000, "Motor %d Overheated to %d\n", port, c::motor_get_temperature(port));
         c::motor_move(port, 0);
       }
     }
