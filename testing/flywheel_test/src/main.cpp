@@ -1,7 +1,7 @@
 #include "main.h"
 using namespace pros;
 
-Motor flywheel_m(5);
+Motor flywheel_m(5, E_MOTOR_GEARSET_06);
 
 /**
  * A callback function for LLEMU's center button.
@@ -85,7 +85,7 @@ void opcontrol() {
 		if(master.get_digital_new_press(DIGITAL_UP))	flywheel_power = std::clamp(flywheel_power + 5, 0, 127);
 		if(master.get_digital_new_press(DIGITAL_DOWN))	flywheel_power = std::clamp(flywheel_power - 5, 0, 127);
 		flywheel_m.move(flywheel_power);
-		lcd::print(0, "power: %d vel: %lf temp: %lf", flywheel_power, flywheel_m.get_actual_velocity(), flywheel_m.get_temperature());
+		lcd::print(0, "power: %d vel: %lf temp: %lf", flywheel_power, 5*flywheel_m.get_actual_velocity(), flywheel_m.get_temperature());
 		delay(10);
 	}
 }
