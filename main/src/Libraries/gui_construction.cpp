@@ -297,12 +297,15 @@ void main_setup(){
             case 15:
               text->set_background(COLOUR(BLUE)); break;
             case 20:
-            case 25:
               text->set_background(COLOUR(DODGER_BLUE)); break;
+            case 25:
+              text->set_background(COLOUR(TURQUOISE)); break;
             case 30:
+              text->set_background(COLOUR(MEDIUM_SEA_GREEN)); break;
             case 35:
               text->set_background(COLOUR(LAWN_GREEN)); break;
             case 40:
+              text->set_background(COLOUR(LIME_GREEN)); break;
             case 45:
               text->set_background(COLOUR(YELLOW)); break;
             case 50:
@@ -797,6 +800,8 @@ void util_setup(){
 
 
   //Motor Control
+    mot_jam_detect.select();
+    
     motor_ports = {
       std::make_tuple(std::numeric_limits<int>::max(), &mot_update_1, &mot_stop_1, &mot_text_1, 0, ""),
       std::make_tuple(std::numeric_limits<int>::max(), &mot_update_2, &mot_stop_2, &mot_text_2, 0, ""),
@@ -829,6 +834,64 @@ void util_setup(){
     }
 
     if (motor_port_nums.back() == ',') motor_port_nums.pop_back();
+
+
+    motor.set_loop_func([](){
+      for (std::array<std::tuple<int, Button*, Button*, Text_*, int, std::string>, 8>::const_iterator it = motor_ports.begin(); it != motor_ports.end(); it++){
+        int port = std::get<0>(*it);
+        Button* run_btn = std::get<1>(*it);
+        Button* stop_btn = std::get<2>(*it);
+
+        if (port != std::numeric_limits<int>::max()){ //? Works without this safety check
+          switch(static_cast<int>(c::motor_get_temperature(port))){
+            case 0:
+            case 5:
+              run_btn->set_background(COLOUR(WHITE));
+              stop_btn->set_background(COLOUR(WHITE));
+              break;
+            case 10:
+            case 15:
+              run_btn->set_background(COLOUR(BLUE));
+              stop_btn->set_background(COLOUR(BLUE));
+              break;
+            case 20:
+              run_btn->set_background(COLOUR(DODGER_BLUE));
+              stop_btn->set_background(COLOUR(DODGER_BLUE));
+              break;
+            case 25:
+              run_btn->set_background(COLOUR(TURQUOISE));
+              stop_btn->set_background(COLOUR(TURQUOISE));
+            case 30:
+              run_btn->set_background(COLOUR(MEDIUM_SEA_GREEN));
+              stop_btn->set_background(COLOUR(MEDIUM_SEA_GREEN));
+            case 35:
+              run_btn->set_background(COLOUR(LAWN_GREEN));
+              stop_btn->set_background(COLOUR(LAWN_GREEN));
+              break;
+            case 40:
+              run_btn->set_background(COLOUR(LIME_GREEN));
+              stop_btn->set_background(COLOUR(LIME_GREEN));
+            case 45:
+              run_btn->set_background(COLOUR(YELLOW));
+              stop_btn->set_background(COLOUR(YELLOW));
+              break;
+            case 50:
+              run_btn->set_background(COLOUR(ORANGE_RED));
+              stop_btn->set_background(COLOUR(ORANGE_RED));
+              break;
+            case 55:
+              run_btn->set_background(COLOUR(RED));
+              stop_btn->set_background(COLOUR(RED));
+              break;
+            default:
+              run_btn->set_background(Colour(rand()));
+              stop_btn->set_background(Colour(rand()));
+              break;
+          }
+        }
+      }
+    });
+
 
   //Pneumatic Control
     exp_pneum_btns = {&ADI_a, &ADI_b, &ADI_c, &ADI_d, &ADI_e, &ADI_f, &ADI_g, &ADI_h};
@@ -882,7 +945,6 @@ void util_setup(){
     }
 
     if (no_pneumatic_port_nums.back() == ',') no_pneumatic_port_nums.pop_back();
-
 }
 
 void util_background(){
@@ -893,9 +955,10 @@ void util_background(){
     if (port != std::numeric_limits<int>::max()){
       std::get<5>(*it) = sprintf2("%d: %d", port, c::motor_get_actual_velocity(port));
       if(mot_jam_detect.on){
-        if (fabs(c::motor_get_actual_velocity(port)) < fabs(c::motor_get_target_velocity(port) / 4.0)) stall_count++;
+        printf2("Stall: %d/%d", stall_count, mapValues((int)fabs(c::motor_get_target_velocity(port)), 0, 250, 40, 2));
+        if (fabs(c::motor_get_actual_velocity(port)) < fabs(c::motor_get_target_velocity(port))-3) stall_count++;
         else stall_count = 0;
-        if (stall_count > 10){
+        if (stall_count >= mapValues((int)fabs(c::motor_get_target_velocity(port)), 0, 250, 40, 2)){
           stall_count = 0;
           alert::start(term_colours::ERROR, "Motor %d Jammed\n", port);
           c::motor_move(port, 0);

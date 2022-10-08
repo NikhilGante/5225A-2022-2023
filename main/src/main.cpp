@@ -18,7 +18,7 @@
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
 
-const GUI* GUI::current_gui = &main_obj;
+const GUI* GUI::current_gui = &util_obj;
 
 
 /* Nathan's Thoughts
@@ -103,7 +103,7 @@ void autonomous() {}
 
 Data data1;
 
-//check screen printing
+//make page 7 active. figure out repeated deprecate on page 5
  
 void opcontrol() {
   // data1.log_file.open("/usd/log.txt");
@@ -118,5 +118,30 @@ void opcontrol() {
 
   // data1.print("abcdefghijklmnopqrstuvwxyz\n");
 
-  DEBUG;
+  const int intk_port = 20, speed = 127;
+  char pneum_port = 'H';
+  std::uint32_t delay_time = 65;
+
+  WAIT_UNTIL(false){
+    if(master.get_digital_new_press(DIGITAL_X)) c::motor_move(intk_port, 0);
+    else if(master.get_digital_new_press(DIGITAL_UP)) c::motor_move(intk_port, -speed);
+    else if(master.get_digital_new_press(DIGITAL_DOWN)) c::motor_move(intk_port, speed);
+
+    if(master.get_digital_new_press(DIGITAL_L1)){
+      printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
+      c::adi_port_set_value(pneum_port, LOW);
+      delay(delay_time);
+      c::adi_port_set_value(pneum_port, HIGH);
+    }
+    else if(master.get_digital_new_press(DIGITAL_R1)){
+      printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
+      for(int i = 0; i < 3; i++){
+        c::adi_port_set_value(pneum_port, LOW);
+        delay(delay_time);
+        c::adi_port_set_value(pneum_port, HIGH);
+        delay(275);
+      }
+    }
+  }
+  
 }
