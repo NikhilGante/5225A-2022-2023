@@ -2,6 +2,7 @@
 using namespace pros;
 
 Motor flywheel_m(5, E_MOTOR_GEARSET_06);
+Motor intake_m(20, E_MOTOR_GEARSET_18);
 
 /**
  * A callback function for LLEMU's center button.
@@ -27,7 +28,6 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
 
 }
 
@@ -75,17 +75,83 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+// low is PISTON retracted (SHOOTER EXTENDED)
+#define P_LOW 1
+#define P_HIGH !P_LOW
+
+
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
 	pros::Motor left_mtr(1);
 	pros::Motor right_mtr(2);
 	int flywheel_power = 127;
 
+
+	pros::ADIDigitalOut indexer_p('E');
+
+	bool state = P_HIGH;
+	// while(true){
+	// 	if(master.get_digital_new_press(DIGITAL_A)){
+	// 		state = !state;
+	// 	}
+	// 	if (state == P_LOW){
+	// 		// printf("LOW\n");
+	// 	}
+	// 	else{
+	// 		// printf("HIGH\n");
+	// 	}
+	// 	indexer_p.set_value(state);
+	// 	delay(10);
+	// }
+
+	Task flywheel_t([&](){
+		intake_m.move(-127);
+
+		int shot_counter = 3;
+		int shot_amount = 3;
+		// indexer_p.set_value(P_HIGH);
+
+		while(true){
+			if(master.get_digital_new_press(DIGITAL_A)){
+				shot_counter = 0;
+				shot_amount = 3;
+			}
+			if(master.get_digital_new_press(DIGITAL_X)){
+				shot_counter = 0;
+				shot_amount = 1;
+			}
+			if(shot_counter < shot_amount){
+					printf("STARTED SHOOTING\n");
+					indexer_p.set_value(P_LOW);	
+					// delay(75); // wait for SHOOTER to extend
+					delay(175);
+					printf("FINISHED SHOT\n");
+					indexer_p.set_value(P_HIGH);
+					delay(100);// wait for SHOOTER to retract
+					printf("FINISHED Retraction\n");
+					shot_counter++;
+			}
+			else indexer_p.set_value(P_LOW); 
+			delay(10);
+		}
+	});
+
+	uint32_t print_timer = millis();
 	while (true) {
 		if(master.get_digital_new_press(DIGITAL_UP))	flywheel_power = std::clamp(flywheel_power + 5, 0, 127);
 		if(master.get_digital_new_press(DIGITAL_DOWN))	flywheel_power = std::clamp(flywheel_power - 5, 0, 127);
 		flywheel_m.move(flywheel_power);
-		lcd::print(0, "power: %d vel: %lf temp: %lf", flywheel_power, 5*flywheel_m.get_actual_velocity(), flywheel_m.get_temperature());
+		if(print_timer - millis() > 50){
+			printf("%d, %.lf\n", millis(), 5*flywheel_m.get_actual_velocity());
+			lcd::print(0, "power:%d vel:%.lf temp:%.lf", flywheel_power, 5*flywheel_m.get_actual_velocity(), flywheel_m.get_temperature());
+			print_timer = millis();
+		}
+
+		if(intake_m.get_temperature() > 45 || flywheel_m.get_temperature() > 45){
+			intake_m.move(0);
+			flywheel_m.move(0);
+			break;
+		}
 		delay(10);
 	}
 }
