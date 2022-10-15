@@ -82,7 +82,7 @@ void opcontrol() {
 	master.clear();
 	double pwm = 127.0;
 	master.print(2,0, "pwm:%lf ", pwm);
-	double vel, last_vel;
+	double last_vel;
 
 	const double smooth_value = 0.75;
 	/*
@@ -118,7 +118,7 @@ void opcontrol() {
 	Timer log_timer{"log_timer"};
 
 	long rot_vel;
-	int vel_target = 2350;
+	int vel_target = 2070;
 	master.print(2,0, "vel_target:%d ", vel_target);
 
 	// PID stuff
@@ -132,48 +132,46 @@ void opcontrol() {
 	double output; // what power goes to the motors
 	// pwm to vel
 	Task flywheel_t([&](){
-		// int shot_counter = 0;
-		// while(true){
-		// 	if(master.get_digital_new_press(DIGITAL_A))	shot_counter = 0;
-		// 	if(fabs(error.load()) < 30 && shot_counter < 3){
-		// 			printf("STARTED SHOOTING\n");
-		// 			indexer_p.set_state(HIGH);	
-		// 			delay(75); // wait for indexer to extend
-		// 			printf("FINISHED SHOT\n");
-		// 			indexer_p.set_state(LOW);
-		// 			delay(100);// wait for indexer to retract
-		// 			printf("FINISHED Retraction\n");
-		// 			shot_counter++;
-		// 	}
-		// 	delay(10);
-		// }
+		int shot_counter = 3;
+		while(true){
+			if(master.get_digital_new_press(DIGITAL_A))	shot_counter = 0;
+			if(fabs(error.load()) < 20 && shot_counter < 3){
+					printf("STARTED SHOOTING\n");
+					indexer_p.set_state(HIGH);	
+					delay(75); // wait for indexer to extend
+					printf("FINISHED SHOT\n");
+					indexer_p.set_state(LOW);
+					delay(100);// wait for indexer to retract
+					printf("FINISHED Retraction\n");
+					shot_counter++;
+			}
+			delay(10);
+		}
 	});
 
 	Timer vel_timer{"update_timer"};
-	vel = 0;
 	double pos = 0, last_pos = 0, smoothed_vel = 0;
-
+	double manual_vel;
 	while(true){
 		rot_vel = 3*60*rotation_sensor.get_velocity()/360;	// actual velocity of flywheel
-		// double cur_vel = flywheel_m.get_actual_velocity()* 5;
-		// vel = cur_vel*(1-smooth_value) + last_vel*smooth_value;
-		// last_vel = vel;
 
 		if(vel_timer.get_time() >= 40){
 			pos = 5 * flywheel_m.get_position() / 360;
-			smoothed_vel = 60000 * (pos - last_pos) / vel_timer.get_time();
+			manual_vel = 60000 * (pos - last_pos) / vel_timer.get_time();
 			last_pos = pos;
 
-			vel = flywheel_m.get_actual_velocity()* 5;
+			double cur_vel = manual_vel;
+			smoothed_vel = cur_vel*(1-smooth_value) + last_vel*smooth_value;
+			last_vel = smoothed_vel;
+
 			vel_timer.reset();
 		}
 
 
-		error = vel_target - rot_vel;
+		error = vel_target - smoothed_vel;
 		proportional = kP * error;
-		last_error = error.load();
-		pid_timer.reset();
 		output = vel_target * kB + proportional;
+
 		// printf("old: %lf\t", output);;
 		// if(flywheel_m.get_temperature() >= 0.0) {
 		// 	output = 0;
@@ -181,9 +179,9 @@ void opcontrol() {
 		// }
 
 		// for graphing purposes
-		// printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), disc_sensor.get_value(), vel_target, vel, error.load(), output, vel_target * kB, proportional, integral, derivative);
-		output = std::clamp(output, 0.0, 127.0);	// decelerates at -1.0 at the most
-		printf("%d, %ld, %lf, %lf, %lf, %lf, %lf\n", millis(), rot_vel, vel, smoothed_vel, rot_vel - smoothed_vel, flywheel_m.get_temperature(), output);
+		output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
+		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), disc_sensor.get_value(), vel_target, rot_vel, smoothed_vel, error.load(), output, vel_target * kB, proportional);
+		// printf("%d, %ld, %lf, %lf, %lf, %lf, %lf\n", millis(), rot_vel, manual_vel, smoothed_vel, rot_vel - smoothed_vel, flywheel_m.get_temperature(), output);
 		flywheel_m.move(output);
 
 		// Uncomment to print flywheel data
@@ -201,7 +199,7 @@ void opcontrol() {
 			master.print(2,0, "vel_target:%d ", vel_target);
 		} 
 		if(master.get_digital_new_press(DIGITAL_Y)){
-			vel_target = 2350;
+			vel_target = 2070;
 			master.print(2,0, "vel_target:%d ", vel_target);
 		} 
 
