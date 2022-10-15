@@ -1,24 +1,10 @@
 #include "main.h"
+#include "Libraries/piston.hpp"
 using namespace pros;
 
 Motor flywheel_m(5, E_MOTOR_GEARSET_06);
 Motor intake_m(20, E_MOTOR_GEARSET_18);
-
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+Piston indexer_p('E', "indexer_p", true, LOW);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -75,9 +61,6 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-// low is PISTON retracted (SHOOTER EXTENDED)
-#define P_LOW 1
-#define P_HIGH !P_LOW
 
 
 void opcontrol() {
@@ -86,52 +69,36 @@ void opcontrol() {
 	pros::Motor right_mtr(2);
 	int flywheel_power = 127;
 
-
-	pros::ADIDigitalOut indexer_p('E');
-
-	bool state = P_HIGH;
 	// while(true){
-	// 	if(master.get_digital_new_press(DIGITAL_A)){
-	// 		state = !state;
+	// 	if(master.get_digital_new_press(DIGITAL_A)){	// toggle state of subsystem
+	// 		indexer_p.setState(!indexer_p.getState());
 	// 	}
-	// 	if (state == P_LOW){
-	// 		// printf("LOW\n");
-	// 	}
-	// 	else{
-	// 		// printf("HIGH\n");
-	// 	}
-	// 	indexer_p.set_value(state);
+	// 	if (indexer_p.getState())	printf("HIGH\n");
+	// 	else	printf("LOW\n");
+		
 	// 	delay(10);
 	// }
 
 	Task flywheel_t([&](){
 		intake_m.move(-127);
 
-		int shot_counter = 3;
-		int shot_amount = 3;
-		// indexer_p.set_value(P_HIGH);
+		int shots_left = 0;
 
 		while(true){
-			if(master.get_digital_new_press(DIGITAL_A)){
-				shot_counter = 0;
-				shot_amount = 3;
-			}
-			if(master.get_digital_new_press(DIGITAL_X)){
-				shot_counter = 0;
-				shot_amount = 1;
-			}
-			if(shot_counter < shot_amount){
+			if(master.get_digital_new_press(DIGITAL_A))	shots_left = 3;	// Press A to shoot 3
+			if(master.get_digital_new_press(DIGITAL_X))	shots_left = 1;	// Press X to shoot 1
+			if(shots_left > 0){
 					printf("STARTED SHOOTING\n");
-					indexer_p.set_value(P_LOW);	
-					// delay(75); // wait for SHOOTER to extend
-					delay(175);
+					indexer_p.setState(HIGH);	
+					delay(75); // wait for SHOOTER to extend
+					// delay(175);
 					printf("FINISHED SHOT\n");
-					indexer_p.set_value(P_HIGH);
-					delay(100);// wait for SHOOTER to retract
+					indexer_p.setState(LOW);
+					// delay(100);// wait for SHOOTER to retract
+					delay(175);// wait for SHOOTER to retract
 					printf("FINISHED Retraction\n");
-					shot_counter++;
+					shots_left--;
 			}
-			else indexer_p.set_value(P_LOW); 
 			delay(10);
 		}
 	});
@@ -147,6 +114,7 @@ void opcontrol() {
 			print_timer = millis();
 		}
 
+		// Motor temp safety
 		if(intake_m.get_temperature() > 45 || flywheel_m.get_temperature() > 45){
 			intake_m.move(0);
 			flywheel_m.move(0);
