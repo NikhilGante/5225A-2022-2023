@@ -46,16 +46,16 @@ using namespace pros;
 template <typename... StateTypes>
 class Machine{
   variant<StateTypes...> state, target_state;
-  pros::Mutex state_mutex, target_state_mutex;
-  const char* name;
+  pros::Mutex state_mutex, target_state_mutex; // pros::mutex basically locks a variable/function so other threads cannot access it
+  const char* name; // Name of the machine
 
   atomic<bool> state_change_requested = false;
 
-  _Task_ task;
+  _Task_ task; 
 
 public:
   template <typename base_state_type>
-  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
+  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){} // Construcuter
 
   template <typename next_state_type>
   void changeState(next_state_type next_state){

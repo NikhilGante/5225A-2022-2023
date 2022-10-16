@@ -2,6 +2,7 @@
 #include "Libraries/geometry.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/piston.hpp"
+#include "Libraries/printing.hpp"
 #include "Libraries/timer.hpp"
 #include "Libraries/state.hpp"
 #include "Libraries/gui.hpp"
@@ -21,10 +22,10 @@
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
+#include <fstream>
 
 
 const GUI* GUI::current_gui = &util_obj;
-
 
 /* Nathan's Thoughts
 why is queuePrintFile not a member function of Queue?
@@ -46,19 +47,20 @@ make more methods const
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	// log_init();
-	// lcd::initialize();
-	tracking.g_pos = {31.0, 11.5, 0.0};
-	// tracking.g_pos = {70.0, 129.5, M_PI};
-	_Task_ tracking_task("tracking_update_task");
-	tracking_task.start(trackingUpdate);
-  	GUI::init();
-	Data::init();
-	ControllerButton::init();
+	DEBUG;
+	// // log_init();
+	// // lcd::initialize();
+	// // tracking.g_pos = {31.0, 11.5, 0.0};
+	// // // tracking.g_pos = {70.0, 129.5, M_PI};
+	// // _Task_ tracking_task("tracking_update_task");
+	// // tracking_task.start(trackingUpdate);
+  	// // GUI::init();
+	// Data::init();
+	// ControllerButton::init();
 
 	// _Controller::init();
 	// log_init();
-	pros::delay(500);
+	// pros::delay(500);
 	// lift.runMachine();
 
 }
@@ -111,7 +113,7 @@ void autonomous() {}
 
 
 
-// Text Splitter which takes the text and how many characters per line and splits the texts on spaces to match that parameter
+// // Text Splitter which takes the text and how many characters per line and splits the texts on spaces to match that parameter
 vector<string> textSplit(string text, int lineChar){
 	vector<string> output;
 	int temp;
@@ -138,19 +140,115 @@ vector<string> textSplit(string text, int lineChar){
 
 }
 
+
+struct auton {
+	static int curAuton;
+	string name;
+	std::function<void()> function;
+	static vector<auton*> array;
+	int x; int y;
+
+	auton (string name, std::function<void()> function):
+	name(name), function(function){
+		array.push_back(this);
+	}
+	static void increase(){
+
+		if (curAuton == array.size() - 1) curAuton = 0;
+		else curAuton++;
+	}
+	static void decrease() {
+		if (curAuton == 0) curAuton = array.size() - 1;
+		else curAuton--;
+	}
+	static auton* GetCurAuton(){return array[curAuton];}
+
+	static void run(){
+		GetCurAuton()->function();
+
+		if (!usd::is_installed()) screen_flash::start("No SD Card!");
+		else{
+			std::ofstream auton_file ("/usd/auton.txt");
+			auton_file << GetCurAuton()->name << endl;
+			auton_file.close();
+			screen_flash::start(term_colours::NOTIF, "Saved");
+		}
+	}
+
+	
+	
+};
+
+vector<auton*> auton::array{};
+int auton::curAuton = 0;
+
+void autonNumero1(){
+	pros::Distance distance_sensor1(10);
+	pros::Distance distance_sensor2(11);
+	cout << distance_sensor1.get() << endl;
+	cout << distance_sensor2.get() << endl;
+
+
+} void autonNumero2(){
+	//fputs("Auton 2", usd_file_write);
+} void autonNumero3(){
+	//fputs("Auton 3", usd_file_write);
+}
+auton a("test1", autonNumero1);
+auton b("test2", autonNumero2);
+auton c("test3", autonNumero3);
+/*
+Somehow, the library gets currupted, which means if your trying to use hot linking, it doesn't work.
+If youre not using hot linking, it will work because it only downloads the parts of the library that works.
+*/
+
+
+
+
+
+
+
+
 void opcontrol() {
 
 
-	WAIT_UNTIL(false){
-		if (ButtonA.holdClick()) printf("HoldClick\n");
-		else if (ButtonA.doubleClick()) printf("DoubleClick\n");
 
+
+	master.clear();
+	while (!master.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
+		if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_RIGHT)) auton::increase();
+		else if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_LEFT)) auton::decrease();
+		cout << auton::GetCurAuton()->name << endl; // This has to be printed on the screen
+
+		//cout << auton::GetCurAuton()->name.c_str() << endl;
+		master.print(0, 0, "%s", auton::GetCurAuton()->name.c_str());
+
+		pros::delay(50);
 	}
 
-
+	auton::run(); 
 	
 
 
 
 
+	/*while (1){
+		if (ButtonA.doubleClick()) printf("ButtonA Double Click\n");
+		if (ButtonB.doubleClick()) printf("ButtonB Double Click\n");
+		if (ButtonY.doubleClick()) printf("ButtonY Double Click\n");
+		if (ButtonX.doubleClick()) printf("ButtonX Double Click\n");
+		if (ButtonA.holdClick()) printf("ButtonA Hold Click\n");
+		if (ButtonB.holdClick()) printf("ButtonB Hold Click\n");
+		if (ButtonY.holdClick()) printf("ButtonY Hold Click\n");
+		if (ButtonX.holdClick()) printf("ButtonX Hold Click\n");
+		pros::delay(100);
+	}*/
+
+
+
+
+	
+
+
+	
 }
