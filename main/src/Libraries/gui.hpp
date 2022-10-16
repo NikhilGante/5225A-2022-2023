@@ -48,17 +48,17 @@ constexpr int
   CHAR_HEIGHT_LARGE = 32,
   CHAR_WIDTH_LARGE = 19;
 
-namespace screen_flash{
+namespace alert{
   extern Timer timer;
+  extern std::uint32_t end_time;
 
-  void
-    end(),
-    start(std::string, Colour, std::uint32_t = 1000), //text + col + time / text + col
-    start(std::string, term_colours = term_colours::ERROR, std::uint32_t = 1000); //text + cols + time / text + cols / text
+  void attempt_end();
+  void start(std::string, Colour, std::uint32_t = 1000), //text + col + time / text + col
+  start(std::string, term_colours = term_colours::ERROR, std::uint32_t = 1000); //text + cols + time / text + cols / text
   template <typename... Params> void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args); //text + cols + time
   template <typename... Params> void start(Colour colour, std::uint32_t time, std::string fmt, Params... args); //text + col + time
   template <typename... Params> void start(std::uint32_t time, std::string fmt, Params... args); //text + red + time
-  template <typename... Params> void start(term_colours colour, std::string fmt, Params... args); //text + col+1000
+  template <typename... Params> void start(term_colours colour, std::string fmt, Params... args); //text + col + 1000
 }
 
 
@@ -75,9 +75,8 @@ class GUI{
     main_background(),
     util_setup(),
     util_background(),
-    screen_flash::end(),
-    screen_flash::start(std::string, Colour, std::uint32_t),
-    screen_flash::start(std::string, term_colours, std::uint32_t);
+    alert::start(std::string, Colour, std::uint32_t),
+    alert::start(std::string, term_colours, std::uint32_t);
 
   public:
     enum class Style{ //how the rect coords get evaluated
@@ -136,9 +135,8 @@ class Page{
     main_background(),
     util_setup(),
     util_background(),
-    screen_flash::end(),
-    screen_flash::start(std::string, Colour, std::uint32_t),
-    screen_flash::start(std::string, term_colours, std::uint32_t);
+    alert::attempt_end(),
+    alert::start(std::string, Colour, std::uint32_t);
   private:
 
     //Vars
@@ -179,9 +177,7 @@ class Text_{
     main_background(),
     util_setup(),
     util_background(),
-    screen_flash::end(),
-    screen_flash::start(std::string, Colour, std::uint32_t),
-    screen_flash::start(std::string, term_colours, std::uint32_t);
+    alert::start(std::string, Colour, std::uint32_t);
   private:
     int x1 = USER_RIGHT, y1 = USER_DOWN, x2 = USER_LEFT, y2 = USER_UP;
 
@@ -221,9 +217,7 @@ class Text: public Text_{
     main_background(),
     util_setup(),
     util_background(),
-    screen_flash::end(),
-    screen_flash::start(std::string, Colour, std::uint32_t),
-    screen_flash::start(std::string, term_colours, std::uint32_t);
+    alert::start(std::string, Colour, std::uint32_t);
   private:
     Text(){};
 
@@ -263,9 +257,8 @@ class Button{
     main_background(),
     util_setup(),
     util_background(),
-    screen_flash::end(),
-    screen_flash::start(std::string, Colour, std::uint32_t),
-    screen_flash::start(std::string, term_colours, std::uint32_t);
+    alert::attempt_end(),
+    alert::start(std::string, Colour, std::uint32_t);
   public: enum press_type{
     SINGLE,
     LATCH,
@@ -328,9 +321,7 @@ class Slider{
     main_background(),
     util_setup(),
     util_background(),
-    screen_flash::end(),
-    screen_flash::start(std::string, Colour, std::uint32_t),
-    screen_flash::start(std::string, term_colours, std::uint32_t);
+    alert::start(std::string, Colour, std::uint32_t);
   public: enum direction{
     VERTICAL,
     HORIZONTAL
@@ -396,7 +387,7 @@ class Slider{
   } 
 
 //Screen Flash Definitions
-  namespace screen_flash{
+  namespace alert{
     template <typename... Params>
     void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args){
       start(sprintf2(fmt, args...), colour, time);

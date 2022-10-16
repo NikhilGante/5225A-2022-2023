@@ -30,71 +30,52 @@
     Button prompt_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, prompt_sequence, "BACK");
     Text prompt_button_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string);
 
+  Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word flash
+    Button screen_flash_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, screen_flash, "BACK");
+    Text screen_flash_text (MID_X, MID_Y, GUI::Style::CENTRE, TEXT_LARGE, screen_flash, "");
+    Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.get_time();}));
+
   Page terminal ("Screen Printing");
 
-namespace screen_flash{
+namespace alert{
   Timer timer("Flash Timer", false);
-  std::uint32_t end_time; //Sets the end time to max possible val
-  bool touched;
+  std::uint32_t end_time;
+  const Page* page;
 
   void start(std::string text, Colour colour, std::uint32_t time){
-    touched = GUI::touched;
-    GUI::clear_screen(colour);
-    screen::set_pen(~colour&0xFFFFFF); //Makes text inverted colour of background so it is always visible
-    screen::set_eraser(colour);
+    screen_flash.b_col = colour;
+    screen_flash_time.b_col = colour;
+    screen_flash_text.b_col = colour;
+    screen_flash_time.l_col = ~colour&0xFFFFFF;
+    screen_flash_text.l_col = ~colour&0xFFFFFF;
+    screen_flash_text.label = text;
 
-    // misc.print(term_colours::BLUE, "\n\n\n%s\n", text);
-
-    int spaces = int(CHAR_WIDTH_LARGE*text.length() / 460)+1;
-    std::size_t space, last_space=0;
-    std::string sub;
+    page = GUI::current_page;
+    end_time = time;
+    screen_flash.go_to();
 
     master.rumble(".-");
 
-    for(int i = 1; i <= spaces; i++){ //make the printing actually look good
-      space = text.find(' ', text.length() *i / spaces);
-      sub = text.substr(last_space, space-last_space);
-      screen::print(TEXT_LARGE, (480-sub.length() * CHAR_WIDTH_LARGE) / 2, (CHAR_HEIGHT_LARGE + 5) *i, "%s", sub);
-      last_space = space+1;
-    }
+    //misc print. figure out what to do with term_colour
 
     timer.reset(); //Starts counting
-    end_time = time;
     if(time) printf2("Showing for %dms.\n\n", time);
   }
 
   void start(std::string text, term_colours colour, std::uint32_t time){
-    touched = GUI::touched;
-    GUI::clear_screen(GUI::get_colour(colour));
-    screen::set_pen(~GUI::get_colour(colour) &0xFFFFFF); //Makes text inverted colour of background so it is always visible
-    screen::set_eraser(GUI::get_colour(colour));
-
-    // misc.print(colour, "\n\n\n%s\n", text);
-
-    int spaces = int(CHAR_WIDTH_LARGE*text.length() / 460)+1;
-    std::size_t space, last_space=0;
-    std::string sub;
-
-    master.rumble(".-");
-
-    for(int i = 1; i <= spaces; i++){ //make the printing actually look good
-      space = text.find(' ', text.length() *i / spaces);
-      sub = text.substr(last_space, space-last_space);
-      screen::print(TEXT_LARGE, (480-sub.length() * CHAR_WIDTH_LARGE) / 2, (CHAR_HEIGHT_LARGE + 5) *i, "%s", sub);
-      last_space = space+1;
-    }
-
-    timer.reset(); //Starts counting
-    end_time = time;
-    if(time) printf2("Showing for %dms.\n\n", time);
+    start(text, GUI::get_colour(colour), time);
   }
 
   //rest are templates, so defined in header
 
-  void end(){
-    if (timer.playing() && (timer.get_time() >= end_time || (!touched && GUI::touched))){
+  void attempt_end(){
+    //timer.playing() means flash is actually running
+    //timer.get_time() >= end_time means time has run out
+    //screen_flash_back_button.pressed() means user has exited the alert
+
+    if (timer.playing() && (timer.get_time() >= end_time || screen_flash_back_button.pressed())){
       timer.reset(false);
-      GUI::current_page->go_to();
+      page->go_to();
     }
   }
 }
@@ -135,6 +116,7 @@ namespace screen_flash{
     prompt_sequence.go_to();
 
     //! Had to comment this out because our controller subclass has changed
+
     // //Wait for Release
     // WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(ok_button) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
     //   GUI::update_screen_status();
@@ -178,7 +160,7 @@ namespace screen_flash{
         printf2("\nWaiting for %dms before running.\n", delay_time);
         delay(delay_time);
       }
-      printf2("\nRunning\n");
+      printf2(term_colours::GREEN, "Running\n");
     }
     else printf2(term_colours::ERROR, "Interrupted\n");
 
@@ -358,6 +340,7 @@ namespace screen_flash{
     this->pages.push_back(&testing);
     this->pages.push_back(&terminal);
     this->pages.push_back(&prompt_sequence);
+    this->pages.push_back(&screen_flash);
 
     //Saves gui to pages
     for (std::vector<Page*>::const_iterator it = this->pages.begin(); it != this->pages.end(); it++) (*it)->guis.push_back(this);
@@ -413,8 +396,8 @@ namespace screen_flash{
 
   Page::Page(std::string name, Colour background_colour){
     this->b_col = background_colour;
-    this->name = name;
-    if (!(name == "PERM BTNS" || name == "Prompt")){
+    this->title = title;
+    if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
       for (std::vector<Button*>::const_iterator it = perm.buttons.begin(); it != perm.buttons.end(); it++) buttons.push_back(*it);
     }
   }
@@ -427,9 +410,9 @@ namespace screen_flash{
 
   int Page::page_num(const Page* page_id){
     const std::vector<Page*>::const_iterator it = std::find(GUI::current_gui->pages.begin(), GUI::current_gui->pages.end(), page_id);
-      if (it == GUI::current_gui->pages.end()){
+    if (it == GUI::current_gui->pages.end()){
       throw std::domain_error(sprintf2("Page %p does not exist!\n", page_id));
-      return 0;
+      return -1;
     }
     return it-GUI::current_gui->pages.begin();
   }
@@ -437,18 +420,20 @@ namespace screen_flash{
   void GUI::go_next(){
     std::vector<Page*>::const_iterator it = std::find(GUI::current_gui->pages.begin(), GUI::current_gui->pages.end(), current_page);
     do{
-      if (it == current_gui->pages.end() - 2) it = current_gui->pages.begin();
       it++;
-    } while(!(Page::page_num(*it) && (*it)->active));
+      if (it == current_gui->pages.end()) it = current_gui->pages.begin();
+    } while(!(*it)->active);
+
     (*it)->go_to();
   }
 
   void GUI::go_prev(){
     std::vector<Page*>::const_iterator it = std::find(GUI::current_gui->pages.begin(), GUI::current_gui->pages.end(), current_page);
     do{
-      if (it == current_gui->pages.begin()+1) it = current_gui->pages.end() - 1;
+      if (it == current_gui->pages.begin()) it = current_gui->pages.end();
       it--;
-    } while(!(Page::page_num(*it) && (*it)->active));
+    } while(!(*it)->active);
+
     (*it)->go_to();
   }
 
@@ -457,7 +442,7 @@ namespace screen_flash{
   }
 
   void Page::go_to() const{
-    if(!page_num(this)) return;
+    if(page_num(this) == -1) return;
     GUI::current_page = this; //Saves new page then draws all the buttons on the page
     draw();
     if(setup_func) setup_func();
@@ -729,20 +714,23 @@ namespace screen_flash{
 //Data Updates
   void GUI::init(){
     screen_terminal_fix();
-    go_to(0);
+    testing.set_active(testing_page_active);
+    perm.set_active(false);
+    prompt_sequence.set_active(false);
+    screen_flash.set_active(false);
 
     prev_page.set_func(&go_prev);
     next_page.set_func(&go_next);
-    testing.set_active(testing_page_active);
-
     home.set_func([](){go_to(1);});
+
     prompt_button.add_text(prompt_button_text);
 
     current_gui->setup();
+
+    //! Do not touch this section. I do not fully understand, but any change here will break things
+    go_to(0);
     if(terminal.active) terminal.go_to();
     else go_to(1); //! Sets it to page 1 for program start. Don't delete this. If you want to change the starting page, call GUI::go_to(Page Number) in initialize()
-
-    current_page->go_to(); //? I should not need to go to a page I'm already on, but it doesn't draw the page fully the first time
 
     GUI::task.start(update);
   }
@@ -756,7 +744,7 @@ namespace screen_flash{
       /*Button*/ for (std::vector<Button*>::const_iterator it = cur_p.buttons.begin(); it != cur_p.buttons.end(); it++){(*it)->update(); if(&cur_p != current_page) continue;}
       /*Slider*/ for (std::vector<Slider*>::const_iterator it = cur_p.sliders.begin(); it != cur_p.sliders.end(); it++) (*it)->update();
       /*Text*/ for (std::vector<Text_*>::const_iterator it = cur_p.texts.begin(); it != cur_p.texts.end(); it++) (*it)->update();
-      /*Flash*/ screen_flash::end();
+      /*Flash*/ alert::attempt_end();
 
       _Task_::delay(10);
     }
