@@ -1,10 +1,41 @@
 #include "main.h"
+#include <atomic>
 #include "Libraries/piston.hpp"
-using namespace pros;
 
+using namespace pros;
+using namespace std;
+
+pros::Controller master(pros::E_CONTROLLER_MASTER);
 Motor flywheel_m(5, E_MOTOR_GEARSET_06);
 Motor intake_m(20, E_MOTOR_GEARSET_18);
-Piston indexer_p('E', "indexer_p", true, LOW);
+Piston indexer_p('E', "indexer_p", true, HIGH);
+ADIAnalogIn disc_sensor('G');
+
+enum class E_Intake_States{
+	off,
+	on,
+	rev
+};
+E_Intake_States intake_state = E_Intake_States::on;
+
+void intakeHandle(){
+	switch (intake_state) {
+		case E_Intake_States::off:
+			intake_m.move(0);
+			if(master.get_digital_new_press(DIGITAL_Y)) intake_state = E_Intake_States::on;
+			if(master.get_digital_new_press(DIGITAL_B)) intake_state = E_Intake_States::rev;
+			break;
+		case E_Intake_States::on:
+			intake_m.move(127);
+			if(master.get_digital_new_press(DIGITAL_Y)) intake_state = E_Intake_States::off;
+			if(master.get_digital_new_press(DIGITAL_B)) intake_state = E_Intake_States::rev;
+			break;
+		case E_Intake_States::rev:
+			intake_m.move(-127);
+			if(master.get_digital_new_press(DIGITAL_Y)) intake_state = E_Intake_States::off;
+			break;
+	}
+}
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -64,10 +95,11 @@ void autonomous() {}
 
 
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
-	int flywheel_power = 127;
+	// while(true){
+	// 	flywheel_m.move(master.get_analog(ANALOG_LEFT_Y));
+	// 	delay(10);
+	// }
+	// int flywheel_power = 127;
 
 	// while(true){
 	// 	if(master.get_digital_new_press(DIGITAL_A)){	// toggle state of subsystem
@@ -79,47 +111,89 @@ void opcontrol() {
 	// 	delay(10);
 	// }
 
-	Task flywheel_t([&](){
-		intake_m.move(-127);
+	atomic<double> error;
+	pros::Rotation rotation_sensor(1);	// Configures rotation sensor in port 5
+	rotation_sensor.set_data_rate(5);	// Gets data from rotation sensor every "5" - actually 10ms
+	rotation_sensor.reset_position();
+	int vel_target = 2070;
+	long rot_vel;
 
+	double kB = 0.0385;	// Target velocity multiplied by this outputs a motor voltage
+	double kP = 0.5;
+	double proportional;
+	double output; // What power goes to the flywheel motor
+
+	uint32_t print_timer = millis();
+
+
+	Task flywheel_t([&](){
 		int shots_left = 0;
 
 		while(true){
 			if(master.get_digital_new_press(DIGITAL_A))	shots_left = 3;	// Press A to shoot 3
 			if(master.get_digital_new_press(DIGITAL_X))	shots_left = 1;	// Press X to shoot 1
 			if(shots_left > 0){
-					printf("STARTED SHOOTING\n");
+					printf("%d STARTED SHOOTING\n", millis());
 					indexer_p.setState(HIGH);	
 					delay(75); // wait for SHOOTER to extend
 					// delay(175);
-					printf("FINISHED SHOT\n");
+					printf(" %d FINISHED SHOT\n", millis());
 					indexer_p.setState(LOW);
 					// delay(100);// wait for SHOOTER to retract
 					delay(175);// wait for SHOOTER to retract
-					printf("FINISHED Retraction\n");
+					printf("%d FINISHED Retraction\n", millis());
 					shots_left--;
 			}
 			delay(10);
 		}
 	});
-
-	uint32_t print_timer = millis();
+	master.clear();
+	lcd::print(4, "Ports | intk:%d fly:%d pist:E rot:1", intake_m.get_port(), flywheel_m.get_port());
+	lcd::print(5, "Btns | 3 shots:A, 1 shot:X");
+	lcd::print(6, "Btns | intake toggle:Y, rev: B");
+	lcd::print(7, "Press up/down to change fly vel");
+	
 	while (true) {
-		if(master.get_digital_new_press(DIGITAL_UP))	flywheel_power = std::clamp(flywheel_power + 5, 0, 127);
-		if(master.get_digital_new_press(DIGITAL_DOWN))	flywheel_power = std::clamp(flywheel_power - 5, 0, 127);
-		flywheel_m.move(flywheel_power);
+		intakeHandle();
+		// if(master.get_digital_new_press(DIGITAL_UP))	flywheel_power = std::clamp(flywheel_power + 5, 0, 127);
+		// if(master.get_digital_new_press(DIGITAL_DOWN))	flywheel_power = std::clamp(flywheel_power - 5, 0, 127);
+		rot_vel = 3*60*rotation_sensor.get_velocity()/360;	// actual velocity of flywheel
+
+		error = vel_target - rot_vel;
+		proportional = kP * error;
+		output = vel_target * kB + proportional;
+		output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
+
+		if(master.get_digital_new_press(DIGITAL_UP)){	// Increment the flywheel speed
+			vel_target += 20;
+			if(vel_target > 3000) vel_target = 3000;
+			lcd::print(2, "vel_target:%d ", vel_target);
+		}
+		if(master.get_digital_new_press(DIGITAL_DOWN)){	// Decrement the flywheel speed 
+			vel_target -= 20;
+			if(vel_target < 0) vel_target = 0;
+			lcd::print(2, "vel_target:%d ", vel_target);
+		}
+
+		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), disc_sensor.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional);
+		
+		flywheel_m.move(output);
 		if(print_timer - millis() > 50){
-			printf("%d, %.lf\n", millis(), 5*flywheel_m.get_actual_velocity());
-			lcd::print(0, "power:%d vel:%.lf temp:%.lf", flywheel_power, 5*flywheel_m.get_actual_velocity(), flywheel_m.get_temperature());
+			// printf("%d, %.lf\n", millis(), 5*flywheel_m.get_actual_velocity());
+			lcd::print(0, "power:%.lf vel:%.lf temp:%.lf", output, rot_vel, flywheel_m.get_temperature());
+			lcd::print(1, "intake temp:%.lf", intake_m.get_temperature());
+
+			// lcd::print(0, "power:%d vel:%.lf temp:%.lf", output, 5*flywheel_m.get_actual_velocity(), flywheel_m.get_temperature());
 			print_timer = millis();
 		}
 
 		// Motor temp safety
-		if(intake_m.get_temperature() > 45 || flywheel_m.get_temperature() > 45){
+		if(intake_m.get_temperature() >= 45 || flywheel_m.get_temperature() >= 45){
 			intake_m.move(0);
 			flywheel_m.move(0);
 			break;
 		}
 		delay(10);
 	}
+	master.rumble("-.-.-"); // Rumble to let us know safety has triggered 
 }
