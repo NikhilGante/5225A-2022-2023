@@ -30,7 +30,7 @@
     Button prompt_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, prompt_sequence, "BACK");
     Text prompt_button_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string);
 
-  Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word flash
+  Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word alert
     Button screen_flash_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, screen_flash, "BACK");
     Text screen_flash_text (MID_X, MID_Y, GUI::Style::CENTRE, TEXT_LARGE, screen_flash, "");
     Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.get_time();}));
@@ -56,14 +56,32 @@ namespace alert{
 
     master.rumble(".-");
 
-    //misc print. figure out what to do with term_colour
+    printf2("\n%s", text); //Switch to log
 
     timer.reset(); //Starts counting
-    if(time) printf2("Showing for %dms.\n\n", time);
+    if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);
   }
 
-  void start(std::string text, term_colours colour, std::uint32_t time){
-    start(text, GUI::get_colour(colour), time);
+  void start(std::string text, term_colours term_colour, std::uint32_t time){
+    Colour colour = GUI::get_colour(term_colour);
+
+    screen_flash.b_col = colour;
+    screen_flash_time.b_col = colour;
+    screen_flash_text.b_col = colour;
+    screen_flash_time.l_col = ~colour&0xFFFFFF;
+    screen_flash_text.l_col = ~colour&0xFFFFFF;
+    screen_flash_text.label = text;
+
+    page = GUI::current_page;
+    end_time = time;
+    screen_flash.go_to();
+
+    master.rumble(".-");
+
+    printf2(term_colour, "\n%s", text); //Switch to log
+
+    timer.reset(); //Starts counting
+    if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);
   }
 
   //rest are templates, so defined in header

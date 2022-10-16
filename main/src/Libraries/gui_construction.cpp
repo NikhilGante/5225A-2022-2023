@@ -93,16 +93,16 @@
       Button back_claw(470, 195, -100, 40, GUI::Style::SIZE, Button::TOGGLE, lift_move, "Back Claw");
 
     Page elastic ("Elastic Test"); //Testing the elastics on the lift
-      Button check_b_elastic(145, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Back Elastic Test");
-      Button check_f_elastic(335, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Front Elastic Test");
-      // Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_b_up_time);
-      // Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_b_down_time);
-      // Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_f_up_time);
-      // Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_f_down_time);
-      Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
-      Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
-      Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
-      Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
+      // Button check_b_elastic(145, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Back Elastic Test");
+      // Button check_f_elastic(335, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Front Elastic Test");
+      // // Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_b_up_time);
+      // // Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_b_down_time);
+      // // Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_f_up_time);
+      // // Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_f_down_time);
+      // Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
+      // Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
+      // Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
+      // Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
       
 
     Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
@@ -508,8 +508,8 @@ void main_setup(){
     });
 
   //Elastic Test
-    check_b_elastic.set_func([](){DEPRECATE;/*b_lift.elastic_util(1011);*/});
-    check_f_elastic.set_func([](){DEPRECATE;/*f_lift.elastic_util(935);*/});
+    // check_b_elastic.set_func([](){DEPRECATE;/*b_lift.elastic_util(1011);*/});
+    // check_f_elastic.set_func([](){DEPRECATE;/*f_lift.elastic_util(935);*/});
 
   //Tuning Tracking
     manual.select();
@@ -953,20 +953,21 @@ void util_background(){
     int port = std::get<0>(*it);
     int& stall_count = std::get<4>(*it);
     if (port != std::numeric_limits<int>::max()){
-      std::get<5>(*it) = sprintf2("%d: %d", port, c::motor_get_actual_velocity(port));
+      int cur = c::motor_get_actual_velocity(port), target = c::motor_get_target_velocity(port), temp = c::motor_get_temperature(port);
+
+      std::get<5>(*it) = sprintf2("%d: %d", port, cur);
       if(mot_jam_detect.on){
-        printf2("Stall: %d/%d", stall_count, mapValues((int)fabs(c::motor_get_target_velocity(port)), 0, 250, 40, 2));
-        if (fabs(c::motor_get_actual_velocity(port)) < fabs(c::motor_get_target_velocity(port))-3) stall_count++;
+        if (std::abs(target-cur) > 5) stall_count++;
         else stall_count = 0;
-        if (stall_count >= mapValues((int)fabs(c::motor_get_target_velocity(port)), 0, 250, 40, 2)){
+        if (stall_count >= mapValues(std::abs(target), 0, 250, 40, 2)){
           stall_count = 0;
-          alert::start(term_colours::ERROR, "Motor %d Jammed\n", port);
+          alert::start(5000, "Motor %d Jammed\n", port);
           c::motor_move(port, 0);
         }
       }
 
-      if (c::motor_get_target_velocity(port) && c::motor_get_temperature(port) > 40){
-        alert::start(term_colours::ERROR, 5000, "Motor %d Overheated to %d\n", port, c::motor_get_temperature(port));
+      if (target && temp > 40){
+        alert::start(5000, "Motor %d Overheated to %d\n", port, temp);
         c::motor_move(port, 0);
       }
     }

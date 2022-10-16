@@ -36,7 +36,9 @@ Timer Data::log_timer("log_timer");
 ofstream Data::log_file;
 
 void Data::init(){
-  task.start(logHandle);
+  log_file.open("/usd/log.txt");
+  log_file.close();
+  // task.start(logHandle);
 }
 
 void Data::logHandle(){ // runs in task to flush out contents of queue to file

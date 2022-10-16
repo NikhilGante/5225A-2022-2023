@@ -18,7 +18,7 @@
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
 
-const GUI* GUI::current_gui = &util_obj;
+const GUI* GUI::current_gui = &main_obj;
 
 
 /* Nathan's Thoughts
@@ -104,44 +104,53 @@ void autonomous() {}
 Data data1;
 
 //make page 7 active. figure out repeated deprecate on page 5
- 
+//make colour an actual type not a typedef
+//make alert queue if already flashing
+//delete the move and copy constructors for button, controller button, auto...
+//alert prints really big
+
+//Log corruption happens somewhere between getting in the push function and queuePrintFile. It's probably in push when it's written to the array
+//Push and print might be modifying the start and end simultaneously
+
 void opcontrol() {
-  // data1.log_file.open("/usd/log.txt");
-  // // for(int i = 0; i < 100; i++){
-	// // 	for(int j = 0; j < 5; j++){	
-	// // 		data1.print("aaaaaaaaaa");
-	// // 	}
-	// // 	// data.print("\n");
-	// // 	data1.print("\n");
-	// // 	// delay(1);
-	// // }
+  for(int i = 0; i < 20; i++){
+		for(int j = 0; j < 10; j++){	
+			data1.print("%03d ", 10*i+j);
+      std::cout << Data::queue.getDataSize() << std::endl;
 
-  // data1.print("abcdefghijklmnopqrstuvwxyz\n");
-
-  const int intk_port = 20, speed = 127;
-  char pneum_port = 'H';
-  std::uint32_t delay_time = 65;
-
-  WAIT_UNTIL(false){
-    if(master.get_digital_new_press(DIGITAL_X)) c::motor_move(intk_port, 0);
-    else if(master.get_digital_new_press(DIGITAL_UP)) c::motor_move(intk_port, -speed);
-    else if(master.get_digital_new_press(DIGITAL_DOWN)) c::motor_move(intk_port, speed);
-
-    if(master.get_digital_new_press(DIGITAL_L1)){
-      printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
-      c::adi_port_set_value(pneum_port, LOW);
-      delay(delay_time);
-      c::adi_port_set_value(pneum_port, HIGH);
-    }
-    else if(master.get_digital_new_press(DIGITAL_R1)){
-      printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
-      for(int i = 0; i < 3; i++){
-        c::adi_port_set_value(pneum_port, LOW);
-        delay(delay_time);
-        c::adi_port_set_value(pneum_port, HIGH);
-        delay(275);
+      if(Data::queue.getDataSize() > 50){
+        queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
       }
-    }
-  }
+		}
+		data1.print("\\n\n");
+    delay(20);
+	}
+  queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+
+  // const int intk_port = 20, speed = 127;
+  // char pneum_port = 'H';
+  // std::uint32_t delay_time = 65;
+
+  // WAIT_UNTIL(false){
+  //   if(master.get_digital_new_press(DIGITAL_X)) c::motor_move(intk_port, 0);
+  //   else if(master.get_digital_new_press(DIGITAL_UP)) c::motor_move(intk_port, -speed);
+  //   else if(master.get_digital_new_press(DIGITAL_DOWN)) c::motor_move(intk_port, speed);
+
+  //   if(master.get_digital_new_press(DIGITAL_L1)){
+  //     printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
+  //     c::adi_port_set_value(pneum_port, LOW);
+  //     delay(delay_time);
+  //     c::adi_port_set_value(pneum_port, HIGH);
+  //   }
+  //   else if(master.get_digital_new_press(DIGITAL_R1)){
+  //     printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
+  //     for(int i = 0; i < 3; i++){
+  //       c::adi_port_set_value(pneum_port, LOW);
+  //       delay(delay_time);
+  //       c::adi_port_set_value(pneum_port, HIGH);
+  //       delay(275);
+  //     }
+  //   }
+  // }
   
 }

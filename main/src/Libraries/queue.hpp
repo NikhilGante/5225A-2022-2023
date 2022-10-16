@@ -5,6 +5,7 @@
 #include <array>
 #include <limits>
 #include <fstream>
+#include "gui.hpp"
 using namespace std;
 
 template <typename T, size_t size>
@@ -60,10 +61,11 @@ public:
   }
 
   void push(T arr[], size_t arr_len){ // enqueue multiple elements
+    // fwrite(arr, 1, arr_len, stdout);
     const size_t elements_available = size - getDataSize();
+    // printf("Elem avail:%d\n", elements_available);
     if(arr_len > elements_available){
-      // pros::lcd::print();
-      pros::lcd::print(0, "%s | More elements pushed than elements available: pushing %d elements of %d elements requested.\n", name, elements_available, arr_len);
+      alert::start(term_colours::ERROR, "%s | More elements pushed than elements available: pushing %d elements of %d elements requested.\n", name, elements_available, arr_len);
       arr_len = elements_available;
     }
 
@@ -112,12 +114,23 @@ public:
 // prints the contents of a char queue to a file (used for logging)
 template<size_t size_cpy>
 void queuePrintFile(Queue<char, size_cpy>& queue, ofstream& file, const char* file_name){
+
   file.open(file_name, ios::app);
   if(queue.rear < queue.front){ // if the queue rolls over
     file.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
-    file.write(queue.data, queue.rear + 1);  // prints from start to rear of queue    
+    file.write(queue.data, queue.rear + 1);  // prints from start to rear of queue
+
+    
+    std::cout.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
+    std::cout.write(queue.data, queue.rear + 1);  // prints from start to rear of queue     
   }
-  else  file.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
+  else{
+    // printf("writing %d chars\n", num);
+    file.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
+
+    std::cout.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
+  }
+
   file.close();
   queue.clear();
 }

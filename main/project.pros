@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Intake Control",
+    "project_name": "Log Corruption Test",
     "target": "v5",
     "templates": {
       "kernel": {
@@ -310,7 +310,7 @@
     "upload_options": {
       "description": "Nathan's Brainchild",
       "icon": "pros",
-      "slot": 7
+      "slot": 4
     }
   }
 }

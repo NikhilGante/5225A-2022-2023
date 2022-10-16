@@ -24,7 +24,7 @@ extern Text<> testing_text_1, testing_text_2;
 extern Slider testing_slider;
 
 typedef std::uint32_t Colour;
-#define COLOUR(NAME) (Colour) COLOR_##NAME
+#define COLOUR(NAME) (static_cast<Colour>(COLOR_##NAME))
 
 constexpr Colour
   ORANGE = 0x00F36421,
@@ -53,8 +53,8 @@ namespace alert{
   extern std::uint32_t end_time;
 
   void attempt_end();
-  void start(std::string, Colour, std::uint32_t = 1000), //text + col + time / text + col
-  start(std::string, term_colours = term_colours::ERROR, std::uint32_t = 1000); //text + cols + time / text + cols / text
+  void start(std::string fmt, Colour colour, std::uint32_t time = 1000), //text + col + time / text + col
+  start(std::string fmt, term_colours colour = term_colours::ERROR, std::uint32_t time = 1000); //text + cols + time / text + cols / text
   template <typename... Params> void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args); //text + cols + time
   template <typename... Params> void start(Colour colour, std::uint32_t time, std::string fmt, Params... args); //text + col + time
   template <typename... Params> void start(std::uint32_t time, std::string fmt, Params... args); //text + red + time
@@ -136,7 +136,8 @@ class Page{
     util_setup(),
     util_background(),
     alert::attempt_end(),
-    alert::start(std::string, Colour, std::uint32_t);
+    alert::start(std::string, Colour, std::uint32_t),
+    alert::start(std::string, term_colours, std::uint32_t);
   private:
 
     //Vars
@@ -217,7 +218,8 @@ class Text: public Text_{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Colour, std::uint32_t);
+    alert::start(std::string, Colour, std::uint32_t),
+    alert::start(std::string, term_colours, std::uint32_t);
   private:
     Text(){};
 
@@ -231,9 +233,9 @@ class Text: public Text_{
       void construct (int, int, GUI::Style, text_format_e_t, Page*, std::string, std::function<V()>, Colour);
 
   public:
-    //Constructors
-      //Points, Format, Page, Label, [var info], Lcolour
+    V run_func();
 
+    //Constructors (Points, Format, Page, Label, [var info], Lcolour)
       /*Terminal (var - no format)*/ Text (std::string, V&, Colour = COLOUR(WHITE));
       /*Terminal (var - format)*/ Text (std::string, V&, text_format_e_t, Colour = COLOUR(WHITE));
       /*Terminal (array - no format)*/ template <typename I> Text (std::string, V*, I&, Colour = COLOUR(WHITE));
@@ -385,6 +387,11 @@ class Slider{
     this->b_col = page->b_col;
     page->texts.push_back(this);
   } 
+
+  template <typename V>
+  V Text<V>::run_func() {
+    if (value) return value();
+  }
 
 //Screen Flash Definitions
   namespace alert{
