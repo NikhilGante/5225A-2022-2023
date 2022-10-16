@@ -166,12 +166,12 @@ struct auton {
 	static void run(){
 		GetCurAuton()->function();
 
-		if (!usd::is_installed()) screen_flash::start("No SD Card!");
+		if (!usd::is_installed()) alert::start("No SD Card!");
 		else{
 			std::ofstream auton_file ("/usd/auton.txt");
 			auton_file << GetCurAuton()->name << endl;
 			auton_file.close();
-			screen_flash::start(term_colours::NOTIF, "Saved");
+			alert::start(term_colours::NOTIF, "Saved");
 		}
 	}
 

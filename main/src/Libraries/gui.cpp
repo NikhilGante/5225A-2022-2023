@@ -48,7 +48,7 @@ namespace alert{
     screen_flash_text.b_col = colour;
     screen_flash_time.l_col = ~colour&0xFFFFFF;
     screen_flash_text.l_col = ~colour&0xFFFFFF;
-    screen_flash_text.label = text;
+    screen_flash_text.name = text;
 
     page = GUI::current_page;
     end_time = time;
@@ -396,8 +396,8 @@ namespace alert{
 
   Page::Page(std::string name, Colour background_colour){
     this->b_col = background_colour;
-    this->title = title;
-    if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
+    this->name = name;
+    if (!(name == "PERM BTNS" || name == "Prompt" || name == "Alert")){
       for (std::vector<Button*>::const_iterator it = perm.buttons.begin(); it != perm.buttons.end(); it++) buttons.push_back(*it);
     }
   }
