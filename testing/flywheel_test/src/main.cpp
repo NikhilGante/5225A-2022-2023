@@ -1,6 +1,7 @@
 #include "main.h"
 #include <atomic>
 #include "Libraries/piston.hpp"
+#include "pros/adi.hpp"
 
 using namespace pros;
 using namespace std;
@@ -8,7 +9,24 @@ using namespace std;
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 Motor flywheel_m(5, E_MOTOR_GEARSET_06);
 Motor intake_m(20, E_MOTOR_GEARSET_18);
-Piston indexer_p('E', "indexer_p", true, HIGH);
+
+// old piston code
+// original fail - true HIGH
+/* tried:
+	reverse - (open), init
+	true HIGH	(flicked back and forth)
+	true LOW	extended once
+	false LOW	extended once
+	false HIGH (flick)
+*/
+
+// original fail - true HIGH
+/* tried:
+	true LOW	(flick)
+	false LOW	extended once
+	false HIGH (flick)
+*/
+Piston indexer_p('E', "indexer_p", false, LOW);
 ADIAnalogIn disc_sensor('G');
 
 enum class E_Intake_States{
@@ -93,12 +111,10 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
+// high seems to be default state for piston
 
 void opcontrol() {
-	// while(true){
-	// 	flywheel_m.move(master.get_analog(ANALOG_LEFT_Y));
-	// 	delay(10);
-	// }
+
 	// int flywheel_power = 127;
 
 	// while(true){
@@ -112,10 +128,11 @@ void opcontrol() {
 	// }
 
 	atomic<double> error;
+	atomic<int> shooting = 0;
 	pros::Rotation rotation_sensor(1);	// Configures rotation sensor in port 5
 	rotation_sensor.set_data_rate(5);	// Gets data from rotation sensor every "5" - actually 10ms
 	rotation_sensor.reset_position();
-	int vel_target = 2070;
+	int vel_target = 2270;
 	long rot_vel;
 
 	double kB = 0.0385;	// Target velocity multiplied by this outputs a motor voltage
@@ -128,21 +145,24 @@ void opcontrol() {
 
 	Task flywheel_t([&](){
 		int shots_left = 0;
-
+		uint32_t shoot_timer = millis();
 		while(true){
 			if(master.get_digital_new_press(DIGITAL_A))	shots_left = 3;	// Press A to shoot 3
 			if(master.get_digital_new_press(DIGITAL_X))	shots_left = 1;	// Press X to shoot 1
-			if(shots_left > 0){
+			if(millis() - shoot_timer > 300 && fabs(error.load() < 20) && shots_left > 0){
 					printf("%d STARTED SHOOTING\n", millis());
+					shooting = 1000;
 					indexer_p.setState(HIGH);	
 					delay(75); // wait for SHOOTER to extend
 					// delay(175);
 					printf(" %d FINISHED SHOT\n", millis());
+					shooting = 0;
 					indexer_p.setState(LOW);
 					// delay(100);// wait for SHOOTER to retract
 					delay(175);// wait for SHOOTER to retract
 					printf("%d FINISHED Retraction\n", millis());
 					shots_left--;
+					shoot_timer = millis();
 			}
 			delay(10);
 		}
@@ -152,15 +172,21 @@ void opcontrol() {
 	lcd::print(5, "Btns | 3 shots:A, 1 shot:X");
 	lcd::print(6, "Btns | intake toggle:Y, rev: B");
 	lcd::print(7, "Press up/down to change fly vel");
-	
+
+	// const double filter_val = 0.0;
+	long last_vel;
 	while (true) {
 		intakeHandle();
 		// if(master.get_digital_new_press(DIGITAL_UP))	flywheel_power = std::clamp(flywheel_power + 5, 0, 127);
 		// if(master.get_digital_new_press(DIGITAL_DOWN))	flywheel_power = std::clamp(flywheel_power - 5, 0, 127);
 		rot_vel = 3*60*rotation_sensor.get_velocity()/360;	// actual velocity of flywheel
+		// rot_vel = filter_val*last_vel + (1-filter_val)*rot_vel;
+		// last_vel = rot_vel;
 
 		error = vel_target - rot_vel;
 		proportional = kP * error;
+		// if(fabs(error) > 50)	proportional = kP * error;
+		// else	proportional = 0.2 * error;
 		output = vel_target * kB + proportional;
 		output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
 
@@ -175,9 +201,11 @@ void opcontrol() {
 			lcd::print(2, "vel_target:%d ", vel_target);
 		}
 
-		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), disc_sensor.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional);
+		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), disc_sensor.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, shooting.load());
 		
-		flywheel_m.move(output);
+		flywheel_m.move(0);
+		// flywheel_m.move(127);
+		
 		if(print_timer - millis() > 50){
 			// printf("%d, %.lf\n", millis(), 5*flywheel_m.get_actual_velocity());
 			lcd::print(0, "power:%.lf vel:%.lf temp:%.lf", output, rot_vel, flywheel_m.get_temperature());
@@ -195,5 +223,8 @@ void opcontrol() {
 		}
 		delay(10);
 	}
-	master.rumble("-.-.-"); // Rumble to let us know safety has triggered 
+	while(true){
+		master.rumble("-.-.-"); // Rumble to let us know safety has triggered 
+		delay(10);
+	}
 }
