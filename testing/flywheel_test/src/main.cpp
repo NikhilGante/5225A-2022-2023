@@ -26,8 +26,15 @@ Motor intake_m(20, E_MOTOR_GEARSET_18);
 	false LOW	extended once
 	false HIGH (flick)
 */
+
+atomic<int> g_intk_disc_count = 0, g_mag_disc_count = 0, g_total_disc_count;
+
+
 Piston indexer_p('E', "indexer_p", false, LOW);
-ADIAnalogIn disc_sensor('G');
+ADIAnalogIn flywheel_ds('H');
+
+ADIAnalogIn intk_ds('A');
+ADIAnalogIn mag_ds('G');
 
 enum class E_Intake_States{
 	off,
@@ -47,10 +54,19 @@ void intakeHandle(){
 			intake_m.move(127);
 			if(master.get_digital_new_press(DIGITAL_Y)) intake_state = E_Intake_States::off;
 			if(master.get_digital_new_press(DIGITAL_B)) intake_state = E_Intake_States::rev;
+
+			// If mag is full, don't let any more discs in
+			if(g_mag_disc_count >= 3){
+				intake_state = E_Intake_States::rev;
+				// delay(100);	// wait for third disc to enter mag before reversing
+			}
 			break;
 		case E_Intake_States::rev:
 			intake_m.move(-127);
 			if(master.get_digital_new_press(DIGITAL_Y)) intake_state = E_Intake_States::off;
+
+			// If mag isn't full and robot has 3 or less turn back on
+			if(g_mag_disc_count < 3 && g_total_disc_count <= 3)	intake_state = E_Intake_States::on;
 			break;
 	}
 }
@@ -63,6 +79,7 @@ void intakeHandle(){
  */
 void initialize() {
 	pros::lcd::initialize();
+	delay(300); // Check if sensor returns values above 0 for the first 100 ms
 
 }
 
@@ -114,6 +131,51 @@ void autonomous() {}
 // high seems to be default state for piston
 
 void opcontrol() {
+	// disk counting code
+
+	// intk: 2640 normal, check for less than 2500
+	// mag: 800 normal, check for less than 500
+
+
+	int intk_ds_val, mag_ds_val;
+	const int intk_disc_thresh = 2500, mag_disc_thresh = 500;
+	bool intk_disc_detected = false, intk_disc_detected_last = false; // if disc is currently detected by intk sensor
+	bool mag_disc_detected = false, mag_disc_detected_last = false; // if disc is currently detected by mag sensor
+
+	while(true){
+		intakeHandle();
+		intk_ds_val = intk_ds.get_value(), mag_ds_val = mag_ds.get_value();
+		mag_disc_detected = mag_ds_val < mag_disc_thresh;
+		intk_disc_detected = intk_ds_val < intk_disc_thresh;
+
+		if(intake_m.get_direction()){	// if intake moving forwards
+			if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
+				g_mag_disc_count++;
+				g_intk_disc_count--;
+				printf("154\n");
+			}
+			if(intk_disc_detected && !intk_disc_detected_last){	// disc just entered intk
+				g_intk_disc_count++;
+				printf("158\n");
+			}
+		}
+		else{	// if intake moving in reverse
+			if(!intk_disc_detected && intk_disc_detected_last){	// disc just left intk
+				g_intk_disc_count--;
+				printf("164\n");
+			}
+		}
+		g_total_disc_count = g_intk_disc_count + g_mag_disc_count;
+
+		mag_disc_detected_last = mag_disc_detected,	intk_disc_detected_last = intk_disc_detected;
+		if(master.get_digital_new_press(DIGITAL_LEFT)) g_mag_disc_count = 0;
+		if(master.get_digital_new_press(DIGITAL_RIGHT)) g_intk_disc_count = 0;
+
+
+		printf("%d %d %d %d %d\n", millis(), intk_ds_val, mag_ds_val, g_intk_disc_count.load(), g_mag_disc_count.load());
+		delay(10);
+	}
+
 
 	// int flywheel_power = 127;
 
@@ -201,9 +263,9 @@ void opcontrol() {
 			lcd::print(2, "vel_target:%d ", vel_target);
 		}
 
-		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), disc_sensor.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, shooting.load());
+		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), flywheel_ds.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, shooting.load());
 		
-		flywheel_m.move(0);
+		flywheel_m.move(output);
 		// flywheel_m.move(127);
 		
 		if(print_timer - millis() > 50){
@@ -216,15 +278,17 @@ void opcontrol() {
 		}
 
 		// Motor temp safety
-		if(intake_m.get_temperature() >= 45 || flywheel_m.get_temperature() >= 45){
-			intake_m.move(0);
-			flywheel_m.move(0);
-			break;
-		}
+		// if(intake_m.get_temperature() >= 45){
+		// 	intake_m.move(0);
+		// 	flywheel_m.move(0);
+		// 	break;
+		// }
 		delay(10);
 	}
+	master.clear(); // Rumble to let us know safety has triggered 
+	delay(100);
+	master.print(0, 0, "yo");
 	while(true){
-		master.rumble("-.-.-"); // Rumble to let us know safety has triggered 
 		delay(10);
 	}
 }

@@ -113,7 +113,7 @@ void new_skills1(){ // 12 seconds
 
 
 // tracking.g_pos = {108.0, 129.75, degToRad(180.0)};
-void new_skills2(){ // 17 seconds
+void new_skills2(){ // 17.5 seconds
   Timer total{"total_timer"};
   moveToTargetSync({104.0, 117.0}); // move away from wall
   aimAtRed();
@@ -121,11 +121,11 @@ void new_skills2(){ // 17 seconds
   moveToTargetSync({112.0, 99.0});  // intake stack
   aimAtRed();
   delay(1500);  // shoot 3 discs
-  moveToTargetSync({83.0, 57.0});   // intake line of 3 discs
+  moveToTargetSync({83.0, 57.0}, E_Brake_Modes::brake, 127, 2.0);   // intake line of 3 discs
   aimAtRed();
   delay(1500);  // shoot 3 discs
 
-  moveToTargetSync({75.0, 65.0});   // backup on to centreline
+  moveToTargetSync({75.0, 65.0}, E_Brake_Modes::brake, 127, 2.0);   // backup on to centreline
   turnToTargetSync({20.0, 20.0});   // turn to face line
   moveToTargetSync({20.0, 20.0}, E_Brake_Modes::brake, 80, 2.0);   // go to corner
 

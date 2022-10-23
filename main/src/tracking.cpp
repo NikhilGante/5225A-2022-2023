@@ -42,7 +42,7 @@ void trackingUpdate(){
     left = new_left - last_left;
     right = new_right - last_right;
     back = new_back - last_back;
-    // back = 0.0;
+    back = 0.0;
 
     if(velocity_timer.getTime() > 50){  // velocity is updated every 20 
       uint32_t velocity_update_time = velocity_timer.getTime(); // time since last velocity update
@@ -270,7 +270,6 @@ void DriveMttParams::handle(){
     double error_x = line_error.getX() + line_error.getY() * tan(nearAngle(tracking.g_pos.a, line_angle));
     // Only corrects if necessary (if robot won't land within an acceptable distance from the target)
     double correction = fabs(error_x) > end_error_x? kP_a * error_a * sgn(power_sgn): 0.0;
-    // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
     double left_power, right_power;
     switch(sgn(correction)){
       case 0:
@@ -287,7 +286,11 @@ void DriveMttParams::handle(){
     // log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
 
     // log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
-    log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
+    // log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
+    // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
+
+    log("%d %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), left_power, right_power, power_y, line_error.getY(), power_y, error_x, radToDeg(error_a));
+
     moveDriveSide(left_power, right_power);
     _Task_::delay(10);
   }  
