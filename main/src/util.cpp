@@ -23,3 +23,4 @@ double radToDeg(double rad){
 double nearAngle(double angle, double reference){
 	return round((reference - angle)/(2*M_PI)) * (2*M_PI) + angle - reference;
 }
+

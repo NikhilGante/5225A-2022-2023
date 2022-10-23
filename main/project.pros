@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "ControllerButtons",
+    "project_name": "AutonSelector",
     "target": "v5",
     "templates": {
       "kernel": {

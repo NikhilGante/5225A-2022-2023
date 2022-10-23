@@ -31,9 +31,11 @@ public:
 
 
 	// ------------------------------------------ Press Functions ------------------------------------------
-	bool holdClick();
-	bool doubleClick();
-	bool tripleClick();
+	bool holdClick() const;
+	bool doubleClick() const;
+	bool tripleClick() const;
+
+	bool isPressed() const;
 	
 
 };

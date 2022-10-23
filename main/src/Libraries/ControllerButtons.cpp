@@ -44,39 +44,44 @@ void ControllerButton::updateLoop(){
 void ControllerButton::update(){
   master.get_digital(button); 
   cur = controller.get_digital(button); 
-  if (cur && ! prev){
+  if (cur && ! prev){ //New Press
     L_last_press = last_press;
-    last_press = pros::c::millis();
+    last_press = millis();
     //  Log Function ---------------------
   }
   
-  else if (!cur && prev) {
+  else if (!cur && prev) { //New release
     L_last_release = last_release;
-    last_release = pros::c::millis();
+    last_release = millis();
     //  Log Function ---------------------
   }
   prev = cur;
 }
-
+bool ControllerButton::isPressed() const{
+  return last_press>last_release;
+}
 
 
 
 // ------------------------------------------ Press Functions ------------------------------------------
-bool ControllerButton::holdClick(){
-  if (last_press>last_release && pros::c::millis()>last_press+250) return true;
-  else return false;
+bool ControllerButton::holdClick() const{
+  return isPressed() && millis() - 250 > last_press;
 }
 
 
-bool ControllerButton::doubleClick(){
-  if (last_press>last_release && abs(last_press-last_release)<200) return true;
-  else return false;
+bool ControllerButton::doubleClick() const{
+  return isPressed() && last_press-last_release<200 && L_last_press-L_last_release>200;
 }
 
-bool ControllerButton::tripleClick(){
-  if (last_press>last_release && abs(last_press-last_release)<200 && abs(last_release-L_last_press)<200 && abs(L_last_press-L_last_release)<200) return true;
-  else return false;
+// do not use, Triggers double click
+bool ControllerButton::tripleClick() const{
+  return isPressed() && last_press-last_release<200 && last_release-L_last_press<200 && L_last_press-L_last_release<200;
 }
 
 
+
+// Lrelease = 100ms
+// Lpress = 200ms
+// release = 350ms
+// press = 450ms
 
