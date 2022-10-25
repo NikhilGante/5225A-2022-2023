@@ -64,16 +64,23 @@ void aimAtBlue();
 
 // Forward declarations
 struct DriveIdleParams;
+struct DriveOpControlParams;
 struct DriveMttParams;
 struct DriveTurnToAngleParams;
 struct DriveTurnToTargetParams;
 struct DriveFlattenParams;
 
-#define DRIVE_STATE_TYPES DriveIdleParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveFlattenParams
+#define DRIVE_STATE_TYPES DriveIdleParams, DriveOpControlParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveFlattenParams
 
 #define DRIVE_STATE_TYPES_VARIANT std::variant<DRIVE_STATE_TYPES>
 
 struct DriveIdleParams{
+  const char* getName();
+  void handle();
+  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+};
+
+struct DriveOpControlParams{
   const char* getName();
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);

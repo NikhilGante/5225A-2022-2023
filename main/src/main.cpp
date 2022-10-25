@@ -15,6 +15,7 @@
 #include "tracking.hpp"
 #include "drive.hpp"
 #include "config.hpp"
+#include "Libraries/controller.hpp"
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
@@ -45,7 +46,7 @@ void initialize() {
 	_Task_ tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 	// Data::init();
-	// _Controller::init();
+	_Controller::init();
 	delay(500);
 	// lift.runMachine();
 	drive.runMachine();
@@ -81,7 +82,10 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	skills2();
+
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -181,6 +185,18 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
+	master.clear();
+	delay(150);
+	master.print(0,  0, "%d", 20);
+	delay(50);
+	master.print(1, 2, "%d", 20);
+	delay(50);
+	master.print(2, 0, "%d", 20);
+	delay(50);
+	delay(150);
+
+	// drive.changeState(DriveOpControlParams{});
+	WAIT_UNTIL(false);
 	// flattenAgainstWallSync();	
 	// tracking.reset();
 	// turnToTargetSync({40.0, -40.0}, true);
@@ -189,7 +205,8 @@ void opcontrol() {
 	new_skills2();
 	// new_skills3();
 	// new_skills4();
-	// skills2();
+	skills2();
+	return;
 	WAIT_UNTIL(false);
 	// front_r.move_relative(0, 200);
   // centre_r.move_relative(0, 200);

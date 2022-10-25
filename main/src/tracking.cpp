@@ -219,12 +219,22 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
 
 Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
 
-// drive idle state
+// Drive idle state
 const char* DriveIdleParams::getName(){
   return "DriveIdle";
 }
 void DriveIdleParams::handle(){}
 void DriveIdleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+
+// Drive operator control params
+const char* DriveOpControlParams::getName(){
+  return "DriveIdle";
+}
+void DriveOpControlParams::handle(){
+  handleInput();
+}
+void DriveOpControlParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+
 
 // Drive move to target state
 DriveMttParams::DriveMttParams(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side) :

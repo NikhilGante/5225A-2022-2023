@@ -33,6 +33,7 @@ void skills2(){
   Timer total{"total_timer"};
 	moveToTargetSync({68.00, 125.5}); // moves away from wall
 	aimAtBlue();
+  return;
   WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   // delay(6000);
   turnToTargetSync({123.0, 98.0});
