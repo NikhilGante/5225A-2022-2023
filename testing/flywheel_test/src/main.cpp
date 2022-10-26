@@ -41,7 +41,7 @@ enum class E_Intake_States{
 	on,
 	rev
 };
-E_Intake_States intake_state = E_Intake_States::on;
+E_Intake_States intake_state = E_Intake_States::rev;
 
 void intakeHandle(){
 	switch (intake_state) {
@@ -194,7 +194,7 @@ void opcontrol() {
 	pros::Rotation rotation_sensor(1);	// Configures rotation sensor in port 5
 	rotation_sensor.set_data_rate(5);	// Gets data from rotation sensor every "5" - actually 10ms
 	rotation_sensor.reset_position();
-	int vel_target = 2270;
+	int vel_target = 2160;
 	long rot_vel;
 
 	double kB = 0.0385;	// Target velocity multiplied by this outputs a motor voltage
@@ -265,6 +265,7 @@ void opcontrol() {
 
 		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), flywheel_ds.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, shooting.load());
 		
+		// flywheel_m.move(0);
 		flywheel_m.move(output);
 		// flywheel_m.move(127);
 		
