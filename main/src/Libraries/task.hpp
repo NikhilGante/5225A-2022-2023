@@ -19,14 +19,14 @@ enum class notify_types_2{
 
 extern int controller_line_counter;
 
-class _Task_{
+class _Task{
   task_t task_handle = 0; // handle to the pros task
   const char* name;
 
   bool isAlive(); // returns if the task is currently on the scheduler
 
 public:
-  _Task_(const char* name = "");
+  _Task(const char* name = "");
   template <typename F>
   void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
     kill(); // kills task if it's alive

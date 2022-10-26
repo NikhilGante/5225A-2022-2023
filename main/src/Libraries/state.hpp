@@ -51,7 +51,7 @@ class Machine{
 
   atomic<bool> state_change_requested = false;
 
-  _Task_ task;
+  _Task task;
 
 public:
   template <typename base_state_type>

@@ -1,7 +1,7 @@
 #include "controller.hpp"
 
 std::array<_Controller*, num_controller> _Controller::objs; //= {nullptr};
-_Task_ _Controller::controller_task("controller task");
+_Task _Controller::controller_task("controller task");
 
 int constructed = 0;
 
@@ -16,7 +16,7 @@ void _Controller::print_queue(){
   while(true){
     for(int i = 0; i < num_controller; i++){
       objs[i]->queue_handle();
-      _Task_::delay(50);
+      _Task::delay(50);
     }
   }
 }

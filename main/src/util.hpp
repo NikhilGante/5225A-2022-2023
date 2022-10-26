@@ -17,7 +17,7 @@ class Timer;
     while (successCount < checkCount){\
       if (exit_condition) successCount++;\
       else successCount = 0;\
-      _Task_::delay(delayTime);\
+      _Task::delay(delayTime);\
     }\
 }
 

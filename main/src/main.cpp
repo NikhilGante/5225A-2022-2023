@@ -43,11 +43,11 @@ void initialize() {
 	// tracking.g_pos = {0.0, 0.0, 0.0};
 
 	log_init();
-	_Task_ tracking_task("tracking_update_task");
+	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 	// Data::init();
 	_Controller::init();
-	delay(500);
+	delay(300);
 	// lift.runMachine();
 	drive.runMachine();
 
@@ -120,7 +120,7 @@ void my_task_fn(void* param) {
 int i = -1;
 int i2 = -1;
 
-	_Task_ lcd_task("lcd_task");
+	_Task lcd_task("lcd_task");
 
 
 void lcd_task_fn (void* params){
@@ -135,7 +135,7 @@ void lcd_task_fn (void* params){
 			// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.kill();
 			// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
 
-			_Task_::delay(100);
+			_Task::delay(100);
 			// delay(100);
 		}
 	}
@@ -158,7 +158,7 @@ void screen_task_fn (void* ignore){
 			// if(master.get_digital_new_press(DIGITAL_Y))	lcd_task.kill();
 			// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
 
-			_Task_::delay(100);
+			_Task::delay(100);
 			// delay(100);
 		}
 	}
@@ -185,24 +185,24 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
-	master.clear();
-	delay(150);
-	master.print(0,  0, "%d", 20);
-	delay(50);
-	master.print(1, 2, "%d", 20);
-	delay(50);
-	master.print(2, 0, "%d", 20);
-	delay(50);
-	delay(150);
+	// master.clear();
+	// delay(150);
+	// master.print(0,  0, "%d", 20);
+	// // delay(50);
+	// master.print(1, 2, "%d", 20);
+	// // delay(50);
+	// master.print(2, 0, "%d", 20);
+	// // delay(50);
+	// delay(150);
 
 	// drive.changeState(DriveOpControlParams{});
-	WAIT_UNTIL(false);
+	// WAIT_UNTIL(false);
 	// flattenAgainstWallSync();	
 	// tracking.reset();
 	// turnToTargetSync({40.0, -40.0}, true);
 	// WAIT_UNTIL(false);
 	// new_skills1();
-	new_skills2();
+	// new_skills2();
 	// new_skills3();
 	// new_skills4();
 	skills2();
@@ -279,7 +279,7 @@ void opcontrol() {
 	// 	master.rumble("-");
 	// 	delay(50);
 	// }
-	// _Task_ tarsk{"tarsk"};
+	// _Task tarsk{"tarsk"};
 	// tarsk.start([](){
 	// 	while(true){
 	// 		lcd::print(0, "position: %lf", b_lift_m.get_position());
@@ -313,7 +313,7 @@ void opcontrol() {
 	lcd::print(6, "DONE");
 	WAIT_UNTIL(false);
 
-	_Task_ screen_task("lcd_task");
+	_Task screen_task("lcd_task");
 	int start_num = 500;
 
 	// lcd_task.start(lcd_task_fn, &start_num);
@@ -339,7 +339,7 @@ void opcontrol() {
 						// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.kill();
 						// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
 
-						_Task_::delay(100);
+						_Task::delay(100);
 						// delay(100);
 					}
 				}
@@ -359,7 +359,7 @@ void opcontrol() {
 			// task_resume(tarsk);
 		}
 		// delay(10);
-		_Task_::delay(10);
+		_Task::delay(10);
 	}
 
 

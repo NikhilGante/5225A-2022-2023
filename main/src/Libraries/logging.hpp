@@ -35,7 +35,7 @@ enum class E_Log_Locations
 
 class Data{
   static Queue<char, QUEUE_SIZE> queue;
-  static _Task_ task;
+  static _Task task;
   static void logHandle(); // runs in task to flush out contents of queue to file
   static Timer log_timer;
 public:

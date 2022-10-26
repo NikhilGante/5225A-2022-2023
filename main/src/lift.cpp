@@ -28,7 +28,7 @@ void LiftMTTParams::handle(){
       printf("Finished move, %lf\n", b_lift_m.get_position());
       lift.changeState(LiftIdleParams{});
     }
-    _Task_::delay(10);
+    _Task::delay(10);
   }
 }
 void LiftMTTParams::handleStateChange(LIFT_STATE_TYPES_VARIANT prev_state){
@@ -56,8 +56,8 @@ const char* LiftResetParams::getName(){
 void LiftResetParams::handle(){
   b_lift_m.move(-20);
   Timer vel_rise_timer{"vel_rise_timer"};
-  while(fabs(b_lift_m.get_actual_velocity()) < 20 && vel_rise_timer.getTime() < 100) _Task_::delay(10);
-  while(fabs(b_lift_m.get_actual_velocity()) > 10) _Task_::delay(10);
+  while(fabs(b_lift_m.get_actual_velocity()) < 20 && vel_rise_timer.getTime() < 100) _Task::delay(10);
+  while(fabs(b_lift_m.get_actual_velocity()) > 10) _Task::delay(10);
   b_lift_m.tare_position();
 	lift.changeState(LiftIdleParams{});
 }

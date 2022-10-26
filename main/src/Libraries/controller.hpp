@@ -35,7 +35,7 @@ private:
 public:
   _Controller(pros::controller_id_e_t id);
   static void print_queue();
-  static _Task_ controller_task;
+  static _Task controller_task;
   static void init();
 
   void print(std::uint8_t line, std::uint8_t col, const char* fmt, ... );

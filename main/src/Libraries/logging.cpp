@@ -32,7 +32,7 @@ void log(const char * format, ...){
 // static data members
 E_Log_Levels Data::g_log_level = E_Log_Levels::debug;
 Queue<char, QUEUE_SIZE> Data::queue("log queue");
-_Task_ Data::task("log_task");
+_Task Data::task("log_task");
 Timer Data::log_timer("log_timer");
 
 ofstream Data::log_file;
@@ -49,7 +49,7 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
         queuePrintFile(queue, log_file, "/usd/log.txt");
         log_timer.reset();
       }
-      _Task_::delay(10);
+      _Task::delay(10);
     }
   }
   catch(const TaskEndException& exception){
