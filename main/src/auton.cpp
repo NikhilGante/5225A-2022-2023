@@ -33,9 +33,9 @@ void skills2(){
   Timer total{"total_timer"};
 	moveToTargetSync({68.00, 125.5}); // moves away from wall
 	aimAtBlue();
-  return;
-  WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-  // delay(6000);
+  // return;
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  delay(6000);
   turnToTargetSync({123.0, 98.0});
   moveToTargetSync({123.0, 98.0}, E_Brake_Modes::none, 80.0); // intake stack
 	aimAtRed();
@@ -116,24 +116,26 @@ void new_skills1(){ // 12 seconds
 // tracking.g_pos = {108.0, 129.75, degToRad(180.0)};
 void new_skills2(){ // 17.5 seconds
   Timer total{"total_timer"};
-  moveToTargetSync({104.0, 117.0}); // move away from wall
+  moveToTargetSync({108.0, 124.0}); // move away from wall
+  aimAtBlue();
+  delay(1500);  // shoot 3 discs
+  turnToTargetSync({106.0, 99.0});  // face stack
+  moveToTargetSync({106.0, 99.0}, E_Brake_Modes::coast, 60, 1.0);  // intake stack
   aimAtRed();
   delay(1500);  // shoot 3 discs
-  moveToTargetSync({112.0, 99.0});  // intake stack
+  moveToTargetSync({82.0, 55.0}, E_Brake_Modes::brake, 110, 1.0);   // intake line of 3 discs
   aimAtRed();
   delay(1500);  // shoot 3 discs
-  moveToTargetSync({83.0, 57.0}, E_Brake_Modes::brake, 127, 2.0);   // intake line of 3 discs
-  aimAtRed();
-  delay(1500);  // shoot 3 discs
+  turnToTargetSync({73.0, 67.0}, true, E_Brake_Modes::coast, 5.0);   // face centreline
 
-  moveToTargetSync({75.0, 65.0}, E_Brake_Modes::brake, 127, 2.0);   // backup on to centreline
+  moveToTargetSync({73.0, 67.0});   // backup on to centreline
   turnToTargetSync({20.0, 20.0});   // turn to face line
-  moveToTargetSync({20.0, 20.0}, E_Brake_Modes::brake, 80, 2.0);   // go to corner
+  moveToTargetSync({20.0, 20.0}, E_Brake_Modes::brake, 80);   // go to corner
 
   turnToAngleSync(90.0);  // face wall
   delay(2000); // reset
 
-  log("total: %d", total.getTime());
+  log("total: %d\n", total.getTime());
 	lcd::print(7, "total: %d", total.getTime());
 }
 

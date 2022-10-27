@@ -46,7 +46,7 @@ void initialize() {
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 	// Data::init();
-	_Controller::init();
+	// _Controller::init();
 	delay(300);
 	// lift.runMachine();
 	drive.runMachine();
@@ -83,7 +83,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	skills2();
+	new_skills2();
 
 }
 
@@ -185,6 +185,10 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
+	while(true){
+		handleInput();
+		delay(10);
+	}
 	// master.clear();
 	// delay(150);
 	// master.print(0,  0, "%d", 20);
@@ -202,19 +206,16 @@ void opcontrol() {
 	// turnToTargetSync({40.0, -40.0}, true);
 	// WAIT_UNTIL(false);
 	// new_skills1();
-	// new_skills2();
+	new_skills2();
 	// new_skills3();
 	// new_skills4();
-	skills2();
+	// skills2();
 	return;
 	WAIT_UNTIL(false);
 	// front_r.move_relative(0, 200);
   // centre_r.move_relative(0, 200);
   // back_r.move_relative(0, 200);
-	while(true){
-		handleInput();
-		delay(10);
-	}
+
 	// turnToTargetAsync({-25.0, 40.0});
 	// tracking.waitForComplete();
 	// drive.changeState(DriveMttParams{{5.0, 30.0}});

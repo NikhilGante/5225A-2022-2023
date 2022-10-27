@@ -14,7 +14,7 @@ void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
-  double dist_lr = 9.495, dist_b = 10.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 9.495, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
@@ -204,7 +204,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(fabs(power) > 127) power = sgn(power) * 127;
-    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 5.0) power = sgn(power) * tracking.min_move_power_a;
+    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 30.0) power = sgn(power) * tracking.min_move_power_a;
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     moveDrive(0.0, power);
     _Task::delay(10);
@@ -264,7 +264,7 @@ void DriveMttParams::handle(){
       break;
   }
   // log("power_sgn: %d\n", power_sgn);
-  const double kP_a = 2.0;  // proportional multiplier for angular error
+  const double kP_a = 1.75;  // proportional multiplier for angular error
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
@@ -277,7 +277,7 @@ void DriveMttParams::handle(){
     else if(fabs(power_y) < tracking.min_move_power_y) power_y = sgn(power_y) * tracking.min_move_power_y;
     
     // Perpendicular distance robot will land from the target travelling at the current orientation
-    double error_x = line_error.getX() + line_error.getY() * tan(nearAngle(tracking.g_pos.a, line_angle));
+    double error_x = -line_error.getX() + line_error.getY() * tan(nearAngle(tracking.g_pos.a, line_angle));
     // Only corrects if necessary (if robot won't land within an acceptable distance from the target)
     double correction = fabs(error_x) > end_error_x? kP_a * error_a * sgn(power_sgn): 0.0;
     double left_power, right_power;
@@ -299,7 +299,7 @@ void DriveMttParams::handle(){
     // log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
     // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
 
-    log("%d %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), power_y, error_x, radToDeg(error_a));
+    log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
 
     moveDriveSide(left_power, right_power);
     _Task::delay(10);
