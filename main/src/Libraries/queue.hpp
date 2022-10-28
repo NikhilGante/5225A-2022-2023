@@ -84,7 +84,7 @@ public:
   T pop(){ // dequeue
     if(isEmpty()){
       printf("Queue \"%s\" is empty, pop failed\n", name);
-      return INT_MIN;
+      return std::numeric_limits<T>::min;
     }
 
     T result = data[front];

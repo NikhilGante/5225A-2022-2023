@@ -27,7 +27,7 @@ Motor intake_m(20, E_MOTOR_GEARSET_18);
 	false HIGH (flick)
 */
 
-atomic<int> g_intk_disc_count = 0, g_mag_disc_count = 0, g_total_disc_count;
+atomic<int> g_mag_disc_count = 0;
 
 
 Piston indexer_p('E', "indexer_p", false, LOW);
@@ -64,9 +64,6 @@ void intakeHandle(){
 		case E_Intake_States::rev:
 			intake_m.move(-127);
 			if(master.get_digital_new_press(DIGITAL_Y)) intake_state = E_Intake_States::off;
-
-			// If mag isn't full and robot has 3 or less turn back on
-			if(g_mag_disc_count < 3 && g_total_disc_count <= 3)	intake_state = E_Intake_States::on;
 			break;
 	}
 }
@@ -138,41 +135,26 @@ void opcontrol() {
 
 
 	int intk_ds_val, mag_ds_val;
-	const int intk_disc_thresh = 2500, mag_disc_thresh = 500;
-	bool intk_disc_detected = false, intk_disc_detected_last = false; // if disc is currently detected by intk sensor
+	const int mag_disc_thresh = 500;
 	bool mag_disc_detected = false, mag_disc_detected_last = false; // if disc is currently detected by mag sensor
 
 	while(true){
 		intakeHandle();
 		intk_ds_val = intk_ds.get_value(), mag_ds_val = mag_ds.get_value();
 		mag_disc_detected = mag_ds_val < mag_disc_thresh;
-		intk_disc_detected = intk_ds_val < intk_disc_thresh;
 
 		if(intake_m.get_direction()){	// if intake moving forwards
 			if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
 				g_mag_disc_count++;
-				g_intk_disc_count--;
-				printf("154\n");
-			}
-			if(intk_disc_detected && !intk_disc_detected_last){	// disc just entered intk
-				g_intk_disc_count++;
-				printf("158\n");
+				printf("INCR\n");
 			}
 		}
-		else{	// if intake moving in reverse
-			if(!intk_disc_detected && intk_disc_detected_last){	// disc just left intk
-				g_intk_disc_count--;
-				printf("164\n");
-			}
-		}
-		g_total_disc_count = g_intk_disc_count + g_mag_disc_count;
 
-		mag_disc_detected_last = mag_disc_detected,	intk_disc_detected_last = intk_disc_detected;
+		mag_disc_detected_last = mag_disc_detected;
 		if(master.get_digital_new_press(DIGITAL_LEFT)) g_mag_disc_count = 0;
-		if(master.get_digital_new_press(DIGITAL_RIGHT)) g_intk_disc_count = 0;
 
 
-		printf("%d %d %d %d %d\n", millis(), intk_ds_val, mag_ds_val, g_intk_disc_count.load(), g_mag_disc_count.load());
+		printf("%d %d %d %d\n", millis(), intk_ds_val, mag_ds_val, g_mag_disc_count.load());
 		delay(10);
 	}
 

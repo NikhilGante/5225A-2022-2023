@@ -46,7 +46,7 @@ void initialize() {
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 	// Data::init();
-	// _Controller::init();
+	_Controller::init();
 	delay(300);
 	// lift.runMachine();
 	drive.runMachine();
@@ -185,20 +185,16 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
-	while(true){
-		handleInput();
-		delay(10);
-	}
-	// master.clear();
-	// delay(150);
-	// master.print(0,  0, "%d", 20);
-	// // delay(50);
-	// master.print(1, 2, "%d", 20);
-	// // delay(50);
-	// master.print(2, 0, "%d", 20);
-	// // delay(50);
-	// delay(150);
-
+	// while(true){
+	// 	handleInput();
+	// 	delay(10);
+	// }
+	master.clear();
+	delay(150);
+	master.print(0,  0, "%d", 20);
+	master.print(1, 2, "%d", 20);
+	master.print(2, 0, "%d", 20);
+	WAIT_UNTIL(false);
 	// drive.changeState(DriveOpControlParams{});
 	// WAIT_UNTIL(false);
 	// flattenAgainstWallSync();	
