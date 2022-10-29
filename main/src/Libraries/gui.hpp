@@ -29,8 +29,8 @@ typedef std::uint32_t Colour;
 // #define Color::name (static_cast<Color>(COLOR_##NAME))
 
 // constexpr Color
-//   Color::orange = 0x00F36421,
-//   Color::grey = 0x00202020;
+//   Color::dark_orange = 0x00F36421,
+//   Color::black = 0x00202020;
 
 constexpr int
   PAGE_LEFT = 0,
@@ -107,7 +107,7 @@ class GUI{
         update_screen_status(),
         go_next(), go_prev(),
         screen_terminal_fix(),
-        clear_screen(Color=Color::grey),
+        clear_screen(Color=Color::black),
         clear_screen(std::uint32_t),
         draw_oblong(int, int, int, int, double, double);
       static Color get_colour(term_colours);
@@ -117,6 +117,7 @@ class GUI{
 
   public:
     //Pages in the gui, init function, loop function
+    GUI(const GUI&) = delete;
     GUI(std::vector<Page*>, std::function <void()>, std::function <void()>);
 
     //Functions
@@ -166,7 +167,8 @@ class Page{
 
   public:
     //Title, Bcolour
-    explicit Page(std::string, Color = Color::grey);
+    Page(const Page&) = delete;
+    explicit Page(std::string, Color = Color::black);
 };
 
 //Text parent class
@@ -190,7 +192,7 @@ class Text_{
       int x, y;
       text_format_e_t txt_size;
       std::string label, text;
-      std::uint32_t l_col, b_col = static_cast<std::uint32_t>(Color::grey);
+      std::uint32_t l_col, b_col = static_cast<std::uint32_t>(Color::black);
       GUI::Style type;
       Page* page;
       bool active = true;
@@ -239,6 +241,8 @@ class Text: public Text_{
     V run_func();
 
     //Constructors (Points, Format, Page, Label, [var info], Lcolour)
+
+      Text(const Text&) = delete;
       /*Terminal (var - no format)*/ Text (std::string, V&, Color = Color::white);
       /*Terminal (var - format)*/ Text (std::string, V&, text_format_e_t, Color = Color::white);
       /*Terminal (array - no format)*/ template <typename I> Text (std::string, V*, I&, Color = Color::white);
@@ -309,7 +313,8 @@ class Button{
 
   public:
     //Points, Format, Page, Label, Bcolour, Lcolour
-    Button (int, int, int, int, GUI::Style, press_type, Page&, std::string = "", Color = Color::orange, Color = Color::black);
+    Button (const Button&) = delete;
+    Button (int, int, int, int, GUI::Style, press_type, Page&, std::string = "", Color = Color::dark_orange, Color = Color::black);
 
     //Functions
       void select(), deselect();
@@ -354,7 +359,8 @@ class Slider{
 
   public:
     //Points, Format, Min, Max, Page, Label, Bcolour, Lcolour
-    Slider (int, int, int, int, GUI::Style, direction, int, int, Page&, std::string = "Value", int = 1, Color = Color::white, Color = Color::orange);
+    Slider (int, int, int, int, GUI::Style, direction, int, int, Page&, std::string = "Value", int = 1, Color = Color::white, Color = Color::dark_orange);
+    Slider (const Slider&) = delete;
 
     //Functions
       int get_value() const;

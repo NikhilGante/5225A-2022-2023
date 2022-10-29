@@ -264,9 +264,9 @@ namespace alert{
       case term_colours::MAGENTA: return Color::magenta; break;
       case term_colours::CYAN: return Color::cyan; break;
       case term_colours::WHITE: return Color::white; break;
-      case term_colours::NONE: return Color::grey; break;
+      case term_colours::NONE: return Color::black; break;
     }
-    return Color::grey;
+    return Color::black;
   }
 
   void GUI::screen_terminal_fix(){
