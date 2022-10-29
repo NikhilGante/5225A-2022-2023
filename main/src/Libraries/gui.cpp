@@ -13,7 +13,7 @@
   std::string prompt_string;
 
 //Default pages
-  Page perm ("PERM BTNS", COLOUR(PINK)); //Common page objects
+  Page perm ("PERM BTNS", Color::pink); //Common page objects
     Button prev_page(PAGE_LEFT, PAGE_UP, 75, 20, GUI::Style::SIZE, Button::SINGLE, perm, "<-");
     Button next_page(PAGE_RIGHT, 0, -75, 20, GUI::Style::SIZE, Button::SINGLE, perm, "->");
     Button home(100, 10, 18, 6, GUI::Style::CENTRE, Button::SINGLE, perm, "Home");
@@ -42,7 +42,9 @@ namespace alert{
   std::uint32_t end_time;
   const Page* page;
 
-  void start(std::string text, Colour colour, std::uint32_t time){
+  void start(std::string text, Color color, std::uint32_t time){
+    std::uint32_t colour = static_cast<std::uint32_t>(color);
+
     screen_flash.b_col = colour;
     screen_flash_time.b_col = colour;
     screen_flash_text.b_col = colour;
@@ -63,7 +65,7 @@ namespace alert{
   }
 
   void start(std::string text, term_colours term_colour, std::uint32_t time){
-    Colour colour = GUI::get_colour(term_colour);
+    std::uint32_t colour = static_cast<std::uint32_t>(GUI::get_colour(term_colour));
 
     screen_flash.b_col = colour;
     screen_flash_time.b_col = colour;
@@ -249,22 +251,22 @@ namespace alert{
     }
   }
 
-  Colour GUI::get_colour(term_colours colour){
+  Color GUI::get_colour(term_colours colour){
     switch(colour){
-      case term_colours::BLACK: return COLOUR(BLACK); break;
+      case term_colours::BLACK: return Color::black; break;
       case term_colours::ERROR:
-      case term_colours::RED: return COLOUR(RED); break;
+      case term_colours::RED: return Color::red; break;
       case term_colours::NOTIF:
-      case term_colours::GREEN: return COLOUR(GREEN); break;
+      case term_colours::GREEN: return Color::green; break;
       case term_colours::WARNING:
-      case term_colours::YELLOW: return COLOUR(YELLOW); break;
-      case term_colours::BLUE: return COLOUR(BLUE); break;
-      case term_colours::MAGENTA: return COLOUR(MAGENTA); break;
-      case term_colours::CYAN: return COLOUR(CYAN); break;
-      case term_colours::WHITE: return COLOUR(WHITE); break;
-      case term_colours::NONE: return GREY; break;
+      case term_colours::YELLOW: return Color::yellow; break;
+      case term_colours::BLUE: return Color::blue; break;
+      case term_colours::MAGENTA: return Color::magenta; break;
+      case term_colours::CYAN: return Color::cyan; break;
+      case term_colours::WHITE: return Color::white; break;
+      case term_colours::NONE: return Color::grey; break;
     }
-    return GREY;
+    return Color::grey;
   }
 
   void GUI::screen_terminal_fix(){
@@ -317,12 +319,12 @@ namespace alert{
 
 
 //Constructors
-  void Button::construct(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page* page, std::string text, Colour b_col, Colour l_col){
+  void Button::construct(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page* page, std::string text, Color b_col, Color l_col){
 
     //Saves params to class private vars
-    this->b_col = b_col;
-    this->b_col_dark = RGB2COLOR(int(COLOR2R(b_col) * 0.8), int(COLOR2G(b_col) * 0.8), int(COLOR2B(b_col) * 0.8));
-    this->l_col = l_col;
+    this->b_col = static_cast<std::uint32_t>(b_col);
+    this->b_col_dark = RGB2COLOR(static_cast<int>(COLOR2R(this->b_col) * 0.8), static_cast<int>(COLOR2G(this->b_col) * 0.8), static_cast<int>(COLOR2B(this->b_col) * 0.8));
+    this->l_col = static_cast<std::uint32_t>(l_col);
     this->form = form;
 
     //Saves the buttons owning page
@@ -367,19 +369,19 @@ namespace alert{
     this->background = background;
   }
 
-  Button::Button(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page& page, std::string text, Colour background_colour, Colour label_colour){
+  Button::Button(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page& page, std::string text, Color background_colour, Color label_colour){
     construct(x1, y1, x2, y2, type, form, &page, text, background_colour, label_colour);
   }
 
-  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, int min, int max, Page& page, std::string label, int increment, Colour background_colour, Colour label_colour){
+  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, int min, int max, Page& page, std::string label, int increment, Color background_colour, Color label_colour){
     //Saves params to class private vars
     this->dir = dir;
     this->min = min;
     this->max = max;
     this->page = &page;
     this->val = inRange(0, min, max) ? 0 : (inRange(1, min, max) ? 1 : (min + max) / 2); //0 if that's the min, otherwise the average
-    this->b_col = background_colour;
-    this->l_col = label_colour;
+    this->b_col = static_cast<std::uint32_t>(background_colour);
+    this->l_col = static_cast<std::uint32_t>(label_colour);
     this->page->sliders.push_back(this);
 
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
@@ -388,21 +390,21 @@ namespace alert{
       case HORIZONTAL:
         text_x = (this->x1+ this->x2) / 2;
         text_y = this->y1-CHAR_HEIGHT_SMALL / 2-2;
-        inc.construct(this->x2 + 5, this->y1, this->x2 + 25, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, ">", l_col, b_col);
-        dec.construct(this->x1-25, this->y1, this->x1-5, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, "<", l_col, b_col);
-        title.construct(text_x, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, l_col); //why not pass val by reference
-        min_title.construct(this->x1, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, l_col);
-        max_title.construct(this->x2, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, l_col);
+        inc.construct(this->x2 + 5, this->y1, this->x2 + 25, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, ">", label_colour, background_colour);
+        dec.construct(this->x1-25, this->y1, this->x1-5, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, "<", label_colour, background_colour);
+        title.construct(text_x, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, label_colour); //why not pass val by reference
+        min_title.construct(this->x1, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, label_colour);
+        max_title.construct(this->x2, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, label_colour);
         break;
 
       case VERTICAL:
         text_x = (this->x1+ this->x2) / 2;
         text_y = (this->y1+ this->y2) / 2;
-        inc.construct(this->x1, this->y1-17, this->x2-this->x1, -20, GUI::Style::SIZE, Button::SINGLE, this->page, "^", l_col, b_col);
-        dec.construct(this->x1, this->y2+17, this->x2-this->x1, 20, GUI::Style::SIZE, Button::SINGLE, this->page, "v", l_col, b_col);
-        title.construct(text_x, this->y1-17-22-CHAR_HEIGHT_SMALL, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, l_col);
-        min_title.construct(text_x, this->y2 + (CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, l_col);
-        max_title.construct(text_x, this->y1-(CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, l_col);
+        inc.construct(this->x1, this->y1-17, this->x2-this->x1, -20, GUI::Style::SIZE, Button::SINGLE, this->page, "^", label_colour, background_colour);
+        dec.construct(this->x1, this->y2+17, this->x2-this->x1, 20, GUI::Style::SIZE, Button::SINGLE, this->page, "v", label_colour, background_colour);
+        title.construct(text_x, this->y1-17-22-CHAR_HEIGHT_SMALL, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, label_colour);
+        min_title.construct(text_x, this->y2 + (CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, label_colour);
+        max_title.construct(text_x, this->y1-(CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, label_colour);
         break;
     }
 
@@ -412,8 +414,8 @@ namespace alert{
     inc.set_func([&, increment](){this->val +=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
   }
 
-  Page::Page(std::string title, Colour background_colour){
-    this->b_col = background_colour;
+  Page::Page(std::string title, Color background_colour){
+    this->b_col = static_cast<std::uint32_t>(background_colour);
     this->title = title;
     if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
       for (std::vector<Button*>::const_iterator it = perm.buttons.begin(); it != perm.buttons.end(); it++) buttons.push_back(*it);
@@ -467,7 +469,11 @@ namespace alert{
     WAIT_UNTIL(!GUI::touched) GUI::update_screen_status();
   }
 
-  void GUI::clear_screen(Colour colour){
+  void GUI::clear_screen(Color color){
+    clear_screen(static_cast<std::uint32_t>(color));
+  }
+
+  void GUI::clear_screen(std::uint32_t colour){
     screen::set_pen(colour);
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, PAGE_DOWN);
   }
@@ -556,23 +562,23 @@ namespace alert{
     }
   }
 
-  void Button::set_background (Colour colour){
-    if (title) title->set_background(colour);
-    if (b_col != colour){
-      b_col = colour;
+  void Button::set_background (Color color){
+    if (title) title->set_background(color);
+    if (b_col != static_cast<std::uint32_t>(color)){
+      b_col = static_cast<std::uint32_t>(color);
       b_col_dark = RGB2COLOR(static_cast<int>(COLOR2R(b_col) * 0.8), static_cast<int>(COLOR2G(b_col) * 0.8), static_cast<int>(COLOR2B(b_col) * 0.8));
       draw();
     }
   }
 
-  void Text_::set_background (int x1, int y1, Colour colour){ //Centre
+  void Text_::set_background (int x1, int y1, Color color){ //Centre
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(this->x, this->y, x1, y1, GUI::Style::CENTRE);
-    set_background(colour);
+    set_background(color);
   }
 
-  void Text_::set_background (int x1, int y1, int x2, int y2, GUI::Style type, Colour colour){
+  void Text_::set_background (int x1, int y1, int x2, int y2, GUI::Style type, Color color){
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
-    set_background(colour);
+    set_background(color);
   }
 
   void Text_::set_background (int x1, int y1){ //Centre
@@ -583,9 +589,9 @@ namespace alert{
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
   }
 
-  void Text_::set_background (Colour colour){
-    if (b_col != colour){
-      b_col = colour;
+  void Text_::set_background (Color color){
+    if (b_col != static_cast<std::uint32_t>(color)){
+      b_col = static_cast<std::uint32_t>(color);
       draw();
     }
   }
@@ -636,7 +642,7 @@ namespace alert{
     screen::set_pen(b_col);
     screen::set_eraser(b_col);
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, 20);
-    screen::set_pen(COLOUR(WHITE));
+    screen::set_pen(static_cast<std::uint32_t>(Color::white));
     screen::print(TEXT_SMALL, MID_X-(title.length() + 3 + std::to_string(page_num(this)).length()) * CHAR_WIDTH_SMALL / 2, 5, "%s - %d", title, page_num(this));
     for (std::vector<Button*>::const_iterator it = buttons.begin(); it != buttons.end(); it++) (*it)->draw();
     for (std::vector<Slider*>::const_iterator it = sliders.begin(); it != sliders.end(); it++) (*it)->draw();

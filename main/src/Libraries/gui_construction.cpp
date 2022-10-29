@@ -38,14 +38,14 @@
 //Constructors
   //Main GUI
     Page temps ("Temperature"); //Motor temps
-      Text mot_temp_1(90, 60, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[0]) + ": %dC", std::get<int>(motors_for_gui[0]), COLOUR(BLACK));
-      Text mot_temp_2(90, 125, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[1]) + ": %dC", std::get<int>(motors_for_gui[1]), COLOUR(BLACK));
-      Text mot_temp_3(90, 190, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[2]) + ": %dC", std::get<int>(motors_for_gui[2]), COLOUR(BLACK));
-      Text mot_temp_4(390, 60, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[3]) + ": %dC", std::get<int>(motors_for_gui[3]), COLOUR(BLACK));
-      Text mot_temp_5(390, 125, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[4]) + ": %dC", std::get<int>(motors_for_gui[4]), COLOUR(BLACK));
-      Text mot_temp_6(390, 190, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[5]) + ": %dC", std::get<int>(motors_for_gui[5]), COLOUR(BLACK));
-      Text mot_temp_7(240, 90, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[6]) + ": %dC", std::get<int>(motors_for_gui[6]), COLOUR(BLACK));
-      Text mot_temp_8(240, 160, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[7]) + ": %dC", std::get<int>(motors_for_gui[7]), COLOUR(BLACK));
+      Text mot_temp_1(90, 60, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[0]) + ": %dC", std::get<int>(motors_for_gui[0]), Color::black);
+      Text mot_temp_2(90, 125, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[1]) + ": %dC", std::get<int>(motors_for_gui[1]), Color::black);
+      Text mot_temp_3(90, 190, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[2]) + ": %dC", std::get<int>(motors_for_gui[2]), Color::black);
+      Text mot_temp_4(390, 60, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[3]) + ": %dC", std::get<int>(motors_for_gui[3]), Color::black);
+      Text mot_temp_5(390, 125, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[4]) + ": %dC", std::get<int>(motors_for_gui[4]), Color::black);
+      Text mot_temp_6(390, 190, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[5]) + ": %dC", std::get<int>(motors_for_gui[5]), Color::black);
+      Text mot_temp_7(240, 90, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[6]) + ": %dC", std::get<int>(motors_for_gui[6]), Color::black);
+      Text mot_temp_8(240, 160, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[7]) + ": %dC", std::get<int>(motors_for_gui[7]), Color::black);
 
     Page checks("Competition");
       Button drive_motors (15, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Drive Motors");
@@ -292,28 +292,28 @@ void main_setup(){
           switch(std::get<int>(motors_for_gui[i])){
             case 0:
             case 5:
-              text->set_background(COLOUR(WHITE)); break;
+              text->set_background(Color::white); break;
             case 10:
             case 15:
-              text->set_background(COLOUR(BLUE)); break;
+              text->set_background(Color::blue); break;
             case 20:
-              text->set_background(COLOUR(DODGER_BLUE)); break;
+              text->set_background(Color::dodger_blue); break;
             case 25:
-              text->set_background(COLOUR(TURQUOISE)); break;
+              text->set_background(Color::turquoise); break;
             case 30:
-              text->set_background(COLOUR(MEDIUM_SEA_GREEN)); break;
+              text->set_background(Color::medium_sea_green); break;
             case 35:
-              text->set_background(COLOUR(LAWN_GREEN)); break;
+              text->set_background(Color::lawn_green); break;
             case 40:
-              text->set_background(COLOUR(LIME_GREEN)); break;
+              text->set_background(Color::lime_green); break;
             case 45:
-              text->set_background(COLOUR(YELLOW)); break;
+              text->set_background(Color::yellow); break;
             case 50:
-              text->set_background(COLOUR(ORANGE_RED)); break;
+              text->set_background(Color::orange_red); break;
             case 55:
-              text->set_background(COLOUR(RED)); break;
+              text->set_background(Color::red); break;
             default:
-              text->set_background(Colour(rand())); break;
+              text->set_background(Color(rand())); break;
           }
         }
       }
@@ -410,7 +410,7 @@ void main_setup(){
     for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
 
     track.set_setup_func([](){
-      screen::set_pen(COLOUR(WHITE));
+      screen::set_pen(static_cast<std::uint32_t>(Color::white));
       screen::draw_rect(270, 30, 470, 230);
       screen::draw_line(370, 30, 370, 230);
       screen::draw_line(270, 130, 470, 130);
@@ -419,7 +419,7 @@ void main_setup(){
       }
     });
     track.set_loop_func([](){
-      screen::set_pen(COLOUR(RED));
+      screen::set_pen(static_cast<std::uint32_t>(Color::red));
       screen::draw_pixel(270 + (200.0*tracking.g_pos.x / 144.0), 230-(200.0*tracking.g_pos.y / 144.0)); //Scales to screen
 
       if(main_obj.pressed()){
@@ -846,46 +846,46 @@ void util_setup(){
           switch(static_cast<int>(c::motor_get_temperature(port))){
             case 0:
             case 5:
-              run_btn->set_background(COLOUR(WHITE));
-              stop_btn->set_background(COLOUR(WHITE));
+              run_btn->set_background(Color::white);
+              stop_btn->set_background(Color::white);
               break;
             case 10:
             case 15:
-              run_btn->set_background(COLOUR(BLUE));
-              stop_btn->set_background(COLOUR(BLUE));
+              run_btn->set_background(Color::blue);
+              stop_btn->set_background(Color::blue);
               break;
             case 20:
-              run_btn->set_background(COLOUR(DODGER_BLUE));
-              stop_btn->set_background(COLOUR(DODGER_BLUE));
+              run_btn->set_background(Color::dodger_blue);
+              stop_btn->set_background(Color::dodger_blue);
               break;
             case 25:
-              run_btn->set_background(COLOUR(TURQUOISE));
-              stop_btn->set_background(COLOUR(TURQUOISE));
+              run_btn->set_background(Color::turquoise);
+              stop_btn->set_background(Color::turquoise);
             case 30:
-              run_btn->set_background(COLOUR(MEDIUM_SEA_GREEN));
-              stop_btn->set_background(COLOUR(MEDIUM_SEA_GREEN));
+              run_btn->set_background(Color::medium_sea_green);
+              stop_btn->set_background(Color::medium_sea_green);
             case 35:
-              run_btn->set_background(COLOUR(LAWN_GREEN));
-              stop_btn->set_background(COLOUR(LAWN_GREEN));
+              run_btn->set_background(Color::lawn_green);
+              stop_btn->set_background(Color::lawn_green);
               break;
             case 40:
-              run_btn->set_background(COLOUR(LIME_GREEN));
-              stop_btn->set_background(COLOUR(LIME_GREEN));
+              run_btn->set_background(Color::lime_green);
+              stop_btn->set_background(Color::lime_green);
             case 45:
-              run_btn->set_background(COLOUR(YELLOW));
-              stop_btn->set_background(COLOUR(YELLOW));
+              run_btn->set_background(Color::yellow);
+              stop_btn->set_background(Color::yellow);
               break;
             case 50:
-              run_btn->set_background(COLOUR(ORANGE_RED));
-              stop_btn->set_background(COLOUR(ORANGE_RED));
+              run_btn->set_background(Color::orange_red);
+              stop_btn->set_background(Color::orange_red);
               break;
             case 55:
-              run_btn->set_background(COLOUR(RED));
-              stop_btn->set_background(COLOUR(RED));
+              run_btn->set_background(Color::red);
+              stop_btn->set_background(Color::red);
               break;
             default:
-              run_btn->set_background(Colour(rand()));
-              stop_btn->set_background(Colour(rand()));
+              run_btn->set_background(Color(rand()));
+              stop_btn->set_background(Color(rand()));
               break;
           }
         }

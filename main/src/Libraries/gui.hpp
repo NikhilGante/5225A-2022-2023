@@ -1,9 +1,11 @@
 #pragma once
 #include "main.h"
+#include "pros/colors.hpp"
 #include "printing.hpp"
 #include "timer.hpp"
 
 using pros::text_format_e_t;
+using pros::Color;
 
 //Forward-Declaration
 class _Task_;
@@ -24,11 +26,11 @@ extern Text<> testing_text_1, testing_text_2;
 extern Slider testing_slider;
 
 typedef std::uint32_t Colour;
-#define COLOUR(NAME) (static_cast<Colour>(COLOR_##NAME))
+// #define Color::name (static_cast<Color>(COLOR_##NAME))
 
-constexpr Colour
-  ORANGE = 0x00F36421,
-  GREY = 0x00202020;
+// constexpr Color
+//   Color::orange = 0x00F36421,
+//   Color::grey = 0x00202020;
 
 constexpr int
   PAGE_LEFT = 0,
@@ -53,16 +55,16 @@ namespace alert{
   extern std::uint32_t end_time;
 
   void attempt_end();
-  void start(std::string fmt, Colour colour, std::uint32_t time = 1000), //text + col + time / text + col
+  void start(std::string fmt, Color color, std::uint32_t time = 1000), //text + col + time / text + col
   start(std::string fmt, term_colours colour = term_colours::ERROR, std::uint32_t time = 1000); //text + cols + time / text + cols / text
   template <typename... Params> void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args); //text + cols + time
-  template <typename... Params> void start(Colour colour, std::uint32_t time, std::string fmt, Params... args); //text + col + time
+  template <typename... Params> void start(Color color, std::uint32_t time, std::string fmt, Params... args); //text + col + time
   template <typename... Params> void start(std::uint32_t time, std::string fmt, Params... args); //text + red + time
   template <typename... Params> void start(term_colours colour, std::string fmt, Params... args); //text + col + 1000
 }
 
 
-//All constructor args are in the format points, format, page, Text, Colour
+//All constructor args are in the format points, format, page, Text, Color
 
 class GUI{
   template <typename V> friend class Text;
@@ -75,7 +77,7 @@ class GUI{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Colour, std::uint32_t),
+    alert::start(std::string, Color, std::uint32_t),
     alert::start(std::string, term_colours, std::uint32_t);
 
   public:
@@ -105,9 +107,10 @@ class GUI{
         update_screen_status(),
         go_next(), go_prev(),
         screen_terminal_fix(),
-        clear_screen(Colour=GREY),
+        clear_screen(Color=Color::grey),
+        clear_screen(std::uint32_t),
         draw_oblong(int, int, int, int, double, double);
-      static Colour get_colour(term_colours);
+      static Color get_colour(term_colours);
       static int get_height(text_format_e_t), get_width(text_format_e_t);
       static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
       bool pressed() const;
@@ -136,13 +139,13 @@ class Page{
     util_setup(),
     util_background(),
     alert::attempt_end(),
-    alert::start(std::string, Colour, std::uint32_t),
+    alert::start(std::string, Color, std::uint32_t),
     alert::start(std::string, term_colours, std::uint32_t);
   private:
 
     //Vars
       std::function <void()> setup_func, loop_func;
-      Colour b_col;
+      std::uint32_t b_col;
       std::string title;
       bool active=true;
       std::vector<GUI*> guis; //Parents
@@ -163,7 +166,7 @@ class Page{
 
   public:
     //Title, Bcolour
-    explicit Page(std::string, Colour = GREY);
+    explicit Page(std::string, Color = Color::grey);
 };
 
 //Text parent class
@@ -178,7 +181,7 @@ class Text_{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Colour, std::uint32_t);
+    alert::start(std::string, Color, std::uint32_t);
   private:
     int x1 = USER_RIGHT, y1 = USER_DOWN, x2 = USER_LEFT, y2 = USER_UP;
 
@@ -187,7 +190,7 @@ class Text_{
       int x, y;
       text_format_e_t txt_size;
       std::string label, text;
-      Colour l_col, b_col = GREY;
+      std::uint32_t l_col, b_col = static_cast<std::uint32_t>(Color::grey);
       GUI::Style type;
       Page* page;
       bool active = true;
@@ -198,11 +201,11 @@ class Text_{
         update_val() = 0;
       void
         draw(),
-        set_background(int, int, Colour), //Centre
+        set_background(int, int, Color), //Centre
         set_background(int, int), //Centre
-        set_background(int, int, int, int, GUI::Style, Colour),
+        set_background(int, int, int, int, GUI::Style, Color),
         set_background(int, int, int, int, GUI::Style),
-        set_background(Colour),
+        set_background(Color),
         set_active(bool = true);
 };
 
@@ -218,7 +221,7 @@ class Text: public Text_{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Colour, std::uint32_t),
+    alert::start(std::string, Color, std::uint32_t),
     alert::start(std::string, term_colours, std::uint32_t);
   private:
     Text(){};
@@ -230,22 +233,22 @@ class Text: public Text_{
     //Functions
       void update() override;
       void update_val() override;
-      void construct (int, int, GUI::Style, text_format_e_t, Page*, std::string, std::function<V()>, Colour);
+      void construct (int, int, GUI::Style, text_format_e_t, Page*, std::string, std::function<V()>, Color);
 
   public:
     V run_func();
 
     //Constructors (Points, Format, Page, Label, [var info], Lcolour)
-      /*Terminal (var - no format)*/ Text (std::string, V&, Colour = COLOUR(WHITE));
-      /*Terminal (var - format)*/ Text (std::string, V&, text_format_e_t, Colour = COLOUR(WHITE));
-      /*Terminal (array - no format)*/ template <typename I> Text (std::string, V*, I&, Colour = COLOUR(WHITE));
-      /*Terminal (array - format)*/ template <typename I> Text (std::string, V*, I&, text_format_e_t, Colour = COLOUR(WHITE));
-      /*Terminal (function - no format)*/ Text (std::string, const std::function<V()>&, Colour = COLOUR(WHITE));
-      /*Terminal (function - format)*/ Text (std::string, const std::function<V()>&, text_format_e_t, Colour = COLOUR(WHITE));
-      /*No var*/ Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, Colour = COLOUR(WHITE));
-      /*Variable*/ Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, V&, Colour = COLOUR(WHITE));
-      /*Array*/ template <typename I> Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, V*, I&, Colour = COLOUR(WHITE));
-      /*Function*/ Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, const std::function<V() >&, Colour = COLOUR(WHITE));
+      /*Terminal (var - no format)*/ Text (std::string, V&, Color = Color::white);
+      /*Terminal (var - format)*/ Text (std::string, V&, text_format_e_t, Color = Color::white);
+      /*Terminal (array - no format)*/ template <typename I> Text (std::string, V*, I&, Color = Color::white);
+      /*Terminal (array - format)*/ template <typename I> Text (std::string, V*, I&, text_format_e_t, Color = Color::white);
+      /*Terminal (function - no format)*/ Text (std::string, const std::function<V()>&, Color = Color::white);
+      /*Terminal (function - format)*/ Text (std::string, const std::function<V()>&, text_format_e_t, Color = Color::white);
+      /*No var*/ Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, Color = Color::white);
+      /*Variable*/ Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, V&, Color = Color::white);
+      /*Array*/ template <typename I> Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, V*, I&, Color = Color::white);
+      /*Function*/ Text (int, int, GUI::Style, text_format_e_t, Page&, std::string, const std::function<V() >&, Color = Color::white);
 };
 
 class Button{
@@ -260,7 +263,7 @@ class Button{
     util_setup(),
     util_background(),
     alert::attempt_end(),
-    alert::start(std::string, Colour, std::uint32_t);
+    alert::start(std::string, Color, std::uint32_t);
   public: enum press_type{
     SINGLE,
     LATCH,
@@ -272,7 +275,7 @@ class Button{
     Button (){};
 
     //Vars
-      Colour l_col, b_col, b_col_dark;
+      std::uint32_t l_col, b_col, b_col_dark;
       std::string label, label1 = "";
       int x1, y1, x2, y2, text_x, text_y, text_x1, text_y1;
       bool last_pressed = 0;
@@ -297,16 +300,16 @@ class Button{
         run_off_func() const,
         draw() const,
         draw_pressed()  const,
-        construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Colour, Colour),
+        construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Color, Color),
         update(),
         add_text (Text_&, bool = true),
         set_func(std::function <void()>), set_off_func(std::function <void()>),
         set_active(bool = true),
-        set_background (Colour);
+        set_background (Color);
 
   public:
     //Points, Format, Page, Label, Bcolour, Lcolour
-    Button (int, int, int, int, GUI::Style, press_type, Page&, std::string = "", Colour = ORANGE, Colour = COLOUR(BLACK));
+    Button (int, int, int, int, GUI::Style, press_type, Page&, std::string = "", Color = Color::orange, Color = Color::black);
 
     //Functions
       void select(), deselect();
@@ -323,7 +326,7 @@ class Slider{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Colour, std::uint32_t);
+    alert::start(std::string, Color, std::uint32_t);
   public: enum direction{
     VERTICAL,
     HORIZONTAL
@@ -335,7 +338,7 @@ class Slider{
         x1, y1, x2, y2, text_x, text_y,
         min, max,
         val, prev_val;
-      Colour l_col, b_col;
+      std::uint32_t l_col, b_col;
       direction dir;
       bool active=true;
       Page* page;
@@ -351,7 +354,7 @@ class Slider{
 
   public:
     //Points, Format, Min, Max, Page, Label, Bcolour, Lcolour
-    Slider (int, int, int, int, GUI::Style, direction, int, int, Page&, std::string = "Value", int = 1, Colour = COLOUR(WHITE), Colour = ORANGE);
+    Slider (int, int, int, int, GUI::Style, direction, int, int, Page&, std::string = "Value", int = 1, Color = Color::white, Color = Color::orange);
 
     //Functions
       int get_value() const;
@@ -374,7 +377,7 @@ class Slider{
   }
 
   template <typename V>
-  void Text<V>::construct (int x, int y, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V() > value, Colour l_col){
+  void Text<V>::construct (int x, int y, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V() > value, Color l_col){
     //static_assert(!std::is_same_v<V, std::string>, "Text variable cannot be std::string, it causes unknown failures"); //Keep this for memories
     this->x = x;
     this->y = y;
@@ -383,7 +386,7 @@ class Slider{
     this->page = page;
     this->label = label;
     this->value = value;
-    this->l_col = l_col;
+    this->l_col = static_cast<std::uint32_t>(l_col);
     this->b_col = page->b_col;
     page->texts.push_back(this);
   } 
@@ -400,8 +403,8 @@ class Slider{
       start(sprintf2(fmt, args...), colour, time);
     }
     template <typename... Params>
-    void start(Colour colour, std::uint32_t time, std::string fmt, Params... args){
-      start(sprintf2(fmt, args...), colour, 1000);
+    void start(Color color, std::uint32_t time, std::string fmt, Params... args){
+      start(sprintf2(fmt, args...), color, 1000);
     }
     template <typename... Params>
     void start(std::uint32_t time, std::string fmt, Params... args){
@@ -417,39 +420,39 @@ class Slider{
 
   //Terminal (var - no format)
   template <typename V>
-  Text<V>::Text (std::string text, V& value_obj, Colour label_colour){
+  Text<V>::Text (std::string text, V& value_obj, Color label_colour){
     construct (5, 0, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [&](){return value_obj;}, label_colour);
   }
 
   //Terminal (var - format)
   template <typename V>
-  Text<V>::Text (std::string text, V& value_obj, text_format_e_t size, Colour label_colour){
+  Text<V>::Text (std::string text, V& value_obj, text_format_e_t size, Color label_colour){
     construct (5, 0, GUI::Style::CORNER, size, &terminal, text, [&](){return value_obj;}, label_colour);
   }
 
   //Terminal (array - no format)
   template <typename V>
   template <typename I>
-  Text<V>::Text (std::string text, V* value_arr, I& index, Colour label_colour){
+  Text<V>::Text (std::string text, V* value_arr, I& index, Color label_colour){
     construct (5, 0, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
   }
 
   //Terminal (array - format)
   template <typename V>
   template <typename I>
-  Text<V>::Text (std::string text, V* value_arr, I& index, text_format_e_t size, Colour label_colour){
+  Text<V>::Text (std::string text, V* value_arr, I& index, text_format_e_t size, Color label_colour){
     construct (5, 0, GUI::Style::CORNER, size, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
   }
 
   //Terminal (function - no format)
   template <typename V>
-  Text<V>::Text (std::string text, const std::function<V()>& func, Colour label_colour){
+  Text<V>::Text (std::string text, const std::function<V()>& func, Color label_colour){
     construct (5, 0, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, func, label_colour);
   }
 
   //Terminal (function - format)
   template <typename V>
-  Text<V>::Text (std::string text, const std::function<V()>& func, text_format_e_t size, Colour label_colour){
+  Text<V>::Text (std::string text, const std::function<V()>& func, text_format_e_t size, Color label_colour){
     construct (5, 0, GUI::Style::CORNER, size, &terminal, text, func, label_colour);
   }
 
@@ -457,25 +460,25 @@ class Slider{
 
   //No var
   template <typename V>
-  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, Colour label_colour){
+  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, Color label_colour){
     construct (x, y, rect_type, size, &page, text, nullptr, label_colour);
   }
 
   //Variable
   template <typename V>
-  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V& value_obj, Colour label_colour){
+  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V& value_obj, Color label_colour){
     construct (x, y, rect_type, size, &page, text, [&](){return value_obj;}, label_colour);
   }
 
   //Array
   template <typename V>
   template <typename I>
-  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V* value_arr, I& index, Colour label_colour){
+  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V* value_arr, I& index, Color label_colour){
     construct (x, y, rect_type, size, &page, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
   }
 
   //Function
   template <typename V>
-  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, const std::function<V() >& func, Colour label_colour){
+  Text<V>::Text (int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, const std::function<V() >& func, Color label_colour){
     construct (x, y, rect_type, size, &page, text, func, label_colour);
   }
