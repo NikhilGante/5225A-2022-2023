@@ -102,8 +102,6 @@ void autonomous() {}
  */
 
 Data data1;
-
-//make page 7 active. figure out repeated deprecate on page 5
 //make alert queue if already flashing
 //delete the move and copy constructors for controller button, auton...
 //alert prints really big
@@ -113,22 +111,33 @@ Data data1;
 
 //push in entirely, and then use queue.print
 void opcontrol() {
-  for(int i = 0; i < 100; i++){
-		for(int j = 0; j < 25; j++){	
-			data1.print("%05d ", 25*i+j);
+  // // for(int i = 0; i < 100; i++){
+	// // 	for(int j = 0; j < 25; j++){	
+	// // 		// data1.print("%05d ", 25*i+j);
+  // //     master.print(0, 0, "%05d ", 25*i+j);
 
-      // if(Data::queue.getDataSize() > 50) queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
-		}
-		data1.print("\\n\n");
-    delay(50);
-	}
-  // data1.print("abcdefghijklmnopqrstuvwxyz");
-  // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+  // //     // if(Data::queue.getDataSize() > 50) queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+	// // 	}
+	// // 	data1.print("\\n\n");
+  // //   delay(50);
+	// // }
+
+
+  // for(int j = 0; j < 5; j++){	
+  //   // data1.print("%05d ", 25*i+j);
+  //   master.print(0, 0, "%d ", j);
+
+  //   // if(Data::queue.getDataSize() > 50) queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+  // }
+
+
+  // // data1.print("abcdefghijklmnopqrstuvwxyz");
+  // // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
   
-  // printf("Is empty: %d\n", Data::queue.isEmpty());
-  // Data::queue.pop();
-  // printf("Is empty: %d\n", Data::queue.isEmpty());
+  // // printf("Is empty: %d\n", Data::queue.isEmpty());
+  // // Data::queue.pop();
+  // // printf("Is empty: %d\n", Data::queue.isEmpty());
 
-  // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+  // // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
   WAIT_UNTIL(false);
 }

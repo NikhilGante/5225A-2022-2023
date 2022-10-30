@@ -3,7 +3,7 @@
 #include "main.h"
 #include "Libraries/controller.hpp"
 
-extern Controller master;
+extern _Controller master;
 extern Controller partner;
 extern pros::Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywheel_front, flywheel_back;
 // extern pros::ADIEncoder LeftEncoder, RightEncoder, BackEncoder;

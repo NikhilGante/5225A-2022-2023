@@ -482,7 +482,8 @@ void main_setup(){
     // f_lift_val.max = f_lift.prog_positions.back();
 
     lift_move.set_setup_func([](){
-      DEPRECATE;
+      printf("DEPRECATEd we don't have lifts\n");
+      // DEPRECATE;
       // b_lift_val.set_value(b_lift_pot.get_value());
       // f_lift_val.set_value(f_lift_pot.get_value());
       // if(f_claw_o.get_state()) front_claw.select();

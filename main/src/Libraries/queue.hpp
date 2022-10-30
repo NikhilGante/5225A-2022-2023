@@ -25,7 +25,7 @@ public:
   {}
 
   bool isFull(){
-    return (front == 0 && rear == size - 1) || front - rear == 1;
+    return (front == -1 && rear == size - 1) || (front != 0 && front - rear == 0);
   }
 
   bool isEmpty(){
@@ -53,7 +53,7 @@ public:
 
   void push(T val){ // enqueue single element
     if(isFull()){
-      printf("Queue \"%s\" is full, push of value \"%d\" failed\n", name, val);
+      printf("Queue \"%s\" is full, push failed\n", name);
       return;
     }
     // cout << "pushed" << val << endl;
