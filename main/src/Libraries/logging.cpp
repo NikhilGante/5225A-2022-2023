@@ -38,7 +38,7 @@ ofstream Data::log_file;
 void Data::init(){
   log_file.open("/usd/log.txt");
   log_file.close();
-  // task.start(logHandle);
+  task.start(logHandle);
 }
 
 void Data::logHandle(){ // runs in task to flush out contents of queue to file

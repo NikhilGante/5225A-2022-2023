@@ -10,10 +10,11 @@ using namespace std;
 
 template <typename T, size_t size>
 class Queue{
+  pros::Mutex mutex;
   T data[size];  // array to store queue
   const size_t t_size = sizeof(T);  // size of element
   const char* name;
-  size_t front = -1, rear = -1;  // first and last index of queue data respectively
+  size_t front = 0, rear = -1;  // first and last index of queue data respectively
   
   // declares as friend to give access to front and rear pointers
   template<size_t size_cpy>
@@ -34,6 +35,7 @@ public:
   
 
   void print(){ // prints all the elements in the queue
+    mutex.take();
     if(isEmpty()){
       printf("Queue \"%s\" is empty, nothing to print\n", name);
       return;
@@ -45,6 +47,7 @@ public:
       if(index == rear) break;
     }
     cout << endl;
+    mutex.give();
   }
 
 
@@ -61,7 +64,9 @@ public:
   }
 
   void push(T arr[], size_t arr_len){ // enqueue multiple elements
-    // fwrite(arr, 1, arr_len, stdout);
+    mutex.take();
+    // printf("\n\n(%02d - %02d) Pushing ", front, rear);
+    // fwrite(arr, t_size, arr_len, stdout);
     const size_t elements_available = size - getDataSize();
     // printf("Elem avail:%d\n", elements_available);
     if(arr_len > elements_available){
@@ -78,12 +83,16 @@ public:
     }
     else{
       if (isEmpty()){
-        front = rear = 0; // inserts first element if queue is empty
+        // printf("(%02d - %02d) Empty in push\n", front, rear);
+        front = 0; // inserts first element if queue is empty
         memcpy(data + rear, arr, arr_len * t_size);  // copies arr to rear
       }
-      else  memcpy(data + rear + 1, arr, arr_len * t_size);  // copies arr to rear
+      else memcpy(data + rear + 1, arr, arr_len * t_size);  // copies arr to rear
       rear += arr_len;
     }
+    // printf("(%02d - %02d) Pushed ", front, rear);
+    // fwrite(data + rear - arr_len + 1, t_size, arr_len, stdout);
+    mutex.give();
   }
 
   T pop(){ // dequeue
@@ -93,9 +102,9 @@ public:
     }
 
     T result = data[front];
-    if (front == rear) front = rear = -1; // if queue has 1 element left, make it empty after popping
+    if (front == rear) {front = 0; rear = -1;} // if queue has 1 element left, make it empty after popping
     else front = (front + 1) % size;  // otherwise move it forwards, wrapping around if necessary
-    
+
     return result;
   }
 
@@ -107,20 +116,21 @@ public:
   }
 
   void clear(){ // empties the queue
-    front = -1, rear = -1;
+    front = 0, rear = -1;
   }
 };
 
 // prints the contents of a char queue to a file (used for logging)
 template<size_t size_cpy>
 void queuePrintFile(Queue<char, size_cpy>& queue, ofstream& file, const char* file_name){
+  queue.mutex.take();
+  // printf("\n\n\n(%02d - %02d) About to print\n", queue.front, queue.rear);
 
   file.open(file_name, ios::app);
   if(queue.rear < queue.front){ // if the queue rolls over
     file.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
     file.write(queue.data, queue.rear + 1);  // prints from start to rear of queue
 
-    
     std::cout.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
     std::cout.write(queue.data, queue.rear + 1);  // prints from start to rear of queue     
   }
@@ -131,6 +141,9 @@ void queuePrintFile(Queue<char, size_cpy>& queue, ofstream& file, const char* fi
     std::cout.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
   }
 
+  std::cout.flush();
   file.close();
   queue.clear();
+  // printf("(%02d - %02d) Finished print\n", queue.front, queue.rear);
+  queue.mutex.give();
 }

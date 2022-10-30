@@ -104,53 +104,31 @@ void autonomous() {}
 Data data1;
 
 //make page 7 active. figure out repeated deprecate on page 5
-//make colour an actual type not a typedef
 //make alert queue if already flashing
-//delete the move and copy constructors for button, controller button, auto...
+//delete the move and copy constructors for controller button, auton...
 //alert prints really big
 
-//Log corruption happens somewhere between getting in the push function and queuePrintFile. It's probably in push when it's written to the array
-//Push and print might be modifying the start and end simultaneously
 
+
+
+//push in entirely, and then use queue.print
 void opcontrol() {
-  for(int i = 0; i < 20; i++){
-		for(int j = 0; j < 10; j++){	
-			data1.print("%03d ", 10*i+j);
-      std::cout << Data::queue.getDataSize() << std::endl;
+  for(int i = 0; i < 100; i++){
+		for(int j = 0; j < 25; j++){	
+			data1.print("%05d ", 25*i+j);
 
-      if(Data::queue.getDataSize() > 50){
-        queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
-      }
+      // if(Data::queue.getDataSize() > 50) queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
 		}
 		data1.print("\\n\n");
-    delay(20);
+    delay(50);
 	}
-  queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
-
-  // const int intk_port = 20, speed = 127;
-  // char pneum_port = 'H';
-  // std::uint32_t delay_time = 65;
-
-  // WAIT_UNTIL(false){
-  //   if(master.get_digital_new_press(DIGITAL_X)) c::motor_move(intk_port, 0);
-  //   else if(master.get_digital_new_press(DIGITAL_UP)) c::motor_move(intk_port, -speed);
-  //   else if(master.get_digital_new_press(DIGITAL_DOWN)) c::motor_move(intk_port, speed);
-
-  //   if(master.get_digital_new_press(DIGITAL_L1)){
-  //     printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
-  //     c::adi_port_set_value(pneum_port, LOW);
-  //     delay(delay_time);
-  //     c::adi_port_set_value(pneum_port, HIGH);
-  //   }
-  //   else if(master.get_digital_new_press(DIGITAL_R1)){
-  //     printf("Config:%d\n", c::adi_port_set_config(pneum_port, E_ADI_DIGITAL_OUT));
-  //     for(int i = 0; i < 3; i++){
-  //       c::adi_port_set_value(pneum_port, LOW);
-  //       delay(delay_time);
-  //       c::adi_port_set_value(pneum_port, HIGH);
-  //       delay(275);
-  //     }
-  //   }
-  // }
+  // data1.print("abcdefghijklmnopqrstuvwxyz");
+  // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
   
+  // printf("Is empty: %d\n", Data::queue.isEmpty());
+  // Data::queue.pop();
+  // printf("Is empty: %d\n", Data::queue.isEmpty());
+
+  // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+  WAIT_UNTIL(false);
 }
