@@ -174,14 +174,6 @@ void screen_task_fn (void* ignore){
 // Red: (18.0, 123.0)
 
 // STACK TRACE
-// 0x39083ec
-// 0x39083e0
-// 0x7800440
-// 0x780150c
-// 0x7801118
-// 0x384cd54
-// 0x384b410
-// 0x38458a0
 
 
 void opcontrol() {
@@ -194,6 +186,24 @@ void opcontrol() {
 	master.print(0,  0, "%d", 20);
 	master.print(1, 2, "%d", 20);
 	master.print(2, 0, "%d", 20);
+
+	master.print(0,  0, "%d", 40);
+	master.rumble("-");
+
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// master.queueHandle();
+
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// master.queueHandle();
+
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// master.queueHandle();
+
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// master.queueHandle();
+
+
+
 	WAIT_UNTIL(false);
 	// drive.changeState(DriveOpControlParams{});
 	// WAIT_UNTIL(false);

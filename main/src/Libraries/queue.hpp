@@ -14,6 +14,8 @@ class Queue{
   const char* name;
   size_t front = -1, rear = -1;  // first and last index of queue data respectively
   
+  pros::Mutex queue_mutex;
+
   // declares as friend to give access to front and rear pointers
   template<size_t size_cpy>
   friend void queuePrintFile (Queue<char, size_cpy>& queue, ofstream& file, const char* file_name);
@@ -36,7 +38,7 @@ public:
       return;
     }
     int index;
-    for(size_t i = 0; i < size; i++){
+    for(size_t i = 0; i < getDataSize(); i++){
       index = (front + i) % size; // stores the current index, rolling over if necessary
       cout << data[(front + i) % size] << " " << index << " | ";
       if(index == rear) break;
@@ -46,6 +48,7 @@ public:
 
 
   void push(T val){ // enqueue single element
+    queue_mutex.take();
     if(isFull()){
       printf("Queue \"%s\" is full, push of value \"%d\" failed\n", name, val);
       return;
@@ -55,6 +58,7 @@ public:
     else rear = (rear + 1) % size;  // otherwise move it forwards, wrapping around if necessary
     
     data[rear] = val; // push value at that position
+    queue_mutex.give();
   }
 
   void push(T arr[], size_t arr_len){ // enqueue multiple elements
@@ -82,14 +86,16 @@ public:
   }
 
   T pop(){ // dequeue
+    queue_mutex.take();
     if(isEmpty()){
       printf("Queue \"%s\" is empty, pop failed\n", name);
-      return std::numeric_limits<T>::min;
+      return std::numeric_limits<T>::min();
     }
 
     T result = data[front];
     if (front == rear) front = rear = -1; // if queue has 1 element left, make it empty after popping
     else front = (front + 1) % size;  // otherwise move it forwards, wrapping around if necessary
+    queue_mutex.give();
     
     return result;
   }

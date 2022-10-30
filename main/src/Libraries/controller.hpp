@@ -23,9 +23,7 @@ class _Task;
 class _Controller : public pros::Controller{
 private:
   // std::array<std::function<void()>,20> queue;
-  Queue<std::function<void()>, 20> queue{"controller_queue"};
   static std::array<_Controller*, num_controller> objs;
-  void queue_handle();
   int controller_num;
 
   // button handling data
@@ -33,8 +31,12 @@ private:
   bool last_press_arr[12] = {0};
 
 public:
+  void queueHandle();
+
+  Queue<std::function<void()>, 20> queue{"controller_queue"};
+
   _Controller(pros::controller_id_e_t id);
-  static void print_queue();
+  static void printQueue();
   static _Task controller_task;
   static void init();
 
@@ -43,7 +45,7 @@ public:
   void clear_line (std::uint8_t line);
   void clear();
   void rumble(const string & rumble_pattern);
-  void wait_for_press(controller_digital_e_t button, int timeout = 0);
+  void waitForPress(controller_digital_e_t button, int timeout = 0);
   /**
    * @brief Waits for any button from param buttons to be pressed
    * 
@@ -51,7 +53,7 @@ public:
    * @param timeout how long to wait before timing out on the wait
    * @return the button that was pressed. 0 if nothing pressed
    */
-  controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = 0);
+  controller_digital_e_t waitForPress(std::vector<controller_digital_e_t> buttons, int timeout = 0);
 
   // button handling methods
   // NOTE: all the following methods are only updated every cycle as opposed to every function call, unlike the pros API

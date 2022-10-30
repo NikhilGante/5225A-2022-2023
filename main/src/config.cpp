@@ -1,8 +1,8 @@
 #include "config.hpp"
 
 
-Controller master(pros::E_CONTROLLER_MASTER);
-Controller partner(pros::E_CONTROLLER_PARTNER);
+_Controller master(pros::E_CONTROLLER_MASTER);
+_Controller partner(pros::E_CONTROLLER_PARTNER);
 
 static constexpr int e_port = 20;
 

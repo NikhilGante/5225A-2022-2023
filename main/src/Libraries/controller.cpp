@@ -12,20 +12,20 @@ _Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}
   constructed++;
 }
 
-void _Controller::print_queue(){
+void _Controller::printQueue(){
   while(true){
     for(int i = 0; i < num_controller; i++){
-      objs[i]->queue_handle();
+      objs[i]->queueHandle();
       _Task::delay(50);
     }
   }
 }
 
 void _Controller::init(){
-  controller_task.start(print_queue);
+  controller_task.start(printQueue);
 }
 
-void _Controller::queue_handle(){
+void _Controller::queueHandle(){
   if(!queue.isEmpty()){
     printf("running command on controller %d", controller_num);
     queue.pop()();  // run the next function
@@ -85,7 +85,7 @@ void _Controller::rumble(const string& rumble_pattern){
 }
 
 
-controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
+controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_e_t> buttons, int timeout){
   int start_time = millis();
   printf("waiting for button press from controller %d", this->controller_num);
   controller_digital_e_t button = static_cast<controller_digital_e_t>(0);
@@ -108,7 +108,7 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
 
 
 //create wait for press for multiple buttons and return the one that was pressed
-void _Controller::wait_for_press(controller_digital_e_t button, int timeout){
+void _Controller::waitForPress(controller_digital_e_t button, int timeout){
   int start_time = millis();
   printf("waiting for button %d from controller %d", button, this->controller_num);
   
