@@ -1,7 +1,5 @@
 #include "lift.hpp"
-#include "util.hpp"
-#include "config.hpp"
-#include "Libraries/pid.hpp"
+
 
 PID b_lift_pid = PID(0.5,0.0,0.0,0.0);
 int lift_index = 0;
@@ -56,7 +54,7 @@ const char* LiftResetParams::getName(){
 void LiftResetParams::handle(){
   b_lift_m.move(-20);
   Timer vel_rise_timer{"vel_rise_timer"};
-  while(fabs(b_lift_m.get_actual_velocity()) < 20 && vel_rise_timer.get_time() < 100) _Task_::delay(10);
+  while(fabs(b_lift_m.get_actual_velocity()) < 20 && vel_rise_timer.getTime() < 100) _Task_::delay(10);
   while(fabs(b_lift_m.get_actual_velocity()) > 10) _Task_::delay(10);
   b_lift_m.tare_position();
 	lift.changeState(LiftIdleParams{});

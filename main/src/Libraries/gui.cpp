@@ -33,7 +33,7 @@
   Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word flash
     Button screen_flash_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, screen_flash, "BACK");
     Text screen_flash_text (MID_X, MID_Y, GUI::Style::CENTRE, TEXT_LARGE, screen_flash, "");
-    Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.get_time();}));
+    Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.getTime();}));
 
   Page terminal ("Screen Printing");
 
@@ -70,10 +70,10 @@ namespace alert{
 
   void attempt_end(){
     //timer.playing() means flash is actually running
-    //timer.get_time() >= end_time means time has run out
+    //timer.getTime() >= end_time means time has run out
     //screen_flash_back_button.pressed() means user has exited the alert
 
-    if (timer.playing() && (timer.get_time() >= end_time || screen_flash_back_button.pressed())){
+    if (timer.playing() && (timer.getTime() >= end_time || screen_flash_back_button.pressed())){
       timer.reset(false);
       page->go_to();
     }

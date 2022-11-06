@@ -3,6 +3,7 @@ using namespace std;
 using namespace pros;
 FILE* logfile = NULL;
 
+pros::Mutex log_mutex;
 
 void log_init() {
   logfile = fopen("/usd/log.txt","w");
@@ -13,16 +14,17 @@ void log_init() {
 }
 
 void log(const char * format, ...){
-  // mutex.take(50);
   va_list arguments;
   va_start(arguments,format);
   vprintf(format,arguments);
   // printf("\n");
   if(logfile == NULL) return;
+  log_mutex.take();
   logfile = fopen("/usd/log.txt","a");
   vfprintf(logfile, format, arguments);
   fclose(logfile);
   va_end(arguments);
+  log_mutex.give();
 }
 
 // ACTUAL LOGGING START
@@ -43,7 +45,7 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
     while(true){
-      if(queue.getDataSize() > 500 || log_timer.get_time() > 500){
+      if(queue.getDataSize() > 500 || log_timer.getTime() > 500){
         queuePrintFile(queue, log_file, "/usd/log.txt");
         log_timer.reset();
       }
@@ -55,4 +57,14 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   }
 }
 
+void Data::print(const char* format, ...){
+  const int buffer_size = 256;  // max amount of chars allowed to be printed
+  char buffer[buffer_size];
+  va_list args;
+  va_start (args, format);
+  int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
+  if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
+  va_end (args);
 
+  queue.push(buffer, strlen(buffer)); // pushes buffer to queue
+}

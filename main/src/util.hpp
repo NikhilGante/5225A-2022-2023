@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
 #include <iostream>
+#include <cmath>
+
 
 using namespace std;
 //forward declarations

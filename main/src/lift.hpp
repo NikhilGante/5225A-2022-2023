@@ -1,6 +1,9 @@
 #pragma once
 #include "main.h"
 #include "Libraries/state.hpp"
+#include "util.hpp"
+#include "config.hpp"
+#include "Libraries/pid.hpp"
 
 extern int lift_index;
 extern int lift_arr[5];

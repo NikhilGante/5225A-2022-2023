@@ -24,6 +24,8 @@ private:
 	bool cur;
 	static vector<ControllerButton*> ButtonsArray;
 public:
+	ControllerButton(const ControllerButton&) = delete; // Copy Constructor
+	ControllerButton(const ControllerButton&&) = delete; // Move Constructor
 	ControllerButton (Controller& controller, controller_digital_e_t button);
 	static void updateLoop();
 	void update();

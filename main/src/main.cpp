@@ -19,6 +19,7 @@
 
 #include "Libraries/motor.hpp"
 #include "Libraries/ControllerButtons.hpp"
+#include "Libraries/auton.hpp" // Auton Programs
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
@@ -48,11 +49,18 @@ make more methods const
 
 
 
-/* Things to work on
+/* To-Do List
 
-#define vars should always be capital with _
-Distance sensor class which has name and port for each object
-Comment auton selector 
+Test Auton Tracking and Distance Sensor Method
+Ask Nikhil/Nathan about the Tracking code and newer versions of it
+Controller print queue
+Start planning different Autons
+Combine auton Functions
+Change auton x y a display to horizantal with 1-2 decimal places ~ Kinda Done
+Add title to auton for stage its on ~ Kinda Done
+
+
+
 
 
 */
@@ -66,9 +74,8 @@ Comment auton selector
  */
 void initialize() {
 	DEBUG;
-	delay(500);
-	// // log_init();
-	// // lcd::initialize();
+	// log_init();
+	// lcd::initialize();
 	// // tracking.g_pos = {31.0, 11.5, 0.0};
 	// // // tracking.g_pos = {70.0, 129.5, M_PI};
 	// // _Task_ tracking_task("tracking_update_task");
@@ -133,33 +140,45 @@ void autonomous() {}
 
 
 // // Text Splitter which takes the text and how many characters per line and splits the texts on spaces to match that parameter
-vector<string> textSplit(string text, int lineChar){
-	vector<string> output;
-	int temp;
-	int maxChars = lineChar;
-	int index = 0;
-	int length = text.length();
-	for (int i = 0; i < lineChar; i ++) text.push_back(' ');
+// vector<string> textSplit(string text, int lineChar){
+// 	vector<string> output;
+// 	int temp;
+// 	int maxChars = lineChar;
+// 	int index = 0;
+// 	int length = text.length();
+// 	for (int i = 0; i < lineChar; i ++) text.push_back(' ');
 
 
-    while (index < length){
-    	temp = -1;
-    	for(int i = index+maxChars+1; i >= index+maxChars-10; i--){
-    		if (text[i] == ' '){
-    			temp = i;
-    			break;
-    		}
-    	} 
-    	if (temp>=0) output.push_back(text.substr(index, temp-index));
-    	index = temp+1;
-    	//cout << index << endl;
+//     while (index < length){
+//     	temp = -1;
+//     	for(int i = index+maxChars+1; i >= index+maxChars-10; i--){
+//     		if (text[i] == ' '){
+//     			temp = i;
+//     			break;
+//     		}
+//     	} 
+//     	if (temp>=0) output.push_back(text.substr(index, temp-index));
+//     	index = temp+1;
+//     	//cout << index << endl;
 
-    }
-	return output;
+//     }
+// 	return output;
 
-}
+// }
 
-
+// class DISTANCE: public pros::Distance {
+// private:
+// 	std::string name;
+// 	int port;
+// public:
+// 	DISTANCE(int port, std::string name = ""):
+// 	pros::Distance(port),
+// 	port(port),
+// 	name(name)
+// 	{}
+// 	std::string get_name(){return name;}
+// 	int get_port(){return port;}
+// };
 
 
 
@@ -170,192 +189,19 @@ If youre not using hot linking, it will work because it only downloads the parts
 
 
 
-
-#define fieldMaxMM 1134
-#define distanceOffsetMM 23
-#define distanceSensorOffset 20
-
-pros::Distance distance_sensor1(20); // Left Sensor
-class auton{
-public:
-	std::string name;
-	double x;
-	double y;
-	double a;
-	bool distanceX = false;
-	bool distanceY = false;
-	std::function<void(void)> autonProgram;
-
-	
-
-	static int curAuton;
-	static vector<auton*> array;
+pros::Distance distance_sensor1 (4); // Left Distance sensor Sensor
+pros::Distance distance_sensor2 (19); // Right Distance sensor Sensor
 
 
-	auton(std::string name, double autonX, double autonY, double autonA, std::function<void(void)> autonProgram): 
-	name(name), 
-	x(autonX), 
-	y(autonY), 
-	a(autonA), 
-	autonProgram(autonProgram)
-	{
-		array.push_back(this);
-		if (x<0) distanceX = true;
-		if (y<0) distanceY = true;
-	}
-
-	// Methods ---------------------------------------------------------
-	static auton* GetCurAuton(){return array[curAuton];}
-	static void increase(){
-		if (curAuton == array.size() - 1) curAuton = 0;
-		else curAuton++;
-	}
-	static void decrease() {
-		if (curAuton == 0) curAuton = array.size() - 1;
-		else curAuton--;
-	}
-	static double distance(){
-		return distance_sensor1.get()/25.4;
-	}
-	static void calculateAutonValues(){
-		if (GetCurAuton()->distanceX) GetCurAuton()->x = distance();
-		if (GetCurAuton()->distanceY) GetCurAuton()->y = distance(); 
-	}
-	static void selectAuton(){
-		master.clear();
-		delay(100);
-		while (!master.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
-			if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_UP)) decrease();
-			else if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_DOWN)) increase();
-
-			//cout << GetCurAuton()->name << endl;
-			master.print(0, 0, "%s           ", GetCurAuton()->name.c_str());
-
-			pros::delay(50);
-		}
-	}
-	static void setAutonValues(){
-		master.clear();
-		delay(100);
-		while (!master.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
-			master.print(0, 0, "%lf", GetCurAuton()->x);
-			master.print(1, 0, "%lf", GetCurAuton()->y);
-			master.print(2, 0, "%lf", GetCurAuton()->a);
-			if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) calculateAutonValues();
-			delay(150);
-		}
-		resetTracking();
-	}
-	static void resetTracking(){
-		delay(1);
-	}
-	// ------------------------------ must show Tracking VALUES ------------------------------
-	static void adjustRobot(){
-		master.clear();
-		delay(100);
-		while (!master.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
-			master.print(0, 0, "%lf", 0);
-			delay(50);
-			master.print(1, 0, "%lf", 0);
-			delay(50);
-			master.print(2, 0, "%lf", 0);
-			delay(50);
-		}
-	}
-	// ------------------------------ Save must save Tracking VALUES ------------------------------
-	static void save(){
-		if (!usd::is_installed()) alert::start("No SD Card!");
-		else{
-			std::ofstream auton_file ("/usd/auton.txt");
-			auton_file << curAuton << endl;
-			auton_file << GetCurAuton()->x << endl;
-			auton_file << GetCurAuton()->y << endl;
-			auton_file << GetCurAuton()->a << endl;
-			auton_file << GetCurAuton()->name << endl;
-			auton_file.close();
-			alert::start(term_colours::NOTIF, "Saved");
-		}
-	}
-
-	static void readValues(){
-		while (!master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-			master.print(0, 0, "%s Download Valules?", GetCurAuton()->name);
-			delay(50);
-		}
-		if (!usd::is_installed()) alert::start("No SD Card!");
-		else{
-			std::ifstream auton_file ("/usd/auton.txt");
-			auton_file >> curAuton;
-			auton_file >> GetCurAuton()->x;
-			auton_file >> GetCurAuton()->y;
-			auton_file >> GetCurAuton()->a;
-			auton_file.close();
-			alert::start(term_colours::NOTIF, "Values Downloaded");
-		}
-	}
-	static void confirmValues(){
-		master.clear();
-		while (!master.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
-			cout << "Confirmig values" << ' ' << GetCurAuton()->x << ' ' << GetCurAuton()->y << ' ' << GetCurAuton()->a << endl;
-			master.print(0, 0, "%lf            ", GetCurAuton()->x);
-			master.print(1, 0, "%lf            ", GetCurAuton()->y);
-			master.print(2, 0, "%lf            ", GetCurAuton()->a);
-			delay(150);
-		}
-	}
-	static void runAuton(){
-		printf("Auton Running");
-		GetCurAuton()->autonProgram();
-	}
-
-
-};
-
-vector<auton*> auton::array{};
-int auton::curAuton = 0;
-
-
-
-
-
-// pros::Distance distance_sensor1(19); // Right Sensor
-void autonNumeroUno(){
-
-}
-void autonNumeroDeux(){
-	
-}
-void autonNumeroThree(){
-	
-}
-
-auton auton1("AutonName1",-1, 0, 90, autonNumeroUno);
-auton auton2("AutonName2",0, -1, 90, autonNumeroDeux);
-auton auton3("AutonName3",0, 0, 90, autonNumeroThree);
+auton auton1("AutonName1",USE_DISTANCE_SENSOR, 0, 90, skills1, distance_sensor1, false);
+auton auton2("AutonName2",0, USE_DISTANCE_SENSOR, 90, auton50pts, distance_sensor1);
+auton auton3("AutonName3",0, 0, 90, new_skills1, distance_sensor1);
 
 
 
 void opcontrol() {
-	cout << "HI" << endl;
-	// master.clear();
-	// delay(150);
-	// master.print(0,  0, "%d", 20);
-	// master.print(1, 2, "%d", 20);
-	// master.print(2, 0, "%d", 20);
-	// delay(150);
-	//Program 1
-	// auton::selectAuton();
-	// auton::setAutonValues();
-	// auton::resetTracking();
-	// auton::adjustRobot();
-	// auton::save();
-
-	// Program 2
-	// master.clear();
-	// auton::readValues();
-	// auton::confirmValues();
-	// auton::runAuton();
-
+	//auton::program1();
+	auton::program2();
 
 }
 
@@ -460,6 +306,12 @@ Test10 - I uploaded code from sabrains laptop with usepackage 1. Then I ran my c
 I ran into the issue so I had Jackson upload his code with hotlinking enabled and I uploaded mine with it disabled.
 	Mine still failed to work :(
 
-I had jackson upload his code again with hotlinking and he got the same problem I go t------------- Wtf ------------
+I had jackson upload his code again with hotlinking and he got the same problem I go ------------- Wtf ------------
+
+
+I also made my code the previous version which worked and nothing happend
+
+
+I almost might kill myself - Changing the battery fixed the f**king problem
 
 */

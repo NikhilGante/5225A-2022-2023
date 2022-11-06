@@ -2,6 +2,7 @@
 #include "Libraries/gui.hpp"
 #include "main.h"
 #include "Libraries/controller.hpp"
+#include <cmath>
 
 extern Controller master;
 extern Controller partner;

@@ -464,15 +464,15 @@ void main_setup(){
 
     go_to_xya.set_func([&](){
       Position target (x_val.get_value(), y_val.get_value(), a_val.get_value());
-      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTarget(target);
+      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetSync(target);
     });
     go_home.set_func([](){
       Position target (0, 0, tracking.g_pos.a);
-      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTarget(target);
+      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetSync(target);
     });
     go_centre.set_func([](){
       Position target (72, 72, tracking.g_pos.a);
-      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTarget(target);
+      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetSync(target);
     });
 
   //Subsystems
