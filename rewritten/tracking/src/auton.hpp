@@ -5,7 +5,14 @@
 using namespace pros;
 using namespace std;
 
-// --------------------------------------------- Skills run ---------------------------------------------
+// --------------------------------------------- Auton run ---------------------------------------------
+
+
+void auton1();
+void auton2();
+void auton3();
+void autonM();
+void autonM2();
 
 
 #define FIELD_MAX_MM 3581.4
@@ -28,6 +35,7 @@ public:
 
 	static int curAuton; // Current auton Selected
 	static vector<auton*> array; // Array of different autons
+
 
 	auton(std::string name, double autonX, double autonY, double autonA, std::function<void(void)> autonProgram, pros::Distance& ds, bool zeroOriented = true): 
 	name(name), 
@@ -156,7 +164,7 @@ public:
 	}
 	static void runAuton(){ // User runs auton
 		printf("Auton Running");
-		// GetCurAuton()->autonProgram();
+		GetCurAuton()->autonProgram();
 	}
 
 

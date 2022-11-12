@@ -2,6 +2,7 @@
 #include "main.h"
 #include <cmath>
 #include "config.hpp"
+#include "util.hpp"
 using namespace pros;
 
 
@@ -17,7 +18,8 @@ void tracking();
 
 
 
-void moveDrive(double x, double y, double a);
+void moveXDrive(double x, double y, double a);
+void moveDrive(double lMove, double rMov);
 
 enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
@@ -27,9 +29,14 @@ enum class E_Brake_Modes{
 
 // ---------------- Motion Algorithms ----------------
 
-void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double end_error);
+void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double end_error, double max_speed = 60, double min_speed = 40, bool anglePriority = false, double angle_min = 40);
 void xDriveTTA(double a, E_Brake_Modes brake_mode, double end_error);
+void xDriveTTT(double x, double y, E_Brake_Modes brake_mode, double end_error);
+void xDriveARC(double x, double y, double px, double py, int intervals, E_Brake_Modes brake_mode, double end_error);
 
 
+void dropWheelDriveMTT(double x, double y, E_Brake_Modes brake_mode, double end_error, double back = false);
+void dropWheelDriveTTA(double a, E_Brake_Modes brake_mode, double end_error);
+void dropWheelDriveTTT(double x, double y, E_Brake_Modes brake_mode, double end_error);
 
-int sgn(double x);
+

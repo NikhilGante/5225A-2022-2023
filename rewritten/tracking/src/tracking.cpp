@@ -1,8 +1,5 @@
 #include "tracking.hpp"
 
-
-
-
 double gA = 0, gX = 0, gY = 0;
 double distance_lr = 13.75, distance_b = 7.5;
 
@@ -56,31 +53,45 @@ void tracking(){
     gY += lr_y + b_y;
     gA += Θ;
 
-
+	// std::cout << gX << ' ' << gY << ' ' << gA*180/M_PI << std::endl;
 	last_left = LeftEncoder.get_value()*TICKS_TO_INCHES;
     last_right = RightEncoder.get_value()*TICKS_TO_INCHES;
     last_back = BackEncoder.get_value()*TICKS_TO_INCHES;
-
+	
     delay(10);
 	}
 }
 
-void moveDrive(double x, double y, double a){
+void moveXDrive(double x, double y, double a){
 	front_l.move(x + y + a);
 	front_r.move(-x + y - a);
 	back_l.move(-x + y + a);
 	back_r.move(x + y - a);
 }
 
-void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double end_error){ 
+void moveDrive(double lMov, double rMov){
+	front_l.move(lMov);
+	front_r.move(rMov);
+	back_l.move(lMov);
+	back_r.move(rMov);
+}
 
-	int min_power = 40;
-	int max_power = 60;
+
+
+
+
+void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double end_error, double max_speed, double min_speed, bool anglePriority, double angle_min){ 
+
+	int min_power = min_speed;
+	int max_power = max_speed;
 	double globalXOffset = 0.0, globalYOffset = 0.0, globalAOffset = 0.0;
 	double h = 0.0, β = 0.0, Θ = 0.0;
 	double localX = 0.0, localY = 0.0, localA = 0.0;
 	double xMov = 0.0, yMov = 0.0, aMov = 0.0;
 	double scale_factor = 1;
+
+	double aBeforeS, aAfterS;
+	double aMin = angle_min;
 
 	
 	do{
@@ -113,11 +124,19 @@ void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double en
 		localA /= scale_factor;
 
 
-		moveDrive(localX, localY, localA);
-	*/
-		xMov = 2*localX;
-		yMov = 2*localY;
-		aMov = localA/4;
+		moveXDrive(localX, localY, localA);
+	*/	
+		xMov = localX;
+		yMov = localY;
+		aMov = localA;
+
+		aBeforeS = aMov;
+		
+
+
+		xMov *= 2;
+		yMov *= 2;
+		aMov /= 2;
 
 		if (fabs(xMov)+fabs(yMov)+fabs(aMov) > max_power){
 			scale_factor = (fabs(xMov)+fabs(yMov)+fabs(aMov))/max_power;
@@ -129,16 +148,30 @@ void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double en
 		yMov /= scale_factor;
 		aMov /= scale_factor;
 
+		if (anglePriority){
+			if (aBeforeS>aMin && aMov < aMin) aMov = aMin;
+			else if (aBeforeS<aMin) aMov = fmax(aBeforeS, aMov);
 
-		moveDrive(xMov, yMov, aMov);
+			if (fabs(xMov)+fabs(yMov) > max_power-fabs(aMov)){
 
-		std::cout << localX << ' ' << localY << ' ' << localA << ' ' << h << ' ' << Θ << ' ' <<  β << ' ' << gA << std::endl;
-		std::cout << xMov << ' ' << yMov << ' ' << aMov << ' ' << scale_factor << std::endl;
+				scale_factor = (fabs(xMov)+fabs(yMov))/(max_power-fabs(aMov));
+				std::cout << xMov << ' ' << yMov << ' ' << scale_factor << std::endl;
+				xMov /= scale_factor;
+				yMov /= scale_factor;
+
+			}
+		}
+
+
+		moveXDrive(xMov, yMov, aMov);
+
+		// std::cout << localX << ' ' << localY << ' ' << localA << ' ' << h << ' ' << Θ << ' ' <<  β << ' ' << gA << std::endl;
+		// std::cout << xMov << ' ' << yMov << ' ' << aMov << ' ' << scale_factor << std::endl;
 		screen::print(TEXT_MEDIUM, 3, "%.4f  %.4f  %.4f  %.4f  %.4f  %.4f",localX, localY, localA, h,  Θ, scale_factor);
 		screen::print(TEXT_MEDIUM, 4, "%.5f  %.5f  %.5f   ",gX, gY, (gA*180/M_PI));
 		screen::print(TEXT_MEDIUM, 6, "%.5f  %.5f  %.5f   ",xMov, yMov, aMov);
 
-		printf("X: %lf  , Y: %lf   , A: %lf      , LR: %lf  \n", gX, gY, gA*(180/M_PI), distance_lr);
+		// printf("X: %lf  , Y: %lf   , A: %lf      , LR: %lf  \n", gX, gY, gA*(180/M_PI), distance_lr);
 
 		delay(10);
 
@@ -150,7 +183,7 @@ void xDriveMTT(double x, double y, double a, E_Brake_Modes brake_mode, double en
     case E_Brake_Modes::none:
     	break;
     case E_Brake_Modes::coast:
-      	moveDrive(0, 0, 0);
+      	moveXDrive(0, 0, 0);
       	break;
     case E_Brake_Modes::brake:
 		front_l.move_relative(0, 200);
@@ -177,7 +210,7 @@ void xDriveTTA(double a, E_Brake_Modes brake_mode, double end_error){
 		if (fabs(aMov)>max_power) aMov = max_power*sgn(aMov);
 
 		screen::print(E_TEXT_MEDIUM, 3, "%.5f  %.5f  %.5f", aMov, offset, cur_angle);
-		moveDrive(0, 0, aMov);
+		moveXDrive(0, 0, aMov);
 	} while (fabs(offset) > end_error);
 
 	std::cout << "Motion Algorithm Stopped" << std::endl;
@@ -185,7 +218,7 @@ void xDriveTTA(double a, E_Brake_Modes brake_mode, double end_error){
     case E_Brake_Modes::none:
     	break;
     case E_Brake_Modes::coast:
-      	moveDrive(0, 0, 0);
+      	moveXDrive(0, 0, 0);
       	break;
     case E_Brake_Modes::brake:
 		front_l.move_relative(0, 200);
@@ -197,30 +230,114 @@ void xDriveTTA(double a, E_Brake_Modes brake_mode, double end_error){
 }
 
 void xDriveTTT(double x, double y, E_Brake_Modes brake_mode, double end_error){
-	double offset, cur_angle, min_power = 15, max_power = 60;
-	double aMov;
-	double a = atan2(x-gX, y-gY);
+	double a = atan2(x-gX, y-gY)*180/M_PI;
+	std::cout << a;
+	xDriveTTA(a, brake_mode, end_error);
+}
 
-	do {
+void xDriveARC(double x, double y, double px, double py, int intervals, E_Brake_Modes brake_mode, double end_error){
+	std::tuple<double, double, double> circle = (findCircle(gX, gY, px, py, x, y));
+	double radius = std::get<0>(circle), xOfCircle = std::get<1>(circle), yOfCircle = std::get<2>(circle);
 
-		cur_angle = fmod((gA*180/M_PI),360.0);
-		offset = a-cur_angle;
-		if (fabs(offset)>180) offset -= 360*sgn(offset);
+	std::cout << radius << ' ' << xOfCircle << ' ' << yOfCircle << std::endl;
+
+	double cirStart = atan2(gX-std::get<1>(circle), gY-std::get<2>(circle))*180/M_PI;
+    double cirEnd = atan2(x-std::get<1>(circle), y-std::get<2>(circle))*180/M_PI;
+    double PassingPoint = atan2(px-std::get<1>(circle), py-std::get<2>(circle))*180/M_PI;
+
+
+	double LocalCirEnd = fmod(cirEnd-cirStart+720, 360), LocalPassingPoint = fmod(PassingPoint-cirStart+720, 360);
+    bool right = LocalPassingPoint>LocalCirEnd;
+
+	double angle;
+    if (!right)  angle = LocalCirEnd;
+    else  angle = fabs(LocalCirEnd-360);
+
+
+	cirStart = fmod(cirStart+360, 360);
+    cirEnd = fmod(cirEnd+360, 360);
+    PassingPoint = fmod(PassingPoint+360, 360);
+
+	double xCoords[intervals+2];
+    double yCoords[intervals+2];
+    int counter = 0;
+
+	if(!right){
+	    for (double i = cirStart;i <= cirStart+angle+1; i+= angle/intervals){ 
+	        xCoords[counter] = std::get<0>(getPoint(xOfCircle, yOfCircle, radius, i)), yCoords[counter] = std::get<1>(getPoint(xOfCircle, yOfCircle, radius, i));
+	        std::cout << xCoords[counter] << ", " << yCoords[counter] << std::endl;
+	        counter ++;
+	    }
+	} else {
+	    for (double i = cirStart; i > cirStart-angle-1; i -= angle/intervals){
+
+	        xCoords[counter] = std::get<0>(getPoint(xOfCircle, yOfCircle, radius, i)), yCoords[counter] = std::get<1>(getPoint(xOfCircle, yOfCircle, radius, i));
+	        std::cout << xCoords[counter] << ", " << yCoords[counter] << std::endl;
+	        counter ++;
+	    }
+	}
+
+
+	int counterPoints = 0;
+	double globalXOffset = 0.0, globalYOffset = 0.0, globalAOffset = 0.0;
+	double h = 0.0, hFF = 0.0, β = 0.0, Θ = 0.0;
+	double localX = 0.0, localY = 0.0, localA = 0.0;
+	double FFglobalXOffset, FFglobalYOffset;
+	double xMov, yMov, aMov;
+	double scale_factor;
+	double min_power = 25, max_power = 40;
+
+
+
+
+
+	do{
+    	globalXOffset = xCoords[counterPoints]-gX;
+    	globalYOffset = yCoords[counterPoints]-gY;
+    	FFglobalXOffset = xCoords[intervals]-gX;
+    	FFglobalYOffset = yCoords[intervals]-gY;
+    	
+    	hFF = sqrt(FFglobalXOffset*FFglobalXOffset+FFglobalYOffset*FFglobalYOffset);
+    	h = sqrt(globalXOffset*globalXOffset+globalYOffset*globalYOffset);
+    	β = atan2(globalXOffset, globalYOffset)*180/M_PI,  Θ = (β)+(0-(gA*180/M_PI));
+    	localX = sin(Θ*M_PI/180)*h,  localY = cos(Θ*M_PI/180)*h;
+    	
+    	
+    	if (h<1) counterPoints++;
+    	
+    	// ------------------------------------------------ Scalling will be done here ------------------------------------------------
+    	
 		
-		aMov = offset*2;
-		if (fabs(aMov)<min_power) aMov = min_power*sgn(aMov);
-		if (fabs(aMov)>max_power) aMov = max_power*sgn(aMov);
+		xMov = localX*8; 
+    	yMov = localY*8;
+		if (hFF> max_power){
+			scale_factor = hFF/max_power;
+		} else if (hFF < min_power){
+			scale_factor = hFF/min_power;
+		} else scale_factor = 1;
 
-		screen::print(E_TEXT_MEDIUM, 3, "%.5f  %.5f  %.5f", aMov, offset, cur_angle);
-		moveDrive(0, 0, aMov);
-	} while (fabs(offset) > end_error);
+		xMov /= scale_factor;
+		yMov /= scale_factor;
+
+
+		std::cout << xMov << ' ' << yMov << 0 << std::endl;
+		std::cout << xCoords[0] << ' ' << yCoords[0] << 0 << std::endl;
+		std::cout << localX << ' ' << localY << 0 << std::endl << std::endl;
+
+		delay(10);
+
+		moveXDrive(xMov, yMov, 0);
+
+	
+	} while (hFF>1);
+
 
 	std::cout << "Motion Algorithm Stopped" << std::endl;
     switch(brake_mode){
     case E_Brake_Modes::none:
     	break;
     case E_Brake_Modes::coast:
-      	moveDrive(0, 0, 0);
+      	moveXDrive(0, 0, 0);
       	break;
     case E_Brake_Modes::brake:
 		front_l.move_relative(0, 200);
@@ -232,9 +349,105 @@ void xDriveTTT(double x, double y, E_Brake_Modes brake_mode, double end_error){
 }
 
 
-int sgn(double x){
-	if (x > 0)return 1;
-	else if (x < 0) return -1;
-	else if (x==0) return 0;
-	return 0;
+
+
+
+
+void dropWheelDriveMTT(double x, double y, E_Brake_Modes brake_mode, double end_error, double back){
+    double h, β, Θ, ΘForTurn;
+    double lMov, rMov;
+    double globalXOffset, globalYOffset;
+    double localX, localY;
+	double xToY;
+
+
+	do{
+	    globalXOffset = x-gX;
+        globalYOffset = y-gY;
+        
+        
+        h = sqrt(globalXOffset*globalXOffset+globalYOffset*globalYOffset);
+    	β = atan2(globalXOffset, globalYOffset)*180/M_PI,  Θ = (β)+(0-(gA*180/M_PI));
+    	
+    	localX = sin(Θ*M_PI/180)*h, localY = cos(Θ*M_PI/180)*h;
+    	
+    	
+		xMov = localX;
+    	if (back) aMov = fmod(β+360, 360)-(gA*180/M_PI+180);
+    	else aMov = Θ;
+    	if (xMov==0.0) xMov += 0.01;
+    	xToY = fabs(localX/localY);
+
+
+		aMov /= 2;
+		yMov = localY/2;
+
+		lMov = yMov;
+        rMov = yMov;
+		
+        lMov += (aMov);
+        rMov -= (aMov);
+
+
+
+    	
+        moveDrive(lMov, rMov);
+
+    	
+	}while (h>1);
+
+	switch(brake_mode){
+    case E_Brake_Modes::none:
+    	break;
+    case E_Brake_Modes::coast:
+      	moveDrive(0, 0);
+      	break;
+    case E_Brake_Modes::brake:
+		front_l.move_relative(0, 200);
+		front_r.move_relative(0, 200);
+		back_l.move_relative(0, 200);
+		back_r.move_relative(0, 200);
+    	break;
+  	}
 }
+void dropWheelDriveTTA(double a, E_Brake_Modes brake_mode, double end_error){
+	double offset, cur_angle, min_power = 15, max_power = 60;
+	double aMov;
+
+	do {
+		cur_angle = fmod((gA*180/M_PI),360.0);
+		offset = a-cur_angle;
+		if (fabs(offset)>180) offset -= 360*sgn(offset);
+		
+		aMov = offset*2;
+		if (fabs(aMov)<min_power) aMov = min_power*sgn(aMov);
+		if (fabs(aMov)>max_power) aMov = max_power*sgn(aMov);
+
+		screen::print(E_TEXT_MEDIUM, 3, "%.5f  %.5f  %.5f", aMov, offset, cur_angle);
+		moveDrive(aMov, -aMov);
+		
+		
+	} while (fabs(offset) > end_error);
+
+	std::cout << "Motion Algorithm Stopped" << std::endl;
+    switch(brake_mode){
+    case E_Brake_Modes::none:
+    	break;
+    case E_Brake_Modes::coast:
+      	moveDrive(0, 0);
+      	break;
+    case E_Brake_Modes::brake:
+		front_l.move_relative(0, 200);
+		front_r.move_relative(0, 200);
+		back_l.move_relative(0, 200);
+		back_r.move_relative(0, 200);
+    	break;
+  	}
+}
+void dropWheelDriveTTT(double x, double y, E_Brake_Modes brake_mode, double end_error){
+	double a = atan2(x-gX, y-gY)*180/M_PI;
+	std::cout << a;
+	xDriveTTA(a, brake_mode, end_error);
+}
+
+
