@@ -15,14 +15,12 @@
 #include "drive.hpp"
 #include "config.hpp"
 
-#include "pros/llemu.hpp"
 #include "pros/rtos.h"
 
 const GUI* GUI::current_gui = &main_obj;
 
 
 /* Nathan's Thoughts
-why is queuePrintFile not a member function of Queue?
 change most #defines to constexpr
 replace C macros with C++ equivalents (M_PI) - not super important
 std::string instead of const char*
@@ -48,12 +46,11 @@ void initialize() {
 	_Task_ tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
   GUI::init();
-	Data::init();
+	// Data::init();
 	// _Controller::init();
-	// log_init();
+	log_init();
 	delay(500);
 	// lift.runMachine();
-
 }
 
 /**
@@ -101,43 +98,26 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
-Data data1;
 //make alert queue if already flashing
 //delete the move and copy constructors for controller button, auton...
 //alert prints really big
 
-
-
-
 //push in entirely, and then use queue.print
 void opcontrol() {
-  // // for(int i = 0; i < 100; i++){
-	// // 	for(int j = 0; j < 25; j++){	
-	// // 		// data1.print("%05d ", 25*i+j);
-  // //     master.print(0, 0, "%05d ", 25*i+j);
-
-  // //     // if(Data::queue.getDataSize() > 50) queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
-	// // 	}
-	// // 	data1.print("\\n\n");
-  // //   delay(50);
-	// // }
-
-
-  // for(int j = 0; j < 5; j++){	
-  //   // data1.print("%05d ", 25*i+j);
-  //   master.print(0, 0, "%d ", j);
-
-  //   // if(Data::queue.getDataSize() > 50) queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
-  // }
-
-
-  // // data1.print("abcdefghijklmnopqrstuvwxyz");
-  // // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
-  
-  // // printf("Is empty: %d\n", Data::queue.isEmpty());
-  // // Data::queue.pop();
-  // // printf("Is empty: %d\n", Data::queue.isEmpty());
-
-  // // queuePrintFile(Data::queue, Data::log_file, "/usd/log.txt");
+  _Task_ a;
+  a.start([](){while(true){ DEPRECATE; delay(20);}});
+ 
+  DEBUG;
+  for(int i = 0; i < 400; i++){
+    std::string str;
+		for(int j = 0; j < 25; j++){
+      str += sprintf2("M:%04d ", 25*i+j);
+      // log("M:%04d ", 25*i+j);
+		}
+		log("%s\n", str);
+    delay(1);
+	}
+  a.kill();
+  DEBUG;
   WAIT_UNTIL(false);
 }

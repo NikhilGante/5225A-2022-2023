@@ -5,9 +5,7 @@
 #include "logging.hpp"
 
 
-_Task_::_Task_(const char* name): name(name)
-{
-}
+_Task_::_Task_(const char* name): name{name} {}
 
 // private method
 bool _Task_::isAlive(){

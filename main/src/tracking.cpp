@@ -1,10 +1,10 @@
-#include <cmath>
 #include "config.hpp"
 #include "tracking.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/timer.hpp"
 #include "util.hpp"
 #include "drive.hpp"
+#include <cmath>
 
 Tracking tracking; // singleton tracking object
 

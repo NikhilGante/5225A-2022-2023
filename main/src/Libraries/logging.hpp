@@ -1,65 +1,176 @@
 #pragma once
-#include "main.h"
-#include <fstream>
-#include <cstdarg>
-
-#include "queue.hpp"
+#include "../util.hpp"
+#include "printing.hpp"
 #include "task.hpp"
-#include "timer.hpp"
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstdarg>
+#include <fstream>
+#include <functional>
 
-extern FILE* logfile;
 
-void log(const char * format, ...);
-void log_init();
+using namespace std;
+using namespace pros;
+//forawrd declarations
+class _Task_;
+// class Timer;
+// class Data;
+extern _Task_ log_t;
 
-// ACTUAL LOGGING START
+extern Mutex log_m;
 
-#define QUEUE_SIZE 10000
+/*
+1 is print, if there is no sd card, print to terminal
+2 is print. if there is no sd card, ignore
+0 is off
+*/
+// enum log_types{
+//   error = 1,
+//   warning =1,
+//   general =1,
+//   debug = 2,
+//   off = 0,
+// };
 
-enum E_Log_Levels{
-  error = 1,
-  warning =1,
-  general =1,
-  debug = 2,
-  off = 0,
-};
-
-enum class E_Log_Locations{
-  terminal,
+enum class log_locations{
+  t,
   sd,
   both,
   none
 };
 
+// extern Data task_log;
+// extern Data controller_queue;
+// extern Data tracking_data;
+// extern Data tracking_imp;
+// extern Data misc;
+// extern Data drivers_data;
+// extern Data term;
+// extern Data motion_d;
+// extern Data motion_i;
+// extern Data log_d;
+// extern Data graph;
+// extern Data state_log;
+// extern Data graph;
+// extern Data skills_d;
+// extern Data safety;
+// extern Data ERROR;
 
-class Data{
-  public:
-    static Queue<char, QUEUE_SIZE> queue;
-    static _Task_ task;
-    static void logHandle(); // runs in task to flush out contents of queue to file
-    static Timer log_timer;
+inline void log_init(){
+  std::ofstream file("/usd/data.txt", ofstream::trunc);
+}
+
+template <typename... Params>
+void log(term_colours colour, std::string format, log_locations log_location, Params... args){
+  std::string str = sprintf2(format, args...);
+
+  log_m.take();
+  switch(log_location){
+    case log_locations::none:
+      break;
+    case log_locations::t:
+      printf("%s", sprintf2_colour(colour, str).c_str());
+      break;
+    case log_locations::both:
+      printf("%s", sprintf2_colour(colour, str).c_str());
+    case log_locations::sd: //fallthrough intentional
+      std::ofstream file("/usd/data.txt", ofstream::app);
+      file.write(str.c_str(), str.length());
+      break;
+  }
+  log_m.give();
+}
+
+template <typename... Params>
+void log(std::string format, log_locations log_location, Params... args){
+  std::string str = sprintf2(format, args...);
+
+  log_m.take();
+  switch(log_location){
+    case log_locations::none:
+      break;
+    case log_locations::t:
+      printf("%s", str.c_str());
+      break;
+    case log_locations::both:
+      printf("%s", str.c_str());
+    case log_locations::sd: //fallthrough intentional
+      std::ofstream file("/usd/data.txt", ofstream::app);
+      file.write(str.c_str(), str.length());
+      break;
+  }
+  log_m.give();
+}
+
+template <typename... Params>
+void log(std::string format, Params... args){
+  log(format, log_locations::both, args...);
+}
+
+template <typename... Params>
+void log(term_colours colour, std::string format, Params... args){
+  log(colour, format, log_locations::both, args...);
+}
+
+// class Data{
+// private:
+//   static vector<Data*> obj_list;
+//   term_colours print_colour;
+//   bool newline;
   
-  public:
-    static ofstream log_file;
-    static void init(); // starts log task
+// public:
+//   static _Task_ log_t;
 
-    static E_Log_Levels g_log_level;
+//   std::string id, name;
+//   log_types log_type;
+//   log_locations log_location;
+//   static vector<Data*> get_objs();
 
-    E_Log_Locations log_location;
-    E_Log_Levels log_level;
+//   void print(Timer* tmr,int freq, vector<function<char*()>> str) const; //How is this used?
+//   void log_print(char* buffer, int buffer_len) const;
+//   void set_print(term_colours print_colour, int time_type);
 
-    //here just in case i want to make it a template
-    inline void print(const char* format, ...){
-      constexpr int buffer_size = 256;  // max amount of chars allowed to be printed
-      char buffer[buffer_size];
-      va_list args;
-      va_start (args, format);
-      int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
-      if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
-      va_end (args);
+//   Data(std::string obj_name, std::string id_code, log_types log_type_param, log_locations log_location_param = log_locations::both, bool newline = true, term_colours print_colour = term_colours::NONE);
+  
+//   static void init();
+//   static char* to_char(const char* format, ...);
 
-      // printf("%s", buffer);
-      queue.push(buffer, strlen(buffer)); // pushes buffer to queue
-    }
-};
 
+//   template <typename... Params>
+//   void print(term_colours colour, std::string format, Params... args) const{
+//     char newline = this->newline ? '\n' : '\0';
+//     std::string str = sprintf2(format, args...) + newline;
+
+//     int buffer_len = str.length() + 3;
+//     char buffer[256];
+//     snprintf(buffer, 256, str.c_str());
+
+//     if(this->log_type != log_types::off){
+//       switch(log_location){
+//         case log_locations::t:
+//           printf("%s", sprintf2_colour(colour, str).c_str());
+//           break;
+//         case log_locations::both:
+//           printf("%s", sprintf2_colour(colour, str).c_str());
+//         case log_locations::sd: //fallthrough intentional
+//           this->log_print(buffer, buffer_len);
+//           break;
+//         case log_locations::none:
+//           break;
+//       }
+//     }
+//   }
+
+//   template <typename... Params>
+//   void print(std::string format, Params... args) const{
+//     print(print_colour, format, args...);
+//   }
+// };
+
+
+// void queue_handle();
+// uintptr_t data_size();
+// constexpr int queue_size = 1024;
+// constexpr int print_point = 500;
+// constexpr int print_max_time = 1500;

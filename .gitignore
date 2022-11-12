@@ -16,3 +16,4 @@ temp.errors
 .d/
 
 *.idx
+.DS_Store

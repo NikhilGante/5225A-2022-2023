@@ -265,7 +265,6 @@ void newline(int count = 1);
   }
   template <typename... Params>
   int printf2(term_colours colour, std::string fmt, Params... args){
-    sprintf2_colour(colour, fmt, args...);
     return printf("%s\n", sprintf2_colour(colour, fmt, args...).c_str());
   }
   template <typename... Params>

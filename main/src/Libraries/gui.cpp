@@ -2,6 +2,7 @@
 #include "../config.hpp"
 #include "../util.hpp"
 #include "task.hpp"
+#include "logging.hpp"
 
 //GUI:: Static Variable Declarations
   const Page* GUI::current_page = nullptr;
@@ -58,7 +59,7 @@ namespace alert{
 
     master.rumble(".-");
 
-    printf2("\n%s", text); //Switch to log
+    log("\n\n%s\n", text);
 
     timer.reset(); //Starts counting
     if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);
@@ -80,7 +81,7 @@ namespace alert{
 
     master.rumble(".-");
 
-    printf2(term_colour, "\n%s", text); //Switch to log
+    log(term_colour, "\n\n%s\n", text);
 
     timer.reset(); //Starts counting
     if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);

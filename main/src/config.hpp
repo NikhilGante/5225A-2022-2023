@@ -13,6 +13,6 @@ extern pros::Motor b_lift_m; //should this still be here?
 
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define DEBUG printf("DEBUG INFO - File:%s | Function:%s | Line:%d\n", __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
+#define DEBUG printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
 #define DEPRECATE do{printf("Trying to use a deprecated feature:  "); DEBUG; alert::start("DEPRECATED");} while(0);
 #define TO_IMPLEMENT do{printf("Trying to use a feature that is not yet implemented: "); DEBUG; alert::start("NOT IMPLEMENTED");} while(0);
