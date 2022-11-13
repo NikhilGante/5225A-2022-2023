@@ -11,7 +11,7 @@ Tracking tracking; // singleton tracking object
 
 void TrackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
-  double dist_lr = 13.80, dist_b = 6.75;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 13.82, dist_b = 6.75;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back, last_left = LeftEncoder.get_value()/360.0 *(2.75*M_PI), last_right = RightEncoder.get_value()/360.0 *(2.75*M_PI), last_back = BackEncoder.get_value()/360.0 *(2.75*M_PI);
   double theta = 0.0, beta = 0.0, alpha = 0.0;
   double radius_r, radius_b, h_y, h_x;
@@ -137,7 +137,7 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
   double error_a; // angular error 
   Vector error_pos(target - tracking.g_pos); // positional error
 
-  PID pid_d(10.0, 0.0, 1000.0, 0.0);  // pid for distance to target
+  PID pid_d(11.0, 0.0, 0.0, 0.0);  // pid for distance to target
   PID pid_a(135.0, 0.0, 0.0, 0.0);  // pid for angle
 
   // angle of line from starting position to target, from the vertical
@@ -159,7 +159,7 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
     error_pos.rotate(tracking.g_pos.a - line_angle); // now represents local errors
 
     // computes PIDs' and saves them into the power position vector
-    tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), vector_types::POLAR), pid_a.compute(-error_a, 0.0));
+    tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), E_Vector_Types::POLAR), pid_a.compute(-error_a, 0.0));
     lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", tracking.power.x, tracking.power.y, tracking.power.a);
 
     tracking.supplyMinPower(Position(error_pos, error_a)); // if any axis has less than the min power, give it min power 
@@ -182,3 +182,38 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
     delay(10);
   }
 }
+
+// void flattenAgainstWall(){
+//   Timer motion_timer{"motion_timer"};
+//   moveDriveSide(-40, 0);
+//   // Waits until velocity rises or takes > 12 cycles (120ms)
+//   CYCLE_CHECK((tracking.l_vel) > 2.0 && (tracking.r_vel) > 2.0 && fabs(tracking.r_vel), 12, 10);
+//   bool l_slow = false, r_slow = false; //
+//   // Waits until velocity drops (to detect wall)
+//   int cycle_count = 0;
+//   while(cycle_count < 10){
+//     l_slow = fabs(tracking.l_vel) < 1.0, r_slow = fabs(tracking.r_vel) < 1.0;
+//     if(l_slow){
+//       if(r_slow){
+//         moveDrive(-10, 0, 0); // Applies holding power 
+//         cycle_count++;
+//       }
+//       else{
+//         moveDriveSide(5, 60); // Turns left
+//         cycle_count = 0;  // Reset count
+//       }
+//     }
+//     else if(r_slow){
+//       moveDriveSide(60, 5); // Turns right
+//       cycle_count = 0;  // Reset count
+//     }
+//     else{
+//       moveDriveSide(40, 40);
+//       cycle_count = 0;  // reset count
+//     }
+//     _Task_::delay(10);
+//   }
+//   moveDrive(10, 0, 0); // Applies holding power
+//   printf("DRIVE FLATTEN DONE, took %lld secs\n", motion_timer.get_time());
+//   // drive.changeState(DriveIdleParams{});
+// }

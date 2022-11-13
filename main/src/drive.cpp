@@ -40,6 +40,13 @@ void moveDrive(double x, double y, double a){
   back_r.move(x + y - a);
 }
 
+void moveDriveSide(double l, double r){
+	front_l.move(l);
+  front_r.move(l);
+  back_l.move(r);
+  back_r.move(r);
+}
+
 void driveBrake(){
 	front_l.move_relative(0, 200);
   front_r.move_relative(0, 200);

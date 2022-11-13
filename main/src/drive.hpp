@@ -21,5 +21,6 @@ public:
 
 // moves the drivebase given 3 local powers: x, y and angle
 void moveDrive(double x, double y, double a);
+void moveDriveSide(double l, double r);
 void driveBrake(); // holds all the drivebase motors
 void handleInput(); // takes input from the joysticks and moves the drivebase

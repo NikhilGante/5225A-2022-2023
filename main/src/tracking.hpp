@@ -9,7 +9,7 @@ enum class brake_modes{
 };
 
 class Tracking{
-  const Position min_move_power{15.0, 15.0, 10.0};  // min power to move the drivebase in each axis
+  const Position min_move_power{30.0, 30.0, 15.0};  // min power to move the drivebase in each axis
   
 public:
   // odometry related variables
@@ -36,4 +36,5 @@ public:
 extern Tracking tracking;
 
 void TrackingUpdate();
-void moveToTarget(Position target, brake_modes brake_mode = brake_modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 5.0);
+void moveToTarget(Position target, brake_modes brake_mode = brake_modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 2.0);
+void flattenAgainstWall();

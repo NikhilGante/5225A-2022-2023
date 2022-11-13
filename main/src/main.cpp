@@ -33,6 +33,9 @@ void initialize() {
 	delay(500);
 	lift.runMachine();
 
+	_Task_ tracking_t("tracking_task");
+	tracking_t.start(TrackingUpdate);
+
 }
 
 /**
@@ -148,52 +151,19 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
-	Data data;
-	char txt[] = "wassup beee\n";
-	data.print(txt);
-	char txt2[] = "hello uwu\n";
-	data.print(txt2);
-
-	master.clear();
-	uint32_t i3 = 0;
-	string str = "ayoo";
-	master.print(0,0, str);
-	delay(1000);
-	master.clear_line(0);
-
-	while(true){
-		master.print(0,0, str);
-		master.clear_line(0);
-		master.rumble("-");
-		delay(50);
-	}
-	_Task_ tarsk{"tarsk"};
-	tarsk.start([](){
-		while(true){
-			lcd::print(0, "position: %lf", b_lift_m.get_position());
-			lcd::print(6, "index: %d", lift_index);
-
-			if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
-			if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
-			if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
-
-			if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
-			if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
-			
-			delay(10);
-		}
-	});
-	lcd::print(5, "hello");
-	delay(1000);
-	lift.waitToReachState(LiftResetParams{});
-	lcd::print(5, "Reset");
-	WAIT_UNTIL(false);
-
-	_Task_ tracking_t("tracking_task");
-	tracking_t.start(TrackingUpdate);
+	// moveDrive(0,0,15);
+	// WAIT_UNTIL(false);
 	// moveToTarget({0.0, 40.0, 0.0});
-
-	moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
+	Timer s("s");
+	moveToTarget({0.0, 40.0, 0.0}, brake_modes::brake, 127.0);
+	lcd::print(7, "total_time:%d", s.get_time());
+	delay(500);
+	// WAIT_UNTIL(false);
+	while(true){
+		lcd::print(6, "%.lf %.lf %.lf %.lf", front_l.get_temperature(), front_r.get_temperature(), back_l.get_temperature(), back_r.get_temperature());
+		handleInput();
+		delay(10);	
+	}
 	moveToTarget({20.0, 30.0, -40.0});
 	moveToTarget({-20.0, 20.0, 50.0});
 
