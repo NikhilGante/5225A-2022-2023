@@ -91,12 +91,15 @@ void autonomous() {}
 void opcontrol() {
 	while(true){
 		double intk_temp = intk.get_temperature();
-		lcd::print(5, "Temp: %ld", intk_temp);
+		lcd::print(5, "Temp: %lf", intk_temp);
 		if(intk_temp >= 45.0){
+			intk.move(0);
 			master.rumble("---");
+
 			break;
 		}
 		delay(10);
 
 	}
+	intk.move(0);
 }

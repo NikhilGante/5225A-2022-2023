@@ -30,8 +30,11 @@
 void initialize() {
 	// log_init();
 	lcd::initialize();
+	tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
+
+
 	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
-	tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
+	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
 	// tracking.g_pos = {11.25, 23.5, degToRad(90.0)};	// new_skills3
 	// tracking.g_pos = {129.75, 116.5, degToRad(-90.0)}; // new_skills4
 
@@ -49,7 +52,7 @@ void initialize() {
 	_Controller::init();
 	delay(300);
 	// lift.runMachine();
-	drive.runMachine();
+	// drive.runMachine();
 
 }
 
@@ -177,6 +180,10 @@ void screen_task_fn (void* ignore){
 
 
 void opcontrol() {
+	while(true){
+		// if(master.get_digital_new_press(DIGITAL_A)) tracking.reset({0.0, 0.0, 0.0});
+		delay(10);
+	}
 	// while(true){
 	// 	handleInput();
 	// 	delay(10);

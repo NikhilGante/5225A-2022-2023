@@ -14,11 +14,12 @@ void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
-  double dist_lr = 9.495, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  // 6.765
+  double dist_lr = 11.4, dist_b = 1.53;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
-  double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES;
+  double last_left = -left_tracker.get_position()*TICKS_TO_INCHES;
+  double last_right = right_tracker.get_position()*TICKS_TO_INCHES;
   double last_back = back_tracker.get_position()*TICKS_TO_INCHES;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0;
@@ -34,15 +35,15 @@ void trackingUpdate(){
   Timer tracking_timer{"timer"};
 
   while(true){
-    new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
+    new_left = -left_tracker.get_position()*TICKS_TO_INCHES;
+    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
     new_back = back_tracker.get_position()*TICKS_TO_INCHES;
 
     // updates how much each side of the robot travelled in inches since the last cycle (left, right and back)
     left = new_left - last_left;
     right = new_right - last_right;
     back = new_back - last_back;
-    back = 0.0;
+    // back = 0.0;
 
     if(velocity_timer.getTime() > 50){  // velocity is updated every 20 
       uint32_t velocity_update_time = velocity_timer.getTime(); // time since last velocity update
