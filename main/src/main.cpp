@@ -12,6 +12,7 @@
 
 #include "lift.hpp"
 #include "pros/misc.h"
+#include "pros/screen.h"
 #include "tracking.hpp"
 #include "drive.hpp"
 #include "config.hpp"
@@ -20,18 +21,12 @@
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
 
-
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
+using namespace pros;
 void initialize() {
 	// log_init();
-	lcd::initialize();
+	//lcd::initialize();
 	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
-	tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
+	//tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
 	// tracking.g_pos = {11.25, 23.5, degToRad(90.0)};	// new_skills3
 	// tracking.g_pos = {129.75, 116.5, degToRad(-90.0)}; // new_skills4
 
@@ -42,14 +37,14 @@ void initialize() {
 
 	// tracking.g_pos = {0.0, 0.0, 0.0};
 
-	log_init();
-	_Task tracking_task("tracking_update_task");
-	tracking_task.start(trackingUpdate);
+	// log_init();
+	//_Task tracking_task("tracking_update_task");
+	//tracking_task.start(trackingUpdate);
 	// Data::init();
-	_Controller::init();
-	delay(300);
+	//_Controller::init();
+	//delay(300);
 	// lift.runMachine();
-	drive.runMachine();
+	//drive.runMachine();
 
 }
 
@@ -71,303 +66,50 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-/**
- * Runs the user autonomous code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the autonomous
- * mode. Alternatively, this function may be called in initialize or opcontrol
- * for non-competition testing purposes.
- *
- * If the robot is disabled or communications is lost, the autonomous task
- * will be stopped. Re-enabling the robot will restart the task, not re-start it
- * from where it left off.
- */
 void autonomous() {
-	new_skills2();
-
+}
+int sgn(int n){ //sign function
+	if (n>0) return 1;
+	else if (n<0) return -1;
+	else return 0;
 }
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
+void turnToAngle(double target){
+	double cur_angle, p, i, d, kp, ki, kd, error, last_error, output, upper_limit, lower_limit;
+	uint32_t time, old_time;
+	old_time = millis();
+	kp = 2 ;
+	ki = 17;
+	kd = 10;
+	upper_limit = 20;
+	lower_limit = 5;
+	
+	do{
+		//delay(10); //delay at the start so that we are not dividing by 0
+		time = millis() - old_time; //this works :D
+		old_time = millis();
+		cur_angle = tracking.g_pos.a; //Not sure if this works...
+		error = target - cur_angle; //error = difference
+		p = error*kp; //get p
+		if (sgn(error)!=sgn(last_error) || fabs(error)>upper_limit || fabs(error)<lower_limit) i = 0; //if overshot, then reset integration.
+		else i += error*time*ki; //normal i
+		d = (error-last_error)/time - kd; //get d
+		output = p+i+d; //PID
+		last_error = error;
+		screen::print(pros::E_TEXT_SMALL, 0, "p = %.4f, i = %.4f, d = %.4f", p,i,d);
+		screen::print(pros::E_TEXT_SMALL, 1, "o = %.4f, cA = %.4f, e = %.4f", output,cur_angle, error);
+		printf("o = %.4f, cA = %.4f, e = %.4f", output,cur_angle, error);
+		delay(10);
+	}while(fabs(error) > 0.5); //do while loop is for calculating error before we compare it.
 
-// Position target;
-// bool brake;
-// int max_power = 127;
-// int exit_power = 0;
-// bool overshoot = false;
-// double end_error_r = 0.5;
-// double end_error_a = 5.0;
-
-
-// Angler angler;
-
-void my_task_fn(void* param) {
-  std::cout << "Hello" << std::endl;
-  // ...
-	WAIT_UNTIL(false);
 }
-int i = -1;
-int i2 = -1;
-
-	_Task lcd_task("lcd_task");
-
-
-void lcd_task_fn (void* params){
-	try{
-		i++;
-		int cpy = i;
-		int counter = *(int*)(params);
-		while(true){
-			lcd::print(cpy,"counter:%d", counter);
-			// master.print(i, 0, "counter:%d", counter);
-			counter++;
-			// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.kill();
-			// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
-
-			_Task::delay(100);
-			// delay(100);
-		}
-	}
-	catch(const TaskEndException& exception){
-		// master.print(increment_controller_line(), 0, "killed");
-	}
-
-};
-
-void screen_task_fn (void* ignore){
-	try{
-		i2++;
-		int cpy = i2;
-		
-		int counter = 0;
-		while(true){
-			// lcd::print(i,"counter:%d", counter);
-			master.print(cpy, 0, "counter:%d", counter);
-			counter++;
-			// if(master.get_digital_new_press(DIGITAL_Y))	lcd_task.kill();
-			// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
-
-			_Task::delay(100);
-			// delay(100);
-		}
-	}
-	catch(const TaskEndException& exception){
-		// master.print(increment_controller_line(), 0, "killed");
-	}
-
-};
-// start (70, 129.5)
-// end: (71, 11.5)
-
-// coords of high goal (approx)
-// Red: (18.0, 123.0)
-
-// STACK TRACE
-
-
 void opcontrol() {
-	// while(true){
-	// 	handleInput();
-	// 	delay(10);
-	// }
-	master.clear();
-	delay(150);
-	master.print(0,  0, "%d", 20);
-	master.print(1, 2, "%d", 20);
-	master.print(2, 0, "%d", 20);
-
-	master.print(0,  0, "%d", 40);
-	master.rumble("-");
-
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// master.queueHandle();
-
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// master.queueHandle();
-
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// master.queueHandle();
-
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// master.queueHandle();
-
-
-
-	WAIT_UNTIL(false);
-	// drive.changeState(DriveOpControlParams{});
-	// WAIT_UNTIL(false);
-	// flattenAgainstWallSync();	
-	// tracking.reset();
-	// turnToTargetSync({40.0, -40.0}, true);
-	// WAIT_UNTIL(false);
-	// new_skills1();
-	new_skills2();
-	// new_skills3();
-	// new_skills4();
-	// skills2();
-	return;
-	WAIT_UNTIL(false);
-	// front_r.move_relative(0, 200);
-  // centre_r.move_relative(0, 200);
-  // back_r.move_relative(0, 200);
-
-	// turnToTargetAsync({-25.0, 40.0});
-	// tracking.waitForComplete();
-	// drive.changeState(DriveMttParams{{5.0, 30.0}});
-	// tracking.waitForComplete();
-	// drive.changeState(DriveTurnToAngleParams{50.0});
-	// drive.changeState(DriveTurnToTargetParams{{10.0, 5.0}});
-	// turnToTargetSync({10.0, 10.0});
-
-	// auton50pts();
-	// skills1();
-	// skills2();
-	// skills3();
-
-
-
-	// lcd::print(7, "total: %d", total.get_time());
-	// log("total: %d", total.get_time());
-
-
-	WAIT_UNTIL(false);
-
-	Data data;
-	for(int i = 0; i < 100; i++){
-		master.print(0,0, "h%d", i);
-		master.rumble("-");
-
-		delay(30);
-	}
-
-	// char txt[] = "wassup beee\n";
-	// data.print(txt);
-	// char txt2[] = "hello uwu\n";
-	// data.print(txt2);
-	// data.print("hello\n");
-	data.print("my name is ");
-	// data.print("bob");
-	// data.print("nice to\t eat you\n");
-	// data.print("kbye");
-	for(int i = 0; i < 100; i++){
-		for(int j = 0; j < 5; j++){	
-			log("aaaaaaaaaa");
-		}
-		// data.print("\n");
-		log("\n");
-		// delay(1);
-	}
-	log("omg I agre%de %lf\n", 5, 42.5);
-	// delay(5000);
-	lcd::print(0,"closed");
-	WAIT_UNTIL(false);
-
-	// master.clear();
-	// uint32_t i3 = 0;
-	// string str = "ayoo";
-	// master.print(0,0, str);
-	// delay(1000);
-	// master.clear_line(0);
-
-	// while(true){
-	// 	master.print(0,0, str);
-	// 	master.clear_line(0);
-	// 	master.rumble("-");
-	// 	delay(50);
-	// }
-	// _Task tarsk{"tarsk"};
-	// tarsk.start([](){
-	// 	while(true){
-	// 		lcd::print(0, "position: %lf", b_lift_m.get_position());
-	// 		lcd::print(6, "index: %d", lift_index);
-
-	// 		if(master.get_digital_new_press(DIGITAL_A))	lift.changeState(LiftMTTParams{lift_arr[0]});
-	// 		if(master.get_digital_new_press(DIGITAL_B))	lift.changeState(LiftResetParams{});
-	// 		if(master.get_digital_new_press(DIGITAL_Y))	lift.changeState(LiftIdleParams{});
-
-	// 		if(master.get_digital_new_press(DIGITAL_UP))	lift.changeState(LiftMTTParams{lift_arr[++lift_index]});
-	// 		if(master.get_digital_new_press(DIGITAL_DOWN))	lift.changeState(LiftMTTParams{lift_arr[--lift_index]});
-			
-	// 		delay(10);
-	// 	}
-	// });
-	// lcd::print(5, "hello");
-	// delay(1000);
-	// lift.waitToReachState(LiftResetParams{});
-	// lcd::print(5, "Reset");
-	// WAIT_UNTIL(false);
-
-
-	// moveToTarget({0.0, 40.0, 180.0}, brake_modes::brake, 50.0);
-	// moveToTarget({20.0, 30.0, -40.0});
-	// moveToTarget({-20.0, 20.0, 50.0});
-
-	// moveToTarget({0.0, 0.0, 0.0});
-
-	WAIT_UNTIL(false);
-
-	lcd::print(6, "DONE");
-	WAIT_UNTIL(false);
-
-	_Task screen_task("lcd_task");
-	int start_num = 500;
-
-	// lcd_task.start(lcd_task_fn, &start_num);
-
-	master.clear();
-	delay(50);
-	log("op_control: %d\n", task_get_current());
-
-
-	while(true){
-		// lcd::print(0, "%d %d", arse_handle, task_get_state(arse_handle));
-		// if(arse_handle)	lcd::print(0, "hi %d", arse_handle);
-		// lcd::print(1, "hi %d", arse_handle);
-		if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start([=](){
-				try{
-					i++;
-					int cpy = i;
-					int counter = start_num;
-					while(true){
-						lcd::print(cpy,"counter:%d", counter);
-						// master.print(i, 0, "counter:%d", counter);
-						counter++;
-						// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.kill();
-						// if(master.get_digital_new_press(DIGITAL_A))	lcd_task.start(lcd_task_fn);
-
-						_Task::delay(100);
-						// delay(100);
-					}
-				}
-				catch(const TaskEndException& exception){
-					// master.print(increment_controller_line(), 0, "killed");
-				}
-			
-		}	, &start_num);
-		if(master.get_digital_new_press(DIGITAL_Y))	lcd_task.kill();
-
-		if(master.get_digital_new_press(DIGITAL_B)){
-			lcd_task.suspend();
-			// task_suspend(tarsk);
-		}
-		if(master.get_digital_new_press(DIGITAL_X)){
-			lcd_task.resume();
-			// task_resume(tarsk);
-		}
-		// delay(10);
-		_Task::delay(10);
-	}
-
-
+	_Task trackingUpdate;
+	turnToAngle(45);
+	cout << "ENDING" << endl; //Lets us know that its ending.
 }
+/*
+TO DO:
+Check for encoders, motors, 
+Tracking is updating in the background
+*/
