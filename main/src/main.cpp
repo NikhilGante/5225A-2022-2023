@@ -32,6 +32,7 @@ void initialize() {
 	lcd::initialize();
 	delay(500);
 	lift.runMachine();
+	tracking.g_pos = {31.75, 8.25, 0.0};
 
 	_Task_ tracking_t("tracking_task");
 	tracking_t.start(TrackingUpdate);
@@ -151,12 +152,21 @@ void screen_task_fn (void* ignore){
 };
 
 void opcontrol() {
+	// skills();
+	// tracking.g_pos = {31.75, 8.25, 0.0};
+
+	moveToTarget({35.0, 28.0, 0.0}, E_Brake_Modes::coast, 127.0, 0.0, 0.0, false, 1.0);
+	Timer s("s");
+	moveToTarget({35.0, 45.0, 0.0}, E_Brake_Modes::brake, 50.0);
+	faceTarget(b_goal);
+	lcd::print(7, "total_time:%d", s.get_time());
+
+
+	WAIT_UNTIL(false);
 	// moveDrive(0,0,15);
 	// WAIT_UNTIL(false);
 	// moveToTarget({0.0, 40.0, 0.0});
-	Timer s("s");
-	moveToTarget({0.0, 40.0, 0.0}, brake_modes::brake, 127.0);
-	lcd::print(7, "total_time:%d", s.get_time());
+	moveToTarget({0.0, 0.0, 90.0}, E_Brake_Modes::brake, 127.0);
 	delay(500);
 	// WAIT_UNTIL(false);
 	while(true){

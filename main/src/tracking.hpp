@@ -2,16 +2,18 @@
 #include "main.h"
 #include "Libraries/geometry.hpp"
 
-enum class brake_modes{
+extern Vector r_goal, b_goal;
+
+enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
   coast,  // drivebase motors will turn off
   brake // the drivebase motors will hold
 };
 
 class Tracking{
-  const Position min_move_power{30.0, 30.0, 15.0};  // min power to move the drivebase in each axis
   
 public:
+  const Position min_move_power{30.0, 30.0, 15.0};  // min power to move the drivebase in each axis
   // odometry related variables
   double l_vel, r_vel, b_vel; // velocities of each of the tracking wheel in inches/sec
   Position g_pos{};
@@ -36,5 +38,6 @@ public:
 extern Tracking tracking;
 
 void TrackingUpdate();
-void moveToTarget(Position target, brake_modes brake_mode = brake_modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 2.0);
+void moveToTarget(Position target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 2.0);
+void faceTarget(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 void flattenAgainstWall();

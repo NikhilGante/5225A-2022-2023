@@ -7,7 +7,7 @@
 #include "drive.hpp"
 
 Tracking tracking; // singleton tracking object
-
+Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
 
 void TrackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
@@ -104,9 +104,11 @@ void Tracking::waitForDistance(double distance){
 
 void Tracking::supplyMinPower(const Position& error){
   // ensures that each axis gets enough power to move, if it isn't well within its range of error
-  if (fabs(power.x) < min_move_power.x && fabs(error.x) > 0.3) power.x = sgn(power.x) * min_move_power.x;
-  if (fabs(power.y) < min_move_power.y && fabs(error.y) > 0.3) power.y = sgn(power.y) * min_move_power.y;
-  if (fabs(power.a) < min_move_power.x && fabs(error.a) > 3.0) power.a = sgn(power.a) * min_move_power.a;
+  double local_y_vel = (tracking.l_vel + tracking.r_vel)/2.0;
+  printf("local_y_vel:%lf\n",local_y_vel);
+  if (fabs(power.x) < min_move_power.x && fabs(tracking.b_vel) < 3.0 && fabs(error.x) > 0.3) power.x = sgn(power.x) * min_move_power.x;
+  if (fabs(power.y) < min_move_power.y && fabs(local_y_vel) < 3.0 && fabs(error.y) > 0.3) power.y = sgn(power.y) * min_move_power.y;
+  if (fabs(power.a) < min_move_power.a && fabs(radToDeg(error.a)) > 3.0) power.a = sgn(power.a) * min_move_power.a;
 }
 
 void Tracking::scalePowers(uint8_t max_power, uint8_t min_angle_power){
@@ -133,12 +135,12 @@ void Tracking::guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_p
 }
 
 
-void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, uint8_t min_angle_power, uint8_t exit_power, bool overshoot, double end_error_d, double end_error_a){
+void moveToTarget(Position target, E_Brake_Modes brake_mode, uint8_t max_power, uint8_t min_angle_power, uint8_t exit_power, bool overshoot, double end_error_d, double end_error_a){
   double error_a; // angular error 
   Vector error_pos(target - tracking.g_pos); // positional error
 
-  PID pid_d(11.0, 0.0, 0.0, 0.0);  // pid for distance to target
-  PID pid_a(135.0, 0.0, 0.0, 0.0);  // pid for angle
+  PID pid_d(11.5, 0.0, 350, 5.0);  // pid for distance to target
+  PID pid_a(170.0, 0.0, 0.0, 0.0);  // pid for angle
 
   // angle of line from starting position to target, from the vertical
   double line_angle = M_PI_2 - error_pos.getAngle();
@@ -157,7 +159,7 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
     sgn_line_error_y = error_pos.getY();
 
     error_pos.rotate(tracking.g_pos.a - line_angle); // now represents local errors
-
+    printf("error: %lf\n", error_pos.getY());
     // computes PIDs' and saves them into the power position vector
     tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), E_Vector_Types::POLAR), pid_a.compute(-error_a, 0.0));
     lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", tracking.power.x, tracking.power.y, tracking.power.a);
@@ -168,20 +170,46 @@ void moveToTarget(Position target, brake_modes brake_mode, uint8_t max_power, ui
     // exit conditions
     if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)){
       switch(brake_mode){
-        case brake_modes::none:
+        case E_Brake_Modes::none:
           break;
-        case brake_modes::coast:
+        case E_Brake_Modes::coast:
           moveDrive(0.0, 0.0, 0.0);
           break;
-        case brake_modes::brake:
+        case E_Brake_Modes::brake:
           driveBrake();
       }
       return;
     }
+    printf("x:%lf y:%lf a:%lf\n", tracking.power.x, tracking.power.y, radToDeg(tracking.power.a));
     moveDrive(tracking.power.x, tracking.power.y, tracking.power.a);
     delay(10);
   }
 }
+
+void faceTarget(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error){
+  PID pid_a(170.0, 0.0, 0.0, 0.0);  // pid for angle
+  double error_a;
+  do{
+    error_a = M_PI_2 - (target - tracking.g_pos).getAngle() + (reverse? M_PI : 0);
+    printf("err_A %lf\n",radToDeg(error_a));
+    double power_a = pid_a.compute(-error_a, 0.0);
+    if (fabs(power_a) < tracking.min_move_power.a && fabs(radToDeg(error_a)) > 3.0) power_a = sgn(power_a) * tracking.min_move_power.a;
+    moveDrive(0.0, 0.0, power_a);
+    
+    delay(10);
+  }
+  while(fabs(radToDeg(error_a)) > end_error);
+  switch(brake_mode){
+        case E_Brake_Modes::none:
+          break;
+        case E_Brake_Modes::coast:
+          moveDrive(0.0, 0.0, 0.0);
+          break;
+        case E_Brake_Modes::brake:
+          driveBrake();
+      }
+}
+
 
 // void flattenAgainstWall(){
 //   Timer motion_timer{"motion_timer"};
