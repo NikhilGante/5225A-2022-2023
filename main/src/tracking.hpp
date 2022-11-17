@@ -1,6 +1,10 @@
 #pragma once
 #include "main.h"
 #include "Libraries/geometry.hpp"
+#include <atomic>
+
+using namespace std;
+using namespace pros;
 
 extern Vector r_goal, b_goal;
 
@@ -16,14 +20,16 @@ public:
   const Position min_move_power{30.0, 30.0, 15.0};  // min power to move the drivebase in each axis
   // odometry related variables
   double l_vel, r_vel, b_vel; // velocities of each of the tracking wheel in inches/sec
+  Mutex pos_mutex; // locks g_pos
   Position g_pos{};
   Position g_vel;
 
   // movement related fields
   Position power; // power to apply to the drive motors
-  double drive_error; // how far the robot is from it's target 
+  atomic<double> drive_error; // how far the robot is from it's target 
   void waitForComplete(); // waits until the motion completes
   void waitForDistance(double distance); // waits until the robot is within a certain distance from it's target
+  void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
 
   // helper methods for motion algorithms
   void supplyMinPower(const Position& error);  // if any axis has less than the min power, give it min power 
@@ -38,6 +44,8 @@ public:
 extern Tracking tracking;
 
 void TrackingUpdate();
-void moveToTarget(Position target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, uint8_t min_angle_power = 0.0, uint8_t exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 2.0);
+void moveToTarget(Position target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = 127.0, double min_angle_power = 0.0, double exit_power = 0.0, bool overshoot = false, double end_error_d = 0.5, double end_error_a = 2.0);
 void faceTarget(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 void flattenAgainstWall();
+
+void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in

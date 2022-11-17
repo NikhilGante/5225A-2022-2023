@@ -155,13 +155,38 @@ void opcontrol() {
 	// skills();
 	// tracking.g_pos = {31.75, 8.25, 0.0};
 
-	moveToTarget({35.0, 28.0, 0.0}, E_Brake_Modes::coast, 127.0, 0.0, 0.0, false, 1.0);
+	// Timer t("t");
+	// flattenAgainstWall();
+  // moveDrive(0, 0, 0); // Applies holding power
+	// master.rumble("-");
+	// lcd::print(7, "total_time:%d", t.get_time());
+	// tracking.reset({40.0, 0.0, 0.0});
+
+	// WAIT_UNTIL(false);
+
+
 	Timer s("s");
-	moveToTarget({35.0, 45.0, 0.0}, E_Brake_Modes::brake, 50.0);
+	moveToTarget({33.5, 20.0, 0.0}, E_Brake_Modes::coast, 127.0, 0.0, 40.0, true);	// Moves to stack of discs
+	moveToTarget({35.0, 47.0, 0.0}, E_Brake_Modes::brake, 45.0);	// Picks up stack of discs
 	faceTarget(b_goal);
+	WAIT_UNTIL(s.get_time() > 3000);
+	delay(1500); // shoot 3 discs
+	// moveToTarget({13.0, 30.0, 90.0}, E_Brake_Modes::coast);
+	moveToTarget({13.0, 34.0, 90.0}, E_Brake_Modes::coast, 127.0, 0.0, 50.0, true);	// Moves to wall
+	flattenAgainstWall();
+	tracking.reset({8.25, tracking.g_pos.y, tracking.g_pos.a});
+	moveToTarget({24.0, 49.0, 45.0}, E_Brake_Modes::coast);	// Moves to line of discs
+	// s.reset();
+	moveToTarget({65.0, 90.0, 45.0}, E_Brake_Modes::coast);	// Moves through line of discs
+	// lcd::print(7, "total_time:%d", s.get_time());
+	faceTarget(b_goal);
+	// WAIT_UNTIL(false);
+	delay(1500); // shoot 3 discs
+	moveToTarget({80.0, 105.0, 45.0}, E_Brake_Modes::coast, 127, 0.0, 50.0, true);	// Moves to stack
+
+
+
 	lcd::print(7, "total_time:%d", s.get_time());
-
-
 	WAIT_UNTIL(false);
 	// moveDrive(0,0,15);
 	// WAIT_UNTIL(false);

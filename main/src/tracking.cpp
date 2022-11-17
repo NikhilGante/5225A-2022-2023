@@ -82,9 +82,11 @@ void TrackingUpdate(){
     y_x = h_y * sin_alpha; // global x movement detected by local y (right wheel) arc
     y_y = h_y * cos_alpha; // global y movement detected by local y (right wheel) arc
 
+    tracking.pos_mutex.take();
     tracking.g_pos.x += x_x + y_x;
     tracking.g_pos.y += y_y + x_y;
     tracking.g_pos.a += theta;
+    tracking.pos_mutex.give();
 
     // printf("L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
 		pros::lcd::print(0, "L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
@@ -95,17 +97,23 @@ void TrackingUpdate(){
 }
 
 void Tracking::waitForComplete(){
+  // drive.waitToReachState(DriveIdleParams{});
   // WAIT_UNTIL()  // state and next == idle
 }
 
 void Tracking::waitForDistance(double distance){
-  WAIT_UNTIL(drive_error <= distance);
+  WAIT_UNTIL(fabs(drive_error) <= distance);
+}
+
+void Tracking::reset(Position pos){
+  tracking.pos_mutex.take();
+  tracking.g_pos = pos;
+  tracking.pos_mutex.give();
 }
 
 void Tracking::supplyMinPower(const Position& error){
   // ensures that each axis gets enough power to move, if it isn't well within its range of error
   double local_y_vel = (tracking.l_vel + tracking.r_vel)/2.0;
-  printf("local_y_vel:%lf\n",local_y_vel);
   if (fabs(power.x) < min_move_power.x && fabs(tracking.b_vel) < 3.0 && fabs(error.x) > 0.3) power.x = sgn(power.x) * min_move_power.x;
   if (fabs(power.y) < min_move_power.y && fabs(local_y_vel) < 3.0 && fabs(error.y) > 0.3) power.y = sgn(power.y) * min_move_power.y;
   if (fabs(power.a) < min_move_power.a && fabs(radToDeg(error.a)) > 3.0) power.a = sgn(power.a) * min_move_power.a;
@@ -135,11 +143,11 @@ void Tracking::guaranteeAnglePower(uint8_t min_angle_power, uint8_t pre_scaled_p
 }
 
 
-void moveToTarget(Position target, E_Brake_Modes brake_mode, uint8_t max_power, uint8_t min_angle_power, uint8_t exit_power, bool overshoot, double end_error_d, double end_error_a){
+void moveToTarget(Position target, E_Brake_Modes brake_mode, double max_power, double min_angle_power, double exit_power, bool overshoot, double end_error_d, double end_error_a){
   double error_a; // angular error 
   Vector error_pos(target - tracking.g_pos); // positional error
-
-  PID pid_d(11.5, 0.0, 350, 5.0);  // pid for distance to target
+  const double kp_d = 11.5;
+  PID pid_d(kp_d, 0.0, 350, 5.0);  // pid for distance to target
   PID pid_a(170.0, 0.0, 0.0, 0.0);  // pid for angle
 
   // angle of line from starting position to target, from the vertical
@@ -156,92 +164,120 @@ void moveToTarget(Position target, E_Brake_Modes brake_mode, uint8_t max_power, 
     tracking.drive_error = error_pos.getMagnitude();  // distance to target
 
     error_pos.rotate(line_angle); // now represents displacement along the line from starting position to target
-    sgn_line_error_y = error_pos.getY();
+    sgn_line_error_y = sgn(error_pos.getY());
 
     error_pos.rotate(tracking.g_pos.a - line_angle); // now represents local errors
     printf("error: %lf\n", error_pos.getY());
+
+    tracking.power.a = pid_a.compute(-error_a, 0.0);
+
     // computes PIDs' and saves them into the power position vector
-    tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), E_Vector_Types::POLAR), pid_a.compute(-error_a, 0.0));
+    // printf("prop %lf\n", pid_d.getProportional());
+    if(exit_power != 0){
+      double power_d = mapValues<double>(tracking.drive_error.load(), 0.0, 127.0/kp_d, exit_power, max_power);
+      printf("exit_pwr:%lf error:%lf pwr d %lf\n", exit_power, tracking.drive_error.load(), power_d);
+
+      tracking.power = Position(Vector(power_d, error_pos.getAngle(), E_Vector_Types::POLAR), tracking.power.a);
+    }
+    else{
+      printf("exit_power:%lf\n", exit_power);
+      tracking.power = Position(Vector(pid_d.compute(-tracking.drive_error, 0.0), error_pos.getAngle(), E_Vector_Types::POLAR), tracking.power.a);
+    }
     lcd::print(3, "power| x:%.2lf, y:%.2lf, a:%.2lf", tracking.power.x, tracking.power.y, tracking.power.a);
 
     tracking.supplyMinPower(Position(error_pos, error_a)); // if any axis has less than the min power, give it min power 
     tracking.scalePowers(max_power, min_angle_power); // scales powers so that the drivebase doesn't travel faster than max_power
 
     // exit conditions
-    if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)){
-      switch(brake_mode){
-        case E_Brake_Modes::none:
-          break;
-        case E_Brake_Modes::coast:
-          moveDrive(0.0, 0.0, 0.0);
-          break;
-        case E_Brake_Modes::brake:
-          driveBrake();
-      }
-      return;
+    // if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)) break;
+    if((overshoot && sgn_line_error_y != start_sgn_line_error_y)){
+      printf("TRIGGERED\n");
+      break;
     }
+    if((overshoot && sgn_line_error_y != start_sgn_line_error_y) || (tracking.drive_error < end_error_d && fabs(radToDeg(error_a)) < end_error_a)) break;
+    
     printf("x:%lf y:%lf a:%lf\n", tracking.power.x, tracking.power.y, radToDeg(tracking.power.a));
     moveDrive(tracking.power.x, tracking.power.y, tracking.power.a);
     delay(10);
   }
+  handleBrake(brake_mode);
+  printf("%d FINISHED MTT MOTION | to x:%lf y:%lf a:%lf | at x:%lf y:%lf a:%lf\n", millis(), target.x, target.y, target.a, tracking.g_pos.x,tracking.g_pos.y, radToDeg(tracking.g_pos.a));
 }
 
 void faceTarget(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error){
   PID pid_a(170.0, 0.0, 0.0, 0.0);  // pid for angle
-  double error_a;
+  double target_a;
   do{
-    error_a = M_PI_2 - (target - tracking.g_pos).getAngle() + (reverse? M_PI : 0);
-    printf("err_A %lf\n",radToDeg(error_a));
-    double power_a = pid_a.compute(-error_a, 0.0);
-    if (fabs(power_a) < tracking.min_move_power.a && fabs(radToDeg(error_a)) > 3.0) power_a = sgn(power_a) * tracking.min_move_power.a;
+    target_a = M_PI_2 - (target - tracking.g_pos).getAngle() + (reverse? M_PI : 0);
+    tracking.drive_error = nearAngle(target_a, tracking.g_pos.a);
+    printf("target: %lf | err_A %lf\n", radToDeg(target_a), radToDeg(tracking.drive_error));
+    double power_a = pid_a.compute(-tracking.drive_error, 0.0);
+    if (fabs(power_a) < tracking.min_move_power.a && fabs(radToDeg(tracking.drive_error)) > 3.0) power_a = sgn(power_a) * tracking.min_move_power.a;
     moveDrive(0.0, 0.0, power_a);
     
     delay(10);
   }
-  while(fabs(radToDeg(error_a)) > end_error);
-  switch(brake_mode){
-        case E_Brake_Modes::none:
-          break;
-        case E_Brake_Modes::coast:
-          moveDrive(0.0, 0.0, 0.0);
-          break;
-        case E_Brake_Modes::brake:
-          driveBrake();
-      }
+  while(fabs(radToDeg(tracking.drive_error)) > end_error);
+  handleBrake(brake_mode);
+  printf("%d FINISHED faceTarget MOTION | to x:%lf y:%lf | at x:%lf y:%lf a:%lf\n", millis(), target.getX(), target.getY(), tracking.g_pos.x,tracking.g_pos.y, radToDeg(tracking.g_pos.a));
 }
 
+void handleBrake(E_Brake_Modes brake_mode){ // Brakes depending on type of brake mode passed in
+  switch(brake_mode){
+    case E_Brake_Modes::none:
+      break;
+    case E_Brake_Modes::coast:
+      moveDrive(0.0, 0.0, 0.0);
+      break;
+    case E_Brake_Modes::brake:
+      driveBrake();
+  }
+}
 
-// void flattenAgainstWall(){
-//   Timer motion_timer{"motion_timer"};
-//   moveDriveSide(-40, 0);
-//   // Waits until velocity rises or takes > 12 cycles (120ms)
-//   CYCLE_CHECK((tracking.l_vel) > 2.0 && (tracking.r_vel) > 2.0 && fabs(tracking.r_vel), 12, 10);
-//   bool l_slow = false, r_slow = false; //
-//   // Waits until velocity drops (to detect wall)
-//   int cycle_count = 0;
-//   while(cycle_count < 10){
-//     l_slow = fabs(tracking.l_vel) < 1.0, r_slow = fabs(tracking.r_vel) < 1.0;
-//     if(l_slow){
-//       if(r_slow){
-//         moveDrive(-10, 0, 0); // Applies holding power 
-//         cycle_count++;
-//       }
-//       else{
-//         moveDriveSide(5, 60); // Turns left
-//         cycle_count = 0;  // Reset count
-//       }
-//     }
-//     else if(r_slow){
-//       moveDriveSide(60, 5); // Turns right
-//       cycle_count = 0;  // Reset count
-//     }
-//     else{
-//       moveDriveSide(40, 40);
-//       cycle_count = 0;  // reset count
-//     }
-//     _Task_::delay(10);
-//   }
-//   moveDrive(10, 0, 0); // Applies holding power
-//   printf("DRIVE FLATTEN DONE, took %lld secs\n", motion_timer.get_time());
-//   // drive.changeState(DriveIdleParams{});
-// }
+void flattenAgainstWall(){
+  Timer motion_timer{"motion_timer"};
+  moveDrive(0, -60, 0);
+  // Waits until velocity rises or takes > 12 cycles (120ms)
+  int cycle_count = 0;
+  Timer time_out{"timeout"};
+  while(cycle_count < 12 && time_out.get_time() < 300){
+    if(fabs(tracking.l_vel) > 2.0 && fabs(tracking.r_vel) > 2.0)  cycle_count++;
+    else cycle_count = 0;
+    delay(10);
+  }
+
+
+  bool l_slow = false, r_slow = false;
+  // Waits until velocity drops (to detect wall)
+  cycle_count = 0;
+  while(cycle_count < 10){
+    printf("L:%lf R:%lf \t", tracking.l_vel, tracking.r_vel);
+    l_slow = fabs(tracking.l_vel) < 1.0, r_slow = fabs(tracking.r_vel) < 1.0;
+    if(l_slow){
+      if(r_slow){
+        printf("both\n");
+        moveDrive(0, -10, 0); // Applies holding power 
+        cycle_count++;
+      }
+      else{
+        printf("l_slow\n");
+        moveDriveSide(-5, -60); // Turns right
+        cycle_count = 0;  // Reset count
+      }
+    }
+    else if(r_slow){
+      printf("r slow\n");
+      moveDriveSide(-60, -5); // Turns left
+      cycle_count = 0;  // Reset count
+    }
+    else{
+      printf("neither\n");
+      moveDrive(0, -40, 0);
+      cycle_count = 0;  // reset count
+    }
+    _Task_::delay(10);
+  }
+  moveDrive(0, -10, 0); // Applies holding power
+  printf("DRIVE FLATTEN DONE, took %lld secs\n", motion_timer.get_time());
+  // drive.changeState(DriveIdleParams{});
+}
