@@ -18,4 +18,13 @@ pros::Motor front_r(11, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_D
 pros::Motor centre_r(12, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor back_r(17, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
 
+pros::Motor intake_m(5, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor flywheel_m(9, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+
+Piston indexer_p('E', "indexer_p", false, LOW);
+
+ADIAnalogIn mag_ds('G');
+
+pros::Rotation flywheel_rot_sensor(1);	// Configures rotation sensor in port 1
+
 pros::Motor b_lift_m(16);

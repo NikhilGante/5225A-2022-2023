@@ -173,7 +173,7 @@ void opcontrol() {
 
 	atomic<double> error;
 	atomic<int> shooting = 0;
-	pros::Rotation rotation_sensor(1);	// Configures rotation sensor in port 5
+	pros::Rotation rotation_sensor(1);	// Configures rotation sensor in port 1
 	rotation_sensor.set_data_rate(5);	// Gets data from rotation sensor every "5" - actually 10ms
 	rotation_sensor.reset_position();
 	int vel_target = 2160;

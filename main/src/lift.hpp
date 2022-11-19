@@ -8,11 +8,13 @@ extern int lift_arr[5];
 // forward declarations
 struct LiftIdleParams;
 struct LiftResetParams;
-
+struct LiftMTTParams;
 
 #define LIFT_STATE_TYPES LiftMTTParams, LiftIdleParams, LiftResetParams
 
 #define LIFT_STATE_TYPES_VARIANT std::variant<LIFT_STATE_TYPES>
+
+extern Machine<LIFT_STATE_TYPES> lift;
 
 struct LiftMTTParams{
   int target;
@@ -36,5 +38,3 @@ struct LiftResetParams{
   void handle();
   void handleStateChange(LIFT_STATE_TYPES_VARIANT prev_state);
 };
-
-extern Machine<LIFT_STATE_TYPES> lift;

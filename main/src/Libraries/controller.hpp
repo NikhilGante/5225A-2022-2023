@@ -13,6 +13,9 @@ using namespace pros;
 using namespace std;
 
 // Buttons
+extern controller_digital_e_t intakeToggleBtn;
+extern controller_digital_e_t resetMagBtn;
+
 
 // partner buttons
 

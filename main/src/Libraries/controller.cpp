@@ -1,5 +1,11 @@
 #include "controller.hpp"
 
+// Buttons
+controller_digital_e_t intakeToggleBtn = DIGITAL_Y;
+controller_digital_e_t resetMagBtn = DIGITAL_LEFT;
+
+// Controller queue stuff
+
 std::array<_Controller*, num_controller> _Controller::objs; //= {nullptr};
 _Task _Controller::controller_task("controller task");
 
