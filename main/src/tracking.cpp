@@ -95,10 +95,10 @@ void trackingUpdate(){
 
     // printf("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     // if(tracking_timer.get_time() > 50){
-    //   // log("%lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
-    //   log("%lf\n", radToDeg(tracking.g_vel.a));
+    //   // log_d.print("%lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+    //   log_d.print("%lf\n", radToDeg(tracking.g_vel.a));
 
-    //   // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+    //   // log_d.print("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
     //   tracking_timer.reset();
     // }
     // printf("L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
@@ -125,7 +125,7 @@ void handleBrake(E_Brake_Modes brake_mode){
       moveDrive(0.0, 0.0);
       break;
     case E_Brake_Modes::brake:
-      log("drivebrake\n");
+      log_d.print("drivebrake\n");
       driveBrake();
       break;
   }
@@ -150,12 +150,12 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, do
       if(!power_sgn) power_sgn = 1; // Doesn't let power_sgn be 0
       break;
   }
-  log("power_sgn: %d\n", power_sgn);
+  log_d.print("power_sgn: %d\n", power_sgn);
   const double kP_a = 6.0;  // proportional multiplier for angular error
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
-    log("vals %lf %lf\n", M_PI_2 - line_error.getAngle(), (power_sgn == -1 ? M_PI : 0));
+    log_d.print("vals %lf %lf\n", M_PI_2 - line_error.getAngle(), (power_sgn == -1 ? M_PI : 0));
     double error_a = nearAngle((M_PI_2 - line_error.getAngle()) + (power_sgn == -1 ? M_PI : 0), tracking.g_pos.a);
     line_error.rotate(line_angle);  // Now represents displacement relative to the line the robot is following
     double power_y = y_pid.compute(-power_sgn*line_error.getY(), 0.0);  // RUN PID HERE
@@ -164,7 +164,7 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, do
     double error_x = line_error.getX() + line_error.getY() * tan(nearAngle(tracking.g_pos.a, line_angle));
     // Only corrects if necessary (if robot won't land within an acceptable distance from the target)
     double correction = fabs(error_x) > end_error_x? kP_a * error_a * sgn(power_sgn): 0.0;
-    // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
+    // log_d.print("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
     double left_power, right_power;
     switch(sgn(correction)){
       case 0:
@@ -178,14 +178,14 @@ void moveToTarget(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, do
         break;
     }
     // x, y, a, l, r, errA
-    log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
+    log_d.print("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
 
-    // log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
+    // log_d.print("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
     moveDriveSide(left_power, right_power);
     delay(10);
   }
   while(line_error.getY() > 0.5);
-  log("MOTION DONE %lld\n", motion_timer.get_time());
+  log_d.print("MOTION DONE %lld\n", motion_timer.get_time());
   handleBrake(brake_mode);
 }
 
@@ -202,13 +202,13 @@ void turnToAngle(double angle, E_Brake_Modes brake_mode, double end_error){
     double target_velocity = angle_pid.compute(-nearAngle(angle, tracking.g_pos.a), 0.0);
     power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(fabs(power) > 127) power = sgn(power) * 127;
-    log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
+    log_d.print("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     moveDrive(0.0, power);
     delay(10);
   }
   while(fabs(angle_pid.getError()) > end_error);
   handleBrake(brake_mode);
-  log("MOTION DONE %lld\n", motion_timer.get_time());
+  log_d.print("MOTION DONE %lld\n", motion_timer.get_time());
   lcd::print(7, "MOTION DONE %lld\n", motion_timer.get_time());
 }
 

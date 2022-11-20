@@ -59,7 +59,7 @@ namespace alert{
 
     master.rumble(".-");
 
-    log("\n\n%s\n", text);
+    log_d.print("\n\n%s\n", text);
 
     timer.reset(); //Starts counting
     if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);
@@ -81,7 +81,7 @@ namespace alert{
 
     master.rumble(".-");
 
-    log(term_colour, "\n\n%s\n", text);
+    log_d.print(term_colour, "\n\n%s\n", text);
 
     timer.reset(); //Starts counting
     if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);

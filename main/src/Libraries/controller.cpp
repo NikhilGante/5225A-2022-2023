@@ -26,9 +26,10 @@ void _Controller::init(){
 }
 
 void _Controller::queue_handle(){
-  if(!queue.isEmpty()){
+  if(!queue.empty()){
     printf("running command on controller %d", controller_num);
-    queue.pop()();  // run the next function
+    queue.front()();
+    queue.pop();  // run the next function
   }
 }
 

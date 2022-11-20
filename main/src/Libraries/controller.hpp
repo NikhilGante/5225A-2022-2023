@@ -23,7 +23,8 @@ class _Task;
 class _Controller : public pros::Controller{
 private:
   // std::array<std::function<void()>,20> queue;
-  Queue<std::function<void()>, 20> queue{"controller_queue"};
+  // Queue<std::function<void()>, 20> queue{"controller_queue"};
+  Queue<std::function<void()>, 20> queue;
   static std::array<_Controller*, num_controller> objs;
   void queue_handle();
   int controller_num;

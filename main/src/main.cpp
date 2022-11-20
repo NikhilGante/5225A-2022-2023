@@ -46,9 +46,9 @@ void initialize() {
 	_Task_ tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
   GUI::init();
-	// Data::init();
+	Data::init();
 	// _Controller::init();
-	log_init();
+	// log_init();
 	delay(500);
 	// lift.runMachine();
 }
@@ -102,22 +102,16 @@ void autonomous() {}
 //delete the move and copy constructors for controller button, auton...
 //alert prints really big
 
-//push in entirely, and then use queue.print
 void opcontrol() {
-  _Task_ a;
-  a.start([](){while(true){ DEPRECATE; delay(20);}});
- 
   DEBUG;
-  for(int i = 0; i < 400; i++){
-    std::string str;
+
+  for(int i = 0; i < 800; i++){
 		for(int j = 0; j < 25; j++){
-      str += sprintf2("M:%04d ", 25*i+j);
-      // log("M:%04d ", 25*i+j);
+      log_d.print("%04d ", 25*i+j);
 		}
-		log("%s\n", str);
-    delay(1);
+		log_d.print("\n");
+    delay(10);
 	}
-  a.kill();
   DEBUG;
   WAIT_UNTIL(false);
 }
