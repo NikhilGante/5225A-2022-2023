@@ -21,7 +21,7 @@
 #include "pros/rtos.h"
 
 // Subsystem includes
-#include "Subsystems/intake.hpp"
+#include "Subsystems/shooter.hpp"
 
 
 /**
@@ -54,9 +54,12 @@ void initialize() {
 	// Data::init();
 	_Controller::init();
 	delay(300);
-	// lift.runMachine();
+	lift.runMachine();
 	drive.runMachine();
 	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
+	
 
 }
 
@@ -119,15 +122,21 @@ void autonomous() {
 
 
 void opcontrol() {
+	// turnToAngle(90.0);
 
-
-
-
+	// WAIT_UNTIL(false);
 	while(true){
-		// if(master.get_digital_new_press(DIGITAL_A)) tracking.reset({0.0, 0.0, 0.0});
 		handleInput();
+
+		// moveDriveSide(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
+		lcd::print(5, "%lf %lf", centre_l.get_temperature(), centre_r.get_temperature());
+		if(centre_l.get_temperature() >= 45 || centre_r.get_temperature() >= 45) break;
+		
 		delay(10);
 	}
+	master.rumble("---");
+
+	WAIT_UNTIL(false);
 	// while(true){
 	// 	handleInput();
 	// 	delay(10);

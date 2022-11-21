@@ -1,7 +1,7 @@
 #include "controller.hpp"
 
 // Buttons
-controller_digital_e_t intakeToggleBtn = DIGITAL_Y;
+controller_digital_e_t intakeToggleBtn = DIGITAL_A;
 controller_digital_e_t resetMagBtn = DIGITAL_LEFT;
 
 // Controller queue stuff

@@ -53,18 +53,6 @@ class Machine{
 
   _Task task;
 
-public:
-  template <typename base_state_type>
-  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
-
-  template <typename next_state_type>
-  void changeState(next_state_type next_state){
-    printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
-    setTargetState(next_state);
-    state_change_requested = true;
-    task.kill();  // Interrupts current state
-  }
-  
   // Getters and setters for state and target state (since they need mutexes)
   void setState(variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
@@ -77,6 +65,20 @@ public:
     target_state = target_state_param;
     target_state_mutex.give();
   }
+
+public:
+  template <typename base_state_type>
+  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
+
+  template <typename next_state_type>
+  void changeState(next_state_type next_state){
+    printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+    setTargetState(next_state);
+    state_change_requested = true;
+    task.kill();  // Interrupts current state
+  }
+
+  // Getters for state and target state (since they need mutexes)
 
   variant<StateTypes...> getState(){
     state_mutex.take(TIMEOUT_MAX);

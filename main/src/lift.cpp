@@ -64,4 +64,3 @@ void LiftResetParams::handle(){
 void LiftResetParams::handleStateChange(LIFT_STATE_TYPES_VARIANT prev_state){
   b_lift_m.move_velocity(0);
 }
-

@@ -7,7 +7,7 @@ using namespace pros;
 using namespace std;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-Motor flywheel_m(5, E_MOTOR_GEARSET_06);
+Motor flywheel_m(9, E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
 Motor intake_m(20, E_MOTOR_GEARSET_18);
 
 // old piston code
@@ -133,7 +133,7 @@ void opcontrol() {
 	// intk: 2640 normal, check for less than 2500
 	// mag: 800 normal, check for less than 500
 
-
+/*
 	int intk_ds_val, mag_ds_val;
 	const int mag_disc_thresh = 500;
 	bool mag_disc_detected = false, mag_disc_detected_last = false; // if disc is currently detected by mag sensor
@@ -157,7 +157,7 @@ void opcontrol() {
 		printf("%d %d %d %d\n", millis(), intk_ds_val, mag_ds_val, g_mag_disc_count.load());
 		delay(10);
 	}
-
+*/
 
 	// int flywheel_power = 127;
 
@@ -173,14 +173,14 @@ void opcontrol() {
 
 	atomic<double> error;
 	atomic<int> shooting = 0;
-	pros::Rotation rotation_sensor(1);	// Configures rotation sensor in port 1
+	pros::Rotation rotation_sensor(10);
 	rotation_sensor.set_data_rate(5);	// Gets data from rotation sensor every "5" - actually 10ms
 	rotation_sensor.reset_position();
-	int vel_target = 2160;
+	int vel_target = 2500;
 	long rot_vel;
 
 	double kB = 0.0385;	// Target velocity multiplied by this outputs a motor voltage
-	double kP = 0.5;
+	double kP = 0.35;
 	double proportional;
 	double output; // What power goes to the flywheel motor
 
@@ -218,7 +218,15 @@ void opcontrol() {
 	lcd::print(7, "Press up/down to change fly vel");
 
 	// const double filter_val = 0.0;
-	long last_vel;
+	double last_vel;
+
+	const double smooth_val = 0.65;
+
+	double pos = 0, last_pos = 0;
+	double manual_vel;
+	double smoothed_vel = 0;
+
+	uint32_t motor_vel_read_time = millis();
 	while (true) {
 		intakeHandle();
 		// if(master.get_digital_new_press(DIGITAL_UP))	flywheel_power = std::clamp(flywheel_power + 5, 0, 127);
@@ -227,7 +235,7 @@ void opcontrol() {
 		// rot_vel = filter_val*last_vel + (1-filter_val)*rot_vel;
 		// last_vel = rot_vel;
 
-		error = vel_target - rot_vel;
+		error = vel_target - smoothed_vel;
 		proportional = kP * error;
 		// if(fabs(error) > 50)	proportional = kP * error;
 		// else	proportional = 0.2 * error;
@@ -245,8 +253,19 @@ void opcontrol() {
 			lcd::print(2, "vel_target:%d ", vel_target);
 		}
 
-		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), flywheel_ds.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, shooting.load());
-		
+		if(millis() - motor_vel_read_time >= 40){
+			pos = 5*flywheel_m.get_position()/360;
+			manual_vel = 60000 * (pos - last_pos)/(millis() - motor_vel_read_time);
+			last_pos = pos;
+
+			smoothed_vel = manual_vel*(1-smooth_val) + last_vel*smooth_val;
+			last_vel = smoothed_vel;
+
+			motor_vel_read_time = millis();
+			// printf("%d, diff: %lf, time_diff: %d, motor_vel:%lf", millis(), pos - last_pos, (millis() - motor_vel_read_time), motor_vel);
+		}
+		printf("%d, %d, %d, %ld, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), flywheel_ds.get_value(), vel_target, rot_vel, error.load(), output, vel_target * kB, proportional, manual_vel, smoothed_vel);
+	
 		// flywheel_m.move(0);
 		flywheel_m.move(output);
 		// flywheel_m.move(127);

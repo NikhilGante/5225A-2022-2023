@@ -1,6 +1,6 @@
 #include "intake.hpp"
 
-Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeIdleParams{});
+Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOnParams{});
 
 atomic<int> g_mag_disc_count = 0;
 
@@ -28,7 +28,6 @@ void IntakeOnParams::handle(){  // synchronous state
   }
 
   mag_disc_detected_last = mag_disc_detected;
-  if(master.get_digital_new_press(resetMagBtn)) g_mag_disc_count = 0;
 
   // end of disc counting code
 
@@ -71,9 +70,9 @@ const char* IntakeRevParams::getName(){
   return "IntakeRev";
 }
 void IntakeRevParams::handle(){
+  if(master.get_digital_new_press(resetMagBtn)) g_mag_disc_count = 0;
   // If the mag is no longer full, turn intake back on
   if(g_mag_disc_count < 3) intakeOn();
-
 }
 void IntakeRevParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(speed);

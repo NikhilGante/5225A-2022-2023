@@ -14,8 +14,8 @@ void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
-  // 6.765
-  double dist_lr = 11.4, dist_b = 1.53;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  // -1.43
+  double dist_lr = 6.87, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = -left_tracker.get_position()*TICKS_TO_INCHES;
@@ -35,9 +35,18 @@ void trackingUpdate(){
   Timer tracking_timer{"timer"};
 
   while(true){
-    new_left = -left_tracker.get_position()*TICKS_TO_INCHES;
+
+
+    // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
+    // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
+    // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
+    // lcd::print(3, "dist_lr: %lf", dist_lr);
+
+    new_left = left_tracker.get_position()*TICKS_TO_INCHES;
     new_right = right_tracker.get_position()*TICKS_TO_INCHES;
     new_back = back_tracker.get_position()*TICKS_TO_INCHES;
+    
+    lcd::print(2, "l:%lf r:%lf", new_left, new_right);
 
     // updates how much each side of the robot travelled in inches since the last cycle (left, right and back)
     left = new_left - last_left;
