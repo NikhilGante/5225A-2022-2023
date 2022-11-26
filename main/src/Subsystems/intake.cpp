@@ -70,7 +70,7 @@ const char* IntakeRevParams::getName(){
   return "IntakeRev";
 }
 void IntakeRevParams::handle(){
-  if(master.get_digital_new_press(resetMagBtn)) g_mag_disc_count = 0;
+  if(master.get_digital_new_press(resetDiscCountBtn)) g_mag_disc_count = 0;
   // If the mag is no longer full, turn intake back on
   if(g_mag_disc_count < 3) intakeOn();
 }

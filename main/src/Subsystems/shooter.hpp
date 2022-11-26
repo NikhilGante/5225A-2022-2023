@@ -29,8 +29,11 @@ struct ShooterShootParams{
   void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
 
   int shots_left;
-  Timer shoot_timer{"shoot_timer"};
 
   FLYWHEEL_STATE_TYPES_VARIANT flywheel_state;
+private:
+  Timer shoot_timer{"shoot_timer"};
 
 };
+
+void shoot(int shots = 3);  // Shoots x number of shots

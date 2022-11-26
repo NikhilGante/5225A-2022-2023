@@ -33,8 +33,9 @@
 void initialize() {
 	// log_init();
 	lcd::initialize();
-	tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
+	// tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
 
+	tracking.g_pos = {30.75, 7.25, degToRad(0.0)};	// new_skills2
 
 	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
 	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
@@ -56,9 +57,9 @@ void initialize() {
 	delay(300);
 	lift.runMachine();
 	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 
 }
@@ -125,15 +126,68 @@ void opcontrol() {
 	// turnToAngle(90.0);
 
 	// WAIT_UNTIL(false);
+	bool intk_on = true;
 	while(true){
+		if(master.get_digital_new_press(DIGITAL_A)) intk_on = !intk_on;
+		if(intk_on) intake_m.move(127);
+		else intake_m.move(0);
+		delay(10);
+	}
+
+	tracking.reset();
+	// intake_m.move(127);
+	delay(300);
+	// Timer timer{"timer"};
+	// moveDrive(37,0);
+	// WAIT_UNTIL(tracking.g_pos.y > 20.0);
+	// driveBrake();
+	// lcd::print(6, "time %d", timer.getTime());
+	// WAIT_UNTIL(false);
+	bool pressed = false, pressed_last = false;
+	bool pressedy = false, pressed_lasty = false;
+	bool printed = false;
+	// WAIT_UNTIL(master.get_digital(DIGITAL_B));
+	Timer timer{"timer"};
+	while(true){
+		pressedy = master.get_digital(DIGITAL_Y);
+
+		// if(ma)	tracking.reset()
+
 		handleInput();
+		if(intk_on) intake_m.move(127);
+		else intake_m.move(0);
+
+		pressed = master.get_digital(DIGITAL_A);
+		// if(master.get_digital_new_press(DIGITAL_B))	intk_on = !intk_on;
+		if(pressedy && !pressed_lasty){
+			printed = false;
+			tracking.reset();
+		}	
+
+		if(pressed && !pressed_last)	intk_on = !intk_on;
+
+
+
+		pressed_last = pressed;
+		pressed_lasty = pressedy;
+		printf("%d\n", master.get_digital(DIGITAL_UP));
+
+		// if(tracking.g_pos.y > 50 && !printed){
+		// 	printed = true;
+		// 	lcd::print(6, "time %d", timer.getTime());
+		// 	master.print(0, 1, "time %d", timer.getTime());
+		// 	driveBrake();
+		// 	delay(800);
+		// }		
+
 
 		// moveDriveSide(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
-		lcd::print(5, "%lf %lf", centre_l.get_temperature(), centre_r.get_temperature());
-		if(centre_l.get_temperature() >= 45 || centre_r.get_temperature() >= 45) break;
+		lcd::print(5, "%lf %lf %lf", centre_l.get_temperature(), centre_r.get_temperature(), intake_m.get_temperature());
+		if(centre_l.get_temperature() >= 45 || centre_r.get_temperature() >= 45 || intake_m.get_temperature() >= 45) break;
 		
 		delay(10);
 	}
+	driveBrake();
 	master.rumble("---");
 
 	WAIT_UNTIL(false);

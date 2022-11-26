@@ -27,10 +27,10 @@ struct FlywheelOffParams{
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 };
 
+extern atomic<double> flywheel_error; // Target vel - actual vel (global static var)
+
 struct FlywheelMoveVelParams{
   int target_vel;
-
-  static atomic<double> error; // Target vel - actual vel (global var)
 
   FlywheelMoveVelParams(int target_vel);
 
@@ -40,8 +40,15 @@ struct FlywheelMoveVelParams{
 private:
   static constexpr double kB = 0.0385;	// Target velocity multiplied by this outputs a motor voltage
 	static constexpr double kP = 0.5;
-  int32_t rot_vel; // Velocity detected by rotation sensor
-  double output; // Power that goes to the flywheel motor
+  static int32_t rot_vel; // Velocity detected by rotation sensor
+  static double output; // Power that goes to the flywheel motor
+
+  static constexpr double smooth_val = 0.65; // Tuned to smooth velocity values
+  Timer motor_vel_read{"motor_vel_read"}; // Ensures motor's velocity is calculated every 40ms
+  static double smoothed_vel;  // Velocity with exponential filter applied to it
+  static double last_pos;  // Motor's position from previous cycle
+  static double last_vel; // Smoothed velocity (from last cycle)
+  static double manual_vel;  // Pre-smoothed velocity
 };
 
 void setFlywheelVel(int32_t vel); // Wrapper function to set flywheel to FlywheelMoveVel state

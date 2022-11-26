@@ -9,17 +9,17 @@ Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
 
-#define TICKS_TO_INCHES 1/36000.0 *(2.75*M_PI);
+#define TICKS_TO_INCHES 1/36000.0 *(3.25*M_PI);
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 6.87, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 11.25, dist_b = -1.43;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
-  double last_left = -left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = right_tracker.get_position()*TICKS_TO_INCHES;
+  double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
+  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES;
   double last_back = back_tracker.get_position()*TICKS_TO_INCHES;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0;
@@ -40,11 +40,11 @@ void trackingUpdate(){
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
     // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
-    // lcd::print(3, "dist_lr: %lf", dist_lr);
+    lcd::print(3, "dist_lr: %lf", dist_lr);
 
     new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
-    new_back = back_tracker.get_position()*TICKS_TO_INCHES;
+    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
+    new_back = back_tracker.get_position()*1/36000.0 *(2.75*M_PI);
     
     lcd::print(2, "l:%lf r:%lf", new_left, new_right);
 
@@ -121,8 +121,8 @@ void trackingUpdate(){
 		
     // pros::lcd::print(2, "h_x:%lf, h_y: %lf", h_x, h_y);
     // pros::lcd::print(0, "L:%d R:%d B:%d", new_left, new_right, new_back);
-    pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
-		pros::lcd::print(1, "x:%lf y:%lf a:%lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+    pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), -right_tracker.get_position(), back_tracker.get_position());
+		pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), fmod(radToDeg(tracking.g_pos.a), 360));
 
     delay(10);
   }
