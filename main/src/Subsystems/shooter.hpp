@@ -5,6 +5,8 @@
 #include "intake.hpp"
 #include "flywheel.hpp"
 
+void shooterHandleInput();
+
 // forward declarations
 struct ShooterIdleParams;
 struct ShooterShootParams;

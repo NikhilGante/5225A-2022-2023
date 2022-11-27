@@ -24,7 +24,7 @@ extern controller_digital_e_t rollerBtn;
 extern controller_digital_e_t endgameBtn2;
 extern controller_digital_e_t transToggleBtn;
 
-extern controller_digital_e_t flywheelAngleToggleBtn;
+extern controller_digital_e_t anglerToggleBtn;
 // extern controller_digital_e_t someBtn;
 extern controller_digital_e_t tripleShotBtn;
 extern controller_digital_e_t singleShotBtn;

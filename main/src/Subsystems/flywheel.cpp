@@ -5,7 +5,7 @@
 #define SPROCKET_RATIO 12/18
 #define CARTRIDGE_TO_RAW 6
 
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelIdleParams{});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1800});
 
 // Flywheel idle state
 
@@ -28,6 +28,13 @@ void FlywheelOffParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_stat
 // Flywheel move velocity state
 
 atomic<double> flywheel_error; // Target vel - actual vel (global static var)
+
+// static vars
+double FlywheelMoveVelParams::output; // Power that goes to the flywheel motor
+double FlywheelMoveVelParams::smoothed_vel;  // Velocity with exponential filter applied to it
+double FlywheelMoveVelParams::last_pos;  // Motor's position from previous cycle
+double FlywheelMoveVelParams::last_vel; // Smoothed velocity (from last cycle)
+double FlywheelMoveVelParams::manual_vel;  // Pre-smoothed velocity
 
 FlywheelMoveVelParams::FlywheelMoveVelParams(int target_vel): target_vel(target_vel){}
 
@@ -59,12 +66,13 @@ void FlywheelMoveVelParams::handle(){
 
   // Velocity control
   flywheel_error = target_vel - smoothed_vel;
-  double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
+  // double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
+  double correction = flywheel_error*kP;
   if(fabs(correction) > 2500) correction = 2500;
   output = kB * target_vel + correction;
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
 
-  printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), flywheel_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, manual_vel, smoothed_vel);
+  printf("%d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, manual_vel, smoothed_vel);
 
   flywheel_m.move(output);
 }

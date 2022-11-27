@@ -241,7 +241,7 @@ const char* DriveOpControlParams::getName(){
   return "DriveIdle";
 }
 void DriveOpControlParams::handle(){
-  handleInput();
+  driveHandleInput();
 }
 void DriveOpControlParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 

@@ -38,8 +38,8 @@ struct FlywheelMoveVelParams{
   void handle();
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 private:
-  static constexpr double kB = 0.0385;	// Target velocity multiplied by this outputs a motor voltage
-	static constexpr double kP = 0.5;
+  static constexpr double kB = 0.0508;	// Target velocity multiplied by this outputs a motor voltage
+	static constexpr double kP = 0.95;
   static int32_t rot_vel; // Velocity detected by rotation sensor
   static double output; // Power that goes to the flywheel motor
 
@@ -50,5 +50,3 @@ private:
   static double last_vel; // Smoothed velocity (from last cycle)
   static double manual_vel;  // Pre-smoothed velocity
 };
-
-void setFlywheelVel(int32_t vel); // Wrapper function to set flywheel to FlywheelMoveVel state

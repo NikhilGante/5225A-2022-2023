@@ -16,6 +16,6 @@ extern ADIAnalogIn mag_ds;
 
 extern Rotation flywheel_rot_sensor;
 
-extern ADIAnalogIn flywheel_ds;
+extern Piston angler_p;
 
 extern Motor b_lift_m;

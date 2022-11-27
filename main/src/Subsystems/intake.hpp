@@ -3,6 +3,8 @@
 #include "../config.hpp"
 #include "../Libraries/state.hpp"
 
+void intakeHandleInput();
+
 extern atomic<int> g_mag_disc_count;
 
 // forward declarations

@@ -1,6 +1,19 @@
 #include "intake.hpp"
 
-Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOnParams{});
+Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
+
+void intakeHandleInput(){
+  INTAKE_STATE_TYPES_VARIANT cur_state = intake.getState();
+  if(get_if<IntakeOnParams>(&cur_state)){
+    if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
+  }
+  else if(get_if<IntakeOffParams>(&cur_state)){
+    if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
+  }
+  else if(get_if<IntakeRevParams>(&cur_state)){
+    if(master.get_digital_new_press(resetDiscCountBtn)) g_mag_disc_count = 0;
+  }
+}
 
 atomic<int> g_mag_disc_count = 0;
 
@@ -32,13 +45,15 @@ void IntakeOnParams::handle(){  // synchronous state
   // end of disc counting code
 
   // If mag is full, don't let any more discs in
-  if(g_mag_disc_count >= 3) intakeRev();
-  
-  if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
-
-  printf("%d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  if(g_mag_disc_count >= 3) {
+    delay(100);
+    intakeRev();
+  }
+  // printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+  angler_p.setState(LOW);
   intake_m.move(speed);
 }
 
@@ -51,9 +66,7 @@ void intakeOn(int8_t speed){
 const char* IntakeOffParams::getName(){
   return "IntakeOff";
 }
-void IntakeOffParams::handle(){
-  if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
-}
+void IntakeOffParams::handle(){}
 void IntakeOffParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(0);
 }
@@ -70,7 +83,6 @@ const char* IntakeRevParams::getName(){
   return "IntakeRev";
 }
 void IntakeRevParams::handle(){
-  if(master.get_digital_new_press(resetDiscCountBtn)) g_mag_disc_count = 0;
   // If the mag is no longer full, turn intake back on
   if(g_mag_disc_count < 3) intakeOn();
 }

@@ -55,11 +55,11 @@ void initialize() {
 	// Data::init();
 	_Controller::init();
 	delay(300);
-	lift.runMachine();
+	// lift.runMachine();
 	drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 
 }
@@ -123,9 +123,36 @@ void autonomous() {
 
 
 void opcontrol() {
+	// intake.changeState(IntakeIndexParams{});
+	// intakeIndex();
+	// while(true) {
+	// 	if(master.get_digital_new_press(singleShotBtn)) shoot(1);
+	// 	delay(10);
+	// }
+
+	Timer disc_count_print{"g_mag_disc_count_print"};
+	while(true){
+		driveHandleInput();
+		shooterHandleInput();
+		intakeHandleInput();
+
+		// if(disc_count_print.getTime() >= 50){
+		// 	master.print(0,0, "disc count: %d", g_mag_disc_count.load());
+		// 	disc_count_print.reset();
+		// }
+		lcd::print(5, "l:%.lf r:%.lf intk:%.lf flywheel:%.lf", centre_l.get_temperature(), centre_r.get_temperature(), intake_m.get_temperature(), flywheel_m.get_temperature());
+		if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
+			break;
+		}
+		delay(10);
+	}
+	moveDrive(0, 0);
+	intake_m.move(0);
+	flywheel_m.move(0);
+	master.rumble("----");
 	// turnToAngle(90.0);
 
-	// WAIT_UNTIL(false);
+	WAIT_UNTIL(false);
 	bool intk_on = true;
 	while(true){
 		if(master.get_digital_new_press(DIGITAL_A)) intk_on = !intk_on;
@@ -153,7 +180,7 @@ void opcontrol() {
 
 		// if(ma)	tracking.reset()
 
-		handleInput();
+		driveHandleInput();
 		if(intk_on) intake_m.move(127);
 		else intake_m.move(0);
 
@@ -187,6 +214,9 @@ void opcontrol() {
 		
 		delay(10);
 	}
+	moveDrive(0, 0);
+	intake_m.move(0);
+	flywheel_m.move(0);
 	driveBrake();
 	master.rumble("---");
 

@@ -1,7 +1,7 @@
 #include "drive.hpp"
 #include <cmath>
 
-double angle_curvature = 1.5;
+double angle_curvature = 2.0;
 
 int polynomial(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
@@ -62,26 +62,30 @@ void driveBrake(){
 
 double l_power_last, r_power_last;
 const double slew_val = 3;
-void handleInput(){
+void driveHandleInput(){
   int power_x, power_y, power_a;
-  double l_power, r_power;
+  // double l_power, r_power;
 
   power_y = master.get_analog(ANALOG_LEFT_Y);
   power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
   if(abs(power_y) < 7) power_y = 0;
   if(abs(power_a) < 7) power_a = 0;
-  if(abs(power_a) > 65) power_a = sgn(power_a) * 65;
+  // if(power_y < -30){
+  //   power_y = -30;
+  //   // master.rumble("-");
+  // }
+  // if(abs(power_a) > 65) power_a = sgn(power_a) * 65;
 
 
-  l_power = power_y + power_a;
-  r_power = power_y - power_a;
+  // l_power = power_y + power_a;
+  // r_power = power_y - power_a;
 
-  if(fabs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
-  if(fabs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
+  // if(fabs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
+  // if(fabs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
 
-  // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
-  moveDriveSide(l_power, r_power);
-  l_power_last = l_power,  r_power_last = r_power;
-  // moveDrive(power_y, power_a);
+  // // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
+  // moveDriveSide(l_power, r_power);
+  // l_power_last = l_power,  r_power_last = r_power;
+  moveDrive(power_y, power_a);
 }

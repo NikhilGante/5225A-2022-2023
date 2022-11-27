@@ -12,7 +12,7 @@ controller_digital_e_t rollerBtn = DIGITAL_B;
 controller_digital_e_t endgameBtn2 = DIGITAL_Y;
 controller_digital_e_t transToggleBtn = DIGITAL_X;
 
-controller_digital_e_t flywheelAngleToggleBtn = DIGITAL_L1;
+controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
 // controller_digital_e_t someBtn = DIGITAL_L2;
 controller_digital_e_t tripleShotBtn = DIGITAL_R2;
 controller_digital_e_t singleShotBtn = DIGITAL_R1;
