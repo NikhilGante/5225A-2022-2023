@@ -12,6 +12,8 @@
 
 #include "lift.hpp"
 #include "pros/misc.h"
+#include "pros/misc.hpp"
+#include "pros/motors.h"
 #include "pros/screen.h"
 #include "tracking.hpp"
 #include "drive.hpp"
@@ -20,6 +22,8 @@
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
+#include <iostream>
+#include <utility>
 
 using namespace pros;
 void initialize() {
@@ -73,7 +77,7 @@ int sgn(int n){ //sign function
 	else if (n<0) return -1;
 	else return 0;
 }
-
+/*
 void turnToAngle(double target){
 	double cur_angle, p, i, d, kp, ki, kd, error, last_error, output, upper_limit, lower_limit;
 	uint32_t time, old_time;
@@ -91,23 +95,72 @@ void turnToAngle(double target){
 		cur_angle = tracking.g_pos.a; //Not sure if this works...
 		error = target - cur_angle; //error = difference
 		p = error*kp; //get p
-		if (sgn(error)!=sgn(last_error) || fabs(error)>upper_limit || fabs(error)<lower_limit) i = 0; //if overshot, then reset integration.
+
+		if (sgn(error) != sgn(last_error) || fabs(error) > upper_limit || fabs(error) < lower_limit) i = 0; //if overshot, then reset integration.
 		else i += error*time*ki; //normal i
+
 		d = (error-last_error)/time - kd; //get d
+
 		output = p+i+d; //PID
 		last_error = error;
+
 		screen::print(pros::E_TEXT_SMALL, 0, "p = %.4f, i = %.4f, d = %.4f", p,i,d);
 		screen::print(pros::E_TEXT_SMALL, 1, "o = %.4f, cA = %.4f, e = %.4f", output,cur_angle, error);
 		printf("o = %.4f, cA = %.4f, e = %.4f", output,cur_angle, error);
 		delay(10);
-	}while(fabs(error) > 0.5); //do while loop is for calculating error before we compare it.
+	} while (fabs(error) > 0.5); //do while loop is for calculating error before we compare it.
+}
+*/
+
+void opcontrol() {
+	// _Task trackingUpdate;
+	// turnToAngle(45);
+	// cout << "ENDING" << endl; //Lets us know that its ending.
+
+	int cur_speed, target = 20, diff, cycle_count = 0, expected_cycle; 
+	bool jammed = false;
+	Motor motor(12);
+	Controller master(E_CONTROLLER_MASTER);
+
+	master.clear();
+
+	motor.move(target);
+
+	while(jammed != true){
+		screen::print(pros::E_TEXT_SMALL, 1, "Target:%d  Cur:%d  cycles: %d", target, cur_speed, cycle_count);
+		cur_speed = motor.get_actual_velocity();
+	
+		// master.print(0,0,"%d", cur_speed);
+		// printf("%d\n", cur_speed); 
+		cout << cur_speed << endl;
+
+		if (abs(target) > 110) { 
+			diff = 5;
+			expected_cycle = 10;
+		} else if(abs(target) > 50 ) {
+			diff = 3;
+			expected_cycle = 6;
+		} else if(abs(target) > 10) {
+			diff = 1;
+			expected_cycle = 3;
+		} else diff = 0;
+
+		if (cur_speed < abs(target) - diff){
+			cycle_count += 1;
+		} else {
+			cycle_count -= 1;
+		}
+
+		if (cycle_count == expected_cycle){
+			jammed = true;
+		}
+
+		delay(10);
+		// master.clear_line(0);
+	}
 
 }
-void opcontrol() {
-	_Task trackingUpdate;
-	turnToAngle(45);
-	cout << "ENDING" << endl; //Lets us know that its ending.
-}
+
 /*
 TO DO:
 Check for encoders, motors, 
