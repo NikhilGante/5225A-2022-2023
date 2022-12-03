@@ -23,6 +23,7 @@
 // Subsystem includes
 #include "Subsystems/shooter.hpp"
 
+#include <cmath>
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -35,7 +36,7 @@ void initialize() {
 	lcd::initialize();
 	// tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
 
-	tracking.g_pos = {30.75, 7.25, degToRad(0.0)};	// new_skills2
+	// tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// new_skills2
 
 	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
 	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
@@ -47,7 +48,7 @@ void initialize() {
 	// tracking.g_pos = {68.00, 129.25, M_PI};	// skills2
 	// tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
 
-	// tracking.g_pos = {0.0, 0.0, 0.0};
+	tracking.g_pos = {0.0, 0.0, 0.0};
 
 	log_init();
 	_Task tracking_task("tracking_update_task");
@@ -58,8 +59,8 @@ void initialize() {
 	// lift.runMachine();
 	drive.runMachine();
 	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 
 }
@@ -121,8 +122,35 @@ void autonomous() {
 
 // STACK TRACE
 
+void moveInches(double target){
+	double start = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
+	double error;
+	do{
+		double cur_y = left_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start;
+		error = target - cur_y;
+		double power = 4.5*error;
+		if(fabs(power) < 20) power = sgn(error) * 20;
+		moveDrive(power, 0.0);
 
+	}while(fabs(error) > 0.5);
+	driveBrake();
+	master.rumble("-");
+}
+// acc: 
+
+// tracking:
+// (69.75, 134.625, 180)
 void opcontrol() {
+	// moveInches(20.0);
+	// turnToAngleSync(30.0);
+	// moveInches(120.0);
+	// turnToAngleSync(180.0);
+	// flattenAgainstWallSync(true);
+	while(true){
+		driveHandleInput();
+		delay(10);
+	}
+	WAIT_UNTIL(false);
 	// intake.changeState(IntakeIndexParams{});
 	// intakeIndex();
 	// while(true) {

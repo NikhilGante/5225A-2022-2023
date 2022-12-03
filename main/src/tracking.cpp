@@ -8,14 +8,25 @@
 Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
-
-#define TICKS_TO_INCHES 1/36000.0 *(3.25*M_PI);
+/* Tests:
+// 4.4
+  8.2
+  8.8
+  2.7
+----
+ -3.68
+ -3.2
+ -6.1
+ -5.9
+  0.9
+*/
+#define TICKS_TO_INCHES 1/36000.0 *(2.75*M_PI);
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 11.25, dist_b = -1.43;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 6.86, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
@@ -44,15 +55,15 @@ void trackingUpdate(){
 
     new_left = left_tracker.get_position()*TICKS_TO_INCHES;
     new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
-    new_back = back_tracker.get_position()*1/36000.0 *(2.75*M_PI);
+    new_back = back_tracker.get_position()*TICKS_TO_INCHES;
     
     lcd::print(2, "l:%lf r:%lf", new_left, new_right);
 
     // updates how much each side of the robot travelled in inches since the last cycle (left, right and back)
     left = new_left - last_left;
     right = new_right - last_right;
-    back = new_back - last_back;
-    // back = 0.0;
+    // back = new_back - last_back;
+    back = 0.0;
 
     if(velocity_timer.getTime() > 50){  // velocity is updated every 20 
       uint32_t velocity_update_time = velocity_timer.getTime(); // time since last velocity update

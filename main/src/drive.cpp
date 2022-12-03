@@ -87,5 +87,15 @@ void driveHandleInput(){
   // // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
   // moveDriveSide(l_power, r_power);
   // l_power_last = l_power,  r_power_last = r_power;
+  
+  lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
+  lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
+
+
+  if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50){
+    moveDrive(0, 0);
+    master.rumble("----------");
+    WAIT_UNTIL(false);
+  } 
   moveDrive(power_y, power_a);
 }
