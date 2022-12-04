@@ -5,7 +5,6 @@
 #include <compare>
 #include <concepts>
 #include <cstring>
-#include <exception>
 #include <iostream>
 
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
@@ -27,7 +26,6 @@ constexpr auto copy_pair(std::pair<I, I> in, std::pair<O, O> out){
 template <typename T,  std::size_t N> requires std::same_as<std::remove_cvref_t<T>, T>
 class Queue{
   public:
-    class iterator;
     using size_type              = std::size_t;
     using array                  = std::array<T, N>;
     using difference_type        = std::ptrdiff_t;
@@ -42,10 +40,10 @@ class Queue{
       friend Queue<T, N>;
       public:
         using difference_type   = Queue<T, N>::difference_type;
-        using iterator_category = std::random_access_iterator_tag;
         using value_type        = Queue<T, N>::value_type;
         using pointer           = Queue<T, N>::pointer;
         using reference         = Queue<T, N>::reference;
+        using iterator_category = std::random_access_iterator_tag;
 
       public:
         pointer internal;
@@ -89,9 +87,8 @@ class Queue{
 
   private:
     //front_iter points to element about to be popped, back_iter points to location where element will be inserted
-    Mutex mutex;
-    iterator front_iter, back_iter;
     array arr;
+    iterator front_iter, back_iter;
 
     constexpr std::pair<std::pair<pointer, pointer>, std::pair<pointer, pointer>> empty_contiguous_iterators(){ //Returns two ranges corresponding to unfilled part of queue
       if(full()) return {};
@@ -104,12 +101,12 @@ class Queue{
       else return std::make_pair(std::pair(begin().internal, arr.end()), std::pair(arr.begin(), end().internal)); //Wraparound
     }
 
-    constexpr iterator construct_iterator(pointer pointer) {return {pointer, arr.begin(), arr.end()};}
+    constexpr iterator       construct_iterator(pointer pointer)       {return {pointer, arr.begin(), arr.end()};}
 
   public:
 
   //Constructors
-    constexpr Queue(): arr{} {clear();}
+    constexpr Queue(): arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
 
     //Getters
     constexpr size_type size() const {return end()-begin();}
@@ -117,62 +114,51 @@ class Queue{
     constexpr size_type space_left() const {return std::max(static_cast<size_type>(0), capacity()-size());}
     constexpr bool full() const {return size() == capacity();}
     constexpr bool empty() const {return size() == 0;}
-    constexpr iterator begin() const {return front_iter;}
-    constexpr iterator end() const {return back_iter ;}
-    constexpr reference front() {return *begin();}
-    constexpr reference back() {return *(end()-1);}
+    constexpr iterator        begin() const {return front_iter;}
+    constexpr iterator        end()   const {return back_iter ;}
     constexpr const_reference front() const {return *begin();}
-    constexpr const_reference back() const {return *(end()-1);}
-    
+    constexpr const_reference back()  const {return *(end()-1);}
+    constexpr const_reference operator[](difference_type n) const {return *(begin() + n);}
+    constexpr reference       front(){return *begin();}
+    constexpr reference       back() {return *(end()-1);}
+    constexpr reference       operator[](difference_type n) {return *(begin() + n);}
     
     //Insert Modifiers
-    constexpr void push(const_reference value){mutex.take(); if(!full()) *back_iter++ = value; mutex.give();}
+    constexpr void push(const_reference value){if(!full()) *back_iter++ = value;}
     constexpr iterator insert(const_reference value){push(value); return end();}
     template <std::input_iterator I> constexpr iterator insert(I first, I last){
-      mutex.take();
       auto out = empty_contiguous_iterators();
       auto in = split(first, last, out.first);
       back_iter += copy_pair(in.first,  out.first );
       back_iter += copy_pair(in.second, out.second);
-      mutex.give();
       return end();
     }
     constexpr iterator insert(const_pointer pointer, size_type count) {return insert(pointer, pointer+count);}
     constexpr iterator insert(const char* str) requires std::same_as<T, char> {return insert(str, str+strlen(str)+1);}
 
+
     //Remove Modifiers
-    constexpr void pop() {mutex.take(); if(!empty()) *front_iter++ = value_type{}; mutex.give();}
-    constexpr void clear() {mutex.take(); front_iter = back_iter = construct_iterator(arr.begin()); mutex.give();}
+    constexpr void pop() {if(!empty()) front_iter++;}
+    constexpr void clear() {front_iter = end();}
     template <output_iter<iterator> O> constexpr O output(O first, O last){
-      mutex.take();
       auto in = full_contiguous_iterators();
       auto out = split(first, last, in.first);
       copy_pair(in.first,  out.first );
       copy_pair(in.second, out.second);
       clear();
-      mutex.give();
       return out.second.end();
     }
     template <output_iter<iterator> O> constexpr O output(O out) {
-      mutex.take();
       auto in = full_contiguous_iterators();
       out = std::copy(in.first .first, in.first .second, out);
       out = std::copy(in.second.first, in.second.second, out);
       clear();
-      mutex.give();
       return out;
     }
-    constexpr void output(std::ostream& out) requires std::same_as<T, char> {
-      mutex.take();
+    constexpr void output(std::ostream& out) requires std::same_as<T, char>{
       auto in = full_contiguous_iterators();
-      out.write(in.first .first, in.first .second-in.first .first);
-      out.write(in.second.first, in.second.second-in.second.first);
-      mutex.give();
+      out.write(in.first .first, std::distance(in.first .first, in.first .second));
+      out.write(in.second.first, std::distance(in.second.first, in.second.second));
+      clear();
     }
 };
-
-template <typename T,  std::size_t N>
-std::ostream& operator<<(std::ostream& os, Queue<T, N>& queue){
-  queue.output(os);
-  return os;
-}

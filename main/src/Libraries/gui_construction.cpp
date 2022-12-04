@@ -801,7 +801,7 @@ void util_setup(){
 
 
   //Motor Control
-    mot_jam_detect.select();
+    // mot_jam_detect.select();
     
     motor_ports = {
       std::make_tuple(std::numeric_limits<int>::max(), &mot_update_1, &mot_stop_1, &mot_text_1, 0, ""),

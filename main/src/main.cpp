@@ -39,7 +39,6 @@ make more methods const
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	// log_init();
 	// lcd::initialize();
 	tracking.g_pos = {31.0, 11.5, 0.0};
 	// tracking.g_pos = {70.0, 129.5, M_PI};
@@ -104,14 +103,24 @@ void autonomous() {}
 
 void opcontrol() {
   DEBUG;
-
   for(int i = 0; i < 800; i++){
 		for(int j = 0; j < 25; j++){
-      log_d.print("%04d ", 25*i+j);
+      log_d.print("Hello ");
 		}
 		log_d.print("\n");
     delay(10);
 	}
   DEBUG;
-  WAIT_UNTIL(false);
+
+  // Motor flywheel{6};
+  // flywheel.move(127);
+
+
+  // WAIT_UNTIL(false){
+  //   lcd::print(2, "Temp: %d", static_cast<int>(flywheel.get_temperature()));
+  //   if(flywheel.get_temperature() > 50){
+  //     master.rumble("-. .- -. .-");
+  //     flywheel.move(0);
+  //   }
+  // }
 }
