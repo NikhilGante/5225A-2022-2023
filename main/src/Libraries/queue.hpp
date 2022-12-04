@@ -7,6 +7,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "gui.hpp"
+
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 
 template <std::input_or_output_iterator I, std::input_or_output_iterator SIZE>
@@ -87,6 +89,7 @@ class Queue{
 
   private:
     //front_iter points to element about to be popped, back_iter points to location where element will be inserted
+    std::string name;
     array arr;
     iterator front_iter, back_iter;
 
@@ -106,7 +109,8 @@ class Queue{
   public:
 
   //Constructors
-    constexpr Queue(): arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
+    constexpr Queue(): name{}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
+    Queue(std::string name): name{name}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
 
     //Getters
     constexpr size_type size() const {return end()-begin();}
@@ -124,13 +128,14 @@ class Queue{
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
     
     //Insert Modifiers
-    constexpr void push(const_reference value){if(!full()) *back_iter++ = value;}
+    constexpr void push(const_reference value){if(!full()) *back_iter++ = value; if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %0.2f capacity", name, 100.0*size()/capacity());}
     constexpr iterator insert(const_reference value){push(value); return end();}
     template <std::input_iterator I> constexpr iterator insert(I first, I last){
       auto out = empty_contiguous_iterators();
-      auto in = split(first, last, out.first);
+      auto in  = split(first, last, out.first);
       back_iter += copy_pair(in.first,  out.first );
       back_iter += copy_pair(in.second, out.second);
+       if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s ueue has reached %0.2f capacity", name, 100.0*size()/capacity());
       return end();
     }
     constexpr iterator insert(const_pointer pointer, size_type count) {return insert(pointer, pointer+count);}

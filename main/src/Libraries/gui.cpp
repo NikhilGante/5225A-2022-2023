@@ -42,61 +42,40 @@ namespace alert{
   Timer timer("Flash Timer", false);
   std::uint32_t end_time;
   const Page* page;
+  Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue{"alert"};
 
-  void start(std::string text, Color color, std::uint32_t time){
-    std::uint32_t colour = static_cast<std::uint32_t>(color);
-
-    screen_flash.b_col = colour;
-    screen_flash_time.b_col = colour;
-    screen_flash_text.b_col = colour;
-    screen_flash_time.l_col = ~colour&0xFFFFFF;
-    screen_flash_text.l_col = ~colour&0xFFFFFF;
-    screen_flash_text.label = text;
-
-    page = GUI::current_page;
-    end_time = time;
-    screen_flash.go_to();
-
-    master.rumble(".-");
-
-    log_d.print("\n\n%s\n", text);
-
-    timer.reset(); //Starts counting
-    if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);
-  }
-
-  void start(std::string text, term_colours term_colour, std::uint32_t time){
-    std::uint32_t colour = static_cast<std::uint32_t>(GUI::get_colour(term_colour));
-
-    screen_flash.b_col = colour;
-    screen_flash_time.b_col = colour;
-    screen_flash_text.b_col = colour;
-    screen_flash_time.l_col = ~colour&0xFFFFFF;
-    screen_flash_text.l_col = ~colour&0xFFFFFF;
-    screen_flash_text.label = text;
-
-    page = GUI::current_page;
-    end_time = time;
-    screen_flash.go_to();
-
-    master.rumble(".-");
-
-    log_d.print(term_colour, "\n\n%s\n", text);
-
-    timer.reset(); //Starts counting
-    if(time) printf2(term_colours::CYAN, "Showing for %dms.\n\n", time);
-  }
-
+  void start(std::string text, Color color, std::uint32_t time) {if(queue.size() < 7) queue.push({color, term_colours::NONE, time, text});}
+  void start(std::string text, term_colours term_colour, std::uint32_t time) {if(queue.size() < 7) queue.push({GUI::get_colour(term_colour), term_colour, time, text});}
   //rest are templates, so defined in header
 
-  void attempt_end(){
-    //timer.playing() means flash is actually running
-    //timer.get_time() >= end_time means time has run out
-    //screen_flash_back_button.pressed() means user has exited the alert
+  void update(){
+    if(!timer.playing() && !queue.empty()){ //If nothing is currently flashing and there is something to flash, starts new flash
+      Colour colour = static_cast<Colour>(std::get<Color>(queue.front()));
 
-    if (timer.playing() && (timer.get_time() >= end_time || screen_flash_back_button.pressed())){
+      screen_flash.b_col = colour;
+      screen_flash_time.b_col = colour;
+      screen_flash_text.b_col = colour;
+      screen_flash_time.l_col = ~colour&0xFFFFFF;
+      screen_flash_text.l_col = ~colour&0xFFFFFF;
+      screen_flash_text.label = std::get<std::string>(queue.front());
+
+      page = GUI::current_page;
+      end_time = std::get<std::uint32_t>(queue.front());
+      screen_flash.go_to();
+
+      master.rumble(".- .-");
+
+      log_d.print(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
+
+      if(end_time) printf2(std::get<term_colours>(queue.front()), "Showing for %dms.\n\n", end_time);
+      timer.reset(); //Starts counting down
+    }
+
+    if(timer.playing() && (timer.get_time() >= end_time || screen_flash_back_button.pressed())){ //If something is flashing and either it's done or interrupted, ends flash
+      queue.pop();
       timer.reset(false);
       page->go_to();
+      return;
     }
   }
 }
@@ -769,7 +748,7 @@ namespace alert{
       /*Button*/ for (std::vector<Button*>::const_iterator it = cur_p.buttons.begin(); it != cur_p.buttons.end(); it++){(*it)->update(); if(&cur_p != current_page) continue;}
       /*Slider*/ for (std::vector<Slider*>::const_iterator it = cur_p.sliders.begin(); it != cur_p.sliders.end(); it++) (*it)->update();
       /*Text*/ for (std::vector<Text_*>::const_iterator it = cur_p.texts.begin(); it != cur_p.texts.end(); it++) (*it)->update();
-      /*Flash*/ alert::attempt_end();
+      /*Flash*/ alert::update();
 
       _Task_::delay(10);
     }

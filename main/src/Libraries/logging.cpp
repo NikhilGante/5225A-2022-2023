@@ -1,7 +1,7 @@
 #include "logging.hpp"
 #include "timer.hpp"
 std::string Data::file_name{"/usd/data.txt"};
-Queue<char, 1024> Data::queue{};
+Queue<char, 1024> Data::queue{"Logging"};
 vector<Data*> Data::obj_list;
 _Task_ Data::log_t("logging");
 

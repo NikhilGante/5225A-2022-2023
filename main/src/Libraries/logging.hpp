@@ -38,21 +38,20 @@ class Data{
     static std::string file_name;
     term_colours print_colour;
     bool newline;
-
-    static constexpr size_t print_point = 500;
-    static constexpr uint32_t print_max_time = 500;
-    
-  public:
-    static Queue<char, 1024> queue;
-    static _Task_ log_t;
-
     std::string name;
     log_locations log_location;
 
+    static constexpr size_t print_point = 500;
+    static constexpr uint32_t print_max_time = 500;
+    static Queue<char, 1024> queue;
+    static _Task_ log_t;
+
+    static void queue_handle();
+
+  public:
     Data(std::string name, log_locations log_location = log_locations::both, bool newline = true, term_colours print_colour = term_colours::NONE);
     
     static void init();
-    static void queue_handle();
 
     template <typename... Params>
     void print(term_colours colour, std::string format, Params... args) const{
@@ -66,7 +65,7 @@ class Data{
         case log_locations::both:
           printf("%s", sprintf2_colour(colour, str).c_str());
         case log_locations::sd: //fallthrough intentional
-          queue.insert(str.begin(), str.end());
+          queue.insert(str.cbegin(), str.cend());
           break;
         case log_locations::none:
           break;

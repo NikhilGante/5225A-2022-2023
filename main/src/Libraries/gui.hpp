@@ -26,11 +26,6 @@ extern Text<> testing_text_1, testing_text_2;
 extern Slider testing_slider;
 
 typedef std::uint32_t Colour;
-// #define Color::name (static_cast<Color>(COLOR_##NAME))
-
-// constexpr Color
-//   Color::dark_orange = 0x00F36421,
-//   Color::black = 0x00202020;
 
 constexpr int
   PAGE_LEFT = 0,
@@ -54,15 +49,14 @@ namespace alert{
   extern Timer timer;
   extern std::uint32_t end_time;
 
-  void attempt_end();
-  void start(std::string fmt, Color color, std::uint32_t time = 1000), //text + col + time / text + col
-  start(std::string fmt, term_colours colour = term_colours::ERROR, std::uint32_t time = 1000); //text + cols + time / text + cols / text
+  void update();
+  void start(std::string fmt, term_colours colour = term_colours::ERROR, std::uint32_t time = 1000); //text + cols + time / text + cols / text
+  
   template <typename... Params> void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args); //text + cols + time
   template <typename... Params> void start(Color color, std::uint32_t time, std::string fmt, Params... args); //text + col + time
   template <typename... Params> void start(std::uint32_t time, std::string fmt, Params... args); //text + red + time
   template <typename... Params> void start(term_colours colour, std::string fmt, Params... args); //text + col + 1000
 }
-
 
 //All constructor args are in the format points, format, page, Text, Color
 
@@ -77,7 +71,7 @@ class GUI{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Color, std::uint32_t),
+    alert::update(),
     alert::start(std::string, term_colours, std::uint32_t);
 
   public:
@@ -139,9 +133,8 @@ class Page{
     main_background(),
     util_setup(),
     util_background(),
-    alert::attempt_end(),
-    alert::start(std::string, Color, std::uint32_t),
-    alert::start(std::string, term_colours, std::uint32_t);
+    alert::update();
+
   private:
 
     //Vars
@@ -182,8 +175,8 @@ class Text_{
     main_setup(),
     main_background(),
     util_setup(),
-    util_background(),
-    alert::start(std::string, Color, std::uint32_t);
+    util_background();
+
   private:
     int x1 = USER_RIGHT, y1 = USER_DOWN, x2 = USER_LEFT, y2 = USER_UP;
 
@@ -223,8 +216,8 @@ class Text: public Text_{
     main_background(),
     util_setup(),
     util_background(),
-    alert::start(std::string, Color, std::uint32_t),
-    alert::start(std::string, term_colours, std::uint32_t);
+    alert::update();
+
   private:
     Text(){};
 
@@ -266,8 +259,8 @@ class Button{
     main_background(),
     util_setup(),
     util_background(),
-    alert::attempt_end(),
-    alert::start(std::string, Color, std::uint32_t);
+    alert::update();
+
   public: enum press_type{
     SINGLE,
     LATCH,
@@ -330,8 +323,8 @@ class Slider{
     main_setup(),
     main_background(),
     util_setup(),
-    util_background(),
-    alert::start(std::string, Color, std::uint32_t);
+    util_background();
+
   public: enum direction{
     VERTICAL,
     HORIZONTAL
