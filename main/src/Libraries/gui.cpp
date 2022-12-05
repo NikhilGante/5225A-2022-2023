@@ -63,9 +63,9 @@ namespace alert{
       end_time = std::get<std::uint32_t>(queue.front());
       screen_flash.go_to();
 
-      master.rumble(".- .-");
+      master.rumble("-.");
 
-      log_d.print(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
+      error.print(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
 
       if(end_time) printf2(std::get<term_colours>(queue.front()), "Showing for %dms.\n\n", end_time);
       timer.reset(); //Starts counting down

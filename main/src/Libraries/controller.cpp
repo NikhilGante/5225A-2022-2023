@@ -1,126 +1,84 @@
 #include "controller.hpp"
+#include "task.hpp"
 
-std::array<_Controller*, num_controller> _Controller::objs; //= {nullptr};
-_Task_ _Controller::controller_task("controller task");
+_Task_ _Controller::controller_task{"controller task"};
+_Controller *master_ptr{nullptr}, *partner_ptr{nullptr};
 
-int constructed = 0;
-
-_Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}
-{
-  objs[constructed] = this;
-  this->controller_num = constructed+1;
-  constructed++;
-}
-
-void _Controller::print_queue(){
-  while(true){
-    for(int i = 0; i < num_controller; i++){
-      objs[i]->queue_handle();
-      _Task_::delay(50);
-    }
+_Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}{
+  switch(id){
+    case CONTROLLER_MASTER:
+      master_ptr = this;
+      name = "Master";
+    break;
+    case CONTROLLER_PARTNER:
+      partner_ptr = this;
+      name = "Partner";
+    break;
   }
-}
-
-void _Controller::init(){
-  controller_task.start(print_queue);
 }
 
 void _Controller::queue_handle(){
   if(!queue.empty()){
-    printf("running command on controller %d", controller_num);
+    controller_queue.print("Running function on %s controller\n", name);
     queue.front()();
-    queue.pop();  // run the next function
+    queue.pop();
+    _Task_::delay(50);
   }
 }
 
-//template this at some point (done in header_clean)
-void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ... ){
-  char buffer[19];
-  std::va_list args;
-  va_start(args, fmt);
-  vsnprintf(buffer, 19, fmt, args);
-  va_end(args);
-  string buffer_cpy = buffer;
-  std::function<void()> func = [&, line, col, buffer_cpy](){
-    pros::Controller::print(line, col, buffer_cpy.c_str());
-    printf("printing %s to %d", buffer_cpy.c_str(), this->controller_num);
-  };
-  queue.push(func);
-  printf("adding print to queue for controller %d", this->controller_num);
-}
-void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
-  std::function<void()> func = [&, line, col, str](){
-    pros::Controller::print(line, col, str.c_str());
-    printf("printing %s to %d", str.c_str(), this->controller_num);
-  };
-  queue.push(func);
-  printf("adding print to queue for controller %d", this->controller_num);
+void _Controller::init(){
+  controller_task.start([](){
+    while(true){
+      if(master_ptr) master_ptr->queue_handle();
+      if(partner_ptr) partner_ptr->queue_handle();
+      _Task_::delay();
+    }
+  });
 }
 
+
 void _Controller::clear_line (std::uint8_t line){
-  std::function<void()> func = [&, line](){
+  queue.push([=, this](){
     pros::Controller::clear_line(line);
-    printf("clearing line %d for controller %d", line, this->controller_num);
-  };
-  queue.push(func);
-  printf("adding clear_line to queue for controller %d", this->controller_num);
+    controller_queue.print("clearing line %d on %s controller", line, name);
+  });
+  controller_queue.print("Adding clear_line for %s controller", name);
 }
 
 void _Controller::clear(){
-  std::function<void()> func = [&](){
+  queue.push([=, this](){
     pros::Controller::clear();
-    printf("clearing %d", this->controller_num);
-  };
-  queue.push(func);
-  printf("adding clear to queue for controller %d", this->controller_num);
+    controller_queue.print("Clearing screen on %s controller", name);
+  });
+  controller_queue.print("Adding clear to %s controller queue", name);
 }
 
 
-void _Controller::rumble(const string& rumble_pattern){
-  std::function<void()> func = [&, rumble_pattern](){
+void _Controller::rumble(std::string rumble_pattern){
+  queue.push([=, this](){
     pros::Controller::rumble(rumble_pattern.c_str());
-    printf("rumble controller %d", this->controller_num);
-  };
-  queue.push(func);
-  printf("adding rumble to queue for controller %d", this->controller_num);
+    controller_queue.print("Rumbling %s controller", name);
+  });
+  controller_queue.print("Adding rumble to %s controller queue", name);
 }
-
 
 controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
-  int start_time = millis();
-  printf("waiting for button press from controller %d", this->controller_num);
-  controller_digital_e_t button = static_cast<controller_digital_e_t>(0);
+  Timer timer{"Controller Button Timeout"};
+  controller_queue.print("Waiting for button press on %s controller with a timeout of %d", name, timeout);
   
-  WAIT_UNTIL(button != static_cast<controller_digital_e_t>(0)){
-    for(std::vector<controller_digital_e_t>::const_iterator it = buttons.begin(); it != buttons.end(); it++){
-      if(get_digital_new_press(*it)) button = *it;
-    }
-
-    if(timeout != 0 && millis() - start_time > timeout){
-      printf("timed out on waiting for button press from controller %d", this->controller_num);
-      return static_cast<controller_digital_e_t>(0);
+  WAIT_UNTIL(timer.get_time() > timeout){
+    for(controller_digital_e_t btn: buttons){
+      if(get_digital_new_press(btn)){
+        controller_queue.print("Button %d pressed on %s controller", btn, name);
+        return btn;
+      }
     }
   }
-  printf("button %d pressed from controller %d", button, this->controller_num);
-// button handling methods
-
-  return button;
+  controller_queue.print("Timed out on waiting for button press from controller %s", name);
+  return static_cast<controller_digital_e_t>(0);
 }
 
-
-//create wait for press for multiple buttons and return the one that was pressed
-void _Controller::wait_for_press(controller_digital_e_t button, int timeout){
-  int start_time = millis();
-  printf("waiting for button %d from controller %d", button, this->controller_num);
-  
-  WAIT_UNTIL(get_digital_new_press(button)){
-    if(timeout != 0 && millis() - start_time > timeout){
-      printf("timed out on waiting for button %d press from controller %d", button, this->controller_num);
-      return;
-    }
-  }
-  printf("button %d pressed from controller %d", button, this->controller_num);
-}
+void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
 
 void _Controller::updateButtons(){
   for(int i = 0; i < 12; i++){

@@ -45,7 +45,7 @@ void initialize() {
 	tracking_task.start(trackingUpdate);
   GUI::init();
 	Data::init();
-	// _Controller::init();
+	_Controller::init();
 	// log_init();
 	delay(500);
 	// lift.runMachine();
@@ -99,16 +99,35 @@ void autonomous() {}
 //delete the move and copy constructors for controller button, auton...
 //alert prints really big
 
-void opcontrol() {
+void opcontrol(){
   DEBUG;
   // for(int i = 0; i < 800; i++){
-	// 	for(int j = 0; j < 25; j++){
-  //     log_d.print("Hello ");
-	// 	}
+	// 	for(int j = 0; j < 25; j++) log_d.print("%05d", 25*i+j);
 	// 	log_d.print("\n");
-  //   delay(10);
+    // delay(10);
 	// }
 
+  for(int i = 0; i < 10; i++){
+    master.print(0, 0, std::to_string(i));
+  }
+
+
+  // log_d.print("Log Done\n");
   DEBUG;
   WAIT_UNTIL(false);
 }
+
+/*
+Takes 500ms to fill up with 15000 chars
+Can print 120000 chars in 4.7s (5ms x 800 delay)
+Can print 120000 chars in 8.7s (10ms x 800 delay)
+Can print 120000 chars in 0.7s, but missed characters (No delay)
+!all numbers are approx
+
+Will still need a mutex in case it's inputting faster than it outputs.
+Mutex isn't needed for all the writes because input and output to the queue happen at different locations.
+However, when clearing, there may be an issue.
+
+If the queue has 5 elems, 5 are written. However in that time, 2 more were inputted, so it clears to pos 7.
+This loses the two characters.
+*/

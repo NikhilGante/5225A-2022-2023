@@ -36,13 +36,13 @@ void _Task_::suspend(){
     task_notify_ext(task_handle, (int)notify_types_2::suspend, E_NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
     WAIT_UNTIL(task_get_state(task_handle) == E_TASK_STATE_SUSPENDED); // wait for the task to suspend
   }
-  else log_d.print("%s | suspend failed, task is dead\n", name);
+  else task_log.print("%s | suspend failed, task is dead\n", name);
 }
 
 void _Task_::resume(){
   // attempts to resume only if the task has started, otherwise a resume would block the program
   if(task_handle) task_resume(task_handle);
-  else log_d.print("%s | resume failed, task not started yet\n", name);
+  else task_log.print("%s | resume failed, task not started yet\n", name);
 }
 
 

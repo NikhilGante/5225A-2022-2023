@@ -128,14 +128,14 @@ class Queue{
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
     
     //Insert Modifiers
-    constexpr void push(const_reference value){if(!full()) *back_iter++ = value; if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %0.2f capacity", name, 100.0*size()/capacity());}
+    constexpr void push(const_reference value){if(!full()) *back_iter++ = value; if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100*size())/capacity());}
     constexpr iterator insert(const_reference value){push(value); return end();}
     template <std::input_iterator I> constexpr iterator insert(I first, I last){
       auto out = empty_contiguous_iterators();
       auto in  = split(first, last, out.first);
       back_iter += copy_pair(in.first,  out.first );
       back_iter += copy_pair(in.second, out.second);
-       if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s ueue has reached %0.2f capacity", name, 100.0*size()/capacity());
+      if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100*size())/capacity());
       return end();
     }
     constexpr iterator insert(const_pointer pointer, size_type count) {return insert(pointer, pointer+count);}

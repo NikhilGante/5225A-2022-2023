@@ -1,6 +1,7 @@
 #pragma once
 #include "main.h"
-#include <unordered_map>
+#include "logging.hpp"
+
 using namespace pros;
 using namespace pros::c;
 
@@ -29,6 +30,7 @@ public:
   _Task_(const char* name = "");
   template <typename F>
   void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
+    task_log.print("Starting %s task\n", name);
     kill(); // kills task if it's alive
     task_handle = Task::create(std::forward<F>(function), prio, stack_depth, name);
   }
@@ -38,5 +40,4 @@ public:
   void resume();  // resume the task
   
   static void delay(uint32_t delay_time = 10);  // special delay that handles notifications
-
 };

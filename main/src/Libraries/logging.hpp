@@ -13,10 +13,6 @@
 
 using namespace pros;
 //forawrd declarations
-// class _Task_;
-// class Timer;
-// class Data;
-// extern _Task_ log_t;
 
 /*
 1 is print, if there is no sd card, print to terminal
@@ -41,15 +37,13 @@ class Data{
     std::string name;
     log_locations log_location;
 
-    static constexpr size_t print_point = 500;
+    static constexpr size_t print_max_size = 10000;
     static constexpr uint32_t print_max_time = 500;
-    static Queue<char, 1024> queue;
+    static Queue<char, 20000> queue;
     static _Task_ log_t;
 
-    static void queue_handle();
-
   public:
-    Data(std::string name, log_locations log_location = log_locations::both, bool newline = true, term_colours print_colour = term_colours::NONE);
+    Data(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
     
     static void init();
 
@@ -79,18 +73,9 @@ class Data{
 };
 
 extern Data task_log;
-extern Data controller_queue;
 extern Data tracking_data;
-extern Data tracking_imp;
+extern Data controller_queue;
 extern Data misc;
-extern Data drivers_data;
 extern Data term;
-extern Data motion_d;
-extern Data motion_i;
 extern Data log_d;
-extern Data graph;
-extern Data state_log;
-extern Data graph;
-extern Data skills_d;
-extern Data safety;
-extern Data ERROR;
+extern Data error;
