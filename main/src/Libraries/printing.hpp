@@ -2,11 +2,8 @@
 #include "main.h"
 #include <bitset>
 
-//clean up this library
-
 struct Position;
 struct Vector;
-class Data;
 
 constexpr int n_printf_max = 50;
 
@@ -265,9 +262,9 @@ void newline(int count = 1);
   }
   template <typename... Params>
   int printf2(term_colours colour, std::string fmt, Params... args){
-    return printf("%s\n", sprintf2_colour(colour, fmt, args...).c_str());
+    return printf("%s", sprintf2_colour(colour, fmt, args...).c_str());
   }
   template <typename... Params>
   int printf2(std::string fmt, Params... args){
-    return printf("%s\n", sprintf2(fmt, args...).c_str());
+    return printf("%s", sprintf2(fmt, args...).c_str());
   }

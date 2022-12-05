@@ -732,17 +732,17 @@ void main_setup(){
     pneum_7.add_text(pneum_7_text);
     pneum_8.add_text(pneum_8_text);
 
-    for(std::array<std::pair<Piston*, Button*>, 8>::const_iterator it = Piston::list_for_gui.begin(); it != Piston::list_for_gui.end(); it++){
-      if(it->first){
-        it->second->set_func([it](){it->first->set_state(HIGH);});
-        it->second->set_off_func([it](){it->first->set_state(LOW);});
+    for(auto [piston, button]: Piston::list_for_gui){
+      if(piston){
+        button->set_func([piston](){piston->set_state(HIGH);});
+        button->set_off_func([piston](){piston->set_state(LOW);});
       }
-      else it->second->set_active(false);
+      else button->set_active(false);
     }
 
     pneumatics.set_setup_func([](){
-      for(std::array<std::pair<Piston*, Button*>, 8>::const_iterator it = Piston::list_for_gui.begin(); it != Piston::list_for_gui.end(); it++){
-        if(it->first && it->first->get_state()) it->second->select();
+      for(auto [piston, button]: Piston::list_for_gui){
+        if(piston && piston->get_state()) button->select();
       }
     });
 }
@@ -753,14 +753,18 @@ void main_background(){
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
 
   for (auto& mot_tup: motors_for_gui){
-    std::get<int>(mot_tup) = std::get<Motor*>(mot_tup) ? std::get<Motor*>(mot_tup)->get_temperature() : std::numeric_limits<int>::max();
+    Motor* motor = std::get<Motor*>(mot_tup);
+    int& temp = std::get<int>(mot_tup);
+    if(motor){
+      temp = motor->get_temperature();
 
-    if (!temp_flashed && std::get<Motor*>(mot_tup) && inRange(std::get<int>(mot_tup), 55, std::numeric_limits<int>::max() - 1) && alert::timer.playing()){ //Overheating
-      temp_flashed = true;
-      temps.go_to();
-      alert::start(term_colours::ERROR, 10000, "%s motor is at %dC\n", std::get<1>(mot_tup).c_str(), std::get<int>(mot_tup));
-      break;
+      if (motor && inRange(temp, 55, std::numeric_limits<int>::max() - 1)){ //Overheating
+        temps.go_to();
+        alert::start(10000, "%s motor is at %dC\n", std::get<1>(mot_tup), temp);
+        break;
+      }
     }
+    else temp = std::numeric_limits<int>::max();
   }
 }
 

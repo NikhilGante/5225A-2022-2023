@@ -2,7 +2,6 @@
 #include "main.h"
 #include "pros/colors.hpp"
 #include "printing.hpp"
-#include "timer.hpp"
 
 using pros::text_format_e_t;
 using pros::Color;
@@ -46,8 +45,8 @@ constexpr int
   CHAR_WIDTH_LARGE = 19;
 
 namespace alert{
-  extern Timer timer;
-  extern std::uint32_t end_time;
+  // extern Timer timer;
+  // extern std::uint32_t end_time;
 
   void update();
   void start(std::string fmt, term_colours colour = term_colours::ERROR, std::uint32_t time = 1000); //text + cols + time / text + cols / text
@@ -93,7 +92,7 @@ class GUI{
       static bool touched;
       static int x, y;
       std::vector<Page*> pages;
-      std::function <void()> setup, background;
+      std::function<void()> setup, background;
 
     //Functions
       static void

@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "logging.hpp"
 
 enum class timing_units{
   millis,
@@ -12,12 +13,12 @@ class Timer{
   const char* name;
   bool paused;    // state of timer
   timing_units timing_unit;
+  Data log;
   uint64_t getTimeInTimingUnit(); // returns time in either millis micros
 
 public:
 
-  Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis);
-  uint64_t getLastResetTime();
+  Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis, Data log = misc);
   void reset(bool play = true);
   uint64_t get_time();
   void play();

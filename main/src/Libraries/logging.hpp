@@ -9,10 +9,9 @@ enum class log_locations{
   none
 };
 
+//All dump into the same queue
 class Data{
   private:
-    static vector<Data*> obj_list;
-    static std::string file_name;
     term_colours print_colour;
     bool newline;
     std::string name;
@@ -20,8 +19,11 @@ class Data{
 
     static constexpr size_t print_max_size = 10000;
     static constexpr uint32_t print_max_time = 500;
+    static std::string file_name;
+    static std::vector<Data*> obj_list;
     static Queue<char, 20000> queue;
-    static _Task_ log_t;
+    static _Task_ task;
+    static Mutex mutex;
 
   public:
     Data(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
@@ -34,13 +36,15 @@ class Data{
       std::string str = sprintf2(format, args...) + newline;
 
       switch(log_location){
-        case log_locations::t:
-          printf("%s", sprintf2_colour(colour, str).c_str());
-          break;
         case log_locations::both:
-          printf("%s", sprintf2_colour(colour, str).c_str());
+          printf2(colour, str);
         case log_locations::sd: //fallthrough intentional
+          mutex.take();
           queue.insert(str.cbegin(), str.cend());
+          mutex.give();
+          break;
+        case log_locations::t:
+          printf2(colour, str);
           break;
         case log_locations::none:
           break;
@@ -54,6 +58,7 @@ class Data{
 };
 
 extern Data task_log;
+extern Data state_log;
 extern Data tracking_data;
 extern Data controller_queue;
 extern Data misc;

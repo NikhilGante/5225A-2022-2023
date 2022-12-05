@@ -1,9 +1,8 @@
 #include "gui.hpp"
 #include "../config.hpp"
-#include "../util.hpp"
 #include "task.hpp"
-#include "logging.hpp"
 #include "controller.hpp"
+#include "timer.hpp"
 
 //GUI:: Static Variable Declarations
   const Page* GUI::current_page = nullptr;
@@ -13,6 +12,10 @@
 
 //Text Vars
   std::string prompt_string;
+  namespace alert{
+    Timer timer("Flash Timer", false);
+    std::uint32_t end_time;
+  }
 
 //Default pages
   Page perm ("PERM BTNS", Color::pink); //Common page objects
@@ -40,8 +43,6 @@
   Page terminal ("Screen Printing");
 
 namespace alert{
-  Timer timer("Flash Timer", false);
-  std::uint32_t end_time;
   const Page* page;
   Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue{"alert"};
 

@@ -3,13 +3,14 @@
 #include "task.hpp"
 #include <fstream>
 
-
 std::string Data::file_name{"/usd/data.txt"};
+_Task_ Data::task{"logging"};
 Queue<char, 20000> Data::queue{"Logging"};
-vector<Data*> Data::obj_list;
-_Task_ Data::log_t("logging");
+std::vector<Data*> Data::obj_list;
+Mutex Data::mutex;
 
 Data task_log("tasks");
+Data state_log("states", log_locations::sd);
 Data controller_queue("controller", log_locations::t, term_colours::NONE, true);
 Data tracking_data("tracking");
 Data misc("misc", log_locations::both);
@@ -21,22 +22,29 @@ Data::Data(std::string name, log_locations log_location, term_colours print_colo
 name{name + ".txt"}, log_location{log_location}, newline{newline}, print_colour{print_colour} {obj_list.push_back(this);}
 
 void Data::init(){
-  ofstream file{file_name, ofstream::trunc};
-
-  if(!file.is_open()){
-    printf2(term_colours::ERROR, "Log File not found");
-    for(Data* obj: obj_list){
-      if(obj->log_location == log_locations::sd || obj->log_location == log_locations::both) obj->log_location = log_locations::t;
+  using std::ofstream;
+  {
+    ofstream file{file_name, ofstream::trunc};
+    if(!file.is_open()){
+      printf2(term_colours::ERROR, "Log File not found");
+      for(Data* obj: obj_list){
+        log_locations& loc = obj->log_location;
+        if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::t;
+      }
     }
-  }
+  } //To limit scope of ofstream file
 
-  log_t.start([](){
+  task.start([](){
     Timer timer{"logging_tmr"};
 
     while(true){
       if(!queue.empty() && (timer.get_time() > print_max_time || queue.size() > print_max_size)){
+        mutex.take();
         ofstream file{file_name, ofstream::app};
+        mutex.take();
         queue.output(file);
+        mutex.give();
+
         timer.reset();
       }
 

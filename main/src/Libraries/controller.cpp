@@ -1,5 +1,6 @@
 #include "controller.hpp"
 #include "task.hpp"
+#include "timer.hpp"
 
 _Task_ _Controller::controller_task{"controller task"};
 _Controller* _Controller::master_ptr{nullptr};

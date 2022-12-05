@@ -9,8 +9,6 @@
 #include "task.hpp"
 #include "../util.hpp"
 
-using namespace std;
-
 // class TaskEndException: public std::exception{
 // public:
 //   const char* what();
@@ -44,11 +42,11 @@ using namespace std;
 
 template <typename... StateTypes>
 class Machine{
-  variant<StateTypes...> state, target_state;
+  std::variant<StateTypes...> state, target_state;
   pros::Mutex state_mutex, target_state_mutex;
   const char* name;
 
-  atomic<bool> state_change_requested = false;
+  std::atomic<bool> state_change_requested = false;
 
   _Task_ task;
 
@@ -58,35 +56,35 @@ public:
 
   template <typename next_state_type>
   void changeState(next_state_type next_state){
-    printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+    state_log.print("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     setTargetState(next_state);
     state_change_requested = true;
     task.kill();  // interrupts current state
   }
   
   // getters and setters for state and target state (since they need mutexes)
-  void setState(variant<StateTypes...> state_param){
+  void setState(std::variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
     state = state_param;
     state_mutex.give();
   }
 
-  void setTargetState(variant<StateTypes...> target_state_param){
+  void setTargetState(std::variant<StateTypes...> target_state_param){
     target_state_mutex.take(TIMEOUT_MAX);
     target_state = target_state_param;
     target_state_mutex.give();
   }
 
-  variant<StateTypes...> getState(){
+  std::variant<StateTypes...> getState(){
     state_mutex.take(TIMEOUT_MAX);
-    variant<StateTypes...> temp = state;
+    std::variant<StateTypes...> temp = state;
     state_mutex.give();
     return temp;
   }
 
-  variant<StateTypes...> getTargetState(){
+  std::variant<StateTypes...> getTargetState(){
     target_state_mutex.take(TIMEOUT_MAX);
-    variant<StateTypes...> temp = target_state;
+    std::variant<StateTypes...> temp = target_state;
     target_state_mutex.give();
     return temp;
   }
@@ -102,12 +100,12 @@ public:
         }
 
         if(state_change_requested){
-          variant<StateTypes...> target_state_cpy = getTargetState();
-          variant<StateTypes...> state_cpy = getState();
+          std::variant<StateTypes...> target_state_cpy = getTargetState();
+          std::variant<StateTypes...> state_cpy = getState();
           // calls handle state change method for target state and logs the change
-          printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          state_log.print("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
-          printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          state_log.print("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           setState(target_state_cpy);
 
           state_change_requested = false;
@@ -117,11 +115,11 @@ public:
     });
   }
 
-  const char* getStateName(variant<StateTypes...> state){
+  const char* getStateName(std::variant<StateTypes...> state){
     return visit([](auto&& arg){return arg.getName();}, state);
   }
 
-  void waitToReachState(variant<StateTypes...> state_param){  // blocks until desired state is reached
+  void waitToReachState(std::variant<StateTypes...> state_param){  // blocks until desired state is reached
     size_t index = state_param.index();
     WAIT_UNTIL(getTargetState().index() == index && getState().index() == index);
   }
