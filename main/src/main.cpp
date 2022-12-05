@@ -1,6 +1,7 @@
 #include "main.h"
 #include "Libraries/geometry.hpp"
 #include "Libraries/pid.hpp"
+#include "Libraries/controller.hpp"
 #include "Libraries/piston.hpp"
 #include "Libraries/timer.hpp"
 #include "Libraries/state.hpp"
@@ -25,7 +26,6 @@ change most #defines to constexpr
 replace C macros with C++ equivalents (M_PI) - not super important
 std::string instead of const char*
 const after type (int const, char const *)
-acivate using namespace pros in main.h
 try to remove using namespace std if everyone is ok with that
 switch variadic functions to variadic templates
 make more methods const

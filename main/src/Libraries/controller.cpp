@@ -2,7 +2,8 @@
 #include "task.hpp"
 
 _Task_ _Controller::controller_task{"controller task"};
-_Controller *master_ptr{nullptr}, *partner_ptr{nullptr};
+_Controller* _Controller::master_ptr{nullptr};
+_Controller* _Controller::partner_ptr{nullptr};
 
 _Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}{
   switch(id){

@@ -2,10 +2,7 @@
 #include "main.h"
 #include "logging.hpp"
 
-using namespace pros;
-using namespace pros::c;
-
-int increment_controller_line();
+int increment_controller_line(); //? What is this
 
 class TaskEndException: public std::exception{
 public:
@@ -28,7 +25,7 @@ class _Task_{
 
 public:
   _Task_(const char* name = "");
-  template <typename F>
+  template <std::invocable F>
   void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
     task_log.print("Starting %s task\n", name);
     kill(); // kills task if it's alive

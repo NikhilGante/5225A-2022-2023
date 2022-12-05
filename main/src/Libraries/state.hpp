@@ -10,7 +10,6 @@
 #include "../util.hpp"
 
 using namespace std;
-using namespace pros;
 
 // class TaskEndException: public std::exception{
 // public:

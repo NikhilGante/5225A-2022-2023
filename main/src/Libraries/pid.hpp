@@ -3,9 +3,6 @@
 #include "timer.hpp"
 #include <limits>
 
-
-using namespace pros;
-
 class PID{
 public:
   Timer last_update_timer{"last_update_timer"};

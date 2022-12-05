@@ -267,29 +267,29 @@ void main_setup(){
     std::get<7>(motors_for_gui[6]) = &mot_7_stop;
     std::get<7>(motors_for_gui[7]) = &mot_8_stop;
 
-    for(std::array<std::tuple<Motor *, std::string, std::string, int, Text_ *, Text_ *, Button *, Button *>, 8>::iterator it = motors_for_gui.begin(); it != motors_for_gui.end(); it++){
-      if(std::get<Motor*>(*it)){
-        std::get<6>(*it)->set_func([=](){std::get<Motor*>(*it)->move(mot_speed_set.get_value());});
-        std::get<7>(*it)->set_func([=](){std::get<Motor*>(*it)->move(0);});
+    for(auto& tup : motors_for_gui){
+      if(std::get<Motor*>(tup)){
+        std::get<6>(tup)->set_func([=](){std::get<Motor*>(tup)->move(mot_speed_set.get_value());});
+        std::get<7>(tup)->set_func([=](){std::get<Motor*>(tup)->move(0);});
 
-        std::get<int>(*it) = std::get<Motor*>(*it)->get_temperature();
+        std::get<int>(tup) = std::get<Motor*>(tup)->get_temperature();
       }
-      else std::get<int>(*it) = std::numeric_limits<int>::max();
+      else std::get<int>(tup) = std::numeric_limits<int>::max();
 
-      std::get<4>(*it)->set_background(40, 20);
-      if(std::get<int>(*it) == std::numeric_limits<int>::max()){
-        std::get<4>(*it)->set_active(false);
-        std::get<5>(*it)->set_active(false);
-        std::get<6>(*it)->set_active(false);
-        std::get<7>(*it)->set_active(false);
+      std::get<4>(tup)->set_background(40, 20);
+      if(std::get<int>(tup) == std::numeric_limits<int>::max()){
+        std::get<4>(tup)->set_active(false);
+        std::get<5>(tup)->set_active(false);
+        std::get<6>(tup)->set_active(false);
+        std::get<7>(tup)->set_active(false);
       }
     }
 
     temps.set_loop_func([](){
-      for (int i = 0; i < 8; i++){
-        Text_* text = std::get<4>(motors_for_gui[i]);
+      for (auto mot_tup: motors_for_gui){
+        Text_* text = std::get<4>(mot_tup);
         if (text){
-          switch(std::get<int>(motors_for_gui[i])){
+          switch(std::get<int>(mot_tup)){
             case 0:
             case 5:
               text->set_background(Color::white); break;
@@ -373,8 +373,7 @@ void main_setup(){
     });
 
     pneums.set_func([](){
-      for(std::array<std::pair<Piston*, Button*>, 8>::const_iterator it = Piston::list_for_gui.begin(); it != Piston::list_for_gui.end(); it++){
-        Piston* piston = it->first;
+      for(auto [piston, _]: Piston::list_for_gui){
         if (!piston) continue;
 
         if (GUI::prompt("Press to check " + piston->get_name())){
@@ -407,7 +406,7 @@ void main_setup(){
     auton_selector.set_func([](){DEPRECATE});
 
   //Tracking
-    for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
+    // for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
 
     track.set_setup_func([](){
       screen::set_pen(static_cast<std::uint32_t>(Color::white));
@@ -753,8 +752,7 @@ void main_background(){
   int x = 200*tracking.g_pos.x / 144, y = 200*tracking.g_pos.y / 144;
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
 
-  for (std::array<std::tuple<Motor*, std::string, std::string, int, Text_*, Text_*, Button*, Button*>, 8>::iterator it = motors_for_gui.begin(); it != motors_for_gui.end(); it++){
-    std::tuple<Motor*, std::string, std::string, int, Text_*, Text_*, Button*, Button*>& mot_tup = *it;
+  for (auto& mot_tup: motors_for_gui){
     std::get<int>(mot_tup) = std::get<Motor*>(mot_tup) ? std::get<Motor*>(mot_tup)->get_temperature() : std::numeric_limits<int>::max();
 
     if (!temp_flashed && std::get<Motor*>(mot_tup) && inRange(std::get<int>(mot_tup), 55, std::numeric_limits<int>::max() - 1) && alert::timer.playing()){ //Overheating
@@ -821,8 +819,7 @@ void util_setup(){
       }
     }
 
-    for (std::array<std::tuple<int, Button*, Button*, Text_*, int, std::string>, 8>::const_iterator it = motor_ports.begin(); it != motor_ports.end(); it++){
-      const std::tuple<int, Button*, Button*, Text_*, int, std::string>& mot_arr = *it;
+    for (const auto& mot_arr: motor_ports){
 
       if (std::get<0>(mot_arr) != std::numeric_limits<int>::max()) motor_port_nums.append(std::to_string(std::get<0>(mot_arr)) + ", ");
       else{
@@ -838,10 +835,10 @@ void util_setup(){
 
 
     motor.set_loop_func([](){
-      for (std::array<std::tuple<int, Button*, Button*, Text_*, int, std::string>, 8>::const_iterator it = motor_ports.begin(); it != motor_ports.end(); it++){
-        int port = std::get<0>(*it);
-        Button* run_btn = std::get<1>(*it);
-        Button* stop_btn = std::get<2>(*it);
+      for (auto& tup: motor_ports){
+        int port = std::get<0>(tup);
+        Button* run_btn = std::get<1>(tup);
+        Button* stop_btn = std::get<2>(tup);
 
         if (port != std::numeric_limits<int>::max()){ //? Works without this safety check
           switch(static_cast<int>(c::motor_get_temperature(port))){
@@ -902,8 +899,8 @@ void util_setup(){
       else expander_ports[port] = std::numeric_limits<int>::max();
     }
 
-    for (std::array<int, 21>::const_iterator it = expander_ports.begin(); it != expander_ports.end(); it++){
-      if (*it != std::numeric_limits<int>::max()) expander_port_nums.append(std::to_string(*it) + ", ");
+    for (int port: expander_ports){
+      if (port != std::numeric_limits<int>::max()) expander_port_nums.append(std::to_string(port) + ", ");
     }
 
     if (expander_port_nums.back() == ',') expander_port_nums.pop_back();
@@ -950,13 +947,13 @@ void util_setup(){
 
 void util_background(){
   //Motor Stalled
-  for (std::array<std::tuple<int, Button*, Button*, Text_*, int, std::string>, 8>::iterator it = motor_ports.begin(); it != motor_ports.end(); it++){
-    int port = std::get<0>(*it);
-    int& stall_count = std::get<4>(*it);
+  for (auto& mot_tup: motor_ports){
+    int port = std::get<0>(mot_tup);
+    int& stall_count = std::get<4>(mot_tup);
     if (port != std::numeric_limits<int>::max()){
       int cur = c::motor_get_actual_velocity(port), target = c::motor_get_target_velocity(port), temp = c::motor_get_temperature(port);
 
-      std::get<5>(*it) = sprintf2("%d: %d", port, cur);
+      std::get<5>(mot_tup) = sprintf2("%d: %d", port, cur);
       if(mot_jam_detect.on){
         if (std::abs(target-cur) > 5) stall_count++;
         else stall_count = 0;

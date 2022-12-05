@@ -3,16 +3,7 @@
 #include "logging.hpp"
 #include "queue.hpp"
 #include <vector>
-#include <cstdarg>
-#include <array>
 #include <functional>
-
-using namespace pros;
-using namespace std;
-
-// Buttons
-
-// partner buttons
 
 class _Task;
 

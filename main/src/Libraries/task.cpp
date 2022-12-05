@@ -1,8 +1,10 @@
 #include "task.hpp"
+#include "../config.hpp"
 #include "../util.hpp"
 #include "timer.hpp"
-#include "../config.hpp"
 #include "logging.hpp"
+
+using namespace c;
 
 
 _Task_::_Task_(const char* name): name{name} {}

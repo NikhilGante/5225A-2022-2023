@@ -1,24 +1,6 @@
 #pragma once
 #include "../util.hpp"
-#include "printing.hpp"
-#include "task.hpp"
 #include "queue.hpp"
-#include "../config.hpp"
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cstdarg>
-#include <fstream>
-#include <functional>
-
-using namespace pros;
-//forawrd declarations
-
-/*
-1 is print, if there is no sd card, print to terminal
-2 is print. if there is no sd card, ignore
-0 is off
-*/
 
 enum class log_locations{
   t,
@@ -26,7 +8,6 @@ enum class log_locations{
   both,
   none
 };
-
 
 class Data{
   private:

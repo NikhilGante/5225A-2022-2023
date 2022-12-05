@@ -3,6 +3,7 @@
 #include "../util.hpp"
 #include "task.hpp"
 #include "logging.hpp"
+#include "controller.hpp"
 
 //GUI:: Static Variable Declarations
   const Page* GUI::current_page = nullptr;
@@ -258,9 +259,9 @@ namespace alert{
 
     //Sees how much space is user-requested
     int y = USER_UP;
-    for (std::vector<Text_*>::const_iterator it = terminal.texts.begin(); it != terminal.texts.end(); it++){
-      if ((*it)->txt_size != 4) y += get_height((*it)->txt_size) + 5;
-      if(get_width(TEXT_SMALL) * (*it)->label.length() + 5 > 480){
+    for (auto text_ptr: terminal.texts){
+      if (text_ptr->txt_size != 4) y += get_height(text_ptr->txt_size) + 5;
+      if(get_width(TEXT_SMALL) * text_ptr->label.length() + 5 > 480){
           throw std::length_error("Item too long to print\n");
           return;
         }
@@ -277,23 +278,23 @@ namespace alert{
       return;
     }
 
-    for (std::vector<Text_*>::const_iterator it = terminal.texts.begin(); it != terminal.texts.end(); it++){
-      if (get_width(fmt) * (*it)->label.length() + 5 > 480){
+    for (auto text_ptr: terminal.texts){
+      if (get_width(fmt) * text_ptr->label.length() + 5 > 480){
         if(fmt == TEXT_LARGE){
-          if(get_width(TEXT_MEDIUM) * (*it)->label.length() + 5 < 480) (*it)->txt_size = TEXT_MEDIUM;
-          else if(get_width(TEXT_SMALL) * (*it)->label.length() + 5 < 480) (*it)->txt_size = TEXT_SMALL;
+          if(get_width(TEXT_MEDIUM) * text_ptr->label.length() + 5 < 480) text_ptr->txt_size = TEXT_MEDIUM;
+          else if(get_width(TEXT_SMALL) * text_ptr->label.length() + 5 < 480) text_ptr->txt_size = TEXT_SMALL;
         }
 
-        else if(fmt == TEXT_MEDIUM) (*it)->txt_size = TEXT_SMALL;
+        else if(fmt == TEXT_MEDIUM) text_ptr->txt_size = TEXT_SMALL;
       }
     }
 
     y = USER_UP;
     //Saves y-pos and txt_size
-    for (std::vector<Text_*>::const_iterator it = terminal.texts.begin(); it != terminal.texts.end(); it++){
-      (*it)->y = y;
-      if ((*it)->txt_size == 4) (*it)->txt_size = fmt;
-      y += get_height((*it)->txt_size) + 5;
+    for (auto text_ptr: terminal.texts){
+      text_ptr->y = y;
+      if (text_ptr->txt_size == 4) text_ptr->txt_size = fmt;
+      y += get_height(text_ptr->txt_size) + 5;
     }
   }
 
@@ -336,14 +337,14 @@ namespace alert{
   GUI::GUI(std::vector<Page*> pages, std::function <void()> setup, std::function <void()> background){
     //Saves pages to gui
     this->pages.push_back(&perm);
-    for (std::vector<Page*>::const_iterator it = pages.begin(); it != pages.end(); it++) this->pages.push_back(*it);
+    for (auto page_ptr: pages) this->pages.push_back(page_ptr);
     this->pages.push_back(&testing);
     this->pages.push_back(&terminal);
     this->pages.push_back(&prompt_sequence);
     this->pages.push_back(&screen_flash);
 
     //Saves gui to pages
-    for (std::vector<Page*>::const_iterator it = this->pages.begin(); it != this->pages.end(); it++) (*it)->guis.push_back(this);
+    for (auto page_ptr: this->pages) page_ptr->guis.push_back(this);
 
     this->setup = setup;
     this->background = background;
@@ -398,7 +399,7 @@ namespace alert{
     this->b_col = static_cast<std::uint32_t>(background_colour);
     this->title = title;
     if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
-      for (std::vector<Button*>::const_iterator it = perm.buttons.begin(); it != perm.buttons.end(); it++) buttons.push_back(*it);
+      for (auto btn_ptr: perm.buttons) buttons.push_back(btn_ptr);
     }
   }
 
@@ -461,17 +462,16 @@ namespace alert{
   void Button::create_options(std::vector<Button*> buttons){
     std::vector<Button*>::const_iterator it, it2; //For clarity
 
-    for (it = buttons.begin(); it != buttons.end(); it++){
-      Button* btn_id = *it;
-      if (btn_id->form != LATCH && btn_id->form != TOGGLE){
-        throw std::invalid_argument(sprintf2("Option Feature is only available for latch and toggle buttons! Failed on \"%s\" button.\n", btn_id->label));
+    for (auto btn_ptr: buttons){
+      if (btn_ptr->form != LATCH && btn_ptr->form != TOGGLE){
+        throw std::invalid_argument(sprintf2("Option Feature is only available for latch and toggle buttons! Failed on \"%s\" button.\n", btn_ptr->label));
         return;
       }
     }
 
-    for (it = buttons.begin(); it != buttons.end(); it++){ //For each button in the list
-      for (it2 = buttons.begin(); it2 != buttons.end(); it2++){ //Go through the list and save each button
-        if (*it != *it2) (*it)->options.push_back(*it2);
+    for (auto btn1: buttons){ //For each button in the list
+      for (auto btn2: buttons){ //Go through the list and save each button
+        if (btn1 != btn2) btn1->options.push_back(btn2);
       }
     }
   }
@@ -519,7 +519,7 @@ namespace alert{
       case Button::TOGGLE:
         on = true;
 
-        for (std::vector<Button*>::const_iterator option_it = options.begin(); option_it != options.end(); option_it++) (*option_it)->deselect();
+        for (auto option: options) option->deselect();
 
       case Button::SINGLE:
       case Button::REPEAT:
@@ -624,9 +624,9 @@ namespace alert{
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, 20);
     screen::set_pen(static_cast<std::uint32_t>(Color::white));
     screen::print(TEXT_SMALL, MID_X-(title.length() + 3 + std::to_string(page_num(this)).length()) * CHAR_WIDTH_SMALL / 2, 5, "%s - %d", title, page_num(this));
-    for (std::vector<Button*>::const_iterator it = buttons.begin(); it != buttons.end(); it++) (*it)->draw();
-    for (std::vector<Slider*>::const_iterator it = sliders.begin(); it != sliders.end(); it++) (*it)->draw();
-    for (std::vector<Text_*>::const_iterator it = texts.begin(); it != texts.end(); it++) (*it)->draw();
+    for (auto button: buttons) button->draw();
+    for (auto slider: sliders) slider->draw();
+    for (auto text:   texts  ) text->draw();
   }
 
   void Button::draw() const{
@@ -745,9 +745,9 @@ namespace alert{
       update_screen_status();
       const Page& cur_p = * current_page;
       /*Page*/ cur_p.update();
-      /*Button*/ for (std::vector<Button*>::const_iterator it = cur_p.buttons.begin(); it != cur_p.buttons.end(); it++){(*it)->update(); if(&cur_p != current_page) continue;}
-      /*Slider*/ for (std::vector<Slider*>::const_iterator it = cur_p.sliders.begin(); it != cur_p.sliders.end(); it++) (*it)->update();
-      /*Text*/ for (std::vector<Text_*>::const_iterator it = cur_p.texts.begin(); it != cur_p.texts.end(); it++) (*it)->update();
+      /*Button*/ for (auto button: cur_p.buttons){button->update(); if(&cur_p != current_page) continue;}
+      /*Slider*/ for (auto slider: cur_p.sliders) slider->update();
+      /*Text*/   for (auto text:   cur_p.texts  ) text->update();
       /*Flash*/ alert::update();
 
       _Task_::delay(10);
@@ -767,8 +767,8 @@ namespace alert{
 
   bool Page::pressed() const{
     if (this == GUI::current_page || this == &perm){
-      for (std::vector<GUI*>::const_iterator it = guis.begin(); it != guis.end(); it++){
-        if ((*it)->pressed()) return true; //If any of it's owning gui's are pressed
+      for (auto gui: guis){
+        if (gui->pressed()) return true; //If any of it's owning gui's are pressed
       }
     }
     return false;

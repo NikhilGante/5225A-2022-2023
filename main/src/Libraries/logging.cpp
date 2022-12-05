@@ -1,5 +1,9 @@
 #include "logging.hpp"
 #include "timer.hpp"
+#include "task.hpp"
+#include <fstream>
+
+
 std::string Data::file_name{"/usd/data.txt"};
 Queue<char, 20000> Data::queue{"Logging"};
 vector<Data*> Data::obj_list;
@@ -21,12 +25,12 @@ void Data::init(){
 
   if(!file.is_open()){
     printf2(term_colours::ERROR, "Log File not found");
-    for(Data* obj: Data::obj_list){
+    for(Data* obj: obj_list){
       if(obj->log_location == log_locations::sd || obj->log_location == log_locations::both) obj->log_location = log_locations::t;
     }
   }
 
-  Data::log_t.start([](){
+  log_t.start([](){
     Timer timer{"logging_tmr"};
 
     while(true){
