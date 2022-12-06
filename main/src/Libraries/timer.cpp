@@ -1,6 +1,6 @@
 #include "timer.hpp"
 
-Timer::Timer(const char* name, bool play, timing_units timing_unit, Data log):
+Timer::Timer(const char* name, bool play, timing_units timing_unit, Logging log):
 name{name}, timing_unit{timing_unit}, log{log} {
   log.print("%s's initialize time is: %lld\n", name, getTimeInTimingUnit());
   reset(play);
@@ -15,7 +15,7 @@ void Timer::reset(bool play){
   else paused = true;
 }
 
-uint64_t Timer::get_time(){
+uint64_t Timer::getTime(){
   if (paused) return time;
   else return getTimeInTimingUnit() - last_play_time + time;
 }
@@ -37,7 +37,7 @@ void Timer::pause(){
 }
 
 void Timer::print(const char* str){
-  log.print("%s's current time is: %lld | %s\n", name, get_time(), str);
+  log.print("%s's current time is: %lld | %s\n", name, getTime(), str);
 }
 
 bool Timer::playing() const {return !paused;}

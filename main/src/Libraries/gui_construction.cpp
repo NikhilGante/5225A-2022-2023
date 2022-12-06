@@ -376,10 +376,10 @@ void main_setup(){
       for(auto [piston, _]: Piston::list_for_gui){
         if (!piston) continue;
 
-        if (GUI::prompt("Press to check " + piston->get_name())){
-          piston->toggle_state();
+        if (GUI::prompt("Press to check " + piston->getName())){
+          piston->toggleState();
           delay(500);
-          piston->toggle_state();
+          piston->toggleState();
         }
         else return;
       }
@@ -463,15 +463,15 @@ void main_setup(){
 
     go_to_xya.set_func([&](){
       Position target (x_val.get_value(), y_val.get_value(), a_val.get_value());
-      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTarget(target);
+      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
     go_home.set_func([](){
       Position target (0, 0, tracking.g_pos.a);
-      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTarget(target);
+      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
     go_centre.set_func([](){
       Position target (72, 72, tracking.g_pos.a);
-      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTarget(target);
+      if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
 
   //Subsystems
@@ -557,18 +557,18 @@ void main_setup(){
             left -= left_rot;
             right -= right_rot;
             back -= back_rot;
-            term_colours left_col = fabs(left) <= 0.01 ? term_colours::GREEN : term_colours::RED;
-            term_colours right_col = fabs(right) <= 0.01 ? term_colours::GREEN : term_colours::RED;
-            term_colours back_col = fabs(back) <= 0.01 ? term_colours::GREEN : term_colours::RED;
+            term_colours left_col = std::abs(left) <= 0.01 ? term_colours::GREEN : term_colours::RED;
+            term_colours right_col = std::abs(right) <= 0.01 ? term_colours::GREEN : term_colours::RED;
+            term_colours back_col = std::abs(back) <= 0.01 ? term_colours::GREEN : term_colours::RED;
 
             if(left == 0) printf2(term_colours::GREEN, "The left encoder was perfect over %d rotations", left_rot);
-            else printf2(left_col, "The left encoder %s %d ticks over %d rotations", left > 0 ? "gained" : "lost", fabs(360.0 * left), left_rot);
+            else printf2(left_col, "The left encoder %s %d ticks over %d rotations", left > 0 ? "gained" : "lost", std::abs(360.0 * left), left_rot);
 
             if(right == 0) printf2(term_colours::GREEN, "The right encoder was perfect over %d rotations", right_rot);
-            else printf2(right_col, "The right encoder %s %d ticks over %d rotations", right > 0 ? "gained" : "lost", fabs(360.0 * right), right_rot);
+            else printf2(right_col, "The right encoder %s %d ticks over %d rotations", right > 0 ? "gained" : "lost", std::abs(360.0 * right), right_rot);
 
             if(back == 0) printf2(term_colours::GREEN, "The back encoder was perfect over %d rotations", back_rot);
-            else printf2(back_col, "The back encoder %s %d ticks over %d rotations", back > 0 ? "gained" : "lost", fabs(360.0 * back), back_rot);
+            else printf2(back_col, "The back encoder %s %d ticks over %d rotations", back > 0 ? "gained" : "lost", std::abs(360.0 * back), back_rot);
           }
         }
       }
@@ -646,8 +646,8 @@ void main_setup(){
           driveBrake();
 
           printf2("If the robot is far off of 30 inches, consider changing the wheel size constants.");
-          printf2("Multiply the actual travelled distance by %f to get the left wheel diameter", fabs(2.0 / degToRad(left_tracker.get_position())));
-          printf2("Multiply the actual travelled distance by %f to get the right wheel diameter", fabs(2.0 / degToRad(right_tracker.get_position())));
+          printf2("Multiply the actual travelled distance by %f to get the left wheel diameter", std::abs(2.0 / degToRad(left_tracker.get_position())));
+          printf2("Multiply the actual travelled distance by %f to get the right wheel diameter", std::abs(2.0 / degToRad(right_tracker.get_position())));
         }
       }
     });
@@ -674,7 +674,7 @@ void main_setup(){
           resetDrive();
 
           if(GUI::prompt("Press when back at start position")){
-            printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", fabs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", fabs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
+            printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", std::abs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
             
             double turned = tracking.g_pos.a / 180.0;
             double rots = round(turned);
@@ -683,7 +683,7 @@ void main_setup(){
 
             double dist = abs(left_tracker.get_position() - right_tracker.get_position()) / (360.0 * rots);
 
-            if(fabs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
+            if(std::abs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
             else if(turned > 0) printf2(term_colours::RED, "However, the robot gained %.2f degrees over %.1f rotations. Consider decreasing the DistanceLR to %.3f.", turned, rots, dist);
             else printf2(term_colours::RED, "However, the robot lost %.2f degrees over %.1f rotations. Consider increasing the DistanceLR to %.3f.", -turned, rots, dist);
           }
@@ -697,16 +697,16 @@ void main_setup(){
           tracking.waitForDistance(10);
           driveBrake();
           moveDrive(0.0, 80.0);
-          WAIT_UNTIL(fabs(tracking.g_pos.a) > 3200);
+          WAIT_UNTIL(std::abs(tracking.g_pos.a) > 3200);
           moveDrive(0.0, 40.0);
-          WAIT_UNTIL(fabs(tracking.g_pos.a) > 3600);
+          WAIT_UNTIL(std::abs(tracking.g_pos.a) > 3600);
           driveBrake();
           moveDrive(60.0, 0.0);
           tracking.waitForDistance(5);
           flattenToWall();
           driveBrake();
 
-          printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", fabs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", fabs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
+          printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", std::abs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
             
           double turned = tracking.g_pos.a / 180.0;
           double rots = round(turned);
@@ -715,7 +715,7 @@ void main_setup(){
 
           double dist = abs(left_tracker.get_position() - right_tracker.get_position()) / (360.0 * rots);
 
-          if(fabs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
+          if(std::abs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
           else if(turned > 0) printf2(term_colours::RED, "However, the robot gained %.2f degrees over %.1f rotations. Consider decreasing the DistanceLR to %.3f.", turned, rots, dist);
           else printf2(term_colours::RED, "However, the robot lost %.2f degrees over %.1f rotations. Consider increasing the DistanceLR to %.3f.", -turned, rots, dist);
         }
@@ -734,15 +734,15 @@ void main_setup(){
 
     for(auto [piston, button]: Piston::list_for_gui){
       if(piston){
-        button->set_func([piston](){piston->set_state(HIGH);});
-        button->set_off_func([piston](){piston->set_state(LOW);});
+        button->set_func([piston](){piston->setState(HIGH);});
+        button->set_off_func([piston](){piston->setState(LOW);});
       }
       else button->set_active(false);
     }
 
     pneumatics.set_setup_func([](){
       for(auto [piston, button]: Piston::list_for_gui){
-        if(piston && piston->get_state()) button->select();
+        if(piston && piston->getState()) button->select();
       }
     });
 }

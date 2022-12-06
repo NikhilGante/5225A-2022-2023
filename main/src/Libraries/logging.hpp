@@ -10,7 +10,7 @@ enum class log_locations{
 };
 
 //All dump into the same queue
-class Data{
+class Logging{
   private:
     term_colours print_colour;
     bool newline;
@@ -20,13 +20,13 @@ class Data{
     static constexpr size_t print_max_size = 10000;
     static constexpr uint32_t print_max_time = 500;
     static std::string file_name;
-    static std::vector<Data*> obj_list;
+    static std::vector<Logging*> obj_list;
     static Queue<char, 20000> queue;
-    static _Task_ task;
+    static _Task task;
     static Mutex mutex;
 
   public:
-    Data(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
+    Logging(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
     
     static void init();
 
@@ -57,11 +57,12 @@ class Data{
     }
 };
 
-extern Data task_log;
-extern Data state_log;
-extern Data tracking_data;
-extern Data controller_queue;
-extern Data misc;
-extern Data term;
-extern Data log_d;
-extern Data error;
+extern Logging task_log;
+extern Logging state_log;
+extern Logging auton_log;
+extern Logging tracking_data;
+extern Logging controller_queue;
+extern Logging misc;
+extern Logging term;
+extern Logging log_d;
+extern Logging error;

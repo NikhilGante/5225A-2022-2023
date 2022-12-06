@@ -13,14 +13,14 @@ class Timer{
   const char* name;
   bool paused;    // state of timer
   timing_units timing_unit;
-  Data log;
+  Logging log;
   uint64_t getTimeInTimingUnit(); // returns time in either millis micros
 
 public:
 
-  Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis, Data log = misc);
+  Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis, Logging log = misc);
   void reset(bool play = true);
-  uint64_t get_time();
+  uint64_t getTime();
   void play();
   void pause();
   void print(const char* str = ""); // prints to the terminal with custom message

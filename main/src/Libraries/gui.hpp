@@ -7,7 +7,7 @@ using pros::text_format_e_t;
 using pros::Color;
 
 //Forward-Declaration
-class _Task_;
+class _Task;
 class GUI;
 class Page;
 class Button;
@@ -88,7 +88,7 @@ class GUI{
         testing_page_active = false;
       static const Page* current_page;
       static const GUI* current_gui;
-      static _Task_ task;
+      static _Task task;
       static bool touched;
       static int x, y;
       std::vector<Page*> pages;

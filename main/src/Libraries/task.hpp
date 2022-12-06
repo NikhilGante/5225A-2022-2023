@@ -5,8 +5,7 @@
 int increment_controller_line(); //? What is this
 
 class TaskEndException: public std::exception{
-public:
-  const char* what();
+  public: const char* what();
 };
 
 enum class notify_types_2{
@@ -17,14 +16,14 @@ enum class notify_types_2{
 
 extern int controller_line_counter;
 
-class _Task_{
+class _Task{
   task_t task_handle = 0; // handle to the pros task
   const char* name;
 
   bool isAlive(); // returns if the task is currently on the scheduler
 
 public:
-  _Task_(const char* name = "");
+  _Task(const char* name = "");
   template <std::invocable F>
   void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
     task_log.print("Starting %s task\n", name);

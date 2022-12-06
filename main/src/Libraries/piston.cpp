@@ -14,41 +14,41 @@ std::array<std::pair<Piston*, Button*>, 8> Piston::list_for_gui {{
   {nullptr, &pneum_8},
 }};
 
-Piston::Piston(std::uint8_t adi_port, std::string name, bool open_state, bool init_state): ADIDigitalOut(adi_port, init_state), open_state{open_state}, name(name){
+Piston::Piston(std::uint8_t adi_port, std::string name, bool open_state, bool init_state): ADIDigitalOut(adi_port, init_state), name(name){
   if(count < 8) list_for_gui[count].first = this;
   count++;
 }
 // constructor overload for port pair
-Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool open_state, bool init_state): ADIDigitalOut(port_pair, init_state), open_state{open_state}, name(name){
+Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool open_state, bool init_state): ADIDigitalOut(port_pair, init_state), name(name){
   if(count < 8) list_for_gui[count].first = this;
   count++;
 }
 
-void Piston::set_state(bool state){
-  this->state = state != open_state;
+void Piston::setState(bool state){
+  this->state = state != reversed;
   this->set_value(this->state);
   this->change_time = millis();
 }
 
-bool Piston::get_state() const{
-  return this->state != open_state;
+bool Piston::getState() const{
+  return this->state != reversed;
 }
 
-bool Piston::toggle_state(){
+bool Piston::toggleState(){
   this->state = !this->state;
   this->set_value(state);
   this->change_time = millis();
   return state;
 }
 
-int Piston::get_state_time() const{
+int Piston::getStateTime() const{
   return millis() - this->change_time;
 }
 
-std::string Piston::get_name() const{
+std::string Piston::getName() const{
   return this->name;
 }
 
 std::string Piston::get_name(int number){
-  return list_for_gui[number-1].first ? Piston::list_for_gui[number-1].first->get_name() : "No Piston";
+  return list_for_gui[number-1].first ? Piston::list_for_gui[number-1].first->getName() : "No Piston";
 }

@@ -23,6 +23,6 @@ public:
 void moveDrive(double y, double a);
 void moveDriveSide(double l, double r); // sends powers to each side of the drivebase
 void driveBrake(); // holds all the drivebase motors
-void handleInput(); // takes input from the joysticks and moves the drivebase
+void driveHandleInput(); // takes input from the joysticks and moves the drivebase
 void resetDrive();
 void flattenToWall();

@@ -5,13 +5,33 @@
 #include <vector>
 #include <functional>
 
+// Buttons
+
+extern controller_digital_e_t endgameBtn1;
+// controller_digital_e_t someBUTTON;
+extern controller_digital_e_t resetDiscCountBtn;
+// controller_digital_e_t someBUTTON;
+
+extern controller_digital_e_t intakeToggleBtn;
+extern controller_digital_e_t rollerBtn;
+extern controller_digital_e_t endgameBtn2;
+extern controller_digital_e_t transToggleBtn;
+
+extern controller_digital_e_t anglerToggleBtn;
+// extern controller_digital_e_t someBtn;
+extern controller_digital_e_t tripleShotBtn;
+extern controller_digital_e_t singleShotBtn;
+
+
+// partner buttons
+
 class _Task;
 
 class _Controller : public pros::Controller{
 private:
   static constexpr int count = 1;
   static _Controller *master_ptr, *partner_ptr;
-  static _Task_ controller_task;
+  static _Task controller_task;
   Queue<std::function<void()>, 20> queue{"Controller"};
   std::string name;
 
@@ -19,9 +39,9 @@ private:
   bool cur_press_arr[12] = {0};
   bool last_press_arr[12] = {0};
 
-  void queue_handle();
-
 public:
+  void queueHandle();
+
   _Controller(pros::controller_id_e_t id);
   static void init();
 

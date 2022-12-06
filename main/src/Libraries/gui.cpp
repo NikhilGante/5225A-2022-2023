@@ -8,7 +8,7 @@
   const Page* GUI::current_page = nullptr;
   bool GUI::touched = false;
   int GUI::x = 0, GUI::y = 0; //try making a point again
-  _Task_ GUI::task("GUI");
+  _Task GUI::task("GUI");
 
 //Text Vars
   std::string prompt_string;
@@ -38,7 +38,7 @@
   Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word alert
     Button screen_flash_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, screen_flash, "BACK");
     Text screen_flash_text (MID_X, MID_Y, GUI::Style::CENTRE, TEXT_LARGE, screen_flash, "");
-    Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.get_time();}));
+    Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.getTime();}));
 
   Page terminal ("Screen Printing");
 
@@ -73,7 +73,7 @@ namespace alert{
       timer.reset(); //Starts counting down
     }
 
-    if(timer.playing() && (timer.get_time() >= end_time || screen_flash_back_button.pressed())){ //If something is flashing and either it's done or interrupted, ends flash
+    if(timer.playing() && (timer.getTime() >= end_time || screen_flash_back_button.pressed())){ //If something is flashing and either it's done or interrupted, ends flash
       queue.pop();
       timer.reset(false);
       page->go_to();
@@ -751,7 +751,7 @@ namespace alert{
       /*Text*/   for (auto text:   cur_p.texts  ) text->update();
       /*Flash*/ alert::update();
 
-      _Task_::delay(10);
+      _Task::delay(10);
     }
   }
 

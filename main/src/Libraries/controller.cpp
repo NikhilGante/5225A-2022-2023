@@ -2,7 +2,24 @@
 #include "task.hpp"
 #include "timer.hpp"
 
-_Task_ _Controller::controller_task{"controller task"};
+// Buttons
+
+controller_digital_e_t endgameBtn1 = DIGITAL_RIGHT;
+// controller_digital_e_t someBUTTON = DIGITAL_DOWN;
+controller_digital_e_t resetDiscCountBtn = DIGITAL_LEFT;
+// controller_digital_e_t someBUTTON = DIGITAL_UP;
+
+controller_digital_e_t intakeToggleBtn = DIGITAL_A;
+controller_digital_e_t rollerBtn = DIGITAL_B;
+controller_digital_e_t endgameBtn2 = DIGITAL_Y;
+controller_digital_e_t transToggleBtn = DIGITAL_X;
+
+controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
+// controller_digital_e_t someBtn = DIGITAL_L2;
+controller_digital_e_t tripleShotBtn = DIGITAL_R2;
+controller_digital_e_t singleShotBtn = DIGITAL_R1;
+
+_Task _Controller::controller_task{"controller task"};
 _Controller* _Controller::master_ptr{nullptr};
 _Controller* _Controller::partner_ptr{nullptr};
 
@@ -19,21 +36,21 @@ _Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}{
   }
 }
 
-void _Controller::queue_handle(){
+void _Controller::queueHandle(){
   if(!queue.empty()){
     controller_queue.print("Running function on %s controller\n", name);
     queue.front()();
     queue.pop();
-    _Task_::delay(50);
+    _Task::delay(50);
   }
 }
 
 void _Controller::init(){
   controller_task.start([](){
     while(true){
-      if(master_ptr) master_ptr->queue_handle();
-      if(partner_ptr) partner_ptr->queue_handle();
-      _Task_::delay();
+      if(master_ptr) master_ptr->queueHandle();
+      if(partner_ptr) partner_ptr->queueHandle();
+      _Task::delay();
     }
   });
 }
@@ -68,7 +85,7 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
   Timer timer{"Controller Button Timeout"};
   controller_queue.print("Waiting for button press on %s controller with a timeout of %d", name, timeout);
   
-  WAIT_UNTIL(timer.get_time() > timeout){
+  WAIT_UNTIL(timer.getTime() > timeout){
     for(controller_digital_e_t btn: buttons){
       if(get_digital_new_press(btn)){
         controller_queue.print("Button %d pressed on %s controller", btn, name);

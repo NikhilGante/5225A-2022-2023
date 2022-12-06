@@ -1,32 +1,20 @@
 #include "main.h"
-#include "Libraries/geometry.hpp"
-#include "Libraries/pid.hpp"
-#include "Libraries/controller.hpp"
-#include "Libraries/piston.hpp"
-#include "Libraries/timer.hpp"
-#include "Libraries/state.hpp"
 #include "Libraries/gui.hpp"
 #include "Libraries/task.hpp"
-
 #include "Libraries/logging.hpp"
-
-#include "lift.hpp"
-#include "pros/misc.h"
+#include "Libraries/controller.hpp"
+#include "auton.hpp"
 #include "tracking.hpp"
-#include "drive.hpp"
 #include "config.hpp"
-
-#include "pros/rtos.h"
 
 const GUI* GUI::current_gui = &main_obj;
 
 
 /* Nathan's Thoughts
 change most #defines to constexpr
-replace C macros with C++ equivalents (M_PI) - not super important
+replace C macros with C++ equivalents (std::numbers::pi) - not super important
 std::string instead of const char*
 const after type (int const, char const *)
-try to remove using namespace std if everyone is ok with that
 switch variadic functions to variadic templates
 make more methods const
 */
@@ -40,11 +28,11 @@ make more methods const
  */
 void initialize() {
 	tracking.g_pos = {31.0, 11.5, 0.0};
-	// tracking.g_pos = {70.0, 129.5, M_PI};
-	_Task_ tracking_task("tracking_update_task");
+	// tracking.g_pos = {70.0, 129.5, std::numbers::pi};
+	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
   GUI::init();
-	Data::init();
+	Logging::init();
 	_Controller::init();
 	// log_init();
 	delay(500);
@@ -80,7 +68,10 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	new_skills2();
+
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -110,7 +101,6 @@ void opcontrol(){
   for(int i = 0; i < 10; i++){
     master.print(0, 0, std::to_string(i));
   }
-
 
   // log_d.print("Log Done\n");
   DEBUG;

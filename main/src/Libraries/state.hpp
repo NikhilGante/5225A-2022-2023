@@ -48,21 +48,9 @@ class Machine{
 
   std::atomic<bool> state_change_requested = false;
 
-  _Task_ task;
+  _Task task;
 
-public:
-  template <typename base_state_type>
-  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
-
-  template <typename next_state_type>
-  void changeState(next_state_type next_state){
-    state_log.print("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
-    setTargetState(next_state);
-    state_change_requested = true;
-    task.kill();  // interrupts current state
-  }
-  
-  // getters and setters for state and target state (since they need mutexes)
+  // Getters and setters for state and target state (since they need mutexes)
   void setState(std::variant<StateTypes...> state_param){
     state_mutex.take(TIMEOUT_MAX);
     state = state_param;
@@ -74,6 +62,20 @@ public:
     target_state = target_state_param;
     target_state_mutex.give();
   }
+
+public:
+  template <typename base_state_type>
+  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
+
+  template <typename next_state_type>
+  void changeState(next_state_type next_state){
+    printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+    setTargetState(next_state);
+    state_change_requested = true;
+    task.kill();  // Interrupts current state
+  }
+
+  // Getters for state and target state (since they need mutexes)
 
   std::variant<StateTypes...> getState(){
     state_mutex.take(TIMEOUT_MAX);
@@ -94,7 +96,7 @@ public:
     task.start([&](){
       while(true){
         try{
-          visit([](auto&& arg){arg.handle();}, state);  // calls handler for current state
+          visit([](auto&& arg){arg.handle();}, state);  // Calls handler for current state
         }
         catch(const TaskEndException& exception){
         }

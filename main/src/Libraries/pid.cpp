@@ -26,14 +26,14 @@ double PID::compute(double input, double target){
 
   proportional = error * kP;
   //(kI || kD) && 
-  if (last_update_timer.get_time() > 0.0){  // if only P is activated, don't compute I and D-related variables
+  if (last_update_timer.getTime() > 0.0){  // if only P is activated, don't compute I and D-related variables
     // resets integral if sign of error flips and user enabled this feature, or error is out of bounds
-    if ((integral_sgn_reset && sgn(error) != last_error_sgn) || (fabs(error) < integral_lower_bound || fabs(error) > integral_upper_bound)){
+    if ((integral_sgn_reset && sgn(error) != last_error_sgn) || (std::abs(error) < integral_lower_bound || std::abs(error) > integral_upper_bound)){
       integral = 0;
     }
-    else integral += error * last_update_timer.get_time() * kI;
+    else integral += error * last_update_timer.getTime() * kI;
 
-    derivative = (error - last_error) / last_update_timer.get_time() * kD;
+    derivative = (error - last_error) / last_update_timer.getTime() * kD;
 
     // updates variables for next iteration of loop
     last_update_timer.reset();
