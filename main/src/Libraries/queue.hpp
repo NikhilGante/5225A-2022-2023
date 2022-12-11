@@ -7,7 +7,10 @@
 #include <cstring>
 #include <iostream>
 
-#include "gui.hpp"
+#include "printing.hpp"
+
+//Forward Declare
+namespace alert {template <typename... Params> void priority(term_colours colour, std::string fmt, Params... args);}
 
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 
@@ -15,7 +18,7 @@ template <std::input_or_output_iterator I, std::input_or_output_iterator SIZE>
 constexpr std::pair<std::pair<I, I>, std::pair<I, I>> split(I first, I last, std::pair<SIZE, SIZE> size){
   auto offset = std::distance(size.first, size.second);
   I middle = std::clamp(std::next(offset < 0 ? last : first, offset), first, last);
-  return {std::make_pair(first, middle), std::make_pair(middle, last)};
+  return {{first, middle}, {middle, last}};
 }
 
 template <std::input_iterator I, output_iter<I> O>
@@ -95,13 +98,13 @@ class Queue{
 
     constexpr std::pair<std::pair<pointer, pointer>, std::pair<pointer, pointer>> empty_contiguous_iterators(){ //Returns two ranges corresponding to unfilled part of queue
       if(full()) return {};
-      if(begin().internal <= end().internal) return std::make_pair(std::pair(end().internal, arr.end()), std::pair(arr.begin(), begin().internal)); //Wraparound
-      else return std::make_pair(std::pair(end().internal, begin().internal), std::pair<pointer, pointer>()); //Single Range
+      if(begin().internal <= end().internal) return {std::pair{end().internal, arr.end()}, std::pair{arr.begin(), begin().internal}}; //Wraparound
+      else return {std::pair{end().internal, begin().internal}, {}}; //Single Range
     }
     constexpr std::pair<std::pair<const_pointer, const_pointer>, std::pair<const_pointer, const_pointer>> full_contiguous_iterators() const { //Returns two ranges corresponding to filled part of queue
       if(empty()) return {};
-      if(begin().internal < end().internal) return std::make_pair(std::pair(begin().internal, end().internal), std::pair<const_pointer, const_pointer>()); //Single Range
-      else return std::make_pair(std::pair(begin().internal, arr.end()), std::pair(arr.begin(), end().internal)); //Wraparound
+      if(begin().internal < end().internal) return {std::pair{begin().internal, end().internal}, {}}; //Single Range
+      else return {std::pair{begin().internal, arr.end()}, std::pair{arr.begin(), end().internal}}; //Wraparound
     }
 
     constexpr iterator construct_iterator(pointer pointer) {return {pointer, arr.begin(), arr.end()};}
@@ -126,13 +129,25 @@ class Queue{
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
     
     //Insert Modifiers
-    constexpr void push(const_reference value){if(!full()) *back_iter++ = value; if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100*size())/capacity());}
+    constexpr void priority_push(const_reference value){
+      if(full()) back_iter--;
+      *end() = value;
+      back_iter++;
+    }
+    constexpr void push(const_reference value){
+      if(full()) return;
+      *end() = value;
+      back_iter++;
+      if(size() >= capacity()) alert::priority(term_colours::ERROR , "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+      else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+    }
     template <std::input_iterator I> constexpr iterator insert(I first, I last){
       auto out = empty_contiguous_iterators();
       auto in  = split(first, last, out.first);
       back_iter += copy_pair(in.first,  out.first );
       back_iter += copy_pair(in.second, out.second);
-      if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100*size())/capacity());
+      if(size() >= capacity()) alert::priority(term_colours::ERROR , "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+      else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
       return end();
     }
 
@@ -144,7 +159,6 @@ class Queue{
       auto in = full_contiguous_iterators();
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
-      // clear();
       front_iter = cur_end;
     }
 };

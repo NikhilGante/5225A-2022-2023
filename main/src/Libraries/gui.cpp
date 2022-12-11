@@ -46,12 +46,11 @@ namespace alert{
   const Page* page;
   Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue{"alert"};
 
-  void start(std::string text, Color color, std::uint32_t time) {if(queue.size() < 7) queue.push({color, term_colours::NONE, time, text});}
-  void start(std::string text, term_colours term_colour, std::uint32_t time) {if(queue.size() < 7) queue.push({GUI::get_colour(term_colour), term_colour, time, text});}
   //rest are templates, so defined in header
 
   void update(){
-    if(!timer.playing() && !queue.empty()){ //If nothing is currently flashing and there is something to flash, starts new flash
+    //If nothing is currently flashing and there is something to flash, starts new flash
+    if(!timer.playing() && !queue.empty()){
       Colour colour = static_cast<Colour>(std::get<Color>(queue.front()));
 
       screen_flash.b_col = colour;
@@ -69,11 +68,12 @@ namespace alert{
 
       error.print(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
 
-      if(end_time) printf2(std::get<term_colours>(queue.front()), "Showing for %dms.\n\n", end_time);
+      if(end_time) printf2(term_colours::NOTIF, "Showing for %dms.\n\n", end_time);
       timer.reset(); //Starts counting down
     }
 
-    if(timer.playing() && (timer.getTime() >= end_time || screen_flash_back_button.pressed())){ //If something is flashing and either it's done or interrupted, ends flash
+    //If something is flashing and either it's done or interrupted, ends flash
+    if(timer.playing() && (timer.getTime() >= end_time || screen_flash_back_button.pressed())){
       queue.pop();
       timer.reset(false);
       page->go_to();

@@ -94,24 +94,7 @@ void autonomous() {
 
 void opcontrol(){
   DEBUG;
-  // // for(int i = 0; i < 800; i++){
-	// // 	for(int j = 0; j < 25; j++) log_d.print("%05d", 25*i+j);
-	// // 	log_d.print("\n");
-  //   // delay(10);
-	// // }
 
-  // for(int i = 0; i < 10; i++){
-  //   master.print(0, 0, std::to_string(i));
-  // }
-
-  for(int i = 0; i < 1e4/50; i++){
-    for(int j = 0; j < 50; j++){
-      log_d.print("abcde");
-    }
-    delay(1);
-  }
- 
-  // log_d.print("Log Done\n");
   DEBUG;
   WAIT_UNTIL(false);
 }

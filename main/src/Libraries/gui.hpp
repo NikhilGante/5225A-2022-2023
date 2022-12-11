@@ -2,6 +2,7 @@
 #include "main.h"
 #include "pros/colors.hpp"
 #include "printing.hpp"
+#include "queue.hpp"
 
 using pros::text_format_e_t;
 using pros::Color;
@@ -45,16 +46,7 @@ constexpr int
   CHAR_WIDTH_LARGE = 19;
 
 namespace alert{
-  // extern Timer timer;
-  // extern std::uint32_t end_time;
-
   void update();
-  void start(std::string fmt, term_colours colour = term_colours::ERROR, std::uint32_t time = 1000); //text + cols + time / text + cols / text
-  
-  template <typename... Params> void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args); //text + cols + time
-  template <typename... Params> void start(Color color, std::uint32_t time, std::string fmt, Params... args); //text + col + time
-  template <typename... Params> void start(std::uint32_t time, std::string fmt, Params... args); //text + red + time
-  template <typename... Params> void start(term_colours colour, std::string fmt, Params... args); //text + col + 1000
 }
 
 //All constructor args are in the format points, format, page, Text, Color
@@ -70,8 +62,7 @@ class GUI{
     main_background(),
     util_setup(),
     util_background(),
-    alert::update(),
-    alert::start(std::string, term_colours, std::uint32_t);
+    alert::update();
 
   public:
     enum class Style{ //how the rect coords get evaluated
@@ -103,7 +94,6 @@ class GUI{
         clear_screen(Color=Color::black),
         clear_screen(std::uint32_t),
         draw_oblong(int, int, int, int, double, double);
-      static Color get_colour(term_colours);
       static int get_height(text_format_e_t), get_width(text_format_e_t);
       static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
       bool pressed() const;
@@ -118,6 +108,7 @@ class GUI{
         aligned_coords (int, int, int, int, int = 480, int = 220),
         init(),
         go_to(int);
+      static Color get_colour(term_colours);
       static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
 };
 
@@ -395,23 +386,19 @@ class Slider{
   }
 
 //Screen Flash Definitions
+
   namespace alert{
-    template <typename... Params>
-    void start(term_colours colour, std::uint32_t time, std::string fmt, Params... args){
-      start(sprintf2(fmt, args...), colour, time);
-    }
-    template <typename... Params>
-    void start(Color color, std::uint32_t time, std::string fmt, Params... args){
-      start(sprintf2(fmt, args...), color, 1000);
-    }
-    template <typename... Params>
-    void start(std::uint32_t time, std::string fmt, Params... args){
-      start(sprintf2(fmt, args...), term_colours::ERROR, time);
-    }
-    template <typename... Params>
-    void start(term_colours colour, std::string fmt, Params... args){
-      start(sprintf2(fmt, args...), colour, 1000);
-    }
+    extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue;
+
+    template <typename... Params> void start   (                                         std::string fmt, Params... args) {queue.         push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
+    template <typename... Params> void start   (                     std::uint32_t time, std::string fmt, Params... args) {queue.         push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
+    template <typename... Params> void start   (term_colours colour,                     std::string fmt, Params... args) {queue.         push({GUI::get_colour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
+    template <typename... Params> void start   (term_colours colour, std::uint32_t time, std::string fmt, Params... args) {queue.         push({GUI::get_colour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
+
+    template <typename... Params> void priority(                                         std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
+    template <typename... Params> void priority(                     std::uint32_t time, std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
+    template <typename... Params> void priority(term_colours colour,                     std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
+    template <typename... Params> void priority(term_colours colour, std::uint32_t time, std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
   }
 
 //Text Constructors

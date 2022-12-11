@@ -1,6 +1,8 @@
 #include "logging.hpp"
 #include "timer.hpp"
 #include "task.hpp"
+#include "gui.hpp"
+
 #include <fstream>
 
 std::string Logging::file_name{"/usd/data.txt"};
@@ -26,7 +28,7 @@ void Logging::init(){
   bool file_openable = true;
   if(!usd::is_installed()){
     file_openable = false;
-    alert::start("SD Card not installed");
+    alert::start("Logging can't work: No SD Card");
   }
   else{
     ofstream file{file_name, ofstream::trunc};

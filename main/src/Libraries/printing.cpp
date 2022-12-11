@@ -36,7 +36,7 @@ std::string get_term_colour(term_colours colour){
     case term_colours::NONE: return "\033[0m"; break;
     case term_colours::ERROR: return "\033[31mERROR: "; break;
     case term_colours::WARNING: return "\033[33mWARNING: "; break;
-    case term_colours::NOTIF: return "\033[32mNOTIF: "; break;
+    case term_colours::NOTIF: return "\033[34mNOTIF: "; break;
   }
   return "";
 }

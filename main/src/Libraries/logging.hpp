@@ -1,6 +1,9 @@
 #pragma once
 #include "../util.hpp"
 #include "queue.hpp"
+#include "printing.hpp"
+
+class _Task;
 
 enum class log_locations{
   t,
