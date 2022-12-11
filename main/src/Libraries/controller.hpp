@@ -45,7 +45,7 @@ public:
   _Controller(pros::controller_id_e_t id);
   static void init();
 
-  void clear_line (std::uint8_t line);
+  void clearLine (std::uint8_t line);
   void clear();
   void rumble(std::string rumble_pattern);
   void wait_for_press(controller_digital_e_t button, int timeout = 0);

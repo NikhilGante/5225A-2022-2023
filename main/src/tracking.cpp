@@ -243,16 +243,10 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
 Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
 
 // Drive idle state
-const char* DriveIdleParams::getName(){
-  return "DriveIdle";
-}
 void DriveIdleParams::handle(){}
 void DriveIdleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
 // Drive operator control params
-const char* DriveOpControlParams::getName(){
-  return "DriveIdle";
-}
 void DriveOpControlParams::handle(){
   driveHandleInput();
 }
@@ -263,9 +257,6 @@ void DriveOpControlParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_stat
 DriveMttParams::DriveMttParams(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side) :
  target(target), brake_mode(brake_mode), max_power(max_power), end_error_x(end_error_x), robot_side(robot_side){}
 
-const char* DriveMttParams::getName(){
-  return "DriveMoveToTarget";
-}
 void DriveMttParams::handle(){
   Vector line_error = target - tracking.g_pos;  // Displacement from robot's position to target
   double line_angle = std::numbers::pi/2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
@@ -338,9 +329,6 @@ void DriveMttParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode, double end_error):
   angle(angle), brake_mode(brake_mode), end_error(end_error){}
 
-const char* DriveTurnToAngleParams::getName(){
-  return "DriveTurnToAngle";
-}
 void DriveTurnToAngleParams::handle(){
   turnToAngleInternal(std::function([&](){return degToRad(angle);}), brake_mode, end_error);
 }
@@ -350,9 +338,6 @@ void DriveTurnToAngleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_st
 DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error):
   target(target), reverse(reverse), brake_mode(brake_mode), end_error(end_error){}
 
-const char* DriveTurnToTargetParams::getName(){
-  return "DriveTurnToAngle";
-}
 void DriveTurnToTargetParams::handle(){
   turnToAngleInternal(std::function([&](){
     return std::numbers::pi/2 - (target - tracking.g_pos).getAngle() + (reverse ? std::numbers::pi : 0);
@@ -362,9 +347,6 @@ void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_s
 
 // Drive Flatten state
 
-const char* DriveFlattenParams::getName(){
-  return "DriveFlatten";
-}
 void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
   moveDrive(40, 0);

@@ -16,13 +16,13 @@ struct FlywheelMoveVelParams;
 extern Machine<FLYWHEEL_STATE_TYPES> flywheel;
 
 struct FlywheelIdleParams{
-  const char* getName();
+  inline static const std::string name = "FlywheelIdle";
   void handle();
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 };
 
 struct FlywheelOffParams{  
-  const char* getName();
+  inline static const std::string name = "FlywheelOff";
   void handle();
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 };
@@ -34,7 +34,7 @@ struct FlywheelMoveVelParams{
 
   FlywheelMoveVelParams(int target_vel);
 
-  const char* getName();
+  inline static const std::string name = "FlywheelMoveVel";
   void handle();
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 private:

@@ -11,7 +11,7 @@ Queue<char, 20000> Logging::queue{"Logging"};
 std::vector<Logging*> Logging::obj_list;
 
 Logging task_log("tasks", log_locations::none);
-Logging state_log("states", log_locations::sd);
+Logging state_log("states", log_locations::both);
 Logging auton_log("states");
 Logging controller_queue("controller", log_locations::none, term_colours::NONE, true);
 Logging tracking_data("tracking");

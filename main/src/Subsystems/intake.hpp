@@ -21,7 +21,8 @@ struct IntakeIndexParams;
 extern Machine<INTAKE_STATE_TYPES> intake;
 
 struct IntakeIdleParams{
-  const char* getName();
+  inline static const std::string name = "IntakeIdle";
+
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 };
@@ -31,7 +32,7 @@ struct IntakeOnParams{
 
   IntakeOnParams(int8_t speed = 127);
   
-  const char* getName();
+  inline static const std::string name = "IntakeOn";
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 
@@ -44,7 +45,7 @@ private:
 void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on
 
 struct IntakeOffParams{
-  const char* getName();
+  inline static const std::string name = "IntakeOff";
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 };
@@ -56,7 +57,7 @@ struct IntakeRevParams{
 
   IntakeRevParams(int8_t speed = -127);
 
-  const char* getName();
+  inline static const std::string name = "IntakeRev";
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 };
@@ -68,7 +69,7 @@ struct IntakeIndexParams{
 
   IntakeIndexParams(int8_t speed = -127);
 
-  const char* getName();
+  inline static const std::string name = "IntakeIndex";
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 };

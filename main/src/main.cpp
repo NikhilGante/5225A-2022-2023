@@ -38,7 +38,6 @@ void initialize() {
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 
-	// log_init();
 	delay(500);
 	// lift.runMachine();
 }
@@ -73,8 +72,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	new_skills2();
-
+	newSkills2();
 }
 
 /**

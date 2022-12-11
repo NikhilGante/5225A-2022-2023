@@ -47,7 +47,7 @@ class Machine{
   using variant = std::variant<StateTypes...>;
   variant state, target_state;
   pros::Mutex state_mutex, target_state_mutex;
-  const char* name;
+  std::string name;
 
   std::atomic<bool> state_change_requested = false;
 
@@ -68,11 +68,11 @@ class Machine{
 
 public:
   template <typename base_state_type>
-  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
+  Machine(std::string name, base_state_type base_state): name(name), state(base_state), target_state(base_state){}
 
   template <typename next_state_type>
   void changeState(next_state_type next_state){
-    printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+    state_log.print("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     setTargetState(next_state);
     state_change_requested = true;
     task.kill();  // Interrupts current state
@@ -120,8 +120,8 @@ public:
     });
   }
 
-  const char* getStateName(variant state){
-    return visit([](auto&& arg){return arg.getName();}, state);
+  std::string getStateName(variant state){
+    return visit([](auto&& arg){return arg.name;}, state);
   }
 
   void waitToReachState(variant state_param){  // blocks until desired state is reached

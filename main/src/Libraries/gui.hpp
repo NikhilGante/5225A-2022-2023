@@ -58,10 +58,10 @@ class GUI{
   friend class Slider;
   friend class Text_;
   friend void
-    main_setup(),
-    main_background(),
-    util_setup(),
-    util_background(),
+    mainSetup(),
+    mainBackground(),
+    utilSetup(),
+    utilBackground(),
     alert::update();
 
   public:
@@ -89,11 +89,11 @@ class GUI{
       static void
         update(),
         update_screen_status(),
-        go_next(), go_prev(),
+        goNext(), goPrev(),
         screen_terminal_fix(),
-        clear_screen(Color=Color::black),
-        clear_screen(std::uint32_t),
-        draw_oblong(int, int, int, int, double, double);
+        clearScreen(Color=Color::black),
+        clearScreen(std::uint32_t),
+        drawOblong(int, int, int, int, double, double);
       static int get_height(text_format_e_t), get_width(text_format_e_t);
       static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
       bool pressed() const;
@@ -105,10 +105,10 @@ class GUI{
 
     //Functions
       static void
-        aligned_coords (int, int, int, int, int = 480, int = 220),
+        alignedCoords (int, int, int, int, int = 480, int = 220),
         init(),
-        go_to(int);
-      static Color get_colour(term_colours);
+        goTo(int);
+      static Color getColour(term_colours);
       static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
 };
 
@@ -119,10 +119,10 @@ class Page{
   friend class Slider;
   friend class Text_;
   friend void
-    main_setup(),
-    main_background(),
-    util_setup(),
-    util_background(),
+    mainSetup(),
+    mainBackground(),
+    utilSetup(),
+    utilBackground(),
     alert::update();
 
   private:
@@ -144,9 +144,9 @@ class Page{
       void
         draw() const,
         update() const,
-        go_to() const,
-        set_setup_func(std::function <void()>), set_loop_func(std::function <void()>),
-        set_active(bool = true);
+        goTo() const,
+        setSetupFunc(std::function <void()>), setLoopFunc(std::function <void()>),
+        setActive(bool = true);
 
   public:
     //Title, Bcolour
@@ -162,10 +162,10 @@ class Text_{
   friend class Button;
   friend class Slider;
   friend void
-    main_setup(),
-    main_background(),
-    util_setup(),
-    util_background();
+    mainSetup(),
+    mainBackground(),
+    utilSetup(),
+    utilBackground();
 
   private:
     int x1 = USER_RIGHT, y1 = USER_DOWN, x2 = USER_LEFT, y2 = USER_UP;
@@ -183,15 +183,15 @@ class Text_{
     //Functions
       virtual void
         update() = 0,
-        update_val() = 0;
+        updateVal() = 0;
       void
         draw(),
-        set_background(int, int, Color), //Centre
-        set_background(int, int), //Centre
-        set_background(int, int, int, int, GUI::Style, Color),
-        set_background(int, int, int, int, GUI::Style),
-        set_background(Color),
-        set_active(bool = true);
+        setBackground(int, int, Color), //Centre
+        setBackground(int, int), //Centre
+        setBackground(int, int, int, int, GUI::Style, Color),
+        setBackground(int, int, int, int, GUI::Style),
+        setBackground(Color),
+        setActive(bool = true);
 };
 
 template <typename V>
@@ -202,10 +202,10 @@ class Text: public Text_{
   friend class Slider;
   friend class Text_;
   friend void
-    main_setup(),
-    main_background(),
-    util_setup(),
-    util_background(),
+    mainSetup(),
+    mainBackground(),
+    utilSetup(),
+    utilBackground(),
     alert::update();
 
   private:
@@ -217,11 +217,11 @@ class Text: public Text_{
 
     //Functions
       void update() override;
-      void update_val() override;
+      void updateVal() override;
       void construct (int, int, GUI::Style, text_format_e_t, Page*, std::string, std::function<V()>, Color);
 
   public:
-    V run_func();
+    V runFunc();
 
     //Constructors (Points, Format, Page, Label, [var info], Lcolour)
 
@@ -245,10 +245,10 @@ class Button{
   friend class Slider;
   friend class Text_;
   friend void
-    main_setup(),
-    main_background(),
-    util_setup(),
-    util_background(),
+    mainSetup(),
+    mainBackground(),
+    utilSetup(),
+    utilBackground(),
     alert::update();
 
   public: enum press_type{
@@ -280,19 +280,19 @@ class Button{
       static void create_options(std::vector<Button*>);
       bool
         pressed() const,
-        new_press(),
-        new_release();
+        newPress(),
+        newRelease();
       void
-        run_func() const,
-        run_off_func() const,
+        runFunc() const,
+        runOffFunc() const,
         draw() const,
-        draw_pressed()  const,
+        drawPressed()  const,
         construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Color, Color),
         update(),
-        add_text (Text_&, bool = true),
-        set_func(std::function <void()>), set_off_func(std::function <void()>),
-        set_active(bool = true),
-        set_background (Color);
+        addText (Text_&, bool = true),
+        setFunc(std::function <void()>), set_off_func(std::function <void()>),
+        setActive(bool = true),
+        setBackground (Color);
 
   public:
     //Points, Format, Page, Label, Bcolour, Lcolour
@@ -310,10 +310,10 @@ class Slider{
   friend class Button;
   friend class Text_;
   friend void
-    main_setup(),
-    main_background(),
-    util_setup(),
-    util_background();
+    mainSetup(),
+    mainBackground(),
+    utilSetup(),
+    utilBackground();
 
   public: enum direction{
     VERTICAL,
@@ -336,7 +336,7 @@ class Slider{
     //Functions
       void
         update(),
-        set_active(bool = true),
+        setActive(bool = true),
         draw() const;
       bool pressed() const;
 
@@ -346,8 +346,8 @@ class Slider{
     Slider (const Slider&) = delete;
 
     //Functions
-      int get_value() const;
-      void set_value(int);
+      int getValue() const;
+      void setValue(int);
 };
 
 //Text Methods
@@ -357,7 +357,7 @@ class Slider{
   }
 
   template <typename V>
-  void Text<V>::update_val() {
+  void Text<V>::updateVal() {
     if(value){
       prev_value = value();
       text = sprintf2(label, prev_value);
@@ -381,7 +381,7 @@ class Slider{
   } 
 
   template <typename V>
-  V Text<V>::run_func() {
+  V Text<V>::runFunc() {
     if (value) return value();
   }
 
@@ -390,15 +390,15 @@ class Slider{
   namespace alert{
     extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue;
 
-    template <typename... Params> void start   (                                         std::string fmt, Params... args) {queue.         push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-    template <typename... Params> void start   (                     std::uint32_t time, std::string fmt, Params... args) {queue.         push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-    template <typename... Params> void start   (term_colours colour,                     std::string fmt, Params... args) {queue.         push({GUI::get_colour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-    template <typename... Params> void start   (term_colours colour, std::uint32_t time, std::string fmt, Params... args) {queue.         push({GUI::get_colour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
+    template <typename... Params> void start   (                                         std::string fmt, Params... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
+    template <typename... Params> void start   (                     std::uint32_t time, std::string fmt, Params... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
+    template <typename... Params> void start   (term_colours colour,                     std::string fmt, Params... args) {queue.         push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
+    template <typename... Params> void start   (term_colours colour, std::uint32_t time, std::string fmt, Params... args) {queue.         push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
 
-    template <typename... Params> void priority(                                         std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-    template <typename... Params> void priority(                     std::uint32_t time, std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-    template <typename... Params> void priority(term_colours colour,                     std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-    template <typename... Params> void priority(term_colours colour, std::uint32_t time, std::string fmt, Params... args) {queue.priority_push({GUI::get_colour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
+    template <typename... Params> void priority(                                         std::string fmt, Params... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
+    template <typename... Params> void priority(                     std::uint32_t time, std::string fmt, Params... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
+    template <typename... Params> void priority(term_colours colour,                     std::string fmt, Params... args) {queue.priority_push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
+    template <typename... Params> void priority(term_colours colour, std::uint32_t time, std::string fmt, Params... args) {queue.priority_push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
   }
 
 //Text Constructors

@@ -94,7 +94,7 @@ void auton50pts(){
 // NEW SKILLS
 
 // tracking.g_pos = {34.75, 11.25, degToRad(0.0)};
-void new_skills1(){ // 12 seconds
+void newSkills1(){ // 12 seconds
   Timer total{"total_timer"};
   moveToTargetSync({34.75, 46.00}, E_Brake_Modes::brake, 65);
   aimAtBlue();
@@ -115,7 +115,7 @@ void new_skills1(){ // 12 seconds
 
 
 // tracking.g_pos = {108.0, 129.75, degToRad(180.0)};
-void new_skills2(){ // 17.5 seconds
+void newSkills2(){ // 17.5 seconds
   Timer total{"total_timer"};
   moveToTargetSync({108.0, 124.0}); // move away from wall
   aimAtBlue();
@@ -141,7 +141,7 @@ void new_skills2(){ // 17.5 seconds
 }
 
 // tracking.g_pos = {11.25, 23.5, degToRad(90.0)};
-void new_skills3(){ // 14 seconds
+void newSkills3(){ // 14 seconds
   Timer total{"total_timer"};
   moveToTargetSync({48.0, 35.0});   // go to stack
   aimAtRed();
@@ -164,7 +164,7 @@ void new_skills3(){ // 14 seconds
 }
 
 // tracking.g_pos = {116.5, 116.5, degToRad(-90.0)};
-void new_skills4(){ // takes 5 seconds
+void newSkills4(){ // takes 5 seconds
   Timer total{"total_timer"};
   moveToTargetSync({127.0, 118.0}); // move away from wall
   aimAtRed();

@@ -62,7 +62,7 @@ namespace alert{
 
       page = GUI::current_page;
       end_time = std::get<std::uint32_t>(queue.front());
-      screen_flash.go_to();
+      screen_flash.goTo();
 
       master.rumble("-.");
 
@@ -76,7 +76,7 @@ namespace alert{
     if(timer.playing() && (timer.getTime() >= end_time || screen_flash_back_button.pressed())){
       queue.pop();
       timer.reset(false);
-      page->go_to();
+      page->goTo();
       return;
     }
   }
@@ -85,7 +85,7 @@ namespace alert{
 //GUI Helpers
   //To get coordinates for aligned objects, (buttons, sliders...) of same size
   //Put in how many of buttons / sliders you want, and get properly spaced coords
-  void GUI::aligned_coords (int x_objects, int y_objects, int x_size, int y_size, int x_range, int y_range){
+  void GUI::alignedCoords (int x_objects, int y_objects, int x_size, int y_size, int x_range, int y_range){
     double x_space = (x_range-x_objects * x_size) / (x_objects+1.0);
     double y_space = (y_range-y_objects * y_size) / (y_objects+1.0);
 
@@ -115,7 +115,7 @@ namespace alert{
     master.print(0, 0, "Press OK btn");
     bool interrupted = false;
     const Page* page = GUI::current_page;
-    prompt_sequence.go_to();
+    prompt_sequence.goTo();
 
     //! Had to comment this out because our controller subclass has changed
 
@@ -166,12 +166,12 @@ namespace alert{
     }
     else printf2(term_colours::ERROR, "Interrupted\n");
 
-    page->go_to();
+    page->goTo();
     master.clear();
     return !interrupted;
   }
 
-  void GUI::draw_oblong(int x1, int y1, int x2, int y2, double kS, double kR){ //ks and kr and scale values for shrink and radius
+  void GUI::drawOblong(int x1, int y1, int x2, int y2, double kS, double kR){ //ks and kr and scale values for shrink and radius
     int s = std::min(x2-x1, y2-y1) * kS; //Scale for shrinking button (pressed look)
     int r = std::min(x2-x1, y2-y1) * kR; //Scale for how rounded the button edges should be
     screen::fill_rect(x1+ s, y1+ s, x2-s, y2-s);
@@ -233,7 +233,7 @@ namespace alert{
     }
   }
 
-  Color GUI::get_colour(term_colours colour){
+  Color GUI::getColour(term_colours colour){
     switch(colour){
       case term_colours::BLACK: return Color::black; break;
       case term_colours::ERROR:
@@ -254,7 +254,7 @@ namespace alert{
   void GUI::screen_terminal_fix(){
     //Will only run if things are actually being printed
     if(terminal.texts.empty()){
-      terminal.set_active(false);
+      terminal.setActive(false);
       return;
     }
 
@@ -392,8 +392,8 @@ namespace alert{
 
     //Buttons
     if(min > max) increment = -increment;
-    dec.set_func([&, increment](){this->val-=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->min;});
-    inc.set_func([&, increment](){this->val +=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
+    dec.setFunc([&, increment](){this->val-=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->min;});
+    inc.setFunc([&, increment](){this->val +=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
   }
 
   Page::Page(std::string title, Color background_colour){
@@ -419,31 +419,31 @@ namespace alert{
     return it-GUI::current_gui->pages.begin();
   }
 
-  void GUI::go_next(){
+  void GUI::goNext(){
     std::vector<Page*>::const_iterator it = std::find(GUI::current_gui->pages.begin(), GUI::current_gui->pages.end(), current_page);
     do{
       it++;
       if (it == current_gui->pages.end()) it = current_gui->pages.begin();
     } while(!(*it)->active);
 
-    (*it)->go_to();
+    (*it)->goTo();
   }
 
-  void GUI::go_prev(){
+  void GUI::goPrev(){
     std::vector<Page*>::const_iterator it = std::find(GUI::current_gui->pages.begin(), GUI::current_gui->pages.end(), current_page);
     do{
       if (it == current_gui->pages.begin()) it = current_gui->pages.end();
       it--;
     } while(!(*it)->active);
 
-    (*it)->go_to();
+    (*it)->goTo();
   }
 
-  void GUI::go_to(int page_num){
-    Page::page_id(page_num)->go_to();
+  void GUI::goTo(int page_num){
+    Page::page_id(page_num)->goTo();
   }
 
-  void Page::go_to() const{
+  void Page::goTo() const{
     if(page_num(this) == -1) return;
     GUI::current_page = this; //Saves new page then draws all the buttons on the page
     draw();
@@ -451,11 +451,11 @@ namespace alert{
     WAIT_UNTIL(!GUI::touched) GUI::update_screen_status();
   }
 
-  void GUI::clear_screen(Color color){
-    clear_screen(static_cast<std::uint32_t>(color));
+  void GUI::clearScreen(Color color){
+    clearScreen(static_cast<std::uint32_t>(color));
   }
 
-  void GUI::clear_screen(std::uint32_t colour){
+  void GUI::clearScreen(std::uint32_t colour){
     screen::set_pen(colour);
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, PAGE_DOWN);
   }
@@ -477,17 +477,17 @@ namespace alert{
     }
   }
 
-  int Slider::get_value() const{
+  int Slider::getValue() const{
     return val;
   }
 
-  void Slider::set_value(int val){
+  void Slider::setValue(int val){
     int old_val = this->val;
     this->val = std::clamp(val, min, max);
     if(this->val != old_val) draw();
   }
 
-  void Button::add_text(Text_& text_ref, bool overwrite){
+  void Button::addText(Text_& text_ref, bool overwrite){
     if(page != text_ref.page){
       throw std::invalid_argument(sprintf2("Text can only be linked to a button on the same page! Failed on \"%s\" button and \"%s\" text.", label, text_ref.label));
       return;
@@ -524,8 +524,8 @@ namespace alert{
 
       case Button::SINGLE:
       case Button::REPEAT:
-        draw_pressed();
-        run_func();
+        drawPressed();
+        runFunc();
         break;
     }
   }
@@ -538,13 +538,13 @@ namespace alert{
       case Button::SINGLE:
       case Button::REPEAT:
         draw();
-        run_off_func();
+        runOffFunc();
         break;
     }
   }
 
-  void Button::set_background (Color color){
-    if (title) title->set_background(color);
+  void Button::setBackground (Color color){
+    if (title) title->setBackground(color);
     if (b_col != static_cast<std::uint32_t>(color)){
       b_col = static_cast<std::uint32_t>(color);
       b_col_dark = RGB2COLOR(static_cast<int>(COLOR2R(b_col) * 0.8), static_cast<int>(COLOR2G(b_col) * 0.8), static_cast<int>(COLOR2B(b_col) * 0.8));
@@ -552,39 +552,39 @@ namespace alert{
     }
   }
 
-  void Text_::set_background (int x1, int y1, Color color){ //Centre
+  void Text_::setBackground (int x1, int y1, Color color){ //Centre
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(this->x, this->y, x1, y1, GUI::Style::CENTRE);
-    set_background(color);
+    setBackground(color);
   }
 
-  void Text_::set_background (int x1, int y1, int x2, int y2, GUI::Style type, Color color){
+  void Text_::setBackground (int x1, int y1, int x2, int y2, GUI::Style type, Color color){
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
-    set_background(color);
+    setBackground(color);
   }
 
-  void Text_::set_background (int x1, int y1){ //Centre
+  void Text_::setBackground (int x1, int y1){ //Centre
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(this->x, this->y, x1, y1, GUI::Style::CENTRE);
   }
 
-  void Text_::set_background (int x1, int y1, int x2, int y2, GUI::Style type){
+  void Text_::setBackground (int x1, int y1, int x2, int y2, GUI::Style type){
     std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
   }
 
-  void Text_::set_background (Color color){
+  void Text_::setBackground (Color color){
     if (b_col != static_cast<std::uint32_t>(color)){
       b_col = static_cast<std::uint32_t>(color);
       draw();
     }
   }
 
-  void Page::set_active(bool active){
+  void Page::setActive(bool active){
     this->active = active;
-    if (!active && this == GUI::current_page) GUI::go_next();
+    if (!active && this == GUI::current_page) GUI::goNext();
   }
 
-  void Button::set_active(bool active){
+  void Button::setActive(bool active){
     this->active = active;
-    if (title) title->set_active(active);
+    if (title) title->setActive(active);
     if (page == GUI::current_page){
       if (active) draw();
       else{
@@ -594,7 +594,7 @@ namespace alert{
     }
   }
 
-  void Text_::set_active(bool active){
+  void Text_::setActive(bool active){
     this->active = active;
     if (page == GUI::current_page){
       if (active) draw();
@@ -605,7 +605,7 @@ namespace alert{
     }
   }
 
-  void Slider::set_active(bool active){
+  void Slider::setActive(bool active){
     this->active = active;
     if (page == GUI::current_page){
       if (active) draw();
@@ -619,7 +619,7 @@ namespace alert{
 
 //Drawing
   void Page::draw() const{
-    GUI::clear_screen(b_col);
+    GUI::clearScreen(b_col);
     screen::set_pen(b_col);
     screen::set_eraser(b_col);
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, 20);
@@ -633,13 +633,13 @@ namespace alert{
   void Button::draw() const{
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     if (on){ //on buttons must be drawn in a pressed state
-      draw_pressed();
+      drawPressed();
       return;
     }
     screen::set_pen(b_col);
     screen::set_eraser(GUI::current_page->b_col); //It's current_page not just page because perm has a different colour
     screen::fill_rect(x1, y1, x2, y2);
-    GUI::draw_oblong(x1, y1, x2, y2, 0, 0.15);
+    GUI::drawOblong(x1, y1, x2, y2, 0, 0.15);
     screen::set_pen(l_col);
     screen::set_eraser(b_col);
     screen::print(TEXT_SMALL, text_x, text_y, "%s", label);
@@ -650,14 +650,14 @@ namespace alert{
     }
   }
 
-  void Button::draw_pressed() const{
+  void Button::drawPressed() const{
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     screen::set_eraser(page->b_col); //Erases button
     screen::erase_rect(x1, y1, x2, y2);
 
     screen::set_pen(b_col_dark);
     screen::set_eraser(GUI::current_page->b_col);
-    GUI::draw_oblong(x1, y1, x2, y2, 0.04, 0.2);
+    GUI::drawOblong(x1, y1, x2, y2, 0.04, 0.2);
     screen::set_pen(l_col);
     screen::set_eraser(b_col_dark);
     screen::print(TEXT_SMALL, text_x, text_y, "%s", label);
@@ -679,14 +679,14 @@ namespace alert{
 
   void Text_::draw(){
     if (!(active && (page == GUI::current_page || page == &perm))) return;
-    update_val();
+    updateVal();
 
     if (x2 != 0 && y2 != 0){ //If background box exists. Should be able to get rid of this as now it always exists
       screen::set_eraser(page->b_col);
       screen::erase_rect(x1, y1, x2, y2);
 
       screen::set_pen(b_col);
-      GUI::draw_oblong(x1, y1, x2, y2, 0, 0.15);
+      GUI::drawOblong(x1, y1, x2, y2, 0, 0.15);
     }
     screen::set_pen(l_col);
     screen::set_eraser(b_col);
@@ -708,34 +708,34 @@ namespace alert{
 
 
 //Function Handling
-  void Page::set_setup_func(std::function <void()> function){setup_func = function;}
-  void Page::set_loop_func(std::function <void()> function){loop_func = function;}
-  void Button::set_func(std::function <void()> function){func = function;}
+  void Page::setSetupFunc(std::function <void()> function){setup_func = function;}
+  void Page::setLoopFunc(std::function <void()> function){loop_func = function;}
+  void Button::setFunc(std::function <void()> function){func = function;}
   void Button::set_off_func(std::function <void()> function){off_func = function;}
-  void Button::run_func() const {if (func) func();}
-  void Button::run_off_func() const {if (off_func) off_func();}
+  void Button::runFunc() const {if (func) func();}
+  void Button::runOffFunc() const {if (off_func) off_func();}
 
 
 //Data Updates
   void GUI::init(){
     screen_terminal_fix();
-    testing.set_active(testing_page_active);
-    perm.set_active(false);
-    prompt_sequence.set_active(false);
-    screen_flash.set_active(false);
+    testing.setActive(testing_page_active);
+    perm.setActive(false);
+    prompt_sequence.setActive(false);
+    screen_flash.setActive(false);
 
-    prev_page.set_func(&go_prev);
-    next_page.set_func(&go_next);
-    home.set_func([](){go_to(1);});
+    prev_page.setFunc(&goPrev);
+    next_page.setFunc(&goNext);
+    home.setFunc([](){goTo(1);});
 
-    prompt_button.add_text(prompt_button_text);
+    prompt_button.addText(prompt_button_text);
 
     current_gui->setup();
 
     //! Do not touch this section. I do not fully understand, but any change here will break things
-    go_to(0);
-    if(terminal.active) terminal.go_to();
-    else go_to(1); //! Sets it to page 1 for program start. Don't delete this. If you want to change the starting page, call GUI::go_to(Page Number) in initialize()
+    goTo(0);
+    if(terminal.active) terminal.goTo();
+    else goTo(1); //! Sets it to page 1 for program start. Don't delete this. If you want to change the starting page, call GUI::goTo(Page Number) in initialize()
 
     GUI::task.start(update);
   }
@@ -783,7 +783,7 @@ namespace alert{
     return (page->pressed() && active && inRange(GUI::x, x1, x2) && inRange(GUI::y, y1, y2));
   }
 
-  bool Button::new_press(){
+  bool Button::newPress(){
     if(!last_pressed){
       last_pressed = pressed();
       return last_pressed;
@@ -791,7 +791,7 @@ namespace alert{
     return false;
   }
 
-  bool Button::new_release(){
+  bool Button::newRelease(){
     if(last_pressed){
       last_pressed = pressed();
       return !last_pressed;
@@ -808,37 +808,37 @@ namespace alert{
 
     switch(form){
       case Button::LATCH:
-        if (new_press()){
+        if (newPress()){
           on = !on; //Toggles the latch
           if (on) select();
           else deselect();
         }
-        new_release(); //Must be here even if there is nothing to do.
+        newRelease(); //Must be here even if there is nothing to do.
 
-        if(on) run_func();
-        else run_off_func();
+        if(on) runFunc();
+        else runOffFunc();
         break;
       
       case Button::TOGGLE:
-        if (new_press()){
+        if (newPress()){
           on = !on; //Toggles the latch
           if (on) select();
           else deselect();
         }
-        new_release(); //Must be here even if there is nothing to do.
+        newRelease(); //Must be here even if there is nothing to do.
         break;
 
       case Button::SINGLE:
-        if (new_press()) select();
-        else if (new_release()) deselect();
+        if (newPress()) select();
+        else if (newRelease()) deselect();
 
         break;
 
       case Button::REPEAT:
-        if (new_press()) select();
-        else if (new_release()) deselect();
+        if (newPress()) select();
+        else if (newRelease()) deselect();
 
-        if (pressed()) run_func();
+        if (pressed()) runFunc();
 
         break;
     }

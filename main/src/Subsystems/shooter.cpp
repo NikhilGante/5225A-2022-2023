@@ -16,9 +16,6 @@ void shooterHandleInput(){
 
 // Shooter idle state
 
-const char* ShooterIdleParams::getName(){
-  return "ShooterIdle";
-}
 void ShooterIdleParams::handle(){}
 void ShooterIdleParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state){}
 
@@ -26,9 +23,6 @@ void ShooterIdleParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state
 
 ShooterShootParams::ShooterShootParams(int shots): shots_left(shots){}
 
-const char* ShooterShootParams::getName(){
-  return "ShooterShoot";
-}
 void ShooterShootParams::handle(){
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
   if(shoot_timer.getTime() > 300 && std::abs(flywheel_error) < 20){

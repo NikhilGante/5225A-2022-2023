@@ -75,13 +75,13 @@ struct DriveFlattenParams;
 #define DRIVE_STATE_TYPES_VARIANT std::variant<DRIVE_STATE_TYPES>
 
 struct DriveIdleParams{
-  const char* getName();
+  inline static const std::string name = "DriveIdle";
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
 
 struct DriveOpControlParams{
-  const char* getName();
+  inline static const std::string name = "DriveOpControl";
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
@@ -95,7 +95,7 @@ struct DriveMttParams{
 
   DriveMttParams(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 127, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 
-  const char* getName();
+  inline static const std::string name = "DriveMoveToTarget";
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
@@ -107,7 +107,7 @@ struct DriveTurnToAngleParams{
   
   DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
-  const char* getName();
+  inline static const std::string name = "DriveTurnToAngle";
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
@@ -120,13 +120,13 @@ struct DriveTurnToTargetParams{
   
   DriveTurnToTargetParams(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
-  const char* getName();
+  inline static const std::string name = "DriveTurnToTarget";
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
 
 struct DriveFlattenParams{
-  const char* getName();
+  inline static const std::string name = "DriveFlatten";
   void handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };

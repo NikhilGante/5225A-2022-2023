@@ -175,7 +175,7 @@
       Slider port_1 (115, 90, 30, 100, GUI::Style::SIZE, Slider::VERTICAL, 1, 8, encoders, "P1");
       Slider port_2 (200, 90, 30, 100, GUI::Style::SIZE, Slider::VERTICAL, 1, 8, encoders, "P2");
       Button enc_set (350, 60, 50, 20, GUI::Style::CENTRE, Button::SINGLE, encoders, "Set");
-      Text enc (350, 100, GUI::Style::CENTRE, TEXT_SMALL, encoders, "%s", std::function([](){return sprintf2("%d:%c%c", expander_1.get_value(), port_1.get_value() + 64, port_2.get_value() + 64);}));
+      Text enc (350, 100, GUI::Style::CENTRE, TEXT_SMALL, encoders, "%s", std::function([](){return sprintf2("%d:%c%c", expander_1.getValue(), port_1.getValue() + 64, port_2.getValue() + 64);}));
       Text enc_degs (350, 120, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Degs: %d", enc_val);
       Text enc_rots (350, 140, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Rots: %d", std::function([](){return int(enc_val / 360);}));
       Text enc_remain (350, 160, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Remaining: %d", std::function([](){return abs(enc_val-360*int(std::round((enc_val + sgn(enc_val) * 180) / 360)));})); //replace with near_angle
@@ -229,7 +229,7 @@
       Button ADI_h (360, 190, 100, 30, GUI::Style::SIZE, Button::TOGGLE, pneumatic, "On/Off");
 
 
-void main_setup(){
+void mainSetup(){
   //Temperature & Motor Control
     std::get<4>(motors_for_gui[0]) = &mot_temp_1;
     std::get<4>(motors_for_gui[1]) = &mot_temp_2;
@@ -269,58 +269,58 @@ void main_setup(){
 
     for(auto& tup : motors_for_gui){
       if(std::get<Motor*>(tup)){
-        std::get<6>(tup)->set_func([=](){std::get<Motor*>(tup)->move(mot_speed_set.get_value());});
-        std::get<7>(tup)->set_func([=](){std::get<Motor*>(tup)->move(0);});
+        std::get<6>(tup)->setFunc([=](){std::get<Motor*>(tup)->move(mot_speed_set.getValue());});
+        std::get<7>(tup)->setFunc([=](){std::get<Motor*>(tup)->move(0);});
 
         std::get<int>(tup) = std::get<Motor*>(tup)->get_temperature();
       }
       else std::get<int>(tup) = std::numeric_limits<int>::max();
 
-      std::get<4>(tup)->set_background(40, 20);
+      std::get<4>(tup)->setBackground(40, 20);
       if(std::get<int>(tup) == std::numeric_limits<int>::max()){
-        std::get<4>(tup)->set_active(false);
-        std::get<5>(tup)->set_active(false);
-        std::get<6>(tup)->set_active(false);
-        std::get<7>(tup)->set_active(false);
+        std::get<4>(tup)->setActive(false);
+        std::get<5>(tup)->setActive(false);
+        std::get<6>(tup)->setActive(false);
+        std::get<7>(tup)->setActive(false);
       }
     }
 
-    temps.set_loop_func([](){
+    temps.setLoopFunc([](){
       for (auto mot_tup: motors_for_gui){
         Text_* text = std::get<4>(mot_tup);
         if (text){
           switch(std::get<int>(mot_tup)){
             case 0:
             case 5:
-              text->set_background(Color::white); break;
+              text->setBackground(Color::white); break;
             case 10:
             case 15:
-              text->set_background(Color::blue); break;
+              text->setBackground(Color::blue); break;
             case 20:
-              text->set_background(Color::dodger_blue); break;
+              text->setBackground(Color::dodger_blue); break;
             case 25:
-              text->set_background(Color::turquoise); break;
+              text->setBackground(Color::turquoise); break;
             case 30:
-              text->set_background(Color::medium_sea_green); break;
+              text->setBackground(Color::medium_sea_green); break;
             case 35:
-              text->set_background(Color::lawn_green); break;
+              text->setBackground(Color::lawn_green); break;
             case 40:
-              text->set_background(Color::lime_green); break;
+              text->setBackground(Color::lime_green); break;
             case 45:
-              text->set_background(Color::yellow); break;
+              text->setBackground(Color::yellow); break;
             case 50:
-              text->set_background(Color::orange_red); break;
+              text->setBackground(Color::orange_red); break;
             case 55:
-              text->set_background(Color::red); break;
+              text->setBackground(Color::red); break;
             default:
-              text->set_background(Color(rand())); break;
+              text->setBackground(Color(rand())); break;
           }
         }
       }
     });
 
   //Competition
-    drive_motors.set_func([](){
+    drive_motors.setFunc([](){
       if(GUI::prompt("Press to check drive motors", "", 1000)){
         moveDrive(60, 0);
         delay(1000);
@@ -335,44 +335,44 @@ void main_setup(){
       }
     });
 
-    intakes.set_func([](){
+    intakes.setFunc([](){
       if(GUI::prompt("Press to check intake", "", 1000)){
         DEPRECATE;
-        // b_lift.Subsystem::set_state(b_lift_states::intake_on);
+        // b_lift.Subsystem::setState(b_lift_states::intake_on);
         // delay(1000);
 
-        // b_lift.Subsystem::set_state(b_lift_states::intake_off);
+        // b_lift.Subsystem::setState(b_lift_states::intake_off);
         // delay(250);
 
-        // b_lift.Subsystem::set_state(b_lift_states::intake_reversed);
+        // b_lift.Subsystem::setState(b_lift_states::intake_reversed);
         // delay(1000);
 
-        // b_lift.Subsystem::set_state(b_lift_states::intake_off);
+        // b_lift.Subsystem::setState(b_lift_states::intake_off);
       }
     });
 
-    lifts.set_func([](){
+    lifts.setFunc([](){
       if(GUI::prompt("Press to check lifts", "", 1000)){
         DEPRECATE;
-        // b_lift.set_state(b_lift_states::move_to_target, 0);
-        // f_lift.set_state(f_lift_states::move_to_target, 0);
+        // b_lift.setState(b_lift_states::move_to_target, 0);
+        // f_lift.setState(f_lift_states::move_to_target, 0);
         // delay(1000);
 
         // b_lift.move_to_top();
         // f_lift.move_to_top();
         // delay(1000);
 
-        // b_lift.set_state(b_lift_states::move_to_target, 0);
-        // f_lift.set_state(f_lift_states::move_to_target, 0);
+        // b_lift.setState(b_lift_states::move_to_target, 0);
+        // f_lift.setState(f_lift_states::move_to_target, 0);
 
         // delay(250);
 
-        // b_lift.set_state(b_lift_states::managed, 0);
-        // f_lift.set_state(f_lift_states::managed, 0);
+        // b_lift.setState(b_lift_states::managed, 0);
+        // f_lift.setState(f_lift_states::managed, 0);
       }
     });
 
-    pneums.set_func([](){
+    pneums.setFunc([](){
       for(auto [piston, _]: Piston::list_for_gui){
         if (!piston) continue;
 
@@ -385,7 +385,7 @@ void main_setup(){
       }
     });
 
-    dist.set_func([](){
+    dist.setFunc([](){
       DEPRECATE;
       // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) alert::start("Distance Sensor: Back");
       // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) alert::start("Distance Sensor: Front");
@@ -397,18 +397,18 @@ void main_setup(){
       // else(alert::start("All Distance Sensors Good", term_colours::GREEN));
     });
 
-    misc_checks.set_func([](){
+    misc_checks.setFunc([](){
       if (!usd::is_installed()) alert::start("No SD Card!");
       else(alert::start("No Errors Found", term_colours::GREEN));
     });
 
-    save_pos.set_func([](){DEPRECATE});
-    auton_selector.set_func([](){DEPRECATE});
+    save_pos.setFunc([](){DEPRECATE});
+    auton_selector.setFunc([](){DEPRECATE});
 
   //Tracking
     // for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
 
-    track.set_setup_func([](){
+    track.setSetupFunc([](){
       screen::set_pen(static_cast<std::uint32_t>(Color::white));
       screen::draw_rect(270, 30, 470, 230);
       screen::draw_line(370, 30, 370, 230);
@@ -417,24 +417,24 @@ void main_setup(){
         for (int y = 0; y < 200; y++) if(field[x].test(y)) screen::draw_pixel(270 + x, 230-y); //Draws saved tracking values
       }
     });
-    track.set_loop_func([](){
+    track.setLoopFunc([](){
       screen::set_pen(static_cast<std::uint32_t>(Color::red));
       screen::draw_pixel(270 + (200.0*tracking.g_pos.x / 144.0), 230-(200.0*tracking.g_pos.y / 144.0)); //Scales to screen
 
       if(main_obj.pressed()){
         int x = GUI::x-270, y = 230-GUI::y;
         if(inRange(x, 0, 200) && inRange(y, 0, 200)){
-          x_val.set_value(x * 144.0 / 200.0);
-          y_val.set_value(y * 144.0 / 200.0);
+          x_val.setValue(x * 144.0 / 200.0);
+          y_val.setValue(y * 144.0 / 200.0);
         }
       }
     });
 
-    res_y.set_func([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, 0.0, tracking.g_pos.a);*/});
-    res_x.set_func([](){DEPRECATE;/*tracking.reset(0.0, tracking.g_pos.y, tracking.g_pos.a);*/});
-    res_a.set_func([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, tracking.g_pos.y, 0.0);*/});
+    res_y.setFunc([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, 0.0, tracking.g_pos.a);*/});
+    res_x.setFunc([](){DEPRECATE;/*tracking.reset(0.0, tracking.g_pos.y, tracking.g_pos.a);*/});
+    res_a.setFunc([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, tracking.g_pos.y, 0.0);*/});
 
-    res_all.set_func([](){
+    res_all.setFunc([](){
       right_tracker.reset();
       left_tracker.reset();
       back_tracker.reset();
@@ -442,34 +442,34 @@ void main_setup(){
       // tracking.reset();
     });
 
-    res_target.set_func([](){
+    res_target.setFunc([](){
       right_tracker.reset();
       left_tracker.reset();
       back_tracker.reset();
       DEPRECATE;
-      // tracking.reset(Position(x_val.get_value(), y_val.get_value(), a_val.get_value()));
+      // tracking.reset(Position(x_val.getValue(), y_val.getValue(), a_val.getValue()));
     });
 
   //Driving
-    prev_drivr.set_func([](){DEPRECATE;/*drivebase.prev_driver();*/});
-    next_drivr.set_func([](){DEPRECATE;/*drivebase.next_driver();*/});
+    prev_drivr.setFunc([](){DEPRECATE;/*drivebase.prev_driver();*/});
+    next_drivr.setFunc([](){DEPRECATE;/*drivebase.next_driver();*/});
 
   //Moving
-    moving.set_setup_func([](){
-      x_val.set_value(tracking.g_pos.x);
-      y_val.set_value(tracking.g_pos.y);
-      a_val.set_value(tracking.g_pos.a);
+    moving.setSetupFunc([](){
+      x_val.setValue(tracking.g_pos.x);
+      y_val.setValue(tracking.g_pos.y);
+      a_val.setValue(tracking.g_pos.a);
     });
 
-    go_to_xya.set_func([&](){
-      Position target (x_val.get_value(), y_val.get_value(), a_val.get_value());
+    go_to_xya.setFunc([&](){
+      Position target (x_val.getValue(), y_val.getValue(), a_val.getValue());
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
-    go_home.set_func([](){
+    go_home.setFunc([](){
       Position target (0, 0, tracking.g_pos.a);
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
-    go_centre.set_func([](){
+    go_centre.setFunc([](){
       Position target (72, 72, tracking.g_pos.a);
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
@@ -480,42 +480,42 @@ void main_setup(){
     // f_lift_val.min = f_lift.prog_positions.front();
     // f_lift_val.max = f_lift.prog_positions.back();
 
-    lift_move.set_setup_func([](){
+    lift_move.setSetupFunc([](){
       printf("DEPRECATEd we don't have lifts\n");
       // DEPRECATE;
-      // b_lift_val.set_value(b_lift_pot.get_value());
-      // f_lift_val.set_value(f_lift_pot.get_value());
+      // b_lift_val.setValue(b_lift_pot.getValue());
+      // f_lift_val.setValue(f_lift_pot.getValue());
       // if(f_claw_o.get_state()) front_claw.select();
       // if(b_claw.get_state()) back_claw.select();
     });
 
-    front_claw.set_func([](){DEPRECATE;/*f_claw(HIGH);*/});
+    front_claw.setFunc([](){DEPRECATE;/*f_claw(HIGH);*/});
     front_claw.set_off_func([](){DEPRECATE;/*f_claw(LOW);*/});
-    back_claw.set_func([](){DEPRECATE;/*b_claw.set_state(HIGH);*/});
-    back_claw.set_off_func([](){DEPRECATE;/*b_claw.set_state(LOW);*/});
+    back_claw.setFunc([](){DEPRECATE;/*b_claw.setState(HIGH);*/});
+    back_claw.set_off_func([](){DEPRECATE;/*b_claw.setState(LOW);*/});
 
-    f_lift_move.set_func([&](){
-      if (GUI::prompt("Press to move front lift to " + std::to_string(f_lift_val.get_value()), "", 1000)){
+    f_lift_move.setFunc([&](){
+      if (GUI::prompt("Press to move front lift to " + std::to_string(f_lift_val.getValue()), "", 1000)){
         DEPRECATE;
-        // f_lift.move_absolute(f_lift_val.get_value());
+        // f_lift.move_absolute(f_lift_val.getValue());
       }
     });
-    b_lift_move.set_func([&](){
-      if (GUI::prompt("Press to move back lift to " + std::to_string(b_lift_val.get_value()), "", 1000)){
+    b_lift_move.setFunc([&](){
+      if (GUI::prompt("Press to move back lift to " + std::to_string(b_lift_val.getValue()), "", 1000)){
         DEPRECATE;
-        // b_lift.move_absolute(b_lift_val.get_value());
+        // b_lift.move_absolute(b_lift_val.getValue());
       }
     });
 
   //Elastic Test
-    // check_b_elastic.set_func([](){DEPRECATE;/*b_lift.elastic_util(1011);*/});
-    // check_f_elastic.set_func([](){DEPRECATE;/*f_lift.elastic_util(935);*/});
+    // check_b_elastic.setFunc([](){DEPRECATE;/*b_lift.elastic_util(1011);*/});
+    // check_f_elastic.setFunc([](){DEPRECATE;/*f_lift.elastic_util(935);*/});
 
   //Tuning Tracking
     manual.select();
     //Figure out how to do these with the other left / right, front / back or moving in the other direction
 
-    encoder_direction.set_func([](){ //Encoder Direction
+    encoder_direction.setFunc([](){ //Encoder Direction
       if(manual.on){
         if(GUI::prompt("Press, then move the robot forward and to the right", "")){
           resetDrive();
@@ -542,7 +542,7 @@ void main_setup(){
       }
     });
 
-    encoder_ticks.set_func([](){ //Encoder missing ticks
+    encoder_ticks.setFunc([](){ //Encoder missing ticks
       if(manual.on){
         if (GUI::prompt("Press, then spin the encoder", "Start the encoder in a known position. Press then button, then spin it wildly, and then stop it in that position again.")){
           resetDrive();
@@ -577,7 +577,7 @@ void main_setup(){
       }
     });
 
-    back_corkscrew.set_func([](){ //Back Corkscrew
+    back_corkscrew.setFunc([](){ //Back Corkscrew
       if(manual.on){
         if(GUI::prompt("Press, then move along y", "Please slide the robot forward along a known surface in the y-direction")){
           resetDrive();
@@ -604,7 +604,7 @@ void main_setup(){
       }
     });
 
-    side_corkscrew.set_func([](){ //Left-Right Corkscrew
+    side_corkscrew.setFunc([](){ //Left-Right Corkscrew
       if(manual.on){
         if(GUI::prompt("Press, then move along x", "Please slide the robot along a known surface in the x-direction")){
           resetDrive();
@@ -626,7 +626,7 @@ void main_setup(){
       }
     });
 
-    wheel_size.set_func([](){ //Left-Right wheel size
+    wheel_size.setFunc([](){ //Left-Right wheel size
       if(manual.on){
         if(GUI::prompt("Press, then move the robot 30 inches", "Place the robot's side against a known surface. Press the button, then slide the robot forwards exactly 30 inches.")){
           resetDrive();
@@ -652,7 +652,7 @@ void main_setup(){
       }
     });
 
-    back_wheel_size.set_func([](){ //Back wheel size
+    back_wheel_size.setFunc([](){ //Back wheel size
       if(manual.on){
         if(GUI::prompt("Press, then move the robot 30 inches", "Place the robot's front against a known surface. Press the button, then slide the robot sideways exactly 30 inches.")){
           resetDrive();
@@ -667,7 +667,7 @@ void main_setup(){
       }
     });
 
-    spin360.set_func([](){ //Robot turn accuracy
+    spin360.setFunc([](){ //Robot turn accuracy
       if(manual.on){
         if(GUI::prompt("Press, then spin the robot", "Place the robot's against a known surface. Press the button, then spin the robot. Return it to the starting point. (Half turns are ok)")){
           flattenToWall();
@@ -723,31 +723,31 @@ void main_setup(){
     });
 
   //Pneumatic Control
-    pneum_1.add_text(pneum_1_text);
-    pneum_2.add_text(pneum_2_text);
-    pneum_3.add_text(pneum_3_text);
-    pneum_4.add_text(pneum_4_text);
-    pneum_5.add_text(pneum_5_text);
-    pneum_6.add_text(pneum_6_text);
-    pneum_7.add_text(pneum_7_text);
-    pneum_8.add_text(pneum_8_text);
+    pneum_1.addText(pneum_1_text);
+    pneum_2.addText(pneum_2_text);
+    pneum_3.addText(pneum_3_text);
+    pneum_4.addText(pneum_4_text);
+    pneum_5.addText(pneum_5_text);
+    pneum_6.addText(pneum_6_text);
+    pneum_7.addText(pneum_7_text);
+    pneum_8.addText(pneum_8_text);
 
     for(auto [piston, button]: Piston::list_for_gui){
       if(piston){
-        button->set_func([piston](){piston->setState(HIGH);});
+        button->setFunc([piston](){piston->setState(HIGH);});
         button->set_off_func([piston](){piston->setState(LOW);});
       }
-      else button->set_active(false);
+      else button->setActive(false);
     }
 
-    pneumatics.set_setup_func([](){
+    pneumatics.setSetupFunc([](){
       for(auto [piston, button]: Piston::list_for_gui){
         if(piston && piston->getState()) button->select();
       }
     });
 }
 
-void main_background(){
+void mainBackground(){
   //Saving Field coords
   int x = 200*tracking.g_pos.x / 144, y = 200*tracking.g_pos.y / 144;
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
@@ -759,7 +759,7 @@ void main_background(){
       temp = motor->get_temperature();
 
       if (motor && inRange(temp, 55, std::numeric_limits<int>::max() - 1)){ //Overheating
-        temps.go_to();
+        temps.goTo();
         alert::start(10000, "%s motor is at %dC\n", std::get<1>(mot_tup), temp);
         break;
       }
@@ -768,12 +768,12 @@ void main_background(){
   }
 }
 
-void util_setup(){
+void utilSetup(){
   //Encoders
-    enc_set.set_func([](){
-      int port = expander_1.get_value();
-      if(abs(port_1.get_value() - port_2.get_value()) != 1 || std::min(port_1.get_value(), port_2.get_value()) % 2 == 0){
-        alert::start(term_colours::ERROR, "Invalid Ports %c%c", port_1.get_value() + 64, port_2.get_value() + 64);
+    enc_set.setFunc([](){
+      int port = expander_1.getValue();
+      if(abs(port_1.getValue() - port_2.getValue()) != 1 || std::min(port_1.getValue(), port_2.getValue()) % 2 == 0){
+        alert::start(term_colours::ERROR, "Invalid Ports %c%c", port_1.getValue() + 64, port_2.getValue() + 64);
         return;
       }
       if(port){
@@ -781,21 +781,21 @@ void util_setup(){
           alert::start(term_colours::ERROR, "No Expander in port %d", port);
           return;
         }
-        ext_test_enc = c::ext_adi_encoder_init(port, port_1.get_value(), port_2.get_value(), false);
+        ext_test_enc = c::ext_adi_encoder_init(port, port_1.getValue(), port_2.getValue(), false);
       }
-      else test_enc = c::adi_encoder_init(port_1.get_value(), port_2.get_value(), false);
+      else test_enc = c::adi_encoder_init(port_1.getValue(), port_2.getValue(), false);
     });
 
-    enc_res.set_func([](){
-      int port = expander_1.get_value();
+    enc_res.setFunc([](){
+      int port = expander_1.getValue();
       if(port){
         c::ext_adi_encoder_reset(ext_test_enc);
       }
       else c::adi_encoder_reset(test_enc);
     });
 
-    encoders.set_loop_func([](){
-      if(expander_1.get_value()) enc_val = c::ext_adi_encoder_get(ext_test_enc);
+    encoders.setLoopFunc([](){
+      if(expander_1.getValue()) enc_val = c::ext_adi_encoder_get(ext_test_enc);
       else enc_val = c::adi_encoder_get(test_enc);
 
       if(enc_val == std::numeric_limits<int32_t>::max()) enc_val = 0;
@@ -827,18 +827,18 @@ void util_setup(){
 
       if (std::get<0>(mot_arr) != std::numeric_limits<int>::max()) motor_port_nums.append(std::to_string(std::get<0>(mot_arr)) + ", ");
       else{
-        std::get<1>(mot_arr)->set_active(false);
-        std::get<2>(mot_arr)->set_active(false);
-        std::get<3>(mot_arr)->set_active(false);
+        std::get<1>(mot_arr)->setActive(false);
+        std::get<2>(mot_arr)->setActive(false);
+        std::get<3>(mot_arr)->setActive(false);
       }
-      std::get<1>(mot_arr)->set_func([&](){c::motor_move(std::get<0>(mot_arr), mot_speed.get_value());});
-      std::get<2>(mot_arr)->set_func([&](){c::motor_move(std::get<0>(mot_arr), 0);});
+      std::get<1>(mot_arr)->setFunc([&](){c::motor_move(std::get<0>(mot_arr), mot_speed.getValue());});
+      std::get<2>(mot_arr)->setFunc([&](){c::motor_move(std::get<0>(mot_arr), 0);});
     }
 
     if (motor_port_nums.back() == ',') motor_port_nums.pop_back();
 
 
-    motor.set_loop_func([](){
+    motor.setLoopFunc([](){
       for (auto& tup: motor_ports){
         int port = std::get<0>(tup);
         Button* run_btn = std::get<1>(tup);
@@ -848,46 +848,46 @@ void util_setup(){
           switch(static_cast<int>(c::motor_get_temperature(port))){
             case 0:
             case 5:
-              run_btn->set_background(Color::white);
-              stop_btn->set_background(Color::white);
+              run_btn->setBackground(Color::white);
+              stop_btn->setBackground(Color::white);
               break;
             case 10:
             case 15:
-              run_btn->set_background(Color::blue);
-              stop_btn->set_background(Color::blue);
+              run_btn->setBackground(Color::blue);
+              stop_btn->setBackground(Color::blue);
               break;
             case 20:
-              run_btn->set_background(Color::dodger_blue);
-              stop_btn->set_background(Color::dodger_blue);
+              run_btn->setBackground(Color::dodger_blue);
+              stop_btn->setBackground(Color::dodger_blue);
               break;
             case 25:
-              run_btn->set_background(Color::turquoise);
-              stop_btn->set_background(Color::turquoise);
+              run_btn->setBackground(Color::turquoise);
+              stop_btn->setBackground(Color::turquoise);
             case 30:
-              run_btn->set_background(Color::medium_sea_green);
-              stop_btn->set_background(Color::medium_sea_green);
+              run_btn->setBackground(Color::medium_sea_green);
+              stop_btn->setBackground(Color::medium_sea_green);
             case 35:
-              run_btn->set_background(Color::lawn_green);
-              stop_btn->set_background(Color::lawn_green);
+              run_btn->setBackground(Color::lawn_green);
+              stop_btn->setBackground(Color::lawn_green);
               break;
             case 40:
-              run_btn->set_background(Color::lime_green);
-              stop_btn->set_background(Color::lime_green);
+              run_btn->setBackground(Color::lime_green);
+              stop_btn->setBackground(Color::lime_green);
             case 45:
-              run_btn->set_background(Color::yellow);
-              stop_btn->set_background(Color::yellow);
+              run_btn->setBackground(Color::yellow);
+              stop_btn->setBackground(Color::yellow);
               break;
             case 50:
-              run_btn->set_background(Color::orange_red);
-              stop_btn->set_background(Color::orange_red);
+              run_btn->setBackground(Color::orange_red);
+              stop_btn->setBackground(Color::orange_red);
               break;
             case 55:
-              run_btn->set_background(Color::red);
-              stop_btn->set_background(Color::red);
+              run_btn->setBackground(Color::red);
+              stop_btn->setBackground(Color::red);
               break;
             default:
-              run_btn->set_background(Color(rand()));
-              stop_btn->set_background(Color(rand()));
+              run_btn->setBackground(Color(rand()));
+              stop_btn->setBackground(Color(rand()));
               break;
           }
         }
@@ -914,8 +914,8 @@ void util_setup(){
         no_pneumatic_port_nums.push_back(char(i + 64));
         no_pneumatic_port_nums.push_back(',');
       }
-      exp_pneum_btns[i-1]->set_func([i](){
-        int port = expander.get_value();
+      exp_pneum_btns[i-1]->setFunc([i](){
+        int port = expander.getValue();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
             alert::start(term_colours::ERROR, "No Expander in port %d", port);
@@ -930,7 +930,7 @@ void util_setup(){
         }
       });
       exp_pneum_btns[i-1]->set_off_func([i](){
-        int port = expander.get_value();
+        int port = expander.getValue();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
             alert::start(term_colours::ERROR, "No Expander in port %d", port);
@@ -949,7 +949,7 @@ void util_setup(){
     if (no_pneumatic_port_nums.back() == ',') no_pneumatic_port_nums.pop_back();
 }
 
-void util_background(){
+void utilBackground(){
   //Motor Stalled
   for (auto& mot_tup: motor_ports){
     int port = std::get<0>(mot_tup);
@@ -976,6 +976,6 @@ void util_background(){
   }
 }
 
-GUI main_obj ({&temps, &checks, &track, &moving, &lift_move,  &driver_curve, &elastic, &tuning, &motors, &pneumatics}, &main_setup, &main_background);
+GUI main_obj ({&temps, &checks, &track, &moving, &lift_move,  &driver_curve, &elastic, &tuning, &motors, &pneumatics}, &mainSetup, &mainBackground);
 
-GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &util_setup, &util_background);
+GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground);

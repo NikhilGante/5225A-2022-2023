@@ -56,12 +56,12 @@ void _Controller::init(){
 }
 
 
-void _Controller::clear_line (std::uint8_t line){
+void _Controller::clearLine (std::uint8_t line){
   queue.push([=, this](){
     pros::Controller::clear_line(line);
     controller_queue.print("clearing line %d on %s controller", line, name);
   });
-  controller_queue.print("Adding clear_line for %s controller", name);
+  controller_queue.print("Adding clearLine for %s controller", name);
 }
 
 void _Controller::clear(){

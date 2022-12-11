@@ -20,9 +20,6 @@ void intakeHandleInput(){
 std::atomic<int> g_mag_disc_count = 0;
 
 // Intake idle state
-const char* IntakeIdleParams::getName(){
-  return "IntakeIdle";
-}
 void IntakeIdleParams::handle(){}
 void IntakeIdleParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){}
 
@@ -30,9 +27,6 @@ void IntakeIdleParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
 
 IntakeOnParams::IntakeOnParams(int8_t speed) : speed(speed){}
 
-const char* IntakeOnParams::getName(){
-  return "IntakeOn";
-}
 void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = mag_ds.get_value();
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
@@ -65,9 +59,6 @@ void intakeOn(int8_t speed){
 }
 
 // Intake off state
-const char* IntakeOffParams::getName(){
-  return "IntakeOff";
-}
 void IntakeOffParams::handle(){}
 void IntakeOffParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(0);
@@ -81,9 +72,6 @@ void intakeOff(){  // Wrapper function to turn intake off
 
 IntakeRevParams::IntakeRevParams(int8_t speed) : speed(speed){}
 
-const char* IntakeRevParams::getName(){
-  return "IntakeRev";
-}
 void IntakeRevParams::handle(){
   // If the mag is no longer full, turn intake back on
   if(g_mag_disc_count < 3) intakeOn();
@@ -100,9 +88,6 @@ void intakeRev(int8_t speed){  // Wrapper function to turn intake in reverse
 
 IntakeIndexParams::IntakeIndexParams(int8_t speed) : speed(speed){}
 
-const char* IntakeIndexParams::getName(){
-  return "IntakeIndex";
-}
 void IntakeIndexParams::handle(){}
 void IntakeIndexParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(speed);

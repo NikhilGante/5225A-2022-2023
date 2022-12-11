@@ -18,7 +18,7 @@ struct ShooterShootParams;
 extern Machine<SHOOTER_STATE_TYPES> shooter;
 
 struct ShooterIdleParams{
-  const char* getName();
+  inline static const std::string name = "ShooterIdle";
   void handle();
   void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
 };
@@ -26,7 +26,7 @@ struct ShooterIdleParams{
 struct ShooterShootParams{  
   ShooterShootParams(int shots = 3);
 
-  const char* getName();
+  inline static const std::string name = "ShooterIdle";
   void handle();
   void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
 

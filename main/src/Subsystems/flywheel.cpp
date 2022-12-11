@@ -11,17 +11,11 @@ Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2250});
 
 // Flywheel idle state
 
-const char* FlywheelIdleParams::getName(){
-  return "FlywheelIdle";
-}
 void FlywheelIdleParams::handle(){}
 void FlywheelIdleParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){}
 
 // Flywheel off state
 
-const char* FlywheelOffParams::getName(){
-  return "FlywheelOff";
-}
 void FlywheelOffParams::handle(){}
 void FlywheelOffParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){
   flywheel_m.move(0);
@@ -40,9 +34,6 @@ double FlywheelMoveVelParams::manual_vel;  // Pre-smoothed velocity
 
 FlywheelMoveVelParams::FlywheelMoveVelParams(int target_vel): target_vel(target_vel){}
 
-const char* FlywheelMoveVelParams::getName(){
-  return "FlywheelMoveVel";
-}
 void FlywheelMoveVelParams::handle(){
   // rot_vel = 3*60*flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
   
