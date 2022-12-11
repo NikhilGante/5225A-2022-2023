@@ -2,10 +2,10 @@
 
 #define DEG_TO_ROT 1/360
 #define MS_TO_MIN 60000
-#define SPROCKET_RATIO 12/18
+#define SPROCKET_RATIO 1/1
 #define CARTRIDGE_TO_RAW 6
 
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1800});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2250});
 
 // Flywheel idle state
 
@@ -72,9 +72,17 @@ void FlywheelMoveVelParams::handle(){
   output = kB * target_vel + correction;
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
 
-  printf("%d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, manual_vel, smoothed_vel);
+  printf("%d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf \n", millis(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel);
 
+
+  if (flywheel_m.get_temperature() >= 45){
+    master.rumble("-");
+    flywheel_m.move(0);
+    WAIT_UNTIL(false);
+
+  }
   flywheel_m.move(output);
+  // flywheel_m.move(60);
 }
 void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){}
 

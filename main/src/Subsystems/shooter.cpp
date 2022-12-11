@@ -30,8 +30,9 @@ const char* ShooterShootParams::getName(){
 }
 void ShooterShootParams::handle(){
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
-  if(shoot_timer.getTime() > 300 && fabs(flywheel_error < 20)){
+  if(shoot_timer.getTime() > 300 && fabs(flywheel_error) < 20){
     printf("%d STARTED SHOOTING\n", millis());
+    shoot_timer.reset();
     indexer_p.setState(HIGH);	
     delay(75); // wait for SHOOTER to extend
     printf(" %d FINISHED SHOT\n", millis());
@@ -47,7 +48,7 @@ void ShooterShootParams::handle(){
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
     }
-    shoot_timer.reset();
+    
   }
 
 }

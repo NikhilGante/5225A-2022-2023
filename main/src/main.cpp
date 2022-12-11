@@ -8,6 +8,7 @@
 #include "Libraries/task.hpp"
 
 #include "Libraries/logging.hpp"
+#include "Subsystems/intake.hpp"
 #include "auton.hpp"
 
 #include "lift.hpp"
@@ -146,8 +147,11 @@ void opcontrol() {
 	// moveInches(120.0);
 	// turnToAngleSync(180.0);
 	// flattenAgainstWallSync(true);
+    master.print(0,0, "curvature: %.2lf", angle_curvature);
 	while(true){
+		// if(master.get_digital_new_press(DIGITAL_Y))	moveInches(10.0);
 		driveHandleInput();
+		intakeHandleInput();
 		delay(10);
 	}
 	WAIT_UNTIL(false);

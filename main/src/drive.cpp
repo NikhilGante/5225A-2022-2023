@@ -1,4 +1,5 @@
 #include "drive.hpp"
+#include "config.hpp"
 #include <cmath>
 
 double angle_curvature = 2.0;
@@ -62,9 +63,18 @@ void driveBrake(){
 
 double l_power_last, r_power_last;
 const double slew_val = 3;
+Timer curve_print_timer{"curve_print_timer"};
 void driveHandleInput(){
   int power_x, power_y, power_a;
   // double l_power, r_power;
+  if(master.get_digital_new_press(DIGITAL_UP)){
+    angle_curvature += 0.1;
+    master.print(0,0, "curvature: %.2lf", angle_curvature);
+  }
+  if(master.get_digital_new_press(DIGITAL_DOWN)){
+    angle_curvature -= 0.1;
+    master.print(0,0, "curvature: %.2lf", angle_curvature);
+  }
 
   power_y = master.get_analog(ANALOG_LEFT_Y);
   power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
@@ -87,12 +97,12 @@ void driveHandleInput(){
   // // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
   // moveDriveSide(l_power, r_power);
   // l_power_last = l_power,  r_power_last = r_power;
-  
+  lcd::print(3, "intk:%lf", intake_m.get_temperature());
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
   lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
 
 
-  if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50){
+  if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50){
     moveDrive(0, 0);
     master.rumble("----------");
     WAIT_UNTIL(false);
