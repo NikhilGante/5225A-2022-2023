@@ -1,6 +1,5 @@
 #pragma once
 #include "main.h"
-#include "../config.hpp"
 #include "../Libraries/timer.hpp"
 #include "../Libraries/state.hpp"
 #include <atomic>
@@ -39,8 +38,8 @@ struct FlywheelMoveVelParams{
   void handle();
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 private:
-  static constexpr double kB = 0.0508;	// Target velocity multiplied by this outputs a motor voltage
-	static constexpr double kP = 0.95;
+  static constexpr double kB = 0.0336;	// Target velocity multiplied by this outputs a motor voltage
+	static constexpr double kP = 0.75;
   static int32_t rot_vel; // Velocity detected by rotation sensor
   static double output; // Power that goes to the flywheel motor
 

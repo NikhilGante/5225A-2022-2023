@@ -37,20 +37,20 @@ void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = mag_ds.get_value();
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
-  if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
-    g_mag_disc_count++;
-    printf("INCR\n");
-  }
+  // if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
+  //   g_mag_disc_count++;
+  //   printf("INCR\n");
+  // }
 
   mag_disc_detected_last = mag_disc_detected;
 
   // end of disc counting code
 
   // If mag is full, don't let any more discs in
-  if(g_mag_disc_count >= 3) {
-    delay(100);
-    intakeRev();
-  }
+  // if(g_mag_disc_count >= 3) {
+  //   delay(100);
+  //   intakeRev();
+  // }
   // printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   lcd::print(3, "count:%d", g_mag_disc_count.load());
 }

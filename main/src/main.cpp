@@ -6,6 +6,8 @@
 #include "auton.hpp"
 #include "tracking.hpp"
 #include "config.hpp"
+#include "Subsystems/intake.hpp"
+
 
 const GUI* GUI::current_gui = &main_obj;
 

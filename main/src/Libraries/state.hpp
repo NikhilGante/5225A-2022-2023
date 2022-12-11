@@ -9,6 +9,8 @@
 #include "task.hpp"
 #include "../util.hpp"
 
+//! Why does every state have getName()? That is not a good way to do it
+
 // class TaskEndException: public std::exception{
 // public:
 //   const char* what();
