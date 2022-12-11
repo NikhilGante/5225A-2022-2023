@@ -18,7 +18,7 @@ class Timer{
 
 public:
 
-  Timer(const char* name, bool play = true, timing_units timing_unit = timing_units::millis, Logging log = misc);
+  Timer(const char* name, Logging log = misc, bool play = true, timing_units timing_unit = timing_units::millis);
   void reset(bool play = true);
   uint64_t getTime();
   void play();

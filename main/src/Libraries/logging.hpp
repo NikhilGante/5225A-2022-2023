@@ -23,7 +23,6 @@ class Logging{
     static std::vector<Logging*> obj_list;
     static Queue<char, 20000> queue;
     static _Task task;
-    static Mutex mutex;
 
   public:
     Logging(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
@@ -32,16 +31,14 @@ class Logging{
 
     template <typename... Params>
     void print(term_colours colour, std::string format, Params... args) const{
-      char newline = this->newline ? '\n' : '\0';
-      std::string str = sprintf2(format, args...) + newline;
+      std::string str{sprintf2(format, args...)};
+      if(newline) str += '\n';
 
       switch(log_location){
         case log_locations::both:
           printf2(colour, str);
         case log_locations::sd: //fallthrough intentional
-          mutex.take();
           queue.insert(str.cbegin(), str.cend());
-          mutex.give();
           break;
         case log_locations::t:
           printf2(colour, str);

@@ -54,7 +54,7 @@ void newline(int count = 1);
 // Printing
 
   //Template Recursion Base case
-  std::string sprintf2(const std::string& fmt);
+  const std::string& sprintf2(const std::string& fmt);
 
   /**
   * @brief Formats a printf-style function call into an std::string with more safety.

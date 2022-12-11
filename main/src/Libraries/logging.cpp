@@ -7,12 +7,11 @@ std::string Logging::file_name{"/usd/data.txt"};
 _Task Logging::task{"logging"};
 Queue<char, 20000> Logging::queue{"Logging"};
 std::vector<Logging*> Logging::obj_list;
-Mutex Logging::mutex;
 
-Logging task_log("tasks");
+Logging task_log("tasks", log_locations::none);
 Logging state_log("states", log_locations::sd);
 Logging auton_log("states");
-Logging controller_queue("controller", log_locations::t, term_colours::NONE, true);
+Logging controller_queue("controller", log_locations::none, term_colours::NONE, true);
 Logging tracking_data("tracking");
 Logging misc("misc", log_locations::both);
 Logging term("terminal", log_locations::t);
@@ -24,30 +23,35 @@ name{name + ".txt"}, log_location{log_location}, newline{newline}, print_colour{
 
 void Logging::init(){
   using std::ofstream;
-  {
+  bool file_openable = true;
+  if(!usd::is_installed()){
+    file_openable = false;
+    alert::start("SD Card not installed");
+  }
+  else{
     ofstream file{file_name, ofstream::trunc};
     if(!file.is_open()){
-      printf2(term_colours::ERROR, "Log File not found");
-      for(Logging* obj: obj_list){
-        log_locations& loc = obj->log_location;
-        if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::t;
-      }
+      file_openable = false;
+      alert::start("Log File not found");
     }
-  } //To limit scope of ofstream file
+  }
 
-  task.start([](){
+  if(!file_openable){
+    for(Logging* obj: obj_list){
+      log_locations& loc = obj->log_location;
+      if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::t;
+    }
+  }
+  else task.start([](){
     Timer timer{"logging_tmr"};
 
     while(true){
       if(!queue.empty() && (timer.getTime() > print_max_time || queue.size() > print_max_size)){
-        mutex.take();
         ofstream file{file_name, ofstream::app};
-        mutex.take();
         queue.output(file);
-        mutex.give();
-
         timer.reset();
       }
+      task_log.print("Nothing to Log\n");
 
       _Task::delay(10);
     }

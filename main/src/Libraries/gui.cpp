@@ -13,7 +13,7 @@
 //Text Vars
   std::string prompt_string;
   namespace alert{
-    Timer timer("Flash Timer", false);
+    Timer timer("Flash Timer", error, false);
     std::uint32_t end_time;
   }
 

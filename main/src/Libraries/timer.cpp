@@ -1,6 +1,6 @@
 #include "timer.hpp"
 
-Timer::Timer(const char* name, bool play, timing_units timing_unit, Logging log):
+Timer::Timer(const char* name, Logging log, bool play, timing_units timing_unit):
 name{name}, timing_unit{timing_unit}, log{log} {
   log.print("%s's initialize time is: %lld\n", name, getTimeInTimingUnit());
   reset(play);

@@ -27,13 +27,15 @@ make more methods const
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	Logging::init();
+  GUI::init();
+	_Controller::init();
+
 	tracking.g_pos = {31.0, 11.5, 0.0};
 	// tracking.g_pos = {70.0, 129.5, std::numbers::pi};
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
-  GUI::init();
-	Logging::init();
-	_Controller::init();
+
 	// log_init();
 	delay(500);
 	// lift.runMachine();
@@ -92,16 +94,23 @@ void autonomous() {
 
 void opcontrol(){
   DEBUG;
-  // for(int i = 0; i < 800; i++){
-	// 	for(int j = 0; j < 25; j++) log_d.print("%05d", 25*i+j);
-	// 	log_d.print("\n");
-    // delay(10);
-	// }
+  // // for(int i = 0; i < 800; i++){
+	// // 	for(int j = 0; j < 25; j++) log_d.print("%05d", 25*i+j);
+	// // 	log_d.print("\n");
+  //   // delay(10);
+	// // }
 
-  for(int i = 0; i < 10; i++){
-    master.print(0, 0, std::to_string(i));
+  // for(int i = 0; i < 10; i++){
+  //   master.print(0, 0, std::to_string(i));
+  // }
+
+  for(int i = 0; i < 1e4/50; i++){
+    for(int j = 0; j < 50; j++){
+      log_d.print("abcde");
+    }
+    delay(1);
   }
-
+ 
   // log_d.print("Log Done\n");
   DEBUG;
   WAIT_UNTIL(false);

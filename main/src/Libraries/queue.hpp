@@ -98,16 +98,15 @@ class Queue{
       if(begin().internal <= end().internal) return std::make_pair(std::pair(end().internal, arr.end()), std::pair(arr.begin(), begin().internal)); //Wraparound
       else return std::make_pair(std::pair(end().internal, begin().internal), std::pair<pointer, pointer>()); //Single Range
     }
-    constexpr std::pair<std::pair<pointer, pointer>, std::pair<pointer, pointer>> full_contiguous_iterators(){ //Returns two ranges corresponding to filled part of queue
+    constexpr std::pair<std::pair<const_pointer, const_pointer>, std::pair<const_pointer, const_pointer>> full_contiguous_iterators() const { //Returns two ranges corresponding to filled part of queue
       if(empty()) return {};
-      if(begin().internal < end().internal) return std::make_pair(std::pair(begin().internal, end().internal), std::pair<pointer, pointer>()); //Single Range
+      if(begin().internal < end().internal) return std::make_pair(std::pair(begin().internal, end().internal), std::pair<const_pointer, const_pointer>()); //Single Range
       else return std::make_pair(std::pair(begin().internal, arr.end()), std::pair(arr.begin(), end().internal)); //Wraparound
     }
 
-    constexpr iterator       construct_iterator(pointer pointer)       {return {pointer, arr.begin(), arr.end()};}
+    constexpr iterator construct_iterator(pointer pointer) {return {pointer, arr.begin(), arr.end()};}
 
   public:
-
   //Constructors
     constexpr Queue(): name{}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
     Queue(std::string name): name{name}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
@@ -115,7 +114,6 @@ class Queue{
     //Getters
     constexpr size_type size() const {return end()-begin();}
     constexpr size_type capacity() const {return N;}
-    constexpr size_type space_left() const {return std::max(static_cast<size_type>(0), capacity()-size());}
     constexpr bool full() const {return size() == capacity();}
     constexpr bool empty() const {return size() == 0;}
     constexpr iterator        begin() const {return front_iter;}
@@ -129,7 +127,6 @@ class Queue{
     
     //Insert Modifiers
     constexpr void push(const_reference value){if(!full()) *back_iter++ = value; if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100*size())/capacity());}
-    constexpr iterator insert(const_reference value){push(value); return end();}
     template <std::input_iterator I> constexpr iterator insert(I first, I last){
       auto out = empty_contiguous_iterators();
       auto in  = split(first, last, out.first);
@@ -138,32 +135,16 @@ class Queue{
       if(size() >= capacity()*0.9) alert::start(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100*size())/capacity());
       return end();
     }
-    constexpr iterator insert(const_pointer pointer, size_type count) {return insert(pointer, pointer+count);}
-    constexpr iterator insert(const char* str) requires std::same_as<T, char> {return insert(str, str+strlen(str)+1);}
-
 
     //Remove Modifiers
     constexpr void pop() {if(!empty()) front_iter++;}
     constexpr void clear() {front_iter = end();}
-    template <output_iter<iterator> O> constexpr O output(O first, O last){
-      auto in = full_contiguous_iterators();
-      auto out = split(first, last, in.first);
-      copy_pair(in.first,  out.first );
-      copy_pair(in.second, out.second);
-      clear();
-      return out.second.end();
-    }
-    template <output_iter<iterator> O> constexpr O output(O out) {
-      auto in = full_contiguous_iterators();
-      out = std::copy(in.first .first, in.first .second, out);
-      out = std::copy(in.second.first, in.second.second, out);
-      clear();
-      return out;
-    }
     constexpr void output(std::ostream& out) requires std::same_as<T, char>{
+      auto cur_end = end();
       auto in = full_contiguous_iterators();
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
-      clear();
+      // clear();
+      front_iter = cur_end;
     }
 };

@@ -44,7 +44,7 @@ void _Task::resume(){
 
 // static methods
 void _Task::delay(uint32_t delay_time){
-  Timer delay_timer{"task_delay_timer"};
+  Timer delay_timer{"task_delay_timer", task_log};
   do {
     task_t current_task = task_get_current();
     // handle notifications from current task

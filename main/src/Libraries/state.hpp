@@ -42,7 +42,8 @@
 
 template <typename... StateTypes>
 class Machine{
-  std::variant<StateTypes...> state, target_state;
+  using variant = std::variant<StateTypes...>;
+  variant state, target_state;
   pros::Mutex state_mutex, target_state_mutex;
   const char* name;
 
@@ -51,13 +52,13 @@ class Machine{
   _Task task;
 
   // Getters and setters for state and target state (since they need mutexes)
-  void setState(std::variant<StateTypes...> state_param){
+  void setState(variant state_param){
     state_mutex.take(TIMEOUT_MAX);
     state = state_param;
     state_mutex.give();
   }
 
-  void setTargetState(std::variant<StateTypes...> target_state_param){
+  void setTargetState(variant target_state_param){
     target_state_mutex.take(TIMEOUT_MAX);
     target_state = target_state_param;
     target_state_mutex.give();
@@ -77,16 +78,16 @@ public:
 
   // Getters for state and target state (since they need mutexes)
 
-  std::variant<StateTypes...> getState(){
+  variant getState(){
     state_mutex.take(TIMEOUT_MAX);
-    std::variant<StateTypes...> temp = state;
+    variant temp = state;
     state_mutex.give();
     return temp;
   }
 
-  std::variant<StateTypes...> getTargetState(){
+  variant getTargetState(){
     target_state_mutex.take(TIMEOUT_MAX);
-    std::variant<StateTypes...> temp = target_state;
+    variant temp = target_state;
     target_state_mutex.give();
     return temp;
   }
@@ -102,8 +103,8 @@ public:
         }
 
         if(state_change_requested){
-          std::variant<StateTypes...> target_state_cpy = getTargetState();
-          std::variant<StateTypes...> state_cpy = getState();
+          variant target_state_cpy = getTargetState();
+          variant state_cpy = getState();
           // calls handle state change method for target state and logs the change
           state_log.print("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
@@ -117,11 +118,11 @@ public:
     });
   }
 
-  const char* getStateName(std::variant<StateTypes...> state){
+  const char* getStateName(variant state){
     return visit([](auto&& arg){return arg.getName();}, state);
   }
 
-  void waitToReachState(std::variant<StateTypes...> state_param){  // blocks until desired state is reached
+  void waitToReachState(variant state_param){  // blocks until desired state is reached
     size_t index = state_param.index();
     WAIT_UNTIL(getTargetState().index() == index && getState().index() == index);
   }

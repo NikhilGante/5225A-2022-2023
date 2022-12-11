@@ -15,7 +15,7 @@ std::string convert_all_args(const std::string& fmt, const Vector& arg){
 }
 
 //Template Recursion Base case
-std::string sprintf2(const std::string& fmt){
+const std::string& sprintf2(const std::string& fmt){
   return fmt;
 }
 
