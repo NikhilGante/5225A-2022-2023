@@ -60,8 +60,8 @@ void initialize() {
 	// lift.runMachine();
 	drive.runMachine();
 	intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 
 }
@@ -147,22 +147,15 @@ void opcontrol() {
 	// moveInches(120.0);
 	// turnToAngleSync(180.0);
 	// flattenAgainstWallSync(true);
-    master.print(0,0, "curvature: %.2lf", angle_curvature);
-	while(true){
-		// if(master.get_digital_new_press(DIGITAL_Y))	moveInches(10.0);
-		driveHandleInput();
-		intakeHandleInput();
-		delay(10);
-	}
-	WAIT_UNTIL(false);
-	// intake.changeState(IntakeIndexParams{});
-	// intakeIndex();
-	// while(true) {
-	// 	if(master.get_digital_new_press(singleShotBtn)) shoot(1);
+	// while(true){
+	// 	// if(master.get_digital_new_press(DIGITAL_Y))	moveInches(10.0);
+	// 	driveHandleInput();
+	// 	intakeHandleInput();
 	// 	delay(10);
 	// }
-
-	Timer disc_count_print{"g_mag_disc_count_print"};
+	// WAIT_UNTIL(false);
+	// Timer disc_count_print{"g_mag_disc_count_print"};
+	master.print(0,0, "curvature: %.2lf", angle_curvature);
 	while(true){
 		driveHandleInput();
 		shooterHandleInput();
@@ -172,7 +165,7 @@ void opcontrol() {
 		// 	master.print(0,0, "disc count: %d", g_mag_disc_count.load());
 		// 	disc_count_print.reset();
 		// }
-		lcd::print(5, "l:%.lf r:%.lf intk:%.lf flywheel:%.lf", centre_l.get_temperature(), centre_r.get_temperature(), intake_m.get_temperature(), flywheel_m.get_temperature());
+		lcd::print(4, "flywheel:%.lf", flywheel_m.get_temperature());
 		if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
 			break;
 		}
