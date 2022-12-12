@@ -95,6 +95,10 @@ void autonomous() {
 void opcontrol(){
   DEBUG;
 
+  // static std::array<std::pair<_Motor*, Button*, Text_*>, 8> list_for_gui;
+  // this, toggle button, temperature text
+
+
   DEBUG;
   WAIT_UNTIL(false);
 }

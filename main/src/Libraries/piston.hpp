@@ -14,6 +14,7 @@ class Piston : public ADIDigitalOut{
     static int count;
   public:
     static std::array<std::pair<Piston*, Button*>, 8> list_for_gui;
+    //this, toggle button
 
     Piston(std::uint8_t adi_port, std::string name, bool reversed = false, bool init_state = LOW);
     Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed = false, bool init_state = LOW);
