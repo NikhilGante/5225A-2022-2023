@@ -13,14 +13,14 @@ struct ShooterShootParams;
 
 #define SHOOTER_STATE_TYPES ShooterIdleParams, ShooterShootParams
 
-#define SHOOTER_STATE_TYPES_VARIANT std::variant<SHOOTER_STATE_TYPES>
+using shooterVariant = std::variant<SHOOTER_STATE_TYPES>;
 
 extern Machine<SHOOTER_STATE_TYPES> shooter;
 
 struct ShooterIdleParams{
   inline static const std::string name = "ShooterIdle";
   void handle();
-  void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(shooterVariant prev_state);
 };
 
 struct ShooterShootParams{  
@@ -28,11 +28,11 @@ struct ShooterShootParams{
 
   inline static const std::string name = "ShooterIdle";
   void handle();
-  void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(shooterVariant prev_state);
 
   int shots_left;
 
-  FLYWHEEL_STATE_TYPES_VARIANT flywheel_state;
+  flywheelVariant flywheel_state;
 private:
   Timer shoot_timer{"shoot_timer"};
 

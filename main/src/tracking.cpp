@@ -244,13 +244,13 @@ Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
 
 // Drive idle state
 void DriveIdleParams::handle(){}
-void DriveIdleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+void DriveIdleParams::handleStateChange(driveVariant prev_state){}
 
 // Drive operator control params
 void DriveOpControlParams::handle(){
   driveHandleInput();
 }
-void DriveOpControlParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+void DriveOpControlParams::handleStateChange(driveVariant prev_state){}
 
 
 // Drive move to target state
@@ -323,7 +323,7 @@ void DriveMttParams::handle(){
   handleBrake(brake_mode);
   drive.changeState(DriveIdleParams{});
 }
-void DriveMttParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+void DriveMttParams::handleStateChange(driveVariant prev_state){}
 
 // Drive Turn to Angle State
 DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode, double end_error):
@@ -332,7 +332,7 @@ DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake
 void DriveTurnToAngleParams::handle(){
   turnToAngleInternal(std::function([&](){return degToRad(angle);}), brake_mode, end_error);
 }
-void DriveTurnToAngleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+void DriveTurnToAngleParams::handleStateChange(driveVariant prev_state){}
 
 // Drive Turn to Target State
 DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error):
@@ -343,7 +343,7 @@ void DriveTurnToTargetParams::handle(){
     return std::numbers::pi/2 - (target - tracking.g_pos).getAngle() + (reverse ? std::numbers::pi : 0);
   }), brake_mode, end_error);
 }
-void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}
 
 // Drive Flatten state
 
@@ -381,5 +381,5 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   tracking_data.print("DRIVE FLATTEN DONE, took %lld secs\n", motion_timer.getTime());
   drive.changeState(DriveIdleParams{});
 }
-void DriveFlattenParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
+void DriveFlattenParams::handleStateChange(driveVariant prev_state){}
 

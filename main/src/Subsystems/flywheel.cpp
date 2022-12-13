@@ -1,6 +1,7 @@
 #include "flywheel.hpp"
 #include "../config.hpp"
 #include "../Libraries/controller.hpp"
+#include "../Libraries/motor.hpp"
 
 constexpr double DEG_TO_ROT = 1/360.0;
 constexpr double MS_TO_MIN = 60000.0;
@@ -12,12 +13,12 @@ Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2250});
 // Flywheel idle state
 
 void FlywheelIdleParams::handle(){}
-void FlywheelIdleParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){}
+void FlywheelIdleParams::handleStateChange(flywheelVariant prev_state){}
 
 // Flywheel off state
 
 void FlywheelOffParams::handle(){}
-void FlywheelOffParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){
+void FlywheelOffParams::handleStateChange(flywheelVariant prev_state){
   flywheel_m.move(0);
 }
 
@@ -77,7 +78,7 @@ void FlywheelMoveVelParams::handle(){
   flywheel_m.move(output);
   // flywheel_m.move(60);
 }
-void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){}
+void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state){}
 
 void setFlywheelVel(int32_t vel){
   flywheel.changeState(FlywheelMoveVelParams{vel});

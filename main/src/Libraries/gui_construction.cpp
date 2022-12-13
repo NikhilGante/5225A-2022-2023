@@ -4,6 +4,7 @@
 #include "piston.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
+#include "motor.hpp"
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE
 
@@ -21,31 +22,10 @@
   std::array<int, 21> expander_ports;
   std::array<Button*, 8> exp_pneum_btns;
 
-  std::array<std::tuple<Motor*, std::string, std::string, int, Text_*, Text_*, Button*, Button*>, 8> motors_for_gui {{
-    {&back_r, "Back Right", "BR", 0, nullptr, nullptr, nullptr, nullptr},
-    {&centre_r, "Center Right", "CR", 0, nullptr, nullptr, nullptr, nullptr},
-    {&front_r, "Front Right", "FR", 0, nullptr, nullptr, nullptr, nullptr},
-    {&back_l, "Back Left", "BL", 0, nullptr, nullptr, nullptr, nullptr},
-    {&centre_l, "Center Left", "CL", 0, nullptr, nullptr, nullptr, nullptr},
-    {&front_l, "Front Left", "FL", 0, nullptr, nullptr, nullptr, nullptr},
-    {nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr},
-    {nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr},
-    // {&flywheel_front, "Front Flywheel", "F", 0, nullptr, nullptr, nullptr, nullptr},
-    // {&flywheel_back, "Back Flywheel", "B", 0, nullptr, nullptr, nullptr, nullptr},
-  }}; //    {nullptr, "", "", 0, nullptr, nullptr, nullptr, nullptr},
-  //Motor*, Long name, Short Name, Temperature, Temperature Text, Name Text, On Button, Off button
-
 //Constructors
   //Main GUI
     Page temps ("Temperature"); //Motor temps
-      Text mot_temp_1(90, 60, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[0]) + ": %dC", std::get<int>(motors_for_gui[0]), Color::black);
-      Text mot_temp_2(90, 125, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[1]) + ": %dC", std::get<int>(motors_for_gui[1]), Color::black);
-      Text mot_temp_3(90, 190, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[2]) + ": %dC", std::get<int>(motors_for_gui[2]), Color::black);
-      Text mot_temp_4(390, 60, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[3]) + ": %dC", std::get<int>(motors_for_gui[3]), Color::black);
-      Text mot_temp_5(390, 125, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[4]) + ": %dC", std::get<int>(motors_for_gui[4]), Color::black);
-      Text mot_temp_6(390, 190, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[5]) + ": %dC", std::get<int>(motors_for_gui[5]), Color::black);
-      Text mot_temp_7(240, 90, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[6]) + ": %dC", std::get<int>(motors_for_gui[6]), Color::black);
-      Text mot_temp_8(240, 160, GUI::Style::CENTRE, TEXT_SMALL, temps, std::get<2>(motors_for_gui[7]) + ": %dC", std::get<int>(motors_for_gui[7]), Color::black);
+      //Remaining elements created upon instantiation of _Motor objects
 
     Page checks("Competition");
       Button drive_motors (15, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Drive Motors");
@@ -119,48 +99,10 @@
 
     Page motors ("Motor Control"); //Motor Control for known ports
       Slider mot_speed_set (MID_X, 60, 180 , 15, GUI::Style::CENTRE, Slider::HORIZONTAL, -127, 127, motors, "Speed");
-      Text mot_1_text (65, 115, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[0]));
-      Text mot_2_text (180, 115, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[1]));
-      Text mot_3_text (295, 115, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[2]));
-      Text mot_4_text (410, 115, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[3]));
-      Text mot_5_text (65, 180, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[4]));
-      Text mot_6_text (180, 180, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[5]));
-      Text mot_7_text (295, 180, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[6]));
-      Text mot_8_text (410, 180, GUI::Style::CENTRE, TEXT_SMALL, motors, std::get<1>(motors_for_gui[7]));
-      Button mot_1_update (15, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_2_update (130, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_3_update (245, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_4_update (360, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_5_update (15, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_6_update (130, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_7_update (245, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_8_update (360, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Run");
-      Button mot_1_stop (70, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_2_stop (185, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_3_stop (300, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_4_stop (415, 125, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_5_stop (70, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_6_stop (185, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_7_stop (300, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
-      Button mot_8_stop (415, 190, 45, 30, GUI::Style::SIZE, Button::SINGLE, motors, "Stop");
+      //Remaining elements created upon instantiation of _Motor objects
 
     Page pneumatics ("Pneumatics"); //Pneumatic testing page for known ports
-      Button pneum_1 (15, 45, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_2 (130, 45, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_3 (245, 45, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_4 (360, 45, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_5 (15, 140, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_6 (130, 140, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_7 (245, 140, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Button pneum_8 (360, 140, 100, 75, GUI::Style::SIZE, Button::TOGGLE, pneumatics);
-      Text pneum_1_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(1);}));
-      Text pneum_2_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(2);}));
-      Text pneum_3_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(3);}));
-      Text pneum_4_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(4);}));
-      Text pneum_5_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(5);}));
-      Text pneum_6_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(6);}));
-      Text pneum_7_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(7);}));
-      Text pneum_8_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, pneumatics, "%s", std::function([](){return Piston::get_name(8);}));
+      //Remaining elements created upon instantiation of Piston objects
 
 
   //Utility
@@ -230,95 +172,6 @@
 
 
 void mainSetup(){
-  //Temperature & Motor Control
-    std::get<4>(motors_for_gui[0]) = &mot_temp_1;
-    std::get<4>(motors_for_gui[1]) = &mot_temp_2;
-    std::get<4>(motors_for_gui[2]) = &mot_temp_3;
-    std::get<4>(motors_for_gui[3]) = &mot_temp_4;
-    std::get<4>(motors_for_gui[4]) = &mot_temp_5;
-    std::get<4>(motors_for_gui[5]) = &mot_temp_6;
-    std::get<4>(motors_for_gui[6]) = &mot_temp_7;
-    std::get<4>(motors_for_gui[7]) = &mot_temp_8;
-
-    std::get<5>(motors_for_gui[0]) = &mot_1_text;
-    std::get<5>(motors_for_gui[1]) = &mot_2_text;
-    std::get<5>(motors_for_gui[2]) = &mot_3_text;
-    std::get<5>(motors_for_gui[3]) = &mot_4_text;
-    std::get<5>(motors_for_gui[4]) = &mot_5_text;
-    std::get<5>(motors_for_gui[5]) = &mot_6_text;
-    std::get<5>(motors_for_gui[6]) = &mot_7_text;
-    std::get<5>(motors_for_gui[7]) = &mot_8_text;
-
-    std::get<6>(motors_for_gui[0]) = &mot_1_update;
-    std::get<6>(motors_for_gui[1]) = &mot_2_update;
-    std::get<6>(motors_for_gui[2]) = &mot_3_update;
-    std::get<6>(motors_for_gui[3]) = &mot_4_update;
-    std::get<6>(motors_for_gui[4]) = &mot_5_update;
-    std::get<6>(motors_for_gui[5]) = &mot_6_update;
-    std::get<6>(motors_for_gui[6]) = &mot_7_update;
-    std::get<6>(motors_for_gui[7]) = &mot_8_update;
-
-    std::get<7>(motors_for_gui[0]) = &mot_1_stop;
-    std::get<7>(motors_for_gui[1]) = &mot_2_stop;
-    std::get<7>(motors_for_gui[2]) = &mot_3_stop;
-    std::get<7>(motors_for_gui[3]) = &mot_4_stop;
-    std::get<7>(motors_for_gui[4]) = &mot_5_stop;
-    std::get<7>(motors_for_gui[5]) = &mot_6_stop;
-    std::get<7>(motors_for_gui[6]) = &mot_7_stop;
-    std::get<7>(motors_for_gui[7]) = &mot_8_stop;
-
-    for(auto& tup : motors_for_gui){
-      if(std::get<Motor*>(tup)){
-        std::get<6>(tup)->setFunc([=](){std::get<Motor*>(tup)->move(mot_speed_set.getValue());});
-        std::get<7>(tup)->setFunc([=](){std::get<Motor*>(tup)->move(0);});
-
-        std::get<int>(tup) = std::get<Motor*>(tup)->get_temperature();
-      }
-      else std::get<int>(tup) = std::numeric_limits<int>::max();
-
-      std::get<4>(tup)->setBackground(40, 20);
-      if(std::get<int>(tup) == std::numeric_limits<int>::max()){
-        std::get<4>(tup)->setActive(false);
-        std::get<5>(tup)->setActive(false);
-        std::get<6>(tup)->setActive(false);
-        std::get<7>(tup)->setActive(false);
-      }
-    }
-
-    temps.setLoopFunc([](){
-      for (auto mot_tup: motors_for_gui){
-        Text_* text = std::get<4>(mot_tup);
-        if (text){
-          switch(std::get<int>(mot_tup)){
-            case 0:
-            case 5:
-              text->setBackground(Color::white); break;
-            case 10:
-            case 15:
-              text->setBackground(Color::blue); break;
-            case 20:
-              text->setBackground(Color::dodger_blue); break;
-            case 25:
-              text->setBackground(Color::turquoise); break;
-            case 30:
-              text->setBackground(Color::medium_sea_green); break;
-            case 35:
-              text->setBackground(Color::lawn_green); break;
-            case 40:
-              text->setBackground(Color::lime_green); break;
-            case 45:
-              text->setBackground(Color::yellow); break;
-            case 50:
-              text->setBackground(Color::orange_red); break;
-            case 55:
-              text->setBackground(Color::red); break;
-            default:
-              text->setBackground(Color(rand())); break;
-          }
-        }
-      }
-    });
-
   //Competition
     drive_motors.setFunc([](){
       if(GUI::prompt("Press to check drive motors", "", 1000)){
@@ -373,7 +226,7 @@ void mainSetup(){
     });
 
     pneums.setFunc([](){
-      for(auto [piston, _]: Piston::list_for_gui){
+      for(auto piston: Piston::list_for_gui){
         if (!piston) continue;
 
         if (GUI::prompt("Press to check " + piston->getName())){
@@ -490,9 +343,9 @@ void mainSetup(){
     });
 
     front_claw.setFunc([](){DEPRECATE;/*f_claw(HIGH);*/});
-    front_claw.set_off_func([](){DEPRECATE;/*f_claw(LOW);*/});
+    front_claw.setOffFunc([](){DEPRECATE;/*f_claw(LOW);*/});
     back_claw.setFunc([](){DEPRECATE;/*b_claw.setState(HIGH);*/});
-    back_claw.set_off_func([](){DEPRECATE;/*b_claw.setState(LOW);*/});
+    back_claw.setOffFunc([](){DEPRECATE;/*b_claw.setState(LOW);*/});
 
     f_lift_move.setFunc([&](){
       if (GUI::prompt("Press to move front lift to " + std::to_string(f_lift_val.getValue()), "", 1000)){
@@ -723,28 +576,11 @@ void mainSetup(){
     });
 
   //Pneumatic Control
-    pneum_1.addText(pneum_1_text);
-    pneum_2.addText(pneum_2_text);
-    pneum_3.addText(pneum_3_text);
-    pneum_4.addText(pneum_4_text);
-    pneum_5.addText(pneum_5_text);
-    pneum_6.addText(pneum_6_text);
-    pneum_7.addText(pneum_7_text);
-    pneum_8.addText(pneum_8_text);
-
-    for(auto [piston, button]: Piston::list_for_gui){
-      if(piston){
-        button->setFunc([piston](){piston->setState(HIGH);});
-        button->set_off_func([piston](){piston->setState(LOW);});
-      }
-      else button->setActive(false);
-    }
-
-    pneumatics.setSetupFunc([](){
-      for(auto [piston, button]: Piston::list_for_gui){
-        if(piston && piston->getState()) button->select();
-      }
-    });
+//     pneumatics.setSetupFunc([](){
+//       for(auto piston: Piston::list_for_gui){
+//         if(piston && piston->getState()) piston->toggle.select();
+//       }
+//     });
 }
 
 void mainBackground(){
@@ -752,19 +588,8 @@ void mainBackground(){
   int x = 200*tracking.g_pos.x / 144, y = 200*tracking.g_pos.y / 144;
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
 
-  for (auto& mot_tup: motors_for_gui){
-    Motor* motor = std::get<Motor*>(mot_tup);
-    int& temp = std::get<int>(mot_tup);
-    if(motor){
-      temp = motor->get_temperature();
-
-      if (motor && inRange(temp, 55, std::numeric_limits<int>::max() - 1)){ //Overheating
-        temps.goTo();
-        alert::start(10000, "%s motor is at %dC\n", std::get<1>(mot_tup), temp);
-        break;
-      }
-    }
-    else temp = std::numeric_limits<int>::max();
+  for (_Motor* motor: _Motor::list_for_gui){
+    if (motor) motor->updateTemperatureText();
   }
 }
 
@@ -929,7 +754,7 @@ void utilSetup(){
           c::adi_port_set_value(i, HIGH);
         }
       });
-      exp_pneum_btns[i-1]->set_off_func([i](){
+      exp_pneum_btns[i-1]->setOffFunc([i](){
         int port = expander.getValue();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){

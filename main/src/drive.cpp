@@ -1,5 +1,7 @@
 #include "drive.hpp"
+#include "config.hpp"
 #include "Libraries/controller.hpp"
+#include "Libraries/motor.hpp"
 #include "Libraries/timer.hpp"
 
 double angle_curvature = 2.0;
@@ -53,12 +55,12 @@ void moveDriveSide(double l, double r){
 }
 
 void driveBrake(){
-  front_l.move_relative(0, 200);
-  front_r.move_relative(0, 200);
-  back_l.move_relative(0, 200);
-  back_r.move_relative(0, 200);
-  centre_l.move_relative(0, 200);
-  centre_r.move_relative(0, 200);
+  front_l.brake();
+  front_r.brake();
+  back_l.brake();
+  back_r.brake();
+  centre_l.brake();
+  centre_r.brake();
 }
 
 void resetDrive(){TO_IMPLEMENT}

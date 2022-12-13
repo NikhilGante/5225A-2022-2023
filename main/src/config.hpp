@@ -3,11 +3,12 @@
 #include "main.h"
 
 class _Controller;
+class _Motor;
 class Piston;
 
 extern _Controller master;
 extern _Controller partner;
-extern Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywheel_m, intake_m;
+extern _Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywheel_m, intake_m;
 // extern pros::ADIEncoder LeftEncoder, RightEncoder, BackEncoder;
 extern Rotation left_tracker, right_tracker, back_tracker;
 
@@ -18,9 +19,6 @@ extern ADIAnalogIn mag_ds;
 extern Rotation flywheel_rot_sensor;
 
 extern Piston angler_p;
-
-extern Motor b_lift_m;
-
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define DEBUG printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);

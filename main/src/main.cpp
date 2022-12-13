@@ -95,25 +95,6 @@ void autonomous() {
 void opcontrol(){
   DEBUG;
 
-  // static std::array<std::pair<_Motor*, Button*, Text_*>, 8> list_for_gui;
-  // this, toggle button, temperature text
-
-
   DEBUG;
   WAIT_UNTIL(false);
 }
-
-/*
-Takes 500ms to fill up with 15000 chars
-Can print 120000 chars in 4.7s (5ms x 800 delay)
-Can print 120000 chars in 8.7s (10ms x 800 delay)
-Can print 120000 chars in 0.7s, but missed characters (No delay)
-!all numbers are approx
-
-Will still need a mutex in case it's inputting faster than it outputs.
-Mutex isn't needed for all the writes because input and output to the queue happen at different locations.
-However, when clearing, there may be an issue.
-
-If the queue has 5 elems, 5 are written. However in that time, 2 more were inputted, so it clears to pos 7.
-This loses the two characters.
-*/

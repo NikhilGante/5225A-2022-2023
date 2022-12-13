@@ -1,6 +1,4 @@
 #pragma once
-#include "config.hpp"
-#include "util.hpp"
 
 int polynomial(int x, double curvature);
 extern double angle_curvature;

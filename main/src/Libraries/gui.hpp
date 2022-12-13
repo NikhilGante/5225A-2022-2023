@@ -144,7 +144,6 @@ class Page{
       void
         draw() const,
         update() const,
-        goTo() const,
         setSetupFunc(std::function <void()>), setLoopFunc(std::function <void()>),
         setActive(bool = true);
 
@@ -152,6 +151,8 @@ class Page{
     //Title, Bcolour
     Page(const Page&) = delete;
     explicit Page(std::string, Color = Color::black);
+
+    void goTo() const;
 };
 
 //Text parent class
@@ -201,6 +202,8 @@ class Text: public Text_{
   friend class Button;
   friend class Slider;
   friend class Text_;
+  friend class _Motor;
+  friend class Piston;
   friend void
     mainSetup(),
     mainBackground(),
@@ -244,6 +247,8 @@ class Button{
   friend class Page;
   friend class Slider;
   friend class Text_;
+  friend class _Motor;
+  friend class Piston;
   friend void
     mainSetup(),
     mainBackground(),
@@ -290,7 +295,7 @@ class Button{
         construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Color, Color),
         update(),
         addText (Text_&, bool = true),
-        setFunc(std::function <void()>), set_off_func(std::function <void()>),
+        setFunc(std::function <void()>), setOffFunc(std::function <void()>),
         setActive(bool = true),
         setBackground (Color);
 

@@ -12,6 +12,7 @@ std::vector<Logging*> Logging::obj_list;
 
 Logging task_log("tasks", log_locations::none);
 Logging state_log("states", log_locations::both);
+Logging sensor_data("states", log_locations::sd);
 Logging auton_log("states");
 Logging controller_queue("controller", log_locations::none, term_colours::NONE, true);
 Logging tracking_data("tracking");

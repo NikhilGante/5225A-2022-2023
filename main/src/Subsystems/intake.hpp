@@ -16,7 +16,7 @@ struct IntakeIndexParams;
 
 #define INTAKE_STATE_TYPES IntakeIdleParams, IntakeOnParams, IntakeOffParams, IntakeRevParams, IntakeIndexParams
 
-#define INTAKE_STATE_TYPES_VARIANT std::variant<INTAKE_STATE_TYPES>
+using intakeVariant = std::variant<INTAKE_STATE_TYPES>;
 
 extern Machine<INTAKE_STATE_TYPES> intake;
 
@@ -24,7 +24,7 @@ struct IntakeIdleParams{
   inline static const std::string name = "IntakeIdle";
 
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 struct IntakeOnParams{
@@ -34,7 +34,7 @@ struct IntakeOnParams{
   
   inline static const std::string name = "IntakeOn";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 
 private:
   int mag_ds_val;
@@ -47,7 +47,7 @@ void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on
 struct IntakeOffParams{
   inline static const std::string name = "IntakeOff";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void intakeOff();  // Wrapper function to turn intake off
@@ -59,7 +59,7 @@ struct IntakeRevParams{
 
   inline static const std::string name = "IntakeRev";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void intakeRev(int8_t speed = -127);  // Wrapper function to turn intake in reverse
@@ -71,7 +71,7 @@ struct IntakeIndexParams{
 
   inline static const std::string name = "IntakeIndex";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs

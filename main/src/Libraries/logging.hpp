@@ -19,6 +19,7 @@ class Logging{
     bool newline;
     std::string name;
     log_locations log_location;
+    std::string id;
 
     static constexpr size_t print_max_size = 10000;
     static constexpr uint32_t print_max_time = 500;
@@ -59,6 +60,7 @@ class Logging{
 
 extern Logging task_log;
 extern Logging state_log;
+extern Logging sensor_data;
 extern Logging auton_log;
 extern Logging tracking_data;
 extern Logging controller_queue;

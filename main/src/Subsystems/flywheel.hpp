@@ -11,20 +11,20 @@ struct FlywheelMoveVelParams;
 
 #define FLYWHEEL_STATE_TYPES FlywheelIdleParams, FlywheelOffParams, FlywheelMoveVelParams
 
-#define FLYWHEEL_STATE_TYPES_VARIANT std::variant<FLYWHEEL_STATE_TYPES>
+using flywheelVariant = std::variant<FLYWHEEL_STATE_TYPES>;
 
 extern Machine<FLYWHEEL_STATE_TYPES> flywheel;
 
 struct FlywheelIdleParams{
   inline static const std::string name = "FlywheelIdle";
   void handle();
-  void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(flywheelVariant prev_state);
 };
 
 struct FlywheelOffParams{  
   inline static const std::string name = "FlywheelOff";
   void handle();
-  void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(flywheelVariant prev_state);
 };
 
 extern std::atomic<double> flywheel_error; // Target vel - actual vel (global static var)
@@ -36,7 +36,7 @@ struct FlywheelMoveVelParams{
 
   inline static const std::string name = "FlywheelMoveVel";
   void handle();
-  void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(flywheelVariant prev_state);
 private:
   static constexpr double kB = 0.0336;	// Target velocity multiplied by this outputs a motor voltage
 	static constexpr double kP = 0.75;

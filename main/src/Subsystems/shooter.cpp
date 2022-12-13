@@ -5,7 +5,7 @@
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 
 void shooterHandleInput(){
-  SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
+  shooterVariant cur_state = shooter.getState();
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
     if(master.get_digital_new_press(singleShotBtn)) shoot(1);
@@ -17,7 +17,7 @@ void shooterHandleInput(){
 // Shooter idle state
 
 void ShooterIdleParams::handle(){}
-void ShooterIdleParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state){}
+void ShooterIdleParams::handleStateChange(shooterVariant prev_state){}
 
 // Shooter shoot state
 
@@ -47,7 +47,7 @@ void ShooterShootParams::handle(){
   }
 
 }
-void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state){
+void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   angler_p.setState(LOW);
   intakeIndex();  // Sets intake to index state
 }

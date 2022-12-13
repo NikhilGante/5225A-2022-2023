@@ -1,11 +1,12 @@
 #include "intake.hpp"
 #include "../Libraries/controller.hpp"
+#include "../Libraries/motor.hpp"
 #include "../Libraries/piston.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
 void intakeHandleInput(){
-  INTAKE_STATE_TYPES_VARIANT cur_state = intake.getState();
+  intakeVariant cur_state = intake.getState();
   if(get_if<IntakeOnParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
   }
@@ -21,7 +22,7 @@ std::atomic<int> g_mag_disc_count = 0;
 
 // Intake idle state
 void IntakeIdleParams::handle(){}
-void IntakeIdleParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){}
+void IntakeIdleParams::handleStateChange(intakeVariant prev_state){}
 
 // Intake on state
 
@@ -48,7 +49,7 @@ void IntakeOnParams::handle(){  // synchronous state
   // printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
-void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);
   intake_m.move(speed);
 }
@@ -60,7 +61,7 @@ void intakeOn(int8_t speed){
 
 // Intake off state
 void IntakeOffParams::handle(){}
-void IntakeOffParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeOffParams::handleStateChange(intakeVariant prev_state){
   intake_m.move(0);
 }
 
@@ -76,7 +77,7 @@ void IntakeRevParams::handle(){
   // If the mag is no longer full, turn intake back on
   if(g_mag_disc_count < 3) intakeOn();
 }
-void IntakeRevParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeRevParams::handleStateChange(intakeVariant prev_state){
   intake_m.move(speed);
 }
 
@@ -89,7 +90,7 @@ void intakeRev(int8_t speed){  // Wrapper function to turn intake in reverse
 IntakeIndexParams::IntakeIndexParams(int8_t speed) : speed(speed){}
 
 void IntakeIndexParams::handle(){}
-void IntakeIndexParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeIndexParams::handleStateChange(intakeVariant prev_state){
   intake_m.move(speed);
 }
 

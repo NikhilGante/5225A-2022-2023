@@ -711,7 +711,7 @@ namespace alert{
   void Page::setSetupFunc(std::function <void()> function){setup_func = function;}
   void Page::setLoopFunc(std::function <void()> function){loop_func = function;}
   void Button::setFunc(std::function <void()> function){func = function;}
-  void Button::set_off_func(std::function <void()> function){off_func = function;}
+  void Button::setOffFunc(std::function <void()> function){off_func = function;}
   void Button::runFunc() const {if (func) func();}
   void Button::runOffFunc() const {if (off_func) off_func();}
 

@@ -72,18 +72,18 @@ struct DriveFlattenParams;
 
 #define DRIVE_STATE_TYPES DriveIdleParams, DriveOpControlParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveFlattenParams
 
-#define DRIVE_STATE_TYPES_VARIANT std::variant<DRIVE_STATE_TYPES>
+using driveVariant = std::variant<DRIVE_STATE_TYPES>;
 
 struct DriveIdleParams{
   inline static const std::string name = "DriveIdle";
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(driveVariant prev_state);
 };
 
 struct DriveOpControlParams{
   inline static const std::string name = "DriveOpControl";
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(driveVariant prev_state);
 };
 
 struct DriveMttParams{
@@ -97,7 +97,7 @@ struct DriveMttParams{
 
   inline static const std::string name = "DriveMoveToTarget";
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(driveVariant prev_state);
 };
 
 struct DriveTurnToAngleParams{
@@ -109,7 +109,7 @@ struct DriveTurnToAngleParams{
 
   inline static const std::string name = "DriveTurnToAngle";
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(driveVariant prev_state);
 };
 
 struct DriveTurnToTargetParams{
@@ -122,13 +122,13 @@ struct DriveTurnToTargetParams{
 
   inline static const std::string name = "DriveTurnToTarget";
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(driveVariant prev_state);
 };
 
 struct DriveFlattenParams{
   inline static const std::string name = "DriveFlatten";
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(driveVariant prev_state);
 };
 
 extern Machine<DRIVE_STATE_TYPES> drive;

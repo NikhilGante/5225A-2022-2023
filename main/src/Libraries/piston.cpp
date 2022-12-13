@@ -1,54 +1,53 @@
 #include "piston.hpp"
+#include "logging.hpp"
+
 int Piston::count = 0;
+std::array<Piston*, 8> Piston::list_for_gui{};
 
-extern Button pneum_1, pneum_2, pneum_3, pneum_4, pneum_5, pneum_6, pneum_7, pneum_8;
+extern Page pneumatics;
 
-std::array<std::pair<Piston*, Button*>, 8> Piston::list_for_gui {{
-  {nullptr, &pneum_1},
-  {nullptr, &pneum_2},
-  {nullptr, &pneum_3},
-  {nullptr, &pneum_4},
-  {nullptr, &pneum_5},
-  {nullptr, &pneum_6},
-  {nullptr, &pneum_7},
-  {nullptr, &pneum_8},
-}};
+Piston::Piston(std::uint8_t port, std::string name, bool reversed, bool init_state):
+ADIDigitalOut{port, init_state}, reversed{reversed}, name{name} {
+  if(count < 8) list_for_gui[count] = this;
+  
+  toggle.construct(115*(count%4) + 15, count < 4 ? 45 : 140, 100, 75, GUI::Style::SIZE  , Button::SINGLE, &pneumatics, "" , Color::dark_orange, Color::black);
+  text.construct(0, 0, GUI::Style::CENTRE, TEXT_SMALL, &pneumatics, getName(), nullptr, Color::white);
 
-Piston::Piston(std::uint8_t adi_port, std::string name, bool open_state, bool init_state): ADIDigitalOut(adi_port, init_state), name(name){
-  if(count < 8) list_for_gui[count].first = this;
+  toggle.setFunc([this](){setState(HIGH);});
+  toggle.setOffFunc([this](){setState(LOW);});
+  toggle.addText(text);
+
   count++;
 }
-// constructor overload for port pair
-Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool open_state, bool init_state): ADIDigitalOut(port_pair, init_state), name(name){
-  if(count < 8) list_for_gui[count].first = this;
+
+Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state):
+ADIDigitalOut{port_pair, init_state}, reversed{reversed}, name{name} {
+  if(count < 8) list_for_gui[count] = this;
+  
+  toggle.construct(115*(count%4) + 15, count < 4 ? 45 : 140, 100, 75, GUI::Style::SIZE  , Button::SINGLE, &pneumatics, "" , Color::dark_orange, Color::black);
+  text.construct(0, 0, GUI::Style::CENTRE, TEXT_SMALL, &pneumatics, getName(), nullptr, Color::white);
+
+  toggle.setFunc([this](){setState(HIGH);});
+  toggle.setOffFunc([this](){setState(LOW);});
+  toggle.addText(text);
+
   count++;
 }
 
 void Piston::setState(bool state){
+  sensor_data.print("Piston %s switching from %d to %d", getName(), getState(), state != reversed);
   this->state = state != reversed;
-  this->set_value(this->state);
-  this->change_time = millis();
+  set_value(getState());
 }
 
 bool Piston::getState() const{
   return this->state != reversed;
 }
 
-bool Piston::toggleState(){
-  this->state = !this->state;
-  this->set_value(state);
-  this->change_time = millis();
-  return state;
-}
-
-int Piston::getStateTime() const{
-  return millis() - this->change_time;
+void Piston::toggleState(){
+  setState(!getState());
 }
 
 std::string Piston::getName() const{
   return this->name;
-}
-
-std::string Piston::get_name(int number){
-  return list_for_gui[number-1].first ? Piston::list_for_gui[number-1].first->getName() : "No Piston";
 }
