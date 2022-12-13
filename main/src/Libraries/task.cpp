@@ -21,7 +21,7 @@ void _Task::killUnsafe(){
 void _Task::kill(){
   if(isAlive()){
     // sends a notification to kill the task
-    task_notify_ext(task_handle, (int)notify_types_2::interrupt, E_NOTIFY_ACTION_OWRITE, nullptr);
+    task_notify_ext(task_handle, (int)notify_types_2::interrupt, NOTIFY_ACTION_OWRITE, nullptr);
     if(task_get_state(task_handle) == TASK_STATE_SUSPENDED) resume();
   }
   else task_log.print("%s | Already dead, kill failed\n", name);
@@ -29,7 +29,7 @@ void _Task::kill(){
 
 void _Task::suspend(){
   if(isAlive()){
-    task_notify_ext(task_handle, (int)notify_types_2::suspend, E_NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
+    task_notify_ext(task_handle, (int)notify_types_2::suspend, NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
     WAIT_UNTIL(task_get_state(task_handle) == TASK_STATE_SUSPENDED); // wait for the task to suspend
   }
   else task_log.print("%s | suspend failed, task is dead\n", name);

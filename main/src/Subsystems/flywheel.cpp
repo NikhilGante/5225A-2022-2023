@@ -48,7 +48,7 @@ void FlywheelMoveVelParams::handle(){
 
   // Calculating filtered velocity
   if(motor_vel_read.getTime() >= 40){
-    double pos = flywheel_m.get_position() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * DEG_TO_ROT;
+    double pos = flywheel_m.getPosition() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * DEG_TO_ROT;
     manual_vel = (pos - last_pos)/motor_vel_read.getTime();
     last_pos = pos;
 
@@ -69,7 +69,7 @@ void FlywheelMoveVelParams::handle(){
   printf("%d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf \n", millis(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel);
 
 
-  if (flywheel_m.get_temperature() >= 45){
+  if (flywheel_m.getTemperature() >= 45){
     master.rumble("-");
     flywheel_m.move(0);
     WAIT_UNTIL(false);

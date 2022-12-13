@@ -3,6 +3,7 @@
 #include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
 #include "Libraries/controller.hpp"
+#include "Subsystems/flywheel.hpp"
 #include "auton.hpp"
 #include "tracking.hpp"
 #include "config.hpp"

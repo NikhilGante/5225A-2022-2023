@@ -1,12 +1,12 @@
 #include "gui.hpp"
 #include "pros/apix.h"
-#include "../config.hpp"
 #include "piston.hpp"
+#include "motor.hpp"
+#include "../config.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
-#include "motor.hpp"
 
-//DO NOT MESS WITH INDENTATION IN THIS FILE
+//DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
 
 /*Field array*/ static std::vector<std::bitset<200>> field (200, std::bitset<200>{}); //Initializes to 200 blank bitsets
 /*Temperature Alert Flag*/ static bool temp_flashed = false;
@@ -72,19 +72,6 @@
       Button front_claw(470, 145, -100, 40, GUI::Style::SIZE, Button::TOGGLE, lift_move, "Front Claw");
       Button back_claw(470, 195, -100, 40, GUI::Style::SIZE, Button::TOGGLE, lift_move, "Back Claw");
 
-    Page elastic ("Elastic Test"); //Testing the elastics on the lift
-      // Button check_b_elastic(145, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Back Elastic Test");
-      // Button check_f_elastic(335, 70, 70, 30, GUI::Style::CENTRE, Button::SINGLE, elastic, "Run Front Elastic Test");
-      // // Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_b_up_time);
-      // // Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_b_down_time);
-      // // Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: %d", elastic_f_up_time);
-      // // Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: %d", elastic_f_down_time);
-      // Text elastic_b_up (145, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
-      // Text elastic_b_down(145, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
-      // Text elastic_f_up (335, 160, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Up Time: \%d");
-      // Text elastic_f_down(335, 180, GUI::Style::CENTRE, TEXT_SMALL, elastic, "Down Time: \%d");
-      
-
     Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
       Text tuning_instructions_1(MID_X, 35, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow");
       Text tuning_instructions_2(MID_X, 50, GUI::Style::CENTRE, TEXT_SMALL, tuning, "the terminal for instructions and results");
@@ -120,7 +107,7 @@
       Text enc (350, 100, GUI::Style::CENTRE, TEXT_SMALL, encoders, "%s", std::function([](){return sprintf2("%d:%c%c", expander_1.getValue(), port_1.getValue() + 64, port_2.getValue() + 64);}));
       Text enc_degs (350, 120, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Degs: %d", enc_val);
       Text enc_rots (350, 140, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Rots: %d", std::function([](){return int(enc_val / 360);}));
-      Text enc_remain (350, 160, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Remaining: %d", std::function([](){return abs(enc_val-360*int(std::round((enc_val + sgn(enc_val) * 180) / 360)));})); //replace with near_angle
+      Text enc_remain (350, 160, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Remaining: %d", std::function([](){return std::abs(enc_val-360*int(std::round((enc_val + sgn(enc_val) * 180) / 360)));})); //replace with near_angle
       Button enc_res (350, 200, 50, 20, GUI::Style::CENTRE, Button::SINGLE, encoders, "Reset");
 
     Page motor ("Motor Control");
@@ -226,9 +213,7 @@ void mainSetup(){
     });
 
     pneums.setFunc([](){
-      for(auto piston: Piston::list_for_gui){
-        if (!piston) continue;
-
+      for(auto piston: Piston::getList()){
         if (GUI::prompt("Press to check " + piston->getName())){
           piston->toggleState();
           delay(500);
@@ -437,7 +422,7 @@ void mainSetup(){
 
           if (GUI::prompt("Press when stopped")){
             int back = back_tracker.get_position();
-            if(abs(back) <= 2) printf2(term_colours::GREEN, "The back wheel is pretty accurate, it is at %d ticks.", back);
+            if(std::abs(back) <= 2) printf2(term_colours::GREEN, "The back wheel is pretty accurate, it is at %d ticks.", back);
             else printf2(term_colours::RED, "The back wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", back, sgn(left_tracker.get_position()) == sgn(back) ? "" : "counter-");
           }
         }
@@ -451,7 +436,7 @@ void mainSetup(){
           driveBrake();
 
           int back = back_tracker.get_position();
-          if(abs(back) <= 2) printf2(term_colours::GREEN, "The back wheel is pretty accurate, it is at %d ticks.", back);
+          if(std::abs(back) <= 2) printf2(term_colours::GREEN, "The back wheel is pretty accurate, it is at %d ticks.", back);
           else printf2(term_colours::RED, "The back wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", back, sgn(left_tracker.get_position()) == sgn(back) ? "" : "counter-");
         }
       }
@@ -466,10 +451,10 @@ void mainSetup(){
             int left = left_tracker.get_position();
             int right = right_tracker.get_position();
 
-            if(abs(left) <= 2) printf2(term_colours::GREEN, "The left wheel is pretty accurate, it is at %d ticks.", left);
+            if(std::abs(left) <= 2) printf2(term_colours::GREEN, "The left wheel is pretty accurate, it is at %d ticks.", left);
             else printf2(term_colours::RED, "The left wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", left, sgn(left) == sgn(back_tracker.get_position()) ? "counter-" : "");
 
-            if(abs(right) <= 2) printf2(term_colours::GREEN, "The right wheel is pretty accurate, it is at %d ticks.", right);
+            if(std::abs(right) <= 2) printf2(term_colours::GREEN, "The right wheel is pretty accurate, it is at %d ticks.", right);
             else printf2(term_colours::RED, "The right wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", right, sgn(right) == sgn(back_tracker.get_position()) ? "counter-" : "");
           }
         }
@@ -534,7 +519,7 @@ void mainSetup(){
             turned = 180 * (turned-rots);
             rots /= 2;
 
-            double dist = abs(left_tracker.get_position() - right_tracker.get_position()) / (360.0 * rots);
+            double dist = std::abs(left_tracker.get_position() - right_tracker.get_position()) / (360.0 * rots);
 
             if(std::abs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
             else if(turned > 0) printf2(term_colours::RED, "However, the robot gained %.2f degrees over %.1f rotations. Consider decreasing the DistanceLR to %.3f.", turned, rots, dist);
@@ -566,7 +551,7 @@ void mainSetup(){
           turned = 180 * (turned-rots);
           rots /= 2;
 
-          double dist = abs(left_tracker.get_position() - right_tracker.get_position()) / (360.0 * rots);
+          double dist = std::abs(left_tracker.get_position() - right_tracker.get_position()) / (360.0 * rots);
 
           if(std::abs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
           else if(turned > 0) printf2(term_colours::RED, "However, the robot gained %.2f degrees over %.1f rotations. Consider decreasing the DistanceLR to %.3f.", turned, rots, dist);
@@ -588,8 +573,8 @@ void mainBackground(){
   int x = 200*tracking.g_pos.x / 144, y = 200*tracking.g_pos.y / 144;
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
 
-  for (_Motor* motor: _Motor::list_for_gui){
-    if (motor) motor->updateTemperatureText();
+  for (_Motor* motor: _Motor::getList()){
+    motor->updateTemperatureText();
   }
 }
 
@@ -597,7 +582,7 @@ void utilSetup(){
   //Encoders
     enc_set.setFunc([](){
       int port = expander_1.getValue();
-      if(abs(port_1.getValue() - port_2.getValue()) != 1 || std::min(port_1.getValue(), port_2.getValue()) % 2 == 0){
+      if(std::abs(port_1.getValue() - port_2.getValue()) != 1 || std::min(port_1.getValue(), port_2.getValue()) % 2 == 0){
         alert::start(term_colours::ERROR, "Invalid Ports %c%c", port_1.getValue() + 64, port_2.getValue() + 64);
         return;
       }
@@ -735,7 +720,7 @@ void utilSetup(){
     if (expander_port_nums.back() == ',') expander_port_nums.pop_back();
 
     for (int i = 1; i <= 8; i++){
-      if(c::adi_port_get_config(i) != E_ADI_DIGITAL_IN && c::adi_port_get_config(i) != E_ADI_DIGITAL_OUT){
+      if(c::adi_port_get_config(i) != ADI_DIGITAL_IN && c::adi_port_get_config(i) != ADI_DIGITAL_OUT){
         no_pneumatic_port_nums.push_back(char(i + 64));
         no_pneumatic_port_nums.push_back(',');
       }
@@ -746,11 +731,11 @@ void utilSetup(){
             alert::start(term_colours::ERROR, "No Expander in port %d", port);
             return;
           }
-          c::ext_adi_port_set_config(port, i, E_ADI_DIGITAL_OUT);
+          c::ext_adi_port_set_config(port, i, ADI_DIGITAL_OUT);
           c::ext_adi_port_set_value(port, i, HIGH);
         }
         else{
-          c::adi_port_set_config(i, E_ADI_DIGITAL_OUT);
+          c::adi_port_set_config(i, ADI_DIGITAL_OUT);
           c::adi_port_set_value(i, HIGH);
         }
       });
@@ -761,11 +746,11 @@ void utilSetup(){
             alert::start(term_colours::ERROR, "No Expander in port %d", port);
             return;
           }
-          c::ext_adi_port_set_config(port, i, E_ADI_DIGITAL_OUT);
+          c::ext_adi_port_set_config(port, i, ADI_DIGITAL_OUT);
           c::ext_adi_port_set_value(port, i, LOW);
         }
         else{
-          c::adi_port_set_config(i, E_ADI_DIGITAL_OUT);
+          c::adi_port_set_config(i, ADI_DIGITAL_OUT);
           c::adi_port_set_value(i, LOW);
         }
       });
@@ -801,6 +786,6 @@ void utilBackground(){
   }
 }
 
-GUI main_obj ({&temps, &checks, &track, &moving, &lift_move,  &driver_curve, &elastic, &tuning, &motors, &pneumatics}, &mainSetup, &mainBackground);
+GUI main_obj ({&temps, &checks, &track, &moving, &lift_move,  &driver_curve, &tuning, &motors, &pneumatics}, &mainSetup, &mainBackground);
 
 GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground);

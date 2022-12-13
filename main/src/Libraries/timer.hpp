@@ -10,15 +10,15 @@ enum class timing_units{
 class Timer{
   // 'time' is the time counted by the timer until the last call of pause()
   uint64_t last_reset_time, time, last_play_time;
-  const char* name;
+  std::string name;
   bool paused;    // state of timer
   timing_units timing_unit;
-  Logging log;
+  Logging* log;
   uint64_t getTimeInTimingUnit(); // returns time in either millis micros
 
 public:
 
-  Timer(const char* name, Logging log = misc, bool play = true, timing_units timing_unit = timing_units::millis);
+  Timer(std::string name, Logging& log = misc, bool play = true, timing_units timing_unit = timing_units::millis);
   void reset(bool play = true);
   uint64_t getTime();
   void play();

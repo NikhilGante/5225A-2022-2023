@@ -150,6 +150,7 @@ class Queue{
       else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
       return end();
     }
+    template <typename R> constexpr iterator insert(R const & range) {return insert(range.cbegin(), range.cend());}
 
     //Remove Modifiers
     constexpr void pop() {if(!empty()) front_iter++;}

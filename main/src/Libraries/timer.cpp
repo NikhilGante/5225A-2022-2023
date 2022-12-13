@@ -1,7 +1,7 @@
 #include "timer.hpp"
 
-Timer::Timer(const char* name, Logging log, bool play, timing_units timing_unit):
-name{name}, timing_unit{timing_unit}, log{log} {
+Timer::Timer(std::string name, Logging& log, bool play, timing_units timing_unit):
+name{name}, timing_unit{timing_unit}, log{&log} {
   log.print("%s's initialize time is: %lld\n", name, getTimeInTimingUnit());
   reset(play);
 }
@@ -25,7 +25,7 @@ void Timer::play(){
     last_play_time = getTimeInTimingUnit();
     paused = false;
   }
-  else log.print("Timer \"%s\" is already playing.\n", name);
+  else log->print("Timer \"%s\" is already playing.\n", name);
 }
 
 void Timer::pause(){
@@ -33,11 +33,11 @@ void Timer::pause(){
     time += getTimeInTimingUnit() - last_play_time;
     paused = true;
   }
-  else log.print("Timer \"%s\" is already paused.\n", name);
+  else log->print("Timer \"%s\" is already paused.\n", name);
 }
 
 void Timer::print(const char* str){
-  log.print("%s's current time is: %lld | %s\n", name, getTime(), str);
+  log->print("%s's current time is: %lld | %s\n", name, getTime(), str);
 }
 
 bool Timer::playing() const {return !paused;}

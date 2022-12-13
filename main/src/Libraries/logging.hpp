@@ -2,6 +2,7 @@
 #include "../util.hpp"
 #include "queue.hpp"
 #include "printing.hpp"
+#include "counter.hpp"
 
 class _Task;
 
@@ -13,7 +14,7 @@ enum class log_locations{
 };
 
 //All dump into the same queue
-class Logging{
+class Logging: public Counter<Logging>{
   private:
     term_colours print_colour;
     bool newline;
@@ -24,7 +25,6 @@ class Logging{
     static constexpr size_t print_max_size = 10000;
     static constexpr uint32_t print_max_time = 500;
     static std::string file_name;
-    static std::vector<Logging*> obj_list;
     static Queue<char, 20000> queue;
     static _Task task;
 
@@ -42,7 +42,8 @@ class Logging{
         case log_locations::both:
           printf2(colour, str);
         case log_locations::sd: //fallthrough intentional
-          queue.insert(str.cbegin(), str.cend());
+          queue.insert(id);
+          queue.insert(str);
           break;
         case log_locations::t:
           printf2(colour, str);
@@ -52,10 +53,7 @@ class Logging{
       }
     }
 
-    template <typename... Params>
-    void print(std::string format, Params... args) const{
-      print(print_colour, format, args...);
-    }
+    template <typename... Params> void print(std::string format, Params... args) const {print(print_colour, format, args...);}
 };
 
 extern Logging task_log;

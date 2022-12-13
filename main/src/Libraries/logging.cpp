@@ -6,9 +6,8 @@
 #include <fstream>
 
 std::string Logging::file_name{"/usd/data.txt"};
-_Task Logging::task{"logging"};
+_Task Logging::task{"Logging"};
 Queue<char, 20000> Logging::queue{"Logging"};
-std::vector<Logging*> Logging::obj_list;
 
 Logging task_log("tasks", log_locations::none);
 Logging state_log("states", log_locations::both);
@@ -22,7 +21,7 @@ Logging log_d("log", log_locations::sd);
 Logging error("error", log_locations::both, term_colours::ERROR);
 
 Logging::Logging(std::string name, log_locations log_location, term_colours print_colour, bool newline):
-name{name + ".txt"}, log_location{log_location}, newline{newline}, print_colour{print_colour} {obj_list.push_back(this);}
+Counter{name}, name{name + ".txt"}, log_location{log_location}, newline{newline}, print_colour{print_colour}, id{sprintf2("$%01d", getID())} {}
 
 void Logging::init(){
   using std::ofstream;
@@ -40,13 +39,13 @@ void Logging::init(){
   }
 
   if(!file_openable){
-    for(Logging* obj: obj_list){
+    for(Logging* obj: getList()){
       log_locations& loc = obj->log_location;
       if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::t;
     }
   }
   else task.start([](){
-    Timer timer{"logging_tmr"};
+    Timer timer{"Logging Queue"};
 
     while(true){
       if(!queue.empty() && (timer.getTime() > print_max_time || queue.size() > print_max_size)){

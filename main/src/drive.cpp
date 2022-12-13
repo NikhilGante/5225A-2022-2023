@@ -8,16 +8,16 @@ double angle_curvature = 2.0;
 
 int polynomial(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
-  return round(pow(127, 1 - n) * pow(abs(x), n) * sgn(x));
+  return round(pow(127, 1 - n) * pow(std::abs(x), n) * sgn(x));
 }
 // private methods
 int CustomDrive::polynomial(int x){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
-  return round(pow(127, 1 - n) * pow(abs(x), n) * sgn(x));
+  return round(pow(127, 1 - n) * pow(std::abs(x), n) * sgn(x));
 }
 int CustomDrive::exponential(int x){
   double n = curvature;
-  return round(exp(0.002 * n * (abs(x) - 127)) * x);
+  return round(exp(0.002 * n * (std::abs(x) - 127)) * x);
 }
 
 // CustomDrive constructor
@@ -84,33 +84,31 @@ void driveHandleInput(){
   power_y = master.get_analog(ANALOG_LEFT_Y);
   power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(abs(power_y) < 7) power_y = 0;
-  if(abs(power_a) < 7) power_a = 0;
+  if(std::abs(power_y) < 7) power_y = 0;
+  if(std::abs(power_a) < 7) power_a = 0;
   // if(power_y < -30){
   //   power_y = -30;
   //   // master.rumble("-");
   // }
-  // if(abs(power_a) > 65) power_a = sgn(power_a) * 65;
+  // if(std::abs(power_a) > 65) power_a = sgn(power_a) * 65;
 
 
   // l_power = power_y + power_a;
   // r_power = power_y - power_a;
 
-  // if(fabs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
-  // if(fabs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
+  // if(fstd::abs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
+  // if(fstd::abs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
 
   // // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
   // moveDriveSide(l_power, r_power);
   // l_power_last = l_power,  r_power_last = r_power;
-  lcd::print(3, "intk:%lf", intake_m.get_temperature());
-  lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
-  lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
+  for(_Motor* motor: _Motor::getList()){
+    if(motor->getTemperature() >= 50){
+      moveDrive(0, 0);
+      master.rumble("----------");
+      WAIT_UNTIL(false);
+    }
+  }
 
-
-  if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50){
-    moveDrive(0, 0);
-    master.rumble("----------");
-    WAIT_UNTIL(false);
-  } 
   moveDrive(power_y, power_a);
 }

@@ -1,37 +1,29 @@
 #include "piston.hpp"
 #include "logging.hpp"
 
-int Piston::count = 0;
-std::array<Piston*, 8> Piston::list_for_gui{};
-
 extern Page pneumatics;
 
-Piston::Piston(std::uint8_t port, std::string name, bool reversed, bool init_state):
-ADIDigitalOut{port, init_state}, reversed{reversed}, name{name} {
-  if(count < 8) list_for_gui[count] = this;
-  
-  toggle.construct(115*(count%4) + 15, count < 4 ? 45 : 140, 100, 75, GUI::Style::SIZE  , Button::SINGLE, &pneumatics, "" , Color::dark_orange, Color::black);
+void Piston::construct(std::string name, bool reversed){
+  this->name = name;
+  this->reversed = reversed;
+
+  toggle.construct(115*(getCount()%4) + 15, getCount() < 4 ? 45 : 140, 100, 75, GUI::Style::SIZE  , Button::SINGLE, &pneumatics, "" , Color::dark_orange, Color::black);
   text.construct(0, 0, GUI::Style::CENTRE, TEXT_SMALL, &pneumatics, getName(), nullptr, Color::white);
 
   toggle.setFunc([this](){setState(HIGH);});
   toggle.setOffFunc([this](){setState(LOW);});
   toggle.addText(text);
-
-  count++;
 }
 
+Piston::Piston(std::uint8_t port, std::string name, bool reversed, bool init_state):
+ADIDigitalOut{port, init_state}, Counter{name} {
+  construct(name, reversed);
+}
+
+
 Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state):
-ADIDigitalOut{port_pair, init_state}, reversed{reversed}, name{name} {
-  if(count < 8) list_for_gui[count] = this;
-  
-  toggle.construct(115*(count%4) + 15, count < 4 ? 45 : 140, 100, 75, GUI::Style::SIZE  , Button::SINGLE, &pneumatics, "" , Color::dark_orange, Color::black);
-  text.construct(0, 0, GUI::Style::CENTRE, TEXT_SMALL, &pneumatics, getName(), nullptr, Color::white);
-
-  toggle.setFunc([this](){setState(HIGH);});
-  toggle.setOffFunc([this](){setState(LOW);});
-  toggle.addText(text);
-
-  count++;
+ADIDigitalOut{port_pair, init_state}, Counter{name} {
+  construct(name, reversed);
 }
 
 void Piston::setState(bool state){
