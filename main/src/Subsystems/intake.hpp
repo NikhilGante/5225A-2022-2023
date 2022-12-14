@@ -1,6 +1,4 @@
 #pragma once
-#include "main.h"
-#include "../config.hpp"
 #include "../Libraries/state.hpp"
 
 void intakeHandleInput();

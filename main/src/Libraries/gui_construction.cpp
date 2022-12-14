@@ -5,6 +5,7 @@
 #include "../config.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
+#include "../util.hpp"
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
 

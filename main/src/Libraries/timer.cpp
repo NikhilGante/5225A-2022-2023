@@ -1,4 +1,5 @@
 #include "timer.hpp"
+#include "logging.hpp"
 
 Timer::Timer(std::string name, Logging& log, bool play, timing_units timing_unit):
 name{name}, timing_unit{timing_unit}, log{&log} {
@@ -36,7 +37,7 @@ void Timer::pause(){
   else log->print("Timer \"%s\" is already paused.\n", name);
 }
 
-void Timer::print(const char* str){
+void Timer::print(std::string str){
   log->print("%s's current time is: %lld | %s\n", name, getTime(), str);
 }
 

@@ -2,11 +2,11 @@
 #include "../config.hpp"
 #include "../Libraries/controller.hpp"
 #include "../Libraries/motor.hpp"
+#include "../util.hpp"
 
-constexpr double DEG_TO_ROT = 1/360.0;
-constexpr double MS_TO_MIN = 60000.0;
-constexpr double SPROCKET_RATIO = 1/1.0;
-constexpr double CARTRIDGE_TO_RAW = 6.0;
+constexpr double MS_TO_MIN = 60000;
+constexpr double SPROCKET_RATIO = 1.0/1;
+constexpr double CARTRIDGE_TO_RAW = 6;
 
 Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2250});
 
@@ -48,7 +48,7 @@ void FlywheelMoveVelParams::handle(){
 
   // Calculating filtered velocity
   if(motor_vel_read.getTime() >= 40){
-    double pos = flywheel_m.getPosition() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * DEG_TO_ROT;
+    double pos = flywheel_m.getPosition() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * deg_to_rot;
     manual_vel = (pos - last_pos)/motor_vel_read.getTime();
     last_pos = pos;
 

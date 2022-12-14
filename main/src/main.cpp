@@ -8,18 +8,16 @@
 #include "tracking.hpp"
 #include "config.hpp"
 #include "Subsystems/intake.hpp"
+#include "util.hpp"
 
 
 const GUI* GUI::current_gui = &main_obj;
 
 
-/* Nathan's Thoughts
-change most #defines to constexpr
-replace C macros with C++ equivalents (std::numbers::pi) - not super important
-std::string instead of const char*
+/* To make it better
 const after type (int const, char const *)
-switch variadic functions to variadic templates
 make more methods const
+alert prints really big
 */
 
 
@@ -40,7 +38,6 @@ void initialize() {
 	tracking_task.start(trackingUpdate);
 
 	delay(500);
-	// lift.runMachine();
 }
 
 /**
@@ -89,9 +86,6 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-
-//delete the move and copy constructors for controller button, auton...
-//alert prints really big
 
 void opcontrol(){
   DEBUG;

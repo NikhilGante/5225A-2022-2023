@@ -3,6 +3,7 @@
 #include "task.hpp"
 #include "controller.hpp"
 #include "timer.hpp"
+#include "../util.hpp"
 
 //GUI:: Static Variable Declarations
   const Page* GUI::current_page = nullptr;

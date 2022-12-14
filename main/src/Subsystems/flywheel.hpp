@@ -1,8 +1,6 @@
 #pragma once
-#include "main.h"
-#include "../Libraries/timer.hpp"
 #include "../Libraries/state.hpp"
-#include <atomic>
+#include "../Libraries/timer.hpp"
 
 // forward declarations
 struct FlywheelIdleParams;

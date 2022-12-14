@@ -1,5 +1,10 @@
 #include "auton.hpp"
 #include "Libraries/controller.hpp"
+#include "Libraries/timer.hpp"
+#include "tracking.hpp"
+#include "config.hpp"
+#include "util.hpp"
+
 
 // start coord 
 // tracking.g_pos = {35.25, 11.25, 0.0};

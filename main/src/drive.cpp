@@ -1,23 +1,26 @@
 #include "drive.hpp"
 #include "config.hpp"
+#include "util.hpp"
 #include "Libraries/controller.hpp"
 #include "Libraries/motor.hpp"
 #include "Libraries/timer.hpp"
+
+#include <cmath>
 
 double angle_curvature = 2.0;
 
 int polynomial(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
-  return round(pow(127, 1 - n) * pow(std::abs(x), n) * sgn(x));
+  return std::round(std::pow(127, 1 - n) * std::pow(std::abs(x), n) * sgn(x));
 }
 // private methods
 int CustomDrive::polynomial(int x){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
-  return round(pow(127, 1 - n) * pow(std::abs(x), n) * sgn(x));
+  return std::round(std::pow(127, 1 - n) * std::pow(std::abs(x), n) * sgn(x));
 }
 int CustomDrive::exponential(int x){
   double n = curvature;
-  return round(exp(0.002 * n * (std::abs(x) - 127)) * x);
+  return std::round(exp(0.002 * n * (std::abs(x) - 127)) * x);
 }
 
 // CustomDrive constructor

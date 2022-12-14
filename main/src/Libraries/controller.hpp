@@ -2,8 +2,6 @@
 #include "main.h"
 #include "logging.hpp"
 #include "queue.hpp"
-#include <vector>
-#include <functional>
 
 // Buttons
 

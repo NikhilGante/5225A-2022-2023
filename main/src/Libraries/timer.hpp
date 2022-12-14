@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
-#include "logging.hpp"
+
+class Logging;
+extern Logging misc; //Just to avoid pulling in the logging header
 
 enum class timing_units{
   millis,
@@ -23,6 +25,6 @@ public:
   uint64_t getTime();
   void play();
   void pause();
-  void print(const char* str = ""); // prints to the terminal with custom message
+  void print(std::string str = ""); // prints to the terminal with custom message
   bool playing() const;
 };

@@ -1,6 +1,4 @@
 #pragma once
-#include  "config.hpp"
-#include "tracking.hpp"
 
 void skills1();
 void skills2();

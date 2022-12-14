@@ -1,4 +1,6 @@
 #include "shooter.hpp"
+#include "intake.hpp"
+#include "../config.hpp"
 #include "../Libraries/controller.hpp"
 #include "../Libraries/piston.hpp"
 

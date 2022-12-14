@@ -1,8 +1,5 @@
 #pragma once
-#include "main.h"
-#include "../config.hpp"
 #include "../Libraries/state.hpp"
-#include "intake.hpp"
 #include "flywheel.hpp"
 
 void shooterHandleInput();
@@ -33,8 +30,8 @@ struct ShooterShootParams{
   int shots_left;
 
   flywheelVariant flywheel_state;
-private:
-  Timer shoot_timer{"shoot_timer"};
+
+  private: Timer shoot_timer{"shoot_timer"};
 
 };
 

@@ -1,12 +1,10 @@
 #include "task.hpp"
-#include "../config.hpp"
-#include "../util.hpp"
 #include "timer.hpp"
-#include "logging.hpp"
+#include "../util.hpp"
 
 using namespace c;
 
-_Task::_Task(const char* name): name{name} {}
+_Task::_Task(std::string name): name{name} {}
 
 // private method
 bool _Task::isAlive(){

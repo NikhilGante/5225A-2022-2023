@@ -1,4 +1,5 @@
 #include "intake.hpp"
+#include "../config.hpp"
 #include "../Libraries/controller.hpp"
 #include "../Libraries/motor.hpp"
 #include "../Libraries/piston.hpp"

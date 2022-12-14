@@ -1,12 +1,5 @@
 #pragma once
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <compare>
-#include <concepts>
-#include <cstring>
-#include <iostream>
-
+#include "main.h"
 #include "printing.hpp"
 
 //Forward Declare

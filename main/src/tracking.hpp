@@ -1,10 +1,10 @@
 #pragma once
 #include "main.h"
-#include "Libraries/logging.hpp"
 #include "Libraries/geometry.hpp"
-#include "drive.hpp"
-#include "Libraries/pid.hpp"
 #include "Libraries/state.hpp"
+
+#include <atomic>
+#include <variant>
 
 enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
