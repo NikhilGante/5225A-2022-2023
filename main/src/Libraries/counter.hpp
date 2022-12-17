@@ -16,7 +16,7 @@ class Counter{
     Counter(std::string name = ""){
       if(size == 0 || (size && total < size)){
         objects.push_back(static_cast<derived*>(this));
-        count = ++total;
+        count = total++;
       }
       else if (name != "") throw std::length_error("Too many objects of type are being created. Failed upon creation of \'" + name + '\'');
       else throw std::length_error("Too many objects of type are being created.");

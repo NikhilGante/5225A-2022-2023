@@ -560,13 +560,6 @@ void mainSetup(){
         }
       }
     });
-
-  //Pneumatic Control
-//     pneumatics.setSetupFunc([](){
-//       for(auto piston: Piston::list_for_gui){
-//         if(piston && piston->getState()) piston->toggle.select();
-//       }
-//     });
 }
 
 void mainBackground(){
@@ -574,9 +567,7 @@ void mainBackground(){
   int x = 200*tracking.g_pos.x / 144, y = 200*tracking.g_pos.y / 144;
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
 
-  for (_Motor* motor: _Motor::getList()){
-    motor->updateTemperatureText();
-  }
+  for (_Motor* motor: _Motor::getList()) motor->updateTemperatureText();
 }
 
 void utilSetup(){

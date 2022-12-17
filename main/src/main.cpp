@@ -30,6 +30,7 @@ alert prints really big
 void initialize() {
 	Logging::init();
   GUI::init();
+  GUI::goTo(9);
 	_Controller::init();
 
 	tracking.g_pos = {31.0, 11.5, 0.0};

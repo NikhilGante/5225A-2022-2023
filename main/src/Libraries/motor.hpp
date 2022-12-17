@@ -6,7 +6,7 @@
 class _Motor: protected Motor, public Counter<_Motor, 8>{
   private:
     Button on, off;
-    Text<int> temperature;
+    Text<int> temperature, data;
     Text<> text;
     std::string name, short_name;
 
@@ -19,9 +19,9 @@ class _Motor: protected Motor, public Counter<_Motor, 8>{
     void brake();
     void updateTemperatureText();
 
-    //Getters
-      double getPosition() const;
-      int getTemperature() const;
-      std::string getName() const;
-      std::string getShortName() const;
+    double getPosition() const;
+    int getTemperature() const;
+    int getRPM() const;
+    std::string getName() const;
+    std::string getShortName() const;
 };

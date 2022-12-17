@@ -65,7 +65,7 @@ namespace alert{
       end_time = std::get<std::uint32_t>(queue.front());
       screen_flash.goTo();
 
-      master.rumble("-.");
+      // master.rumble("-.");
 
       error.print(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
 
@@ -97,13 +97,13 @@ namespace alert{
     newline(2);
     for (int y = 0; y < y_objects; y++){
       for (int x = 0; x < x_objects; x++){
-        printf2("(%d, %d, %d, %d, GUI::Style::SIZE)", (x_space) * (x+1) + x_size*x, (y_space) * (y+1) + y_size*y + 20, x_size, y_size);
+        printf2("(%d, %d, %d, %d, GUI::Style::SIZE)\n", (x_space) * (x+1) + x_size*x, (y_space) * (y+1) + y_size*y + 20, x_size, y_size);
       }
       newline();
     }
-    printf2("\nScreen Size: %d x %d", x_range, y_range);
-    if ((x_space + x_size) * (x_objects) > 480) printf2("X out of bounds");
-    if ((y_space + y_size) * (y_objects) > 220) printf2("Y out of bounds");
+    printf2("\nScreen Size: %d x %d\n", x_range, y_range);
+    if ((x_space + x_size) * (x_objects) > 480) printf2("X out of bounds\n");
+    if ((y_space + y_size) * (y_objects) > 220) printf2("Y out of bounds\n");
     newline(2);
   }
 

@@ -7,24 +7,25 @@ extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
 Motor{port, gearset, reversed, encoder_units}, name{name} {
-  on         .construct(115*(getCount()%4) + 15, getCount() < 4 ? 125 : 190, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Run" , Color::dark_orange, Color::black);
-  off        .construct(115*(getCount()%4) + 70, getCount() < 4 ? 125 : 190, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Stop", Color::dark_orange, Color::black);
-  text       .construct(115*(getCount()%4) + 70, getCount() < 4 ? 125 : 190,         GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName(), nullptr, Color::white);
-  temperature.construct(115*(getCount()%4) + 70, getCount() < 4 ? 125 : 190,         GUI::Style::CENTRE, TEXT_SMALL    , &temps , getShortName() + ": %dC", std::function([this](){return get_temperature();}), Color::white);
+  std::stringstream ss(getName());
+  for(auto begin = std::istream_iterator<std::string>{ss}; begin != std::istream_iterator<std::string>{}; begin++) short_name += begin->front();
+
+  on         .construct(115*(getID()%4) + 15, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
+  off        .construct(115*(getID()%4) + 70, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
+  text       .construct(115*(getID()%4) + 65, getID() < 4 ? 95  : 180,         GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName()                    , nullptr                                           , Color::white);
+  data       .construct(115*(getID()%4) + 65, getID() < 4 ? 110 : 195,         GUI::Style::CENTRE, TEXT_SMALL    , &motors, std::to_string(port) + ": %d", std::function([this](){return getRPM();})         , Color::white);
+  temperature.construct(115*(getID()%4) + 65, getID() < 4 ? 125 : 190,         GUI::Style::CENTRE, TEXT_SMALL    , &temps , getShortName() + ": %dC"     , std::function([this](){return get_temperature();}), Color::black);
 
   on .setFunc([this](){move(mot_speed_set.getValue());});
   off.setFunc([this](){move(0                       );});
   temperature.setBackground(40, 20);
 
-  // if(getTemperature() == std::numeric_limits<int>::max()){
-  //   on         .setActive(false);
-  //   off        .setActive(false);
-  //   text       .setActive(false);
-  //   temperature.setActive(false);
-  // }
-  
-  std::stringstream ss(getName());
-  for(auto begin = std::istream_iterator<std::string>{ss}; begin != std::istream_iterator<std::string>{}; begin++) short_name += begin->front();
+  if(static_cast<int>(get_temperature()) == std::numeric_limits<int>::max()){
+    on         .setActive(false);
+    off        .setActive(false);
+    data       .setActive(false);
+    temperature.setActive(false);
+  }
 }
 
 void _Motor::move(int voltage){
@@ -38,7 +39,16 @@ void _Motor::brake(){
   Motor::move_relative(0, 200);
 }
 
-int _Motor::getTemperature() const {return get_temperature();}
+int _Motor::getTemperature() const {
+  int temp = get_temperature();
+  return temp != std::numeric_limits<int>::max() ? temp : 0;
+}
+
+int _Motor::getRPM() const {
+  int rpm = get_actual_velocity();
+  return rpm != std::numeric_limits<int>::max() ? rpm : 0;
+}
+
 double _Motor::getPosition() const {return get_position();}
 std::string _Motor::getName() const {return name;}
 std::string _Motor::getShortName() const {return short_name;}

@@ -3,16 +3,15 @@
 #include "gui.hpp"
 #include "counter.hpp"
 
-class Piston: public ADIDigitalOut, public Counter<Piston, 8>{
+class Piston: public ADIDigitalOut, public Counter<Piston, 12>{
   private:
     Button toggle;
-    Text<> text;
     std::string name;
 
     bool state;  // the state of the SUBSYSTEM (e.g. 1 if the claw is closed, 0 if open)
     bool reversed;  // if the state of the subsytem is opposite the state of the piston
 
-    void construct(std::string name, bool reversed);
+    void construct(std::string name, bool reversed, ext_adi_port_pair_t port_pair);
 
   public:
 

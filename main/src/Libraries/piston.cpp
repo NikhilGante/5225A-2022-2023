@@ -3,33 +3,37 @@
 
 extern Page pneumatics;
 
-void Piston::construct(std::string name, bool reversed){
+void Piston::construct(std::string name, bool reversed, ext_adi_port_pair_t port){
   this->name = name;
   this->reversed = reversed;
 
-  toggle.construct(115*(getCount()%4) + 15, getCount() < 4 ? 45 : 140, 100, 75, GUI::Style::SIZE  , Button::SINGLE, &pneumatics, "" , Color::dark_orange, Color::black);
-  text.construct(0, 0, GUI::Style::CENTRE, TEXT_SMALL, &pneumatics, getName(), nullptr, Color::white);
+  toggle.construct(155*(getID()%3) + 10, 50*std::floor(getID()/3) + 30, 145, 40, GUI::Style::SIZE  , Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port.first) + "," + static_cast<char>(port.second) + '}', Color::dark_orange, Color::black);
 
-  toggle.setFunc([this](){setState(HIGH);});
-  toggle.setOffFunc([this](){setState(LOW);});
-  toggle.addText(text);
+  toggle.setFunc([this](){
+    sensor_data.print("Piston %s switching from %d to %d", getName(), getState(), HIGH != this->reversed);
+    this->state = HIGH != this->reversed;
+    set_value(getState());
+  });
+  toggle.setOffFunc([this](){
+    sensor_data.print("Piston %s switching from %d to %d", getName(), getState(), LOW != this->reversed);
+    this->state = LOW != this->reversed;
+    set_value(getState());
+  });
 }
 
 Piston::Piston(std::uint8_t port, std::string name, bool reversed, bool init_state):
 ADIDigitalOut{port, init_state}, Counter{name} {
-  construct(name, reversed);
+  construct(name, reversed, {0, port});
 }
-
 
 Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state):
 ADIDigitalOut{port_pair, init_state}, Counter{name} {
-  construct(name, reversed);
+  construct(name, reversed, port_pair);
 }
 
 void Piston::setState(bool state){
-  sensor_data.print("Piston %s switching from %d to %d", getName(), getState(), state != reversed);
-  this->state = state != reversed;
-  set_value(getState());
+  if(state) toggle.select();
+  else toggle.deselect();
 }
 
 bool Piston::getState() const{
