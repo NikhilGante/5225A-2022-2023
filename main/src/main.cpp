@@ -30,12 +30,11 @@ alert prints really big
 void initialize() {
 	Logging::init();
   GUI::init();
-  GUI::goTo(9);
 	_Controller::init();
 
 	tracking.g_pos = {31.0, 11.5, 0.0};
 	// tracking.g_pos = {70.0, 129.5, std::numbers::pi};
-	_Task tracking_task("tracking_update_task");
+	_Task tracking_task("Tracking Update");
 	tracking_task.start(trackingUpdate);
 
 	delay(500);

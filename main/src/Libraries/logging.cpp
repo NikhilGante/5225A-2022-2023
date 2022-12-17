@@ -9,19 +9,19 @@ std::string Logging::file_name{"/usd/data.txt"};
 _Task Logging::task{"Logging"};
 Queue<char, 20000> Logging::queue{"Logging"};
 
-Logging task_log("tasks", log_locations::none);
+Logging task_log("tasks", log_locations::both, term_colours::ERROR, true);
 Logging state_log("states", log_locations::both);
 Logging sensor_data("states", log_locations::sd);
 Logging auton_log("states");
 Logging controller_queue("controller", log_locations::none, term_colours::NONE, true);
 Logging tracking_data("tracking");
-Logging misc("misc", log_locations::both);
+Logging misc("misc", log_locations::none);
 Logging term("terminal", log_locations::t);
 Logging log_d("log", log_locations::sd);
 Logging error("error", log_locations::both, term_colours::ERROR);
 
 Logging::Logging(std::string name, log_locations log_location, term_colours print_colour, bool newline):
-Counter{name}, name{name + ".txt"}, log_location{log_location}, newline{newline}, print_colour{print_colour}, id{sprintf2("$%01d", getID())} {}
+Counter{name}, name{name + ".txt"}, log_location{log_location}, newline{newline}, print_colour{print_colour}, id{sprintf2("$%02d", getID())} {}
 
 void Logging::init(){
   using std::ofstream;
@@ -53,7 +53,7 @@ void Logging::init(){
         queue.output(file);
         timer.reset();
       }
-      task_log.print("Nothing to Log\n");
+      // printf2("Nothing to Log\n");
 
       _Task::delay(10);
     }

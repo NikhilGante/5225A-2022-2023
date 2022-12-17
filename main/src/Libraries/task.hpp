@@ -1,9 +1,6 @@
 #pragma once
 #include "main.h"
 #include "logging.hpp"
-#include "pros/rtos.hpp"
-
-#include <concepts>
 
 class TaskEndException: public std::exception{
   public: const char* what();
@@ -27,7 +24,7 @@ public:
   _Task(std::string name = "");
   template <std::invocable F>
   void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
-    task_log.print("Starting %s task\n", name);
+    task_log.print(term_colours::GREEN, "Starting %s task", name);
     kill(); // kills task if it's alive
     task_handle = Task::create(std::forward<F>(function), prio, stack_depth, name.c_str());
   }

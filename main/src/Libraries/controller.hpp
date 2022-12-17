@@ -46,7 +46,7 @@ public:
   void clearLine (std::uint8_t line);
   void clear();
   void rumble(std::string rumble_pattern);
-  void wait_for_press(controller_digital_e_t button, int timeout = 0);
+  void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
   controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
 
   template <typename... Params>

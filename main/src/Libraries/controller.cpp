@@ -20,7 +20,7 @@ controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
 controller_digital_e_t tripleShotBtn = DIGITAL_R2;
 controller_digital_e_t singleShotBtn = DIGITAL_R1;
 
-_Task _Controller::controller_task{"controller task"};
+_Task _Controller::controller_task{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};
 _Controller* _Controller::partner_ptr{nullptr};
 

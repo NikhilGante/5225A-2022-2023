@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "gui.hpp"
 
 template <typename derived, std::size_t size = 0>
 class Counter{
@@ -18,8 +19,8 @@ class Counter{
         objects.push_back(static_cast<derived*>(this));
         count = total++;
       }
-      else if (name != "") throw std::length_error("Too many objects of type are being created. Failed upon creation of \'" + name + '\'');
-      else throw std::length_error("Too many objects of type are being created.");
+      else if (name != "") alert::start("Too many objects of type are being created. Failed upon creation of \'%s\'", name);
+      else alert::start("Too many objects of type are being created.");
     }
 
   public:
