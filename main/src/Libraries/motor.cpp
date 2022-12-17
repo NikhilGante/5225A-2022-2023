@@ -6,7 +6,7 @@ extern Page temps, motors;
 extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
-Motor{port, gearset, reversed, encoder_units}, name{name} {
+Motor{port, gearset, reversed, encoder_units}, name{name}, Counter{name} {
   std::stringstream ss(getName());
   for(auto begin = std::istream_iterator<std::string>{ss}; begin != std::istream_iterator<std::string>{}; begin++) short_name += begin->front();
 

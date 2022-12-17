@@ -5,6 +5,7 @@
 template <typename derived, std::size_t size = 0>
 class Counter{
   private:
+  public:
     Counter(Counter const &) = delete;
     Counter& operator=(Counter const &) = delete;
 

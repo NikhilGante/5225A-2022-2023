@@ -13,8 +13,9 @@ enum class log_locations{
 };
 
 //All dump into the same queue
-class Logging: public Counter<Logging>{
+class Logging: public Counter<Logging, 15>{
   private:
+  public:
     term_colours print_colour;
     bool newline;
     std::string name;
@@ -26,6 +27,7 @@ class Logging: public Counter<Logging>{
     static std::string file_name;
     static Queue<char, 20000> queue;
     static _Task task;
+    static std::vector<Logging*> logs;
 
   public:
     Logging(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
