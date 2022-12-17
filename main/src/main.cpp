@@ -13,14 +13,6 @@
 
 const GUI* GUI::current_gui = &main_obj;
 
-
-/* To make it better
-const after type (int const, char const *)
-make more methods const
-alert prints really big
-*/
-
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -86,9 +78,13 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+#include "Libraries/piston.hpp"
 
 void opcontrol(){
   DEBUG;
+
+  std::cout << Logging::getList().size() << std::endl;
+  std::cout << Piston::getList().size() << std::endl;
 
   DEBUG;
   WAIT_UNTIL(false);
