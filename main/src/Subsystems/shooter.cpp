@@ -30,11 +30,13 @@ const char* ShooterShootParams::getName(){
 }
 void ShooterShootParams::handle(){
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
-  if(shoot_timer.getTime() > 300 && fabs(flywheel_error) < 20){
+  // if(fabs(flywheel_error) > 20) cycle_check.reset();
+  // printf("cycle_check:%lld\n", cycle_check.getTime());
+  if(shoot_timer.getTime() > 400 && fabs(flywheel_error) < 20){
     printf("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
-    delay(75); // wait for SHOOTER to extend
+    delay(150); // wait for SHOOTER to extend
     printf(" %d FINISHED SHOT\n", millis());
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
@@ -45,7 +47,7 @@ void ShooterShootParams::handle(){
     if(shots_left <= 0){  // If shooting is done
       delay(100); // waits for last disc to shoot
       // Sets subsystems back to their state before shooting
-      intakeOn();
+      // intakeOn();
       shooter.changeState(ShooterIdleParams{});
     }
     

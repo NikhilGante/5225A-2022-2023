@@ -49,16 +49,16 @@ void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::
 void turnToAngleSync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
-void turnToTargetSync(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
-void turnToTargetAsync(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+void turnToTargetSync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+void turnToTargetAsync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
 void flattenAgainstWallSync();
 void flattenAgainstWallAsync();
 
 // Takes a function that returns an angle in radians
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
-void aimAtRed();
-void aimAtBlue();
+void aimAtRed(double offset = 0.0);
+void aimAtBlue(double offset = 0.0);
 
 // State machine stuff
 
@@ -114,11 +114,12 @@ struct DriveTurnToAngleParams{
 
 struct DriveTurnToTargetParams{
   Vector target;
+  double offset = 0.0;
   bool reverse = false;
   E_Brake_Modes brake_mode = E_Brake_Modes::brake;
   double end_error = 2.0;
   
-  DriveTurnToTargetParams(Vector target, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
+  DriveTurnToTargetParams(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0);
 
   const char* getName();
   void handle();

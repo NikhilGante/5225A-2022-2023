@@ -13,6 +13,7 @@ extern Rotation left_tracker, right_tracker, back_tracker;
 extern Piston indexer_p;
 
 extern ADIAnalogIn mag_ds;
+extern ADIAnalogIn shooter_ds;
 
 extern Rotation flywheel_rot_sensor;
 

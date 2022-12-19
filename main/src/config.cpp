@@ -24,8 +24,9 @@ Motor flywheel_m(9, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 Piston indexer_p('E', "indexer_p", false, LOW);
 
 ADIAnalogIn mag_ds('A');
+ADIAnalogIn shooter_ds('B');
 
-Rotation flywheel_rot_sensor(3);	// Configures rotation sensor in port 1
+Rotation flywheel_rot_sensor(7);	// Configures rotation sensor in port 1
 
 Piston angler_p('H', "angler_p", true, LOW);
 

@@ -54,7 +54,7 @@ void trackingUpdate(){
     lcd::print(3, "dist_lr: %lf", dist_lr);
 
     new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
+    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
     new_back = back_tracker.get_position()*TICKS_TO_INCHES;
     
     lcd::print(2, "l:%lf r:%lf", new_left, new_right);
@@ -132,7 +132,7 @@ void trackingUpdate(){
 		
     // pros::lcd::print(2, "h_x:%lf, h_y: %lf", h_x, h_y);
     // pros::lcd::print(0, "L:%d R:%d B:%d", new_left, new_right, new_back);
-    pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
+    pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), -right_tracker.get_position(), back_tracker.get_position());
 		pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), fmod(radToDeg(tracking.g_pos.a), 360));
 
     delay(10);
@@ -187,13 +187,13 @@ void turnToAngleAsync(double angle, E_Brake_Modes brake_mode, double end_error){
   drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error});
 }
 
-void turnToTargetSync(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error){
-  drive.changeState(DriveTurnToTargetParams{target, reverse, brake_mode, end_error});
+void turnToTargetSync(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error){
+  drive.changeState(DriveTurnToTargetParams{target, offset, reverse, brake_mode, end_error});
   tracking.waitForComplete();
 }
 
-void turnToTargetAsync(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error){
-  drive.changeState(DriveTurnToTargetParams{target, reverse, brake_mode, end_error});
+void turnToTargetAsync(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error){
+  drive.changeState(DriveTurnToTargetParams{target, offset, reverse, brake_mode, end_error});
 }
 
 void flattenAgainstWallSync(){
@@ -206,11 +206,11 @@ void flattenAgainstWallAsync(){
 }
 
 // Wrapper functions to aim at high goals
-void aimAtRed(){
-  turnToTargetSync(r_goal);
+void aimAtRed(double offset){
+  turnToTargetSync(r_goal, offset);
 }
-void aimAtBlue(){
-  turnToTargetSync(b_goal);
+void aimAtBlue(double offset){
+  turnToTargetSync(b_goal, offset);
 }
 
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error){
@@ -345,15 +345,15 @@ void DriveTurnToAngleParams::handle(){
 void DriveTurnToAngleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
 // Drive Turn to Target State
-DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, bool reverse, E_Brake_Modes brake_mode, double end_error):
-  target(target), reverse(reverse), brake_mode(brake_mode), end_error(end_error){}
+DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error):
+  target(target), offset(offset), reverse(reverse), brake_mode(brake_mode), end_error(end_error){}
 
 const char* DriveTurnToTargetParams::getName(){
   return "DriveTurnToAngle";
 }
 void DriveTurnToTargetParams::handle(){
   turnToAngleInternal(function([&](){
-    return M_PI_2 - (target - tracking.g_pos).getAngle() + (reverse? M_PI : 0);
+    return M_PI_2 - (target - tracking.g_pos).getAngle() + offset + (reverse? M_PI : 0);
   }), brake_mode, end_error);
 }
 void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}

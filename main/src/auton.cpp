@@ -126,7 +126,7 @@ void new_skills2(){ // 17.5 seconds
   moveToTargetSync({82.0, 55.0}, E_Brake_Modes::brake, 110, 1.0);   // intake line of 3 discs
   aimAtRed();
   delay(1500);  // shoot 3 discs
-  turnToTargetSync({73.0, 67.0}, true, E_Brake_Modes::coast, 5.0);   // face centreline
+  turnToTargetSync({73.0, 67.0}, 0.0, true, E_Brake_Modes::coast, 5.0);   // face centreline
 
   moveToTargetSync({73.0, 67.0});   // backup on to centreline
   turnToTargetSync({20.0, 20.0});   // turn to face line
