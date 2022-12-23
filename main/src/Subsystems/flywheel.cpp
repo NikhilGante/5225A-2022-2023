@@ -8,9 +8,10 @@
 // 11/27
 // 28/60
 // 43/88
-// RPM is 2475 at far
-
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1850});
+// RPM is 2450 at far
+// 1700 from barrier
+// 56 degrees up close
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1350});
 
 // Flywheel idle state
 
@@ -35,7 +36,7 @@ void FlywheelOffParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_stat
 atomic<double> flywheel_error; // Target vel - actual vel (global static var)
 
 // static vars
-int32_t FlywheelMoveVelParams::rot_vel; // Power that goes to the flywheel motor
+// int32_t FlywheelMoveVelParams::rot_vel; // Power that goes to the flywheel motor
 double FlywheelMoveVelParams::output; // Power that goes to the flywheel motor
 double FlywheelMoveVelParams::smoothed_vel;  // Velocity with exponential filter applied to it
 double FlywheelMoveVelParams::last_pos;  // Motor's position from previous cycle
@@ -48,7 +49,7 @@ const char* FlywheelMoveVelParams::getName(){
   return "FlywheelMoveVel";
 }
 void FlywheelMoveVelParams::handle(){
-  rot_vel = -60*flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
+  // rot_vel = -60*flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
   
   // error = target_vel - rot_vel;
   // output = kB * target_vel + kP * error;
@@ -74,14 +75,14 @@ void FlywheelMoveVelParams::handle(){
   }
 
   // Velocity control
-  flywheel_error = target_vel - rot_vel;
+  flywheel_error = target_vel - smoothed_vel;
   // double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
   double correction = flywheel_error*kP;
   // if(fabs(correction) > 2500) correction = 2500;
   output = kB * target_vel + correction;
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
-  // output = 0;
-  printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, rot_vel, intake_m.get_actual_velocity());
+  // output = 127;
+  printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
 
 
   // if (flywheel_m.get_temperature() >= 45){
