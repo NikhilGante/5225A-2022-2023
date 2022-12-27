@@ -20,13 +20,13 @@ Tracking tracking; // singleton tracking object
  -5.9
   0.9
 */
-#define TICKS_TO_INCHES 1/36000.0 *(2.75*M_PI);
+#define TICKS_TO_INCHES 1/36000.0 *(3.25*M_PI);
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 6.86, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 11.32, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
@@ -128,6 +128,7 @@ void trackingUpdate(){
       // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
       tracking_timer.reset();
     }
+    // printf("a_vel: %lf\n", radToDeg(tracking.g_vel.a));
     // printf("L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
 		
     // pros::lcd::print(2, "h_x:%lf, h_y: %lf", h_x, h_y);
@@ -216,15 +217,14 @@ void aimAtBlue(double offset){
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error){
   end_error = degToRad(end_error);
   PID angle_pid(5.0, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
-  PID velocity_pid(0.0, 0.0, 0.0, 0.0);
-  double kB = 18.2; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  double kB = 13.78; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
-  double kP_vel = 15.0;
+  double kP_vel = 0.0;
   do{
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
-    if(fabs(power) > 127) power = sgn(power) * 127;
+    if(fabs(power) > 60) power = sgn(power) * 60;
     else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 30.0) power = sgn(power) * tracking.min_move_power_a;
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     moveDrive(0.0, power);
@@ -232,7 +232,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   }
   while(fabs(angle_pid.getError()) > end_error);
   handleBrake(brake_mode);
-  log("TURN TO ANGLE MOTION DONE took %lld secs | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(getAngleFunc()), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
 }
 
@@ -270,7 +270,7 @@ void DriveMttParams::handle(){
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
-  PID y_pid(4.5, 0.01, 100.0, 0.0, true, 0.0, 8.0);
+  PID y_pid(5.0, 0.008, 300.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:
@@ -285,7 +285,7 @@ void DriveMttParams::handle(){
       break;
   }
   // log("power_sgn: %d\n", power_sgn);
-  const double kP_a = 1.75;  // proportional multiplier for angular error
+  const double kP_a = 2.5;  // proportional multiplier for angular error
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
@@ -320,13 +320,13 @@ void DriveMttParams::handle(){
     // log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
     // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
 
-    log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
+    // log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
 
     moveDriveSide(left_power, right_power);
     _Task::delay(10);
   }  
   while(line_error.getY() > 0.5);
-  log("MTT MOTION DONE took %lld secs | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   handleBrake(brake_mode);
   drive.changeState(DriveIdleParams{});
 }
@@ -353,7 +353,7 @@ const char* DriveTurnToTargetParams::getName(){
 }
 void DriveTurnToTargetParams::handle(){
   turnToAngleInternal(function([&](){
-    return M_PI_2 - (target - tracking.g_pos).getAngle() + offset + (reverse? M_PI : 0);
+    return M_PI_2 - (target - tracking.g_pos).getAngle() + degToRad(offset) + (reverse? M_PI : 0);
   }), brake_mode, end_error);
 }
 void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
@@ -394,7 +394,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
     _Task::delay(10);
   }
   moveDrive(10, 0); // Applies holding power
-  log("DRIVE FLATTEN DONE, took %lld secs\n", motion_timer.getTime());
+  log("DRIVE FLATTEN DONE, took %lld ms\n", motion_timer.getTime());
   drive.changeState(DriveIdleParams{});
 }
 void DriveFlattenParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}

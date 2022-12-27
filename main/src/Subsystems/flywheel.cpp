@@ -8,10 +8,12 @@
 // 11/27
 // 28/60
 // 43/88
-// RPM is 2450 at far
+// RPM is 2440 at far
+// RPM is 2320 from midline
 // 1700 from barrier
+// RPM is 1350 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1350});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2440});
 
 // Flywheel idle state
 
@@ -85,12 +87,12 @@ void FlywheelMoveVelParams::handle(){
   printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
 
 
-  // if (flywheel_m.get_temperature() >= 45){
-  //   master.rumble("-");
-  //   flywheel_m.move(0);
-  //   WAIT_UNTIL(false);
+  if (flywheel_m.get_temperature() >= 50){
+    master.rumble("-");
+    flywheel_m.move(0);
+    WAIT_UNTIL(false);
 
-  // }
+  }
   flywheel_m.move(output);
   // flywheel_m.move(60);
 }
