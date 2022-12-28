@@ -51,7 +51,7 @@ void trackingUpdate(){
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
     // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
-    lcd::print(3, "dist_lr: %lf", dist_lr);
+    // lcd::print(3, "dist_lr: %lf", dist_lr);
 
     new_left = left_tracker.get_position()*TICKS_TO_INCHES;
     new_right = -right_tracker.get_position()*TICKS_TO_INCHES;

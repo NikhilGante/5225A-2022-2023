@@ -11,9 +11,9 @@
 // RPM is 2440 at far
 // RPM is 2320 from midline
 // 1700 from barrier
-// RPM is 1350 for toaster shot
+// RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2440});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1400});
 
 // Flywheel idle state
 

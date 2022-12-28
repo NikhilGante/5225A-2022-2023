@@ -28,6 +28,6 @@ ADIAnalogIn shooter_ds('B');
 
 Rotation flywheel_rot_sensor(7);	// Configures rotation sensor in port 1
 
-Piston angler_p('H', "angler_p", true, LOW);
+Piston angler_p('H', "angler_p", false, LOW);
 
 Motor b_lift_m(16);

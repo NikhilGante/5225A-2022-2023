@@ -124,16 +124,19 @@ void autonomous() {
 // STACK TRACE
 
 void moveInches(double target){
+	Timer move_timer{"move_timer"};
 	double start = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
 	double error;
 	do{
 		double cur_y = left_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start;
 		error = target - cur_y;
-		double power = 4.5*error;
-		if(fabs(power) < 20) power = sgn(error) * 20;
+		double power = 5.0*error;
+		if(fabs(power) < 30) power = sgn(error) * 30;
+		// if(fabs(power) > 100) power = sgn(error) * 100;
 		moveDrive(power, 0.0);
 
 	}while(fabs(error) > 0.5);
+	master.print(2, 0, "time: %ld", move_timer.getTime());
 	driveBrake();
 	master.rumble("-");
 }
@@ -143,19 +146,30 @@ void moveInches(double target){
 // (69.75, 134.625, 180)
 void opcontrol() {
 	// setFlywheelVel(2320);
+
+	Timer	disc_count_print{"disc_count_print"};
+	master.clear();
 	while(true){
 		driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
+		// if(master.get_digital_new_press(DIGITAL_X)){
+		// 	moveInches(50.0);
+		// 	turnToAngleSync(-90.0);
+		// } 
+		//  && g_mag_disc_count <= 4
+		// && g_mag_disc_count >= 0
+		if(master.get_digital_new_press(DIGITAL_UP))	g_mag_disc_count++;
+		if(master.get_digital_new_press(DIGITAL_DOWN))	g_mag_disc_count--; 
 
-		// if(disc_count_print.getTime() >= 50){
-		// 	master.print(0,0, "disc count: %d", g_mag_disc_count.load());
-		// 	disc_count_print.reset();
-		// }
-		lcd::print(7, "flywheel:%.lf", flywheel_m.get_temperature());
-		if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
-			break;
+
+		if(disc_count_print.getTime() > 100){
+			master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+			disc_count_print.reset();
 		}
+		// if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
+		// 	break;
+		// }
 		delay(10);
 	}
 
