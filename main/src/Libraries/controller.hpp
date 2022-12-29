@@ -20,6 +20,9 @@ extern controller_digital_e_t resetDiscCountBtn;
 // controller_digital_e_t someBUTTON;
 
 extern controller_digital_e_t intakeToggleBtn;
+extern controller_digital_e_t angleOverrideBtn;
+extern controller_digital_e_t intakeRevBtn;
+
 extern controller_digital_e_t rollerBtn;
 extern controller_digital_e_t endgameBtn2;
 extern controller_digital_e_t transToggleBtn;

@@ -6,9 +6,11 @@ void intakeHandleInput(){
   INTAKE_STATE_TYPES_VARIANT cur_state = intake.getState();
   if(get_if<IntakeOnParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
+    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
   else if(get_if<IntakeOffParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
+    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
   else if(get_if<IntakeRevParams>(&cur_state)){
     if(master.get_digital_new_press(resetDiscCountBtn)) g_mag_disc_count = 0;
@@ -47,9 +49,9 @@ void IntakeOnParams::handle(){  // synchronous state
   // If mag is full, don't let any more discs in
   if(g_mag_disc_count >= 3) {
     delay(250);
-    intakeRev();
-    delay(200);
-    angler_p.setState(HIGH);
+    intakeOff();
+    // delay(200);
+    // angler_p.setState(HIGH);
   }
   // printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   // lcd::print(3, "count:%d", g_mag_disc_count.load());

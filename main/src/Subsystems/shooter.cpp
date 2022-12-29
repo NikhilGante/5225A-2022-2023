@@ -1,5 +1,8 @@
 #include "shooter.hpp"
+#include "flywheel.hpp"
+#include "intake.hpp"
 
+bool angleOverride = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 
@@ -10,7 +13,19 @@ void shooterHandleInput(){
     if(master.get_digital_new_press(singleShotBtn)) shoot(1);
   }
 
-  if(master.get_digital_new_press(anglerToggleBtn)) angler_p.toggleState();
+  if(master.get_digital_new_press(anglerToggleBtn)) {
+    if (!angleOverride){
+      if (angler_p.getState()==0) setFlywheelVel(1850);
+      else setFlywheelVel(1400);
+    }
+    angler_p.toggleState();
+  } 
+
+  if (master.get_digital_new_press(angleOverrideBtn)) {angleOverride = true; setFlywheelVel(1400);}
+
+
+  
+  
 }
 
 // Shooter idle state
@@ -35,6 +50,7 @@ void ShooterShootParams::handle(){
   // printf("cycle_check:%lld\n", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
+  g_mag_disc_count = 0;
   if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
     printf("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
@@ -44,7 +60,7 @@ void ShooterShootParams::handle(){
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
     shots_left--;
-    g_mag_disc_count--;
+    
 
     delay(100);// wait for SHOOTER to retract
     if(shots_left <= 0){  // If shooting is done
@@ -52,6 +68,12 @@ void ShooterShootParams::handle(){
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
+
+      if (!angleOverride){
+        if (angler_p.getState()==0) setFlywheelVel(1850);
+        else setFlywheelVel(1400);
+      }
+      
     }
     
   }
