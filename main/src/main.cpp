@@ -6,9 +6,8 @@
 #include "Libraries/state.hpp"
 
 #include "Libraries/task.hpp"
-
 #include "Libraries/logging.hpp"
-#include "Subsystems/intake.hpp"
+
 #include "auton.hpp"
 
 #include "lift.hpp"
@@ -23,6 +22,8 @@
 
 // Subsystem includes
 #include "Subsystems/shooter.hpp"
+#include "Subsystems/flywheel.hpp"
+#include "Subsystems/intake.hpp"
 
 #include <cmath>
 
@@ -148,6 +149,7 @@ void opcontrol() {
 	// setFlywheelVel(2320);
 
 	Timer	disc_count_print{"disc_count_print"};
+	Timer angle_override_print{"angle_override_print"};
 	master.clear();
 	while(true){
 		driveHandleInput();
@@ -159,14 +161,22 @@ void opcontrol() {
 		// } 
 		//  && g_mag_disc_count <= 4
 		// && g_mag_disc_count >= 0
-		if(master.get_digital_new_press(DIGITAL_UP))	g_mag_disc_count++;
-		if(master.get_digital_new_press(DIGITAL_DOWN))	g_mag_disc_count--; 
+		if(master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP))	g_mag_disc_count++;
+		if(master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN))	g_mag_disc_count--; 
 
 
 		if(disc_count_print.getTime() > 100){
 			master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+			// partner.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
 			disc_count_print.reset();
 		}
+
+		if(angle_override_print.getTime() > 100){
+			angle_override_print.reset();
+			if (angleOverride) master.print(1, 0, "Override");
+			else master.print(1, 0, "Automatic");
+		}
+
 		// if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
 		// 	break;
 		// }

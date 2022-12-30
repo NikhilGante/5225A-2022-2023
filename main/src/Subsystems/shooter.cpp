@@ -14,14 +14,21 @@ void shooterHandleInput(){
   }
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
+    angler_p.toggleState();
     if (!angleOverride){
-      if (angler_p.getState()==0) setFlywheelVel(1850);
+      if (angler_p.getState()==0) setFlywheelVel(1900);
       else setFlywheelVel(1400);
     }
-    angler_p.toggleState();
   } 
 
-  if (master.get_digital_new_press(angleOverrideBtn)) {angleOverride = true; setFlywheelVel(1400);}
+  if (master.get_digital_new_press(angleOverrideBtn)) {
+    angleOverride = !angleOverride; 
+    if(angleOverride) setFlywheelVel(1400);
+    else{
+      if (angler_p.getState()==0) setFlywheelVel(1900);
+      else setFlywheelVel(1400);
+    }
+  }
 
 
   
@@ -50,7 +57,6 @@ void ShooterShootParams::handle(){
   // printf("cycle_check:%lld\n", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
-  g_mag_disc_count = 0;
   if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
     printf("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
@@ -60,6 +66,7 @@ void ShooterShootParams::handle(){
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
     shots_left--;
+    g_mag_disc_count--;
     
 
     delay(100);// wait for SHOOTER to retract
@@ -68,12 +75,13 @@ void ShooterShootParams::handle(){
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
+      delay(50);
 
       if (!angleOverride){
-        if (angler_p.getState()==0) setFlywheelVel(1850);
+        if (angler_p.getState()==0) setFlywheelVel(1900);
         else setFlywheelVel(1400);
       }
-      
+
     }
     
   }

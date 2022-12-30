@@ -17,6 +17,6 @@ extern ADIAnalogIn shooter_ds;
 
 extern Rotation flywheel_rot_sensor;
 
-extern Piston angler_p;
+extern Piston angler_p, transmission;
 
 extern Motor b_lift_m;

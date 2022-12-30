@@ -4,17 +4,17 @@
 
 controller_digital_e_t endgameBtn1 = DIGITAL_RIGHT;
 // controller_digital_e_t someBUTTON = DIGITAL_DOWN;
-controller_digital_e_t resetDiscCountBtn = DIGITAL_LEFT;
+// controller_digital_e_t resetDiscCountBtn = DIGITAL_LEFT;
 // controller_digital_e_t someBUTTON = DIGITAL_UP;
 
 
-controller_digital_e_t angleOverrideBtn = DIGITAL_A;
+controller_digital_e_t angleOverrideBtn = DIGITAL_B;
 
 controller_digital_e_t intakeToggleBtn = DIGITAL_A;
 controller_digital_e_t intakeRevBtn = DIGITAL_X;
 controller_digital_e_t rollerBtn = DIGITAL_B;
 controller_digital_e_t endgameBtn2 = DIGITAL_Y;
-controller_digital_e_t transToggleBtn = DIGITAL_X;
+controller_digital_e_t transToggleBtn = DIGITAL_LEFT;
 
 controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
 // controller_digital_e_t someBtn = DIGITAL_L2;

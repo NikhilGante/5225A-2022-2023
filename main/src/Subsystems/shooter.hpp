@@ -11,6 +11,8 @@ void shooterHandleInput();
 struct ShooterIdleParams;
 struct ShooterShootParams;
 
+extern bool angleOverride;
+
 #define SHOOTER_STATE_TYPES ShooterIdleParams, ShooterShootParams
 
 #define SHOOTER_STATE_TYPES_VARIANT std::variant<SHOOTER_STATE_TYPES>

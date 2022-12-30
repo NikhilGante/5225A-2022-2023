@@ -82,6 +82,9 @@ void driveHandleInput(){
     master.rumble("----------");
     WAIT_UNTIL(false);
   } 
+
+
+  if(master.get_digital_new_press(transToggleBtn)) transmission.toggleState();
   moveDrive(power_y, power_a);
 }
 

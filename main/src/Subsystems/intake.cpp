@@ -12,9 +12,6 @@ void intakeHandleInput(){
     if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
     if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
-  else if(get_if<IntakeRevParams>(&cur_state)){
-    if(master.get_digital_new_press(resetDiscCountBtn)) g_mag_disc_count = 0;
-  }
 }
 
 atomic<int> g_mag_disc_count = 0;
@@ -48,7 +45,7 @@ void IntakeOnParams::handle(){  // synchronous state
 
   // If mag is full, don't let any more discs in
   if(g_mag_disc_count >= 3) {
-    delay(250);
+    delay(150);
     intakeOff();
     // delay(200);
     // angler_p.setState(HIGH);

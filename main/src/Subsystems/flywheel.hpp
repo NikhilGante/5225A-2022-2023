@@ -31,6 +31,7 @@ extern atomic<double> flywheel_error; // Target vel - actual vel (global static 
 
 struct FlywheelMoveVelParams{
   int target_vel;
+  Timer flywheel_print{"flywheel_print"};
 
   FlywheelMoveVelParams(int target_vel);
 
