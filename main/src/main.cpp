@@ -9,6 +9,7 @@
 #include "Libraries/logging.hpp"
 
 #include "auton.hpp"
+#include "menu.hpp"
 
 #include "lift.hpp"
 #include "pros/misc.h"
@@ -24,6 +25,7 @@
 #include "Subsystems/shooter.hpp"
 #include "Subsystems/flywheel.hpp"
 #include "Subsystems/intake.hpp"
+#include "util.hpp"
 
 #include <cmath>
 
@@ -59,10 +61,10 @@ void initialize() {
 	_Controller::init();
 	delay(300);
 	// lift.runMachine();
-	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// drive.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 
 }
@@ -124,6 +126,31 @@ void autonomous() {
 
 // STACK TRACE
 
+void moveInchesStraight(double target){
+	Timer move_timer{"move_timer"};
+	double start_l = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
+	double start_r = right_tracker.get_position()*1/36000.0 *(2.75*M_PI);
+	double error, error_a;
+	double cur_l, cur_r;
+	double power;
+	do {
+		cur_l = left_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start_l;
+		cur_r = right_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start_r;
+
+		error_a = (cur_l-cur_r)*2;
+		error = target-(cur_l+cur_r)/2;
+		power = error*5.0;
+
+		if(fabs(power) < 30) power = sgn(error) * 30;
+
+		moveDrive(power, error_a);
+
+	} while (fabs(error) > 0.5);
+	master.print(2, 0, "time: %ld", move_timer.getTime());
+	driveBrake();
+	master.rumble("-");
+}
+
 void moveInches(double target){
 	Timer move_timer{"move_timer"};
 	double start = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
@@ -145,13 +172,42 @@ void moveInches(double target){
 
 // tracking:
 // (69.75, 134.625, 180)
+void autonProgram(){
+
+}
+pros::Distance ds(20);
+auton auton1("auton1", 5, 20, 0, autonProgram, ds);
+auton auton2("auton2", 20, 20, 0, autonProgram, ds);
+auton auto3("auton3", 20, 10, 0, autonProgram, ds);
+
+
+
+
 void opcontrol() {
+	auton::program1();
+	
+	
+	roller_sensor.set_led_pwm(100);
+
+	pros::c::optical_rgb_s_t rgb_value;
+	while (1){
+		roller_sensor.set_led_pwm(100);
+		rgb_value = roller_sensor.get_rgb();
+		printf("%lf \n", rgb_value.red);
+		delay(100);
+	}
+
+
+	WAIT_UNTIL(false);
+
+
 	// setFlywheelVel(2320);
 
-	Timer	disc_count_print{"disc_count_print"};
+	Timer disc_count_print{"disc_count_print"};
 	Timer angle_override_print{"angle_override_print"};
 	master.clear();
 	while(true){
+
 		driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();

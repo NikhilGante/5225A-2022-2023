@@ -3,6 +3,7 @@
 #include "intake.hpp"
 
 bool angleOverride = false;
+bool flywheelOff = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 
@@ -11,9 +12,10 @@ void shooterHandleInput(){
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
     if(master.get_digital_new_press(singleShotBtn)) shoot(1);
+    if(master.get_digital_new_press(flywheelOffBtn)) flywheelOff = !flywheelOff;
   }
 
-  if(master.get_digital_new_press(anglerToggleBtn)) {
+  if(master.get_digital_new_press(anglerToggleBtn) && !flywheelOff) {
     angler_p.toggleState();
     if (!angleOverride){
       if (angler_p.getState()==0) setFlywheelVel(1900);
@@ -21,7 +23,7 @@ void shooterHandleInput(){
     }
   } 
 
-  if (master.get_digital_new_press(angleOverrideBtn)) {
+  if (master.get_digital_new_press(angleOverrideBtn) && !flywheelOff) {
     angleOverride = !angleOverride; 
     if(angleOverride) setFlywheelVel(1400);
     else{
@@ -77,7 +79,7 @@ void ShooterShootParams::handle(){
       shooter.changeState(ShooterIdleParams{});
       delay(50);
 
-      if (!angleOverride){
+      if (!angleOverride && !flywheelOff){
         if (angler_p.getState()==0) setFlywheelVel(1900);
         else setFlywheelVel(1400);
       }

@@ -14,12 +14,12 @@ int Piston::count = 0;
 //   {nullptr, &pneum_8},
 // }};
 
-Piston::Piston(std::uint8_t adi_port, std::string name, bool reversed, bool init_state): ADIDigitalOut(adi_port, init_state != reversed), reversed{reversed}, name(name){
+Piston::Piston(std::uint8_t adi_port, std::string name, bool reversed, bool init_state): ADIDigitalOut(adi_port, init_state != reversed), reversed{reversed}, name(name), state(init_state != reversed){
   // if(count < 8) list_for_gui[count].first = this;
   // count++;
 }
 // constructor overload for port pair
-Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state): ADIDigitalOut(port_pair, init_state != reversed), reversed{reversed}, name(name){
+Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state): ADIDigitalOut(port_pair, init_state != reversed), reversed{reversed}, name(name), state(init_state != reversed){
   // if(count < 8) list_for_gui[count].first = this;
   // count++;
 }
@@ -35,6 +35,7 @@ bool Piston::getState() const{
 }
 
 bool Piston::toggleState(){
+  std::cout << this->state << std::endl;
   this->state = !this->state;
   this->set_value(state);
   this->change_time = millis();

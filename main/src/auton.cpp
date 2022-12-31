@@ -1,4 +1,5 @@
 #include "auton.hpp"
+#include "tracking.hpp"
 
 // start coord 
 // tracking.g_pos = {35.25, 11.25, 0.0};

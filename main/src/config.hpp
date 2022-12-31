@@ -19,4 +19,7 @@ extern Rotation flywheel_rot_sensor;
 
 extern Piston angler_p, transmission;
 
+extern Optical roller_sensor;
+
+
 extern Motor b_lift_m;

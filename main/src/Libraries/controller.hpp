@@ -13,24 +13,29 @@ using namespace pros;
 using namespace std;
 
 // Buttons
-
-extern controller_digital_e_t endgameBtn1;
-// controller_digital_e_t someBUTTON;
-extern controller_digital_e_t resetDiscCountBtn;
-// controller_digital_e_t someBUTTON;
-
-extern controller_digital_e_t intakeToggleBtn;
-extern controller_digital_e_t angleOverrideBtn;
-extern controller_digital_e_t intakeRevBtn;
-
-extern controller_digital_e_t rollerBtn;
-extern controller_digital_e_t endgameBtn2;
+// ------------------------------ Direction Buttons ------------------------------
 extern controller_digital_e_t transToggleBtn;
+extern controller_digital_e_t flywheelOffBtn;
+// Up and Down Taken by Adjusting Disc count
 
+
+
+
+
+
+// ------------------------------ Letter Buttons ------------------------------
+extern controller_digital_e_t intakeToggleBtn;
+extern controller_digital_e_t intakeRevBtn;
+extern controller_digital_e_t angleOverrideBtn;
+extern controller_digital_e_t endgameBtn;
+
+
+// ------------------------------ Front Buttons ------------------------------
 extern controller_digital_e_t anglerToggleBtn;
-// extern controller_digital_e_t someBtn;
-extern controller_digital_e_t tripleShotBtn;
+extern controller_digital_e_t rollerBtn;
 extern controller_digital_e_t singleShotBtn;
+extern controller_digital_e_t tripleShotBtn;
+
 
 
 // partner buttons
