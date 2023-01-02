@@ -60,11 +60,11 @@ void initialize() {
 	// Data::init();
 	_Controller::init();
 	delay(300);
-	// lift.runMachine();
-	// drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	lift.runMachine();
+	drive.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 
 }
@@ -180,28 +180,42 @@ auton auton1("auton1", 5, 20, 0, autonProgram, ds);
 auton auton2("auton2", 20, 20, 0, autonProgram, ds);
 auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 
-
-
+// 2600, 2000 red
+// 350, 200 blue
+// THRESH: 1000
 
 void opcontrol() {
-	// auton::program1();
-	cout << auton::arr[3]->name << endl;
-	cout << "size " << auton::arr.size() << endl;
 
-	cout << auton::GetCurAuton() << endl;
+	// SWITCHING ROLLER TO BLUE
 	
-	roller_sensor.set_led_pwm(100);
+	// transmission.setState(LOW);
+	// roller_sensor.set_led_pwm(100);
+	// moveDrive(-20, 0);
+	// delay(500);	// Waits for LED to turn on
+	// intake_m.move(-127);
+	// do {
+	// 	roller_sensor.set_led_pwm(100);
+	// 	printf("%lf \n", roller_sensor.get_rgb().red);
+	// 	delay(10);
+	// }	while(roller_sensor.get_rgb().red > 1000);
+	// do {
+	// 	roller_sensor.set_led_pwm(100);
+	// 	printf("%lf \n", roller_sensor.get_rgb().red);
+	// 	delay(10);
+	// }	while(roller_sensor.get_rgb().red > 1000);
+	// intake_m.move(0);
+	// moveDrive(0, 0);
+	
 
-	pros::c::optical_rgb_s_t rgb_value;
-	while (1){
-		roller_sensor.set_led_pwm(100);
-		rgb_value = roller_sensor.get_rgb();
-		printf("%lf \n", rgb_value.red);
-		delay(100);
-	}
+
+	// auton::program1();
+	// cout << auton::arr[3]->name << endl;
+	// cout << "size " << auton::arr.size() << endl;
+
+	// cout << auton::GetCurAuton() << endl;
 
 
-	WAIT_UNTIL(false);
+	// WAIT_UNTIL(false);
 
 
 	// setFlywheelVel(2320);
@@ -220,8 +234,8 @@ void opcontrol() {
 		// } 
 		//  && g_mag_disc_count <= 4
 		// && g_mag_disc_count >= 0
-		if(master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP))	g_mag_disc_count++;
-		if(master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN))	g_mag_disc_count--; 
+		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
+		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
 
 
 		if(disc_count_print.getTime() > 100){
@@ -284,110 +298,6 @@ void opcontrol() {
 	// WAIT_UNTIL(false);
 	// Timer disc_count_print{"g_mag_disc_count_print"};
 	// moveDrive(0, 127);
-	WAIT_UNTIL(false);
-	master.print(0,0, "curvature: %.2lf", angle_curvature);
-	driveBrake();
-	while(true){
-		driveHandleInput();
-		shooterHandleInput();
-		intakeHandleInput();
-
-		// if(disc_count_print.getTime() >= 50){
-		// 	master.print(0,0, "disc count: %d", g_mag_disc_count.load());
-		// 	disc_count_print.reset();
-		// }
-		lcd::print(7, "flywheel:%.lf", flywheel_m.get_temperature());
-		if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
-			break;
-		}
-		delay(10);
-	}
-	moveDrive(0, 0);
-	intake_m.move(0);
-	flywheel_m.move(0);
-	master.rumble("----");
-	// turnToAngle(90.0);
-
-	WAIT_UNTIL(false);
-	bool intk_on = true;
-	while(true){
-		if(master.get_digital_new_press(DIGITAL_A)) intk_on = !intk_on;
-		if(intk_on) intake_m.move(127);
-		else intake_m.move(0);
-		delay(10);
-	}
-
-	tracking.reset();
-	// intake_m.move(127);
-	delay(300);
-	// Timer timer{"timer"};
-	// moveDrive(37,0);
-	// WAIT_UNTIL(tracking.g_pos.y > 20.0);
-	// driveBrake();
-	// lcd::print(6, "time %d", timer.getTime());
-	// WAIT_UNTIL(false);
-	bool pressed = false, pressed_last = false;
-	bool pressedy = false, pressed_lasty = false;
-	bool printed = false;
-	// WAIT_UNTIL(master.get_digital(DIGITAL_B));
-	Timer timer{"timer"};
-	while(true){
-		pressedy = master.get_digital(DIGITAL_Y);
-
-		// if(ma)	tracking.reset()
-
-		driveHandleInput();
-		if(intk_on) intake_m.move(127);
-		else intake_m.move(0);
-
-		pressed = master.get_digital(DIGITAL_A);
-		// if(master.get_digital_new_press(DIGITAL_B))	intk_on = !intk_on;
-		if(pressedy && !pressed_lasty){
-			printed = false;
-			tracking.reset();
-		}	
-
-		if(pressed && !pressed_last)	intk_on = !intk_on;
-
-
-
-		pressed_last = pressed;
-		pressed_lasty = pressedy;
-		printf("%d\n", master.get_digital(DIGITAL_UP));
-
-		// if(tracking.g_pos.y > 50 && !printed){
-		// 	printed = true;
-		// 	lcd::print(6, "time %d", timer.getTime());
-		// 	master.print(0, 1, "time %d", timer.getTime());
-		// 	driveBrake();
-		// 	delay(800);
-		// }		
-
-
-		// moveDriveSide(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
-		lcd::print(5, "%lf %lf %lf", centre_l.get_temperature(), centre_r.get_temperature(), intake_m.get_temperature());
-		if(centre_l.get_temperature() >= 45 || centre_r.get_temperature() >= 45 || intake_m.get_temperature() >= 45) break;
-		
-		delay(10);
-	}
-	moveDrive(0, 0);
-	intake_m.move(0);
-	flywheel_m.move(0);
-	driveBrake();
-	master.rumble("---");
-
-	WAIT_UNTIL(false);
-	// while(true){
-	// 	handleInput();
-	// 	delay(10);
-	// }
-	master.clear();
-	delay(150);
-	master.print(0,  0, "%d", 20);
-	master.print(1, 2, "%d", 20);
-	master.print(2, 0, "%d", 20);
-
-	master.print(0,  0, "%d", 40);
-	master.rumble("-");
+	
 
 }

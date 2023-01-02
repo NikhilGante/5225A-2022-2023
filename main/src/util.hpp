@@ -2,6 +2,8 @@
 #include "main.h"
 #include <iostream>
 
+#define LOGS
+
 using namespace pros;
 using namespace std;
 //forward declarations

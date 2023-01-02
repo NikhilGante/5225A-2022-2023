@@ -2,6 +2,9 @@
 #include "flywheel.hpp"
 #include "intake.hpp"
 
+const int toaster_rpm = 1400;
+const int barrier_rpm = 1875;
+
 bool angleOverride = false;
 bool flywheelOff = false;
 
@@ -18,17 +21,17 @@ void shooterHandleInput(){
   if(master.get_digital_new_press(anglerToggleBtn) && !flywheelOff) {
     angler_p.toggleState();
     if (!angleOverride){
-      if (angler_p.getState()==0) setFlywheelVel(1900);
-      else setFlywheelVel(1400);
+      if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
+      else setFlywheelVel(toaster_rpm);
     }
   } 
 
   if (master.get_digital_new_press(angleOverrideBtn) && !flywheelOff) {
     angleOverride = !angleOverride; 
-    if(angleOverride) setFlywheelVel(1400);
+    if(angleOverride) setFlywheelVel(toaster_rpm);
     else{
-      if (angler_p.getState()==0) setFlywheelVel(1900);
-      else setFlywheelVel(1400);
+      if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
+      else setFlywheelVel(toaster_rpm);
     }
   }
 
@@ -68,7 +71,7 @@ void ShooterShootParams::handle(){
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
     shots_left--;
-    g_mag_disc_count--;
+    if (g_mag_disc_count > 0) g_mag_disc_count--;
     
 
     delay(100);// wait for SHOOTER to retract
@@ -80,8 +83,8 @@ void ShooterShootParams::handle(){
       delay(50);
 
       if (!angleOverride && !flywheelOff){
-        if (angler_p.getState()==0) setFlywheelVel(1900);
-        else setFlywheelVel(1400);
+        if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
+        else setFlywheelVel(toaster_rpm);
       }
 
     }

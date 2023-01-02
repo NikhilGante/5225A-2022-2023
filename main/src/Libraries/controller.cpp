@@ -55,7 +55,7 @@ void _Controller::init(){
 
 void _Controller::queueHandle(){
   if(!queue.isEmpty()){
-    printf("running command on controller %d", controller_num);
+    // printf("running command on controller %d", controller_num);
     queue.pop()();  // run the next function
   }
 }
@@ -70,10 +70,10 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ..
   string buffer_cpy = buffer;
   std::function<void()> func = [&, line, col, buffer_cpy](){
     pros::Controller::print(line, col, buffer_cpy.c_str());
-    printf("printing %s to %d", buffer_cpy.c_str(), this->controller_num);
+    // printf("printing %s to %d", buffer_cpy.c_str(), this->controller_num);
   };
   queue.push(func);
-  printf("adding print to queue for controller %d", this->controller_num);
+  // printf("adding print to queue for controller %d", this->controller_num);
 }
 void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
   std::function<void()> func = [&, line, col, str](){
