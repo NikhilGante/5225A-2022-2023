@@ -173,9 +173,9 @@ void moveInches(double target){
 // tracking:
 // (69.75, 134.625, 180)
 void autonProgram(){
-
+	cout << "hi" << endl;
 }
-pros::Distance ds(20);
+pros::Distance ds(8);
 auton auton1("auton1", 5, 20, 0, autonProgram, ds);
 auton auton2("auton2", 20, 20, 0, autonProgram, ds);
 auton auto3("auton3", 20, 10, 0, autonProgram, ds);
@@ -184,8 +184,11 @@ auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 
 
 void opcontrol() {
-	auton::program1();
-	
+	// auton::program1();
+	cout << auton::arr[3]->name << endl;
+	cout << "size " << auton::arr.size() << endl;
+
+	cout << auton::GetCurAuton() << endl;
 	
 	roller_sensor.set_led_pwm(100);
 

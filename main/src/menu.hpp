@@ -1,8 +1,10 @@
 #pragma once
 #include  "config.hpp"
 #include "tracking.hpp"
+#include <array>
 using namespace pros;
-
+#define AUTON_ARR_SIZE 10
+extern int auton_count;
 // --------------------------------------------- Skills run ---------------------------------------------
 void skills1();
 void skills2();
@@ -35,7 +37,7 @@ public:
 	
 
 	static int curAuton; // Current auton Selected
-	static vector<auton*> array; // Array of different autons
+	static array<auton*, AUTON_ARR_SIZE> arr; // Array of different autons
 
 	auton(std::string name, double autonX, double autonY, double autonA, std::function<void(void)> autonProgram, pros::Distance& ds, bool zeroOriented = true): 
 	name(name), 
@@ -46,7 +48,8 @@ public:
 	distanceSensor(ds),
 	zeroOriented(zeroOriented)
 	{
-		array.push_back(this); // Adding this auton to array
+		arr[auton_count] = this; // Adding this auton to array
+		++auton_count;
 		if (x<0) distanceX = true; // Checking if you should use the distance sensor for x
 		if (y<0) distanceY = true; // Checking if you should use the distance sensor for y 
 	}
@@ -54,13 +57,13 @@ public:
 	static void program2();
 public:
 	// Methods --------------------------------------------------------------------------------------------------
-	static auton* GetCurAuton(){return array[curAuton];} // Returns a pointer to the current Auton Running
+	static auton* GetCurAuton(){return arr[curAuton];} // Returns a pointer to the current Auton Running
 	static void increase(){ // This is for auton selection, Scrolls through auton Array 
-		if (curAuton == array.size() - 1) curAuton = 0;
+		if (curAuton == arr.size() - 1) curAuton = 0;
 		else curAuton++;
 	}
 	static void decrease() { // This is for auton selection, Scrolls through auton Array
-		if (curAuton == 0) curAuton = array.size() - 1;
+		if (curAuton == 0) curAuton = arr.size() - 1;
 		else curAuton--;
 	}
 	static double distance(){ // Calculates the distance from wall using distance sensor, and if its zero oriented

@@ -1,5 +1,6 @@
 #include "menu.hpp"
 
+int auton_count = 0;
 
 // Auton Class stuff
 void auton::program1(){
@@ -14,7 +15,7 @@ void auton::program2(){
 	auton::confirmValues();
 	auton::runAuton();
 }
-vector<auton*> auton::array{};
+array<auton*, AUTON_ARR_SIZE> auton::arr;
 int auton::curAuton = 0;
 
 
