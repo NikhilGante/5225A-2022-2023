@@ -4,21 +4,29 @@
 #include "queue.hpp"
 
 // Buttons
-
-extern controller_digital_e_t endgameBtn1;
-// controller_digital_e_t someBUTTON;
-extern controller_digital_e_t resetDiscCountBtn;
-// controller_digital_e_t someBUTTON;
-
-extern controller_digital_e_t intakeToggleBtn;
-extern controller_digital_e_t rollerBtn;
-extern controller_digital_e_t endgameBtn2;
+// ------------------------------ Direction Buttons ------------------------------
 extern controller_digital_e_t transToggleBtn;
+extern controller_digital_e_t flywheelOffBtn;
+// Up and Down Taken by Adjusting Disc count
 
+
+
+
+
+
+// ------------------------------ Letter Buttons ------------------------------
+extern controller_digital_e_t intakeToggleBtn;
+extern controller_digital_e_t intakeRevBtn;
+extern controller_digital_e_t angleOverrideBtn;
+extern controller_digital_e_t endgameBtn;
+
+
+// ------------------------------ Front Buttons ------------------------------
 extern controller_digital_e_t anglerToggleBtn;
-// extern controller_digital_e_t someBtn;
-extern controller_digital_e_t tripleShotBtn;
+extern controller_digital_e_t rollerBtn;
 extern controller_digital_e_t singleShotBtn;
+extern controller_digital_e_t tripleShotBtn;
+
 
 
 // partner buttons
@@ -54,7 +62,7 @@ public:
     std::string str = sprintf2(fmt, args...);
     queue.push([=, this](){
       pros::Controller::print(line, col, str.c_str());
-      controller_queue.print("Printing %s to %s controller", str.c_str(), name);
+      controller_queue.print("Printing %s to %s controller", str, name);
     });
     controller_queue.print("Adding print to %s controller queue", name);
   }

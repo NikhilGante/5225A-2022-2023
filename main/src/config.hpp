@@ -14,10 +14,14 @@ extern Rotation left_tracker, right_tracker, back_tracker;
 extern Piston indexer_p;
 
 extern ADIAnalogIn mag_ds;
+extern ADIAnalogIn shooter_ds;
 
 extern Rotation flywheel_rot_sensor;
 
-extern Piston angler_p;
+extern Piston angler_p, transmission;
+
+extern Optical roller_sensor;
+
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define DEBUG printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);

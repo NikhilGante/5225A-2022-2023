@@ -8,6 +8,8 @@ void shooterHandleInput();
 struct ShooterIdleParams;
 struct ShooterShootParams;
 
+extern bool angleOverride;
+
 #define SHOOTER_STATE_TYPES ShooterIdleParams, ShooterShootParams
 
 using shooterVariant = std::variant<SHOOTER_STATE_TYPES>;
@@ -33,6 +35,7 @@ struct ShooterShootParams{
 
   private: Timer shoot_timer{"shoot_timer"};
 
+  Timer cycle_check{"cycle_check"};
 };
 
 void shoot(int shots = 3);  // Shoots x number of shots

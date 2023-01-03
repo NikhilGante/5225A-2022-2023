@@ -78,7 +78,7 @@ class GUI{
         prompt_enabled = true,
         testing_page_active = false;
       static const Page* current_page;
-      static const GUI* current_gui;
+      constexpr static const GUI* current_gui = &main_obj;
       static _Task task;
       static bool touched;
       static int x, y;

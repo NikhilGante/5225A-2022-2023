@@ -3,10 +3,12 @@
 #include "util.hpp"
 #include "Libraries/controller.hpp"
 #include "Libraries/motor.hpp"
+#include "Libraries/piston.hpp"
 #include "Libraries/timer.hpp"
 
 #include <cmath>
 
+double drive_curvature = 1.0;
 double angle_curvature = 2.0;
 
 int polynomial(int x, double curvature){
@@ -66,45 +68,15 @@ void driveBrake(){
   centre_r.brake();
 }
 
-void resetDrive(){TO_IMPLEMENT}
-void flattenToWall(){TO_IMPLEMENT};
-
-double l_power_last, r_power_last;
-const double slew_val = 3;
 Timer curve_print_timer{"curve_print_timer"};
+int slew = 5;
 void driveHandleInput(){
-  int power_x, power_y, power_a;
-  // double l_power, r_power;
-  if(master.get_digital_new_press(DIGITAL_UP)){
-    angle_curvature += 0.1;
-    master.print(0,0, "curvature: %.2lf", angle_curvature);
-  }
-  if(master.get_digital_new_press(DIGITAL_DOWN)){
-    angle_curvature -= 0.1;
-    master.print(0,0, "curvature: %.2lf", angle_curvature);
-  }
-
-  power_y = master.get_analog(ANALOG_LEFT_Y);
-  power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
+  double power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
   if(std::abs(power_y) < 7) power_y = 0;
   if(std::abs(power_a) < 7) power_a = 0;
-  // if(power_y < -30){
-  //   power_y = -30;
-  //   // master.rumble("-");
-  // }
-  // if(std::abs(power_a) > 65) power_a = sgn(power_a) * 65;
 
-
-  // l_power = power_y + power_a;
-  // r_power = power_y - power_a;
-
-  // if(fstd::abs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
-  // if(fstd::abs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
-
-  // // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
-  // moveDriveSide(l_power, r_power);
-  // l_power_last = l_power,  r_power_last = r_power;
   for(_Motor* motor: _Motor::getList()){
     if(motor->getTemperature() >= 50){
       moveDrive(0, 0);
@@ -113,5 +85,88 @@ void driveHandleInput(){
     }
   }
 
+  if(master.get_digital_new_press(transToggleBtn)) transmission.toggleState();
   moveDrive(power_y, power_a);
+}
+
+constexpr int dz = 7; // Deadzone for joystick
+
+int power_sgn = 0; // Equals -1 if power < -dz, 1 if power > dz, and 0 otherwise (used to check for sudden braking by driver)
+int last_power_sgn = 0; // sgn of power last cycle
+int prev_power_sgn = 0; // sgn of power before it was 0 (need to think of better name for this var)
+
+Timer zero_power_timer{"zero_power_timer"};
+// void driveHandleInput(){
+//   int power_x, power_y, power_a;
+
+//   power_y = master.get_analog(ANALOG_LEFT_Y);
+//   power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+
+//   if(std::abs(power_y) < dz) power_y = 0;
+//   if(std::abs(power_a) < dz) power_a = 0;
+
+
+//   if(power_y > dz)  power_sgn = 1;
+//   else if(power_y < dz)  power_sgn = -1;
+//   else power_sgn = 0;
+
+//   // if power sgn just became 0
+//   if (power_sgn == 0 && last_power_sgn != 0)  zero_power_timer.reset();
+
+//   // if power sgn just became -1 or 1
+//   if (power_sgn != 0 && last_power_sgn == 0){
+//     if(power_sgn != prev_power_sgn && zero_power_timer.getTime() < 100)  master.rumble("-"); // notifies driver that they just harshly applied the brakes
+//     prev_power_sgn = power_sgn; 
+//   }
+
+//   last_power_sgn = power_sgn;
+
+//   lcd::print(4, "intk: %.lf", intake_m.get_temperature());
+//   lcd::print(5, "L| f:%.lf c:%.lf, b:%.lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
+//   lcd::print(6, "R| f:%.lf c:%.lf, b:%.lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
+
+
+//   if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50){
+//     moveDrive(0, 0);
+//     master.rumble("----------");
+//     WAIT_UNTIL(false);
+//   } 
+//   moveDrive(power_y, power_a);
+// }
+
+double l_power_last, r_power_last;
+constexpr double slew_val = 3;
+void driveHandleInputProg(){
+  int power_x, power_y, power_a;
+
+  power_y = master.get_analog(ANALOG_LEFT_Y);
+  power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+
+  if(std::abs(power_y) < dz) power_y = 0;
+  if(std::abs(power_a) < dz) power_a = 0;
+  // if(power_y < -30){
+  //   power_y = -30;
+  //   // master.rumble("-");
+  // }
+  if(std::abs(power_a) > 65) power_a = sgn(power_a) * 65;
+
+
+  double l_power = power_y + power_a;
+  double r_power = power_y - power_a;
+
+  if(std::abs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
+  if(std::abs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
+
+  // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
+  moveDriveSide(l_power, r_power);
+  l_power_last = l_power,  r_power_last = r_power;
+
+  for(_Motor* motor: _Motor::getList()){
+    if(motor->getTemperature() >= 50){
+      moveDrive(0, 0);
+      master.rumble("----------");
+      WAIT_UNTIL(false);
+    }
+  }
+
 }

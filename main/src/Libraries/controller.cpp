@@ -5,20 +5,29 @@
 
 // Buttons
 
-controller_digital_e_t endgameBtn1 = DIGITAL_RIGHT;
-// controller_digital_e_t someBUTTON = DIGITAL_DOWN;
-controller_digital_e_t resetDiscCountBtn = DIGITAL_LEFT;
-// controller_digital_e_t someBUTTON = DIGITAL_UP;
 
+// ------------------------------ Direction Buttons ------------------------------
+controller_digital_e_t transToggleBtn = DIGITAL_LEFT;
+controller_digital_e_t flywheelOffBtn = DIGITAL_RIGHT;
+// Up and Down Taken by Adjusting Disc count
+
+
+
+
+
+
+// ------------------------------ Letter Buttons ------------------------------
 controller_digital_e_t intakeToggleBtn = DIGITAL_A;
-controller_digital_e_t rollerBtn = DIGITAL_B;
-controller_digital_e_t endgameBtn2 = DIGITAL_Y;
-controller_digital_e_t transToggleBtn = DIGITAL_X;
+controller_digital_e_t intakeRevBtn = DIGITAL_X;
+controller_digital_e_t angleOverrideBtn = DIGITAL_B;
+controller_digital_e_t endgameBtn = DIGITAL_Y;
 
+
+// ------------------------------ Front Buttons ------------------------------
 controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
-// controller_digital_e_t someBtn = DIGITAL_L2;
-controller_digital_e_t tripleShotBtn = DIGITAL_R2;
+controller_digital_e_t rollerBtn = DIGITAL_L2;
 controller_digital_e_t singleShotBtn = DIGITAL_R1;
+controller_digital_e_t tripleShotBtn = DIGITAL_R2;
 
 _Task _Controller::controller_task{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};

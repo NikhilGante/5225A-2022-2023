@@ -357,7 +357,7 @@ void mainSetup(){
     encoder_direction.setFunc([](){ //Encoder Direction
       if(manual.on){
         if(GUI::prompt("Press, then move the robot forward and to the right", "")){
-          resetDrive();
+          tracking.reset();
 
           if (GUI::prompt("Press when done movement")){
             printf2("The left tracking wheel is in the %s direction", left_tracker.get_position() > 0 ? "right" : "wrong");
@@ -368,7 +368,7 @@ void mainSetup(){
       }
       else{
         if(GUI::prompt("Press, then clear the area", "", 1500)){
-          resetDrive();
+          tracking.reset();
 
           moveDrive(50.0, 20.0); //preferably strafe right instead of turning.
           tracking.waitForDistance(30);
@@ -384,7 +384,7 @@ void mainSetup(){
     encoder_ticks.setFunc([](){ //Encoder missing ticks
       if(manual.on){
         if (GUI::prompt("Press, then spin the encoder", "Start the encoder in a known position. Press then button, then spin it wildly, and then stop it in that position again.")){
-          resetDrive();
+          tracking.reset();
 
           if (GUI::prompt("Press when stopped")){
             double left = left_tracker.get_position() / 360.0;
@@ -419,7 +419,7 @@ void mainSetup(){
     back_corkscrew.setFunc([](){ //Back Corkscrew
       if(manual.on){
         if(GUI::prompt("Press, then move along y", "Please slide the robot forward along a known surface in the y-direction")){
-          resetDrive();
+          tracking.reset();
 
           if (GUI::prompt("Press when stopped")){
             int back = back_tracker.get_position();
@@ -430,7 +430,7 @@ void mainSetup(){
       }
       else{
         if(GUI::prompt("Push the left side against a surface", "Please push the robot's left side along a known surface, then press.", 1500)){
-          resetDrive();
+          tracking.reset();
           
           moveDrive(50.0, -20.0);
           tracking.waitForDistance(25);
@@ -446,7 +446,7 @@ void mainSetup(){
     side_corkscrew.setFunc([](){ //Left-Right Corkscrew
       if(manual.on){
         if(GUI::prompt("Press, then move along x", "Please slide the robot along a known surface in the x-direction")){
-          resetDrive();
+          tracking.reset();
 
           if(GUI::prompt("Press when stopped")){
             int left = left_tracker.get_position();
@@ -468,7 +468,7 @@ void mainSetup(){
     wheel_size.setFunc([](){ //Left-Right wheel size
       if(manual.on){
         if(GUI::prompt("Press, then move the robot 30 inches", "Place the robot's side against a known surface. Press the button, then slide the robot forwards exactly 30 inches.")){
-          resetDrive();
+          tracking.reset();
 
           if (GUI::prompt("Press when completed 30 inches")){
             printf2("The left tracking wheel's diameter is %f", 60.0 / degToRad(left_tracker.get_position()));
@@ -478,7 +478,7 @@ void mainSetup(){
       }
       else{
         if(GUI::prompt("Place the robot's side against a surface. Then press.", "", 1500)){
-          resetDrive();
+          tracking.reset();
 
           moveDrive(50.0, -20.0);
           tracking.waitForDistance(30); //This needs to brake at exactly 30, it can't just be past 30
@@ -494,7 +494,7 @@ void mainSetup(){
     back_wheel_size.setFunc([](){ //Back wheel size
       if(manual.on){
         if(GUI::prompt("Press, then move the robot 30 inches", "Place the robot's front against a known surface. Press the button, then slide the robot sideways exactly 30 inches.")){
-          resetDrive();
+          tracking.reset();
 
           if (GUI::prompt("Press when completed 30 inches")){
             printf2("The back tracking wheel's diameter is %f", 60.0 / degToRad(back_tracker.get_position()));
@@ -509,8 +509,8 @@ void mainSetup(){
     spin360.setFunc([](){ //Robot turn accuracy
       if(manual.on){
         if(GUI::prompt("Press, then spin the robot", "Place the robot's against a known surface. Press the button, then spin the robot. Return it to the starting point. (Half turns are ok)")){
-          flattenToWall();
-          resetDrive();
+          flattenAgainstWallSync();
+          tracking.reset();
 
           if(GUI::prompt("Press when back at start position")){
             printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", std::abs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
@@ -530,8 +530,8 @@ void mainSetup(){
       }
       else{
         if(GUI::prompt("Press, then spin the robot", "Place the robot's front against a known surface. Press the button, then clear the area.", 1500)){
-          flattenToWall();
-          resetDrive();
+          flattenAgainstWallSync();
+          tracking.reset();
           moveDrive(-60.0, 0.0);
           tracking.waitForDistance(10);
           driveBrake();
@@ -542,7 +542,7 @@ void mainSetup(){
           driveBrake();
           moveDrive(60.0, 0.0);
           tracking.waitForDistance(5);
-          flattenToWall();
+          flattenAgainstWallSync();
           driveBrake();
 
           printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", std::abs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");

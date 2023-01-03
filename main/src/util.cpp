@@ -1,5 +1,4 @@
 #include "util.hpp"
-#include <numbers>
 #include <cmath>
 
 double operator "" _deg(long double degree){

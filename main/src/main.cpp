@@ -10,9 +10,6 @@
 #include "Subsystems/intake.hpp"
 #include "util.hpp"
 
-
-const GUI* GUI::current_gui = &main_obj;
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *

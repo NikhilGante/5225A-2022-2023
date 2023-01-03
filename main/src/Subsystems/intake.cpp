@@ -10,12 +10,14 @@ void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
   if(get_if<IntakeOnParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
+    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
   else if(get_if<IntakeOffParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
+    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
   else if(get_if<IntakeRevParams>(&cur_state)){
-    if(master.get_digital_new_press(resetDiscCountBtn)) g_mag_disc_count = 0;
+    if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
   }
 }
 
@@ -33,22 +35,29 @@ void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = mag_ds.get_value();
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
-  // if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
-  //   g_mag_disc_count++;
-  //   printf("INCR\n");
-  // }
+  if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
+    g_mag_disc_count++;
+    #ifdef LOGS
+    printf("INCR\n");
+    #endif
+  }
 
   mag_disc_detected_last = mag_disc_detected;
 
   // end of disc counting code
 
   // If mag is full, don't let any more discs in
-  // if(g_mag_disc_count >= 3) {
-  //   delay(100);
-  //   intakeRev();
-  // }
-  // printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
-  lcd::print(3, "count:%d", g_mag_disc_count.load());
+  
+  if(g_mag_disc_count >= 3) {
+    master.rumble("-");
+    delay(75);
+    intakeOff();
+    // delay(200);
+    // angler_p.setState(HIGH);
+  }
+
+  // #ifdef LOGS printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);

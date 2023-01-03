@@ -8,6 +8,8 @@ inline constexpr double rad_to_deg = 1/deg_to_rad;
 inline constexpr double deg_to_rot = 1/rot_to_deg;
 inline constexpr double rad_to_rot = 1/rot_to_rad;
 
+#define LOGS
+
 #define WAIT_UNTIL(condition) while(pros::delay(10), !(condition)) //! DO NOT ADD A SEMICOLON
 
 // cycle check macro (checks a condition for a specified amount of cycles)
