@@ -13,8 +13,9 @@ struct IntakeOnParams;
 struct IntakeOffParams;
 struct IntakeRevParams;
 struct IntakeIndexParams;
+struct IntakeRollerParams;
 
-#define INTAKE_STATE_TYPES IntakeIdleParams, IntakeOnParams, IntakeOffParams, IntakeRevParams, IntakeIndexParams
+#define INTAKE_STATE_TYPES IntakeIdleParams, IntakeOnParams, IntakeOffParams, IntakeRevParams, IntakeIndexParams, IntakeRollerParams
 
 #define INTAKE_STATE_TYPES_VARIANT std::variant<INTAKE_STATE_TYPES>
 
@@ -74,3 +75,13 @@ struct IntakeIndexParams{
 };
 
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs
+
+struct IntakeRollerParams{
+  IntakeRollerParams();
+
+  const char* getName();
+  void handle();
+  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+};
+
+void spinRoller();  // Wrapper function to make intake index discs

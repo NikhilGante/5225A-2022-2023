@@ -1,4 +1,5 @@
 #include "intake.hpp"
+#include "../drive.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
@@ -117,4 +118,51 @@ void IntakeIndexParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state)
 
 void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
   intake.changeState(IntakeIndexParams{speed});
+}
+
+
+IntakeRollerParams::IntakeRollerParams(){}
+
+const char* IntakeRollerParams::getName(){
+  return "IntakeRoller";
+}
+void IntakeRollerParams::handle(){
+  transmission.setState(LOW);
+	moveDrive(-25, 0);
+  while(roller_sensor.get_proximity() < 250){
+    printf("dist: %d \n", roller_sensor.get_proximity());
+    delay(10);
+  }
+  // WAIT_UNTIL(roller_sensor.get_proximity() > 250);  // Waits until robot is at the roller
+  roller_sensor.set_led_pwm(100);
+	delay(500);	// Waits for LED to turn on and robot to touch roller
+	intake_m.move(-127);
+	Timer timer2{"timer2"};
+  // Switches to opposite colour it saw
+	if(roller_sensor.get_rgb().red < 1000){
+		do {
+			roller_sensor.set_led_pwm(100);
+			printf("r: %lf \n", roller_sensor.get_rgb().red);
+			delay(10);
+		}	while(roller_sensor.get_rgb().red < 1000);
+	}
+	else{
+		do {
+			roller_sensor.set_led_pwm(100);
+			printf("r: %lf \n", roller_sensor.get_rgb().red);
+			delay(10);
+		}	while(roller_sensor.get_rgb().red > 1000);
+	}
+	timer2.print();
+	intake_m.move(0);
+	moveDrive(0, 0);
+  intake.changeState(IntakeOffParams{});
+}
+void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+  intake_m.move(-127);
+	roller_sensor.set_led_pwm(100);
+}
+
+void spinRoller(){  // Wrapper function to make intake index discs
+  intake.changeState(IntakeRollerParams{});
 }

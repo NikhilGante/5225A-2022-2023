@@ -60,10 +60,10 @@ void initialize() {
 	// Data::init();
 	_Controller::init();
 	delay(300);
-	lift.runMachine();
+	// lift.runMachine();
 	drive.runMachine();
 	intake.runMachine();
-	flywheel.runMachine();
+	// flywheel.runMachine();
 	shooter.runMachine();
 	
 
@@ -184,29 +184,17 @@ auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 // 350, 200 blue
 // THRESH: 1000
 
+// 2900 red
+// 420 blue
+
 void opcontrol() {
 
 	// SWITCHING ROLLER TO BLUE
-	
-	// transmission.setState(LOW);
-	// roller_sensor.set_led_pwm(100);
-	// moveDrive(-20, 0);
-	// delay(500);	// Waits for LED to turn on
-	// intake_m.move(-127);
-	// do {
-	// 	roller_sensor.set_led_pwm(100);
-	// 	printf("%lf \n", roller_sensor.get_rgb().red);
-	// 	delay(10);
-	// }	while(roller_sensor.get_rgb().red > 1000);
-	// do {
-	// 	roller_sensor.set_led_pwm(100);
-	// 	printf("%lf \n", roller_sensor.get_rgb().red);
-	// 	delay(10);
-	// }	while(roller_sensor.get_rgb().red > 1000);
-	// intake_m.move(0);
-	// moveDrive(0, 0);
-	
-
+	while(true) {
+		// printf("dist: %d \n", roller_sensor.get_proximity());
+		if(master.get_digital_new_press(DIGITAL_A))	spinRoller();
+		delay(10);
+	}
 
 	// auton::program1();
 	// cout << auton::arr[3]->name << endl;
