@@ -40,7 +40,7 @@ void initialize() {
 	lcd::initialize();
 	// tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
 
-	tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// new_skills2
+	// tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// new_skills2
 
 	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
 	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
@@ -53,6 +53,7 @@ void initialize() {
 	// tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
 
 	// tracking.g_pos = {0.0, 0.0, 0.0};
+	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
 
 	log_init();
 	_Task tracking_task("tracking_update_task");
@@ -99,7 +100,6 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	new_skills2();
 
 }
 
@@ -125,31 +125,6 @@ void autonomous() {
 // Red: (18.0, 123.0)
 
 // STACK TRACE
-
-void moveInchesStraight(double target){
-	Timer move_timer{"move_timer"};
-	double start_l = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
-	double start_r = right_tracker.get_position()*1/36000.0 *(2.75*M_PI);
-	double error, error_a;
-	double cur_l, cur_r;
-	double power;
-	do {
-		cur_l = left_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start_l;
-		cur_r = right_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start_r;
-
-		error_a = (cur_l-cur_r)*2;
-		error = target-(cur_l+cur_r)/2;
-		power = error*5.0;
-
-		if(fabs(power) < 30) power = sgn(error) * 30;
-
-		moveDrive(power, error_a);
-
-	} while (fabs(error) > 0.5);
-	master.print(2, 0, "time: %ld", move_timer.getTime());
-	driveBrake();
-	master.rumble("-");
-}
 
 void moveInches(double target){
 	Timer move_timer{"move_timer"};
@@ -193,6 +168,18 @@ auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 // thresh 3000
 
 void opcontrol() {
+  // roller_sensor.set_led_pwm(100);
+	// while(true) {
+	// 	roller_sensor.set_led_pwm(100);
+  //   printf("r: %lf \n", roller_sensor.get_rgb().red);
+	// 	// driveHandleInput();
+	// 	delay(10);
+	// }
+	// indexer_p.setState(HIGH);
+	skills1();
+	// spinRoller();
+  // intake.waitToReachState(IntakeOffParams{});
+	WAIT_UNTIL(false);
 
 	// transmission.setState(LOW);
 	// moveDrive(-30, 0);

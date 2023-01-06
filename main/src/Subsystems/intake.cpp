@@ -11,12 +11,22 @@ void intakeHandleInput(){
     if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
   else if(get_if<IntakeOffParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
+    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
     if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
   else if(get_if<IntakeRevParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn)) intakeOn();
+    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
   }
+  // else if(get_if<IntakeRollerParams>(&cur_state)){
+  //   if(master.get_digital_new_press(rollerBtn)){
+  //     drive.changeState(DriveIdleParams{});
+  //     intakeOff();
+  //   }
+  // }
+  // Spin roller if btn is pressed an not already spinning
+  // if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state)){
+  //   spinRoller();
+  // }
 }
 
 atomic<int> g_mag_disc_count = 0;
@@ -45,22 +55,18 @@ void IntakeOnParams::handle(){  // synchronous state
     printf("INCR\n");
     #endif
   }
-
   mag_disc_detected_last = mag_disc_detected;
-
-  // end of disc counting code
 
   // If mag is full, don't let any more discs in
   
   if(g_mag_disc_count >= 3) {
+    printf("COUNTED 3\n");
     master.rumble("-");
-    delay(75);
+    delay(100);
     intakeOff();
-    // delay(200);
-    // angler_p.setState(HIGH);
   }
 
-  // #ifdef LOGS printf("MAG| %d %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
@@ -93,10 +99,7 @@ IntakeRevParams::IntakeRevParams(int8_t speed) : speed(speed){}
 const char* IntakeRevParams::getName(){
   return "IntakeRev";
 }
-void IntakeRevParams::handle(){
-  // If the mag is no longer full, turn intake back on
-  if(g_mag_disc_count < 3) intakeOn();
-}
+void IntakeRevParams::handle(){}
 void IntakeRevParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(speed);
 }
@@ -128,8 +131,10 @@ const char* IntakeRollerParams::getName(){
   return "IntakeRoller";
 }
 void IntakeRollerParams::handle(){
+  Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
   flattenAgainstWallSync();
+  WAIT_UNTIL(led.getTime() > 200);
 	// delay(200);	// Waits for LED to turn on and robot to touch roller
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
@@ -137,17 +142,17 @@ void IntakeRollerParams::handle(){
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
   printf("init_value: %lf\n", init_value);
-  // waits
+  // waits to see a value > 1700 different than inital value (waits for a colour change)
   double cur_val;
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
     printf("r: %lf \n", cur_val);
-    delay(10);
-  }while(fabs(cur_val - init_value) < 500);
+    delay(100);
+  }while(fabs(cur_val - init_value) < 1700);
 	roller_timer.print();
-	intake_m.move(0);
-  intake.changeState(IntakeOffParams{});
+	transmission.setState(HIGH);
+  intakeOff();
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(-127);

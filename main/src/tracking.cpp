@@ -366,7 +366,7 @@ const char* DriveFlattenParams::getName(){
 void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
 	transmission.setState(LOW);
-  moveDrive(-50, 0);  // moves backwards
+  moveDrive(-60, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
   while(tracking.l_vel > -2.0 && tracking.r_vel > -2.0 && cycle_count < 10){
@@ -381,7 +381,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
     l_slow = fabs(tracking.l_vel) < 3.0, r_slow = fabs(tracking.r_vel) < 3.0;
     if(l_slow){
       if(r_slow){
-        moveDrive(-20, 0); // Applies holding power 
+        moveDrive(-30, 0); // Applies holding power 
         cycle_count++;
       }
       else{
@@ -394,7 +394,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
       cycle_count = 0;  // Reset count
     }
     else{
-      moveDrive(-50, 0);
+      moveDrive(-60, 0);
       cycle_count = 0;  // reset count
     }
     _Task::delay(10);
