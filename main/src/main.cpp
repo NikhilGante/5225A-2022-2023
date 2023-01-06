@@ -187,12 +187,35 @@ auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 // 2900 red
 // 420 blue
 
+//1/4/2023
+// red: 4100-5600
+// blue: 1170
+// thresh 3000
+
 void opcontrol() {
 
+	// transmission.setState(LOW);
+	// moveDrive(-30, 0);
+	// WAIT_UNTIL(false);
+
 	// SWITCHING ROLLER TO BLUE
+	// roller_sensor.set_led_pwm(100);
+	// while(true){
+	// 	if(master.get_digital_new_press(DIGITAL_A))	indexer_p.toggleState();
+	// 	if(master.get_digital_new_press(DIGITAL_X))	angler_p.toggleState();
+	// 	if(master.get_digital_new_press(DIGITAL_Y))	transmission.toggleState();
+
+	// 	delay(10);
+	// }
+
 	while(true) {
 		// printf("dist: %d \n", roller_sensor.get_proximity());
-		if(master.get_digital_new_press(DIGITAL_A))	spinRoller();
+		if(master.get_digital_new_press(DIGITAL_A)){
+			spinRoller();
+			intake.waitToReachState(IntakeOffParams{});
+		}
+		// printf("r: %lf \n", roller_sensor.get_rgb().red);
+
 		delay(10);
 	}
 

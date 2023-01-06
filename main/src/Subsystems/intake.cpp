@@ -1,4 +1,5 @@
 #include "intake.hpp"
+#include "../tracking.hpp"
 #include "../drive.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
@@ -127,35 +128,25 @@ const char* IntakeRollerParams::getName(){
   return "IntakeRoller";
 }
 void IntakeRollerParams::handle(){
-  transmission.setState(LOW);
-	moveDrive(-25, 0);
-  while(roller_sensor.get_proximity() < 250){
-    printf("dist: %d \n", roller_sensor.get_proximity());
-    delay(10);
-  }
-  // WAIT_UNTIL(roller_sensor.get_proximity() > 250);  // Waits until robot is at the roller
   roller_sensor.set_led_pwm(100);
-	delay(500);	// Waits for LED to turn on and robot to touch roller
+  flattenAgainstWallSync();
+	// delay(200);	// Waits for LED to turn on and robot to touch roller
 	intake_m.move(-127);
-	Timer timer2{"timer2"};
+	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
-	if(roller_sensor.get_rgb().red < 1000){
-		do {
-			roller_sensor.set_led_pwm(100);
-			printf("r: %lf \n", roller_sensor.get_rgb().red);
-			delay(10);
-		}	while(roller_sensor.get_rgb().red < 1000);
-	}
-	else{
-		do {
-			roller_sensor.set_led_pwm(100);
-			printf("r: %lf \n", roller_sensor.get_rgb().red);
-			delay(10);
-		}	while(roller_sensor.get_rgb().red > 1000);
-	}
-	timer2.print();
+  const int thresh = 3000;
+  double init_value = roller_sensor.get_rgb().red;
+  printf("init_value: %lf\n", init_value);
+  // waits
+  double cur_val;
+  do{
+		roller_sensor.set_led_pwm(100);
+    cur_val = roller_sensor.get_rgb().red;
+    printf("r: %lf \n", cur_val);
+    delay(10);
+  }while(fabs(cur_val - init_value) < 500);
+	roller_timer.print();
 	intake_m.move(0);
-	moveDrive(0, 0);
   intake.changeState(IntakeOffParams{});
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
