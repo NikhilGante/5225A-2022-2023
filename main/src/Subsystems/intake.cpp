@@ -16,17 +16,19 @@ void intakeHandleInput(){
   }
   else if(get_if<IntakeRevParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
+    if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
   }
-  // else if(get_if<IntakeRollerParams>(&cur_state)){
-  //   if(master.get_digital_new_press(rollerBtn)){
-  //     drive.changeState(DriveIdleParams{});
-  //     intakeOff();
-  //   }
-  // }
-  // Spin roller if btn is pressed an not already spinning
-  // if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state)){
-  //   spinRoller();
-  // }
+  else if(get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
+    if(master.get_digital_new_press(rollerBtn)){
+      // Gives driver back control
+      transmission.setState(HIGH);
+      drive.changeState(DriveOpControlParams{});
+      intakeOff();
+    }
+  }
+  // Spin roller if btn is pressed and not already spinning
+  if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller();
+
 }
 
 atomic<int> g_mag_disc_count = 0;
@@ -62,7 +64,7 @@ void IntakeOnParams::handle(){  // synchronous state
   if(g_mag_disc_count >= 3) {
     printf("COUNTED 3\n");
     master.rumble("-");
-    delay(100);
+    _Task::delay(100);
     intakeOff();
   }
 
@@ -134,23 +136,24 @@ void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
   flattenAgainstWallSync();
-  WAIT_UNTIL(led.getTime() > 200);
-	// delay(200);	// Waits for LED to turn on and robot to touch roller
+  WAIT_UNTIL(led.getTime() > 200);  // Waits for LED to turn on and robot to touch roller
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
   printf("init_value: %lf\n", init_value);
-  // waits to see a value > 1700 different than inital value (waits for a colour change)
+  // waits to see a value > 1500 different than inital value (waits for a colour change)
   double cur_val;
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
     printf("r: %lf \n", cur_val);
-    delay(100);
-  }while(fabs(cur_val - init_value) < 1700);
+    _Task::delay(100);
+  }while(fabs(cur_val - init_value) < 1500);
 	roller_timer.print();
+  drive.changeState(DriveOpControlParams{});
+  master.rumble("-"); // Notifies driver spinning roller has finished
 	transmission.setState(HIGH);
   intakeOff();
 }

@@ -1,5 +1,5 @@
 #include "flywheel.hpp"
-
+#include "shooter.hpp"
 #define DEG_TO_ROT 1/360
 #define MS_TO_MIN 60000
 #define SPROCKET_RATIO 1/1
@@ -13,7 +13,7 @@
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1900});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{barrier_rpm});
 
 // Flywheel idle state
 
@@ -86,7 +86,7 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   #ifdef LOGS
-  printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+  // printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
   #endif
 
   if (flywheel_m.get_temperature() >= 50){

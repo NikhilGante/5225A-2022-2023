@@ -238,7 +238,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
 
 // STATE MACHINE STUFF 
 
-Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
+Machine<DRIVE_STATE_TYPES> drive("Drive", DriveOpControlParams{});
 
 // Drive idle state
 const char* DriveIdleParams::getName(){
@@ -249,7 +249,7 @@ void DriveIdleParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
 // Drive operator control params
 const char* DriveOpControlParams::getName(){
-  return "DriveIdle";
+  return "DriveOpControl";
 }
 void DriveOpControlParams::handle(){
   driveHandleInput();
@@ -371,7 +371,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   int cycle_count = 0;
   while(tracking.l_vel > -2.0 && tracking.r_vel > -2.0 && cycle_count < 10){
     cycle_count++;
-    delay(10);
+    _Task::delay(10);
   }
   bool l_slow = false, r_slow = false; //
   // Waits until velocity drops (to detect wall)
@@ -381,7 +381,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
     l_slow = fabs(tracking.l_vel) < 3.0, r_slow = fabs(tracking.r_vel) < 3.0;
     if(l_slow){
       if(r_slow){
-        moveDrive(-30, 0); // Applies holding power 
+        moveDrive(-30, 0); // Presses into roller 
         cycle_count++;
       }
       else{

@@ -54,6 +54,7 @@ void initialize() {
 
 	// tracking.g_pos = {0.0, 0.0, 0.0};
 	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
+	// tracking.g_pos = {128.5, 83.5, degToRad(0.0)};	// Line auton
 
 	log_init();
 	_Task tracking_task("tracking_update_task");
@@ -62,10 +63,11 @@ void initialize() {
 	_Controller::init();
 	delay(300);
 	// lift.runMachine();
-	drive.runMachine();
-	intake.runMachine();
+
+	// drive.runMachine();
+	// intake.runMachine();
 	// flywheel.runMachine();
-	shooter.runMachine();
+	// shooter.runMachine();
 	
 
 }
@@ -126,34 +128,11 @@ void autonomous() {
 
 // STACK TRACE
 
-void moveInches(double target){
-	Timer move_timer{"move_timer"};
-	double start = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
-	double error;
-	do{
-		double cur_y = left_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start;
-		error = target - cur_y;
-		double power = 5.0*error;
-		if(fabs(power) < 30) power = sgn(error) * 30;
-		// if(fabs(power) > 100) power = sgn(error) * 100;
-		moveDrive(power, 0.0);
 
-	}while(fabs(error) > 0.5);
-	master.print(2, 0, "time: %ld", move_timer.getTime());
-	driveBrake();
-	master.rumble("-");
-}
 // acc: 
 
 // tracking:
 // (69.75, 134.625, 180)
-void autonProgram(){
-	cout << "hi" << endl;
-}
-pros::Distance ds(8);
-auton auton1("auton1", 5, 20, 0, autonProgram, ds);
-auton auton2("auton2", 20, 20, 0, autonProgram, ds);
-auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 
 // 2600, 2000 red
 // 350, 200 blue
@@ -167,34 +146,45 @@ auton auto3("auton3", 20, 10, 0, autonProgram, ds);
 // blue: 1170
 // thresh 3000
 
+void auton1func(){
+	printf("yooo\n");
+}
+
+void auton2func(){
+	printf("whatup\n");
+}
+
+void auton3func(){
+	printf("ayyyy\n");
+}
+
+Auton auton1("auton1", auton1func);
+Auton auton2("auton2", auton2func);
+Auton auton3("auton3", auton3func);
+
+
 void opcontrol() {
-  // roller_sensor.set_led_pwm(100);
-	// while(true) {
-	// 	roller_sensor.set_led_pwm(100);
-  //   printf("r: %lf \n", roller_sensor.get_rgb().red);
-	// 	// driveHandleInput();
-	// 	delay(10);
-	// }
-	// indexer_p.setState(HIGH);
-	skills1();
+	
+	Auton::selectAuton();
+	// Auton::runAuton();
+	// driverPractice();
 	// spinRoller();
-  // intake.waitToReachState(IntakeOffParams{});
+	// do{
+	// 	roller_sensor.set_led_pwm(100);
+  //   double cur_val = roller_sensor.get_rgb().red;
+  //   printf("r: %lf \n", cur_val);
+  //   _Task::delay(100);
+  // }while(true);
+	// autonLine();
+
+
+	// autonStack();
+	// driverPractice();
+
 	WAIT_UNTIL(false);
-
-	// transmission.setState(LOW);
-	// moveDrive(-30, 0);
-	// WAIT_UNTIL(false);
-
-	// SWITCHING ROLLER TO BLUE
-	// roller_sensor.set_led_pwm(100);
-	// while(true){
-	// 	if(master.get_digital_new_press(DIGITAL_A))	indexer_p.toggleState();
-	// 	if(master.get_digital_new_press(DIGITAL_X))	angler_p.toggleState();
-	// 	if(master.get_digital_new_press(DIGITAL_Y))	transmission.toggleState();
-
-	// 	delay(10);
-	// }
-
+	// indexer_p.setState(HIGH);
+	// skills1();
+/*
 	while(true) {
 		// printf("dist: %d \n", roller_sensor.get_proximity());
 		if(master.get_digital_new_press(DIGITAL_A)){
@@ -205,7 +195,7 @@ void opcontrol() {
 
 		delay(10);
 	}
-
+*/
 	// auton::program1();
 	// cout << auton::arr[3]->name << endl;
 	// cout << "size " << auton::arr.size() << endl;
@@ -221,17 +211,12 @@ void opcontrol() {
 	Timer disc_count_print{"disc_count_print"};
 	Timer angle_override_print{"angle_override_print"};
 	master.clear();
+	drive.changeState(DriveOpControlParams{});
 	while(true){
 
-		driveHandleInput();
+		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
-		// if(master.get_digital_new_press(DIGITAL_X)){
-		// 	moveInches(50.0);
-		// 	turnToAngleSync(-90.0);
-		// } 
-		//  && g_mag_disc_count <= 4
-		// && g_mag_disc_count >= 0
 		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
 		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
 

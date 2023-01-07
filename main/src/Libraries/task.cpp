@@ -47,13 +47,11 @@ void _Task::resume(){
   else log("%s | resume failed, task not started yet\n", name);
 }
 
-
-// static methods
 void _Task::delay(uint32_t delay_time){
   Timer delay_timer{"task_delay_timer"};
   do {
     task_t current_task = task_get_current();
-    // handle notifications from current task
+    // Handle notifications from current task
     switch((notify_types_2)task_notify_take(true, 0)){
       case notify_types_2::none:
         break;
@@ -66,7 +64,7 @@ void _Task::delay(uint32_t delay_time){
         task_suspend(current_task);
         break;
     }
-    // ensures to sleep at most 10ms, or time left if that's less than 10ms 
+    // Ensures to sleep at most 10ms, or time left if that's less than 10ms 
     int32_t time_left = delay_time - delay_timer.getTime();
     pros::delay(min<int32_t>(time_left < 0 ? 0: time_left, 10l));
   }

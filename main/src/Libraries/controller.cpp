@@ -78,10 +78,10 @@ void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ..
 void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
   std::function<void()> func = [&, line, col, str](){
     pros::Controller::print(line, col, str.c_str());
-    printf("printing %s to %d", str.c_str(), this->controller_num);
+    printf("printing %s to %d\n", str.c_str(), this->controller_num);
   };
   queue.push(func);
-  printf("adding print to queue for controller %d", this->controller_num);
+  printf("adding print to queue for controller %d\n", this->controller_num);
 }
 
 void _Controller::clear_line (std::uint8_t line){
@@ -90,7 +90,7 @@ void _Controller::clear_line (std::uint8_t line){
     printf("clearing line %d for controller %d", line, this->controller_num);
   };
   queue.push(func);
-  printf("adding clear_line to queue for controller %d", this->controller_num);
+  printf("adding clear_line to queue for controller %d\n", this->controller_num);
 }
 
 void _Controller::clear(){
@@ -99,7 +99,7 @@ void _Controller::clear(){
     printf("clearing %d", this->controller_num);
   };
   queue.push(func);
-  printf("adding clear to queue for controller %d", this->controller_num);
+  printf("adding clear to queue for controller %d\n", this->controller_num);
 }
 
 
@@ -109,13 +109,13 @@ void _Controller::rumble(const string& rumble_pattern){
     printf("rumble controller %d", this->controller_num);
   };
   queue.push(func);
-  printf("adding rumble to queue for controller %d", this->controller_num);
+  printf("adding rumble to queue for controller %d\n", this->controller_num);
 }
 
 
 controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_e_t> buttons, int timeout){
   int start_time = millis();
-  printf("waiting for button press from controller %d", this->controller_num);
+  printf("waiting for button press from controller %d\n", this->controller_num);
   controller_digital_e_t button = static_cast<controller_digital_e_t>(0);
   
   WAIT_UNTIL(button != static_cast<controller_digital_e_t>(0)){
@@ -124,11 +124,11 @@ controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_
     }
 
     if(timeout != 0 && millis() - start_time > timeout){
-      printf("timed out on waiting for button press from controller %d", this->controller_num);
+      printf("timed out on waiting for button press from controller %d\n", this->controller_num);
       return static_cast<controller_digital_e_t>(0);
     }
   }
-  printf("button %d pressed from controller %d", button, this->controller_num);
+  printf("button %d pressed from controller %d\n", button, this->controller_num);
 // button handling methods
 
   return button;
