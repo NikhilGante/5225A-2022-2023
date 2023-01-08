@@ -164,10 +164,10 @@ Auton auton3("auton3", auton3func);
 
 
 void opcontrol() {
+	driverPractice();
 	
 	Auton::selectAuton();
 	// Auton::runAuton();
-	// driverPractice();
 	// spinRoller();
 	// do{
 	// 	roller_sensor.set_led_pwm(100);

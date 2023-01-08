@@ -72,8 +72,11 @@ void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(abs(power_y) < 7) power_y = 0;
-  if(abs(power_a) < 7) power_a = 0;
+  if(fabs(power_y) < 7) power_y = 0;
+  if(fabs(power_a) < 7) power_a = 0;
+  else if (fabs(power_a) > 7 && fabs(power_a) < tracking.min_move_power_a){ // give min power to driver when turning
+    power_a = tracking.min_move_power_a * sgn(power_a);
+  }
 
   lcd::print(3, "intk:%lf", intake_m.get_temperature());
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
