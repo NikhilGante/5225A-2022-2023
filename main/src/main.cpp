@@ -64,10 +64,10 @@ void initialize() {
 	delay(300);
 	// lift.runMachine();
 
-	// drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	drive.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 
 }

@@ -15,7 +15,7 @@ void shooterHandleInput(){
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
     if(master.get_digital_new_press(singleShotBtn)) shoot(1);
-    if(master.get_digital_new_press(flywheelOffBtn)) flywheelOff = !flywheelOff;
+    // if(master.get_digital_new_press(flywheelOffBtn)) flywheelOff = !flywheelOff;
   }
 
   if(master.get_digital_new_press(anglerToggleBtn) && !flywheelOff) {
