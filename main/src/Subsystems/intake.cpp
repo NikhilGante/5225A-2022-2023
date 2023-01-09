@@ -21,13 +21,13 @@ void intakeHandleInput(){
   else if(get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
     if(master.get_digital_new_press(rollerBtn)){
       // Gives driver back control
-      transmission.setState(HIGH);
+      trans_p.setState(HIGH);
       drive.changeState(DriveOpControlParams{});
       intakeOff();
     }
   }
   // Spin roller if btn is pressed and not already spinning
-  if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller();
+  if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
 
 }
 
@@ -127,7 +127,7 @@ void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
 }
 
 
-IntakeRollerParams::IntakeRollerParams(){}
+IntakeRollerParams::IntakeRollerParams(bool flatten){}
 
 const char* IntakeRollerParams::getName(){
   return "IntakeRoller";
@@ -135,7 +135,8 @@ const char* IntakeRollerParams::getName(){
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
-  flattenAgainstWallSync();
+  if(flatten)  flattenAgainstWallSync();
+  trans_p.setState(LOW);
   WAIT_UNTIL(led.getTime() > 200);  // Waits for LED to turn on and robot to touch roller
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
@@ -154,7 +155,7 @@ void IntakeRollerParams::handle(){
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
-	transmission.setState(HIGH);
+	trans_p.setState(HIGH);
   intakeOff();
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
@@ -162,6 +163,6 @@ void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state
 	roller_sensor.set_led_pwm(100);
 }
 
-void spinRoller(){  // Wrapper function to make intake index discs
-  intake.changeState(IntakeRollerParams{});
+void spinRoller(bool flatten){  // Wrapper function to make intake index discs
+  intake.changeState(IntakeRollerParams{flatten});
 }

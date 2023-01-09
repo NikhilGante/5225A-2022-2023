@@ -164,6 +164,29 @@ Auton auton3("auton3", auton3func);
 
 
 void opcontrol() {
+	// E - angler_p is single
+	// C - transmission is double
+
+	/* 
+	To fill:
+		single: HIGH, double: LOW
+	To Hold:
+		single: LOW, double: LOW
+	To Release:
+		single: LOW, double: HIGH
+	*/
+
+	/*
+	master.clear();
+	master.print(0,0, "press a to shoot");
+	endgame_s_p.setState(HIGH);
+	while(true){
+		if(master.get_digital_new_press(DIGITAL_A))	endgame_d_p.toggleState();
+		printf("%d %d\n", endgame_s_p.getState(), endgame_d_p.getState());
+		delay(10);
+	}
+	*/
+
 	driverPractice();
 	
 	Auton::selectAuton();

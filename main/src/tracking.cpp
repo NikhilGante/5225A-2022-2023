@@ -365,7 +365,7 @@ const char* DriveFlattenParams::getName(){
 }
 void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
-	transmission.setState(LOW);
+	trans_p.setState(LOW);
   moveDrive(-60, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;

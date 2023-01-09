@@ -9,9 +9,17 @@
 double drive_curvature = 1.0;
 double angle_curvature = 2.0;
 
+const int deadzone = 7;
+
 int polynomial(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
   return round(pow(127, 1 - n) * pow(abs(x), n) * sgn(x));
+}
+
+int poly_min_pow(int x, double curvature){
+  double n = curvature * 0.2 + 1; // scales curvature value to match expo function
+  if(abs(x) < deadzone) return 0;
+  return round(sgn(x) * ((127 - tracking.min_move_power_a)/pow(127 - deadzone, n) * pow(abs(x) - deadzone, n) + tracking.min_move_power_a));
 }
 // private methods
 int CustomDrive::polynomial(int x){
@@ -68,12 +76,30 @@ void driveBrake(){
 
 Timer curve_print_timer{"curve_print_timer"};
 int slew = 5;
+Timer backwards_timer{"backwards_timer"};
+bool backwards = false;
+bool last_backwards = false;
+
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+ 
+  if(fabs(power_y) < deadzone) power_y = 0;
+ 
+  backwards = power_y < 0;
+  if(backwards && !last_backwards){
+    backwards_timer.reset();
+  }
+  if(!backwards && last_backwards){
+    backwards_timer.reset(false);
+  }
+  last_backwards = backwards;
+  if(backwards_timer.getTime() > 800){
+    power_y = 0;
+  }
 
-  if(fabs(power_y) < 7) power_y = 0;
-  if(fabs(power_a) < 7) power_a = 0;
+
+  if(fabs(power_a) < deadzone) power_a = 0;
   else if (fabs(power_a) > 7 && fabs(power_a) < tracking.min_move_power_a){ // give min power to driver when turning
     power_a = tracking.min_move_power_a * sgn(power_a);
   }
@@ -91,7 +117,7 @@ void driveHandleInput(){
   } 
 
 
-  if(master.get_digital_new_press(transToggleBtn)) transmission.toggleState();
+  if(master.get_digital_new_press(transToggleBtn)) trans_p.toggleState();
   moveDrive(power_y, power_a);
 }
 
