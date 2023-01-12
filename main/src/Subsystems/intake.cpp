@@ -53,6 +53,7 @@ void IntakeOnParams::handle(){  // synchronous state
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
+    printf("INCR, count: %d\n", g_mag_disc_count.load());
     #ifdef LOGS
     printf("INCR\n");
     #endif
@@ -60,15 +61,15 @@ void IntakeOnParams::handle(){  // synchronous state
   mag_disc_detected_last = mag_disc_detected;
 
   // If mag is full, don't let any more discs in
+  printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
     printf("COUNTED 3\n");
     master.rumble("-");
-    _Task::delay(100);
+    _Task::delay(125);
     intakeOff();
   }
 
-  printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
@@ -127,7 +128,7 @@ void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
 }
 
 
-IntakeRollerParams::IntakeRollerParams(bool flatten){}
+IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
 
 const char* IntakeRollerParams::getName(){
   return "IntakeRoller";
@@ -135,9 +136,11 @@ const char* IntakeRollerParams::getName(){
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
-  if(flatten)  flattenAgainstWallSync();
+  printf("flatten:%d\n", flatten);
+
+  if(flatten) flattenAgainstWallSync();
   trans_p.setState(LOW);
-  WAIT_UNTIL(led.getTime() > 200);  // Waits for LED to turn on and robot to touch roller
+  WAIT_UNTIL(led.getTime() > 200 && roller_sensor.get_rgb().red != 0);  // Waits for LED to turn on and robot to touch roller
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
@@ -151,7 +154,7 @@ void IntakeRollerParams::handle(){
     cur_val = roller_sensor.get_rgb().red;
     printf("r: %lf \n", cur_val);
     _Task::delay(100);
-  }while(fabs(cur_val - init_value) < 1500);
+  }while(fabs(cur_val - init_value) < 1300);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
@@ -159,8 +162,6 @@ void IntakeRollerParams::handle(){
   intakeOff();
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
-  intake_m.move(-127);
-	roller_sensor.set_led_pwm(100);
 }
 
 void spinRoller(bool flatten){  // Wrapper function to make intake index discs

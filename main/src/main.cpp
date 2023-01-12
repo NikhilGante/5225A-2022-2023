@@ -59,6 +59,15 @@ void initialize() {
 	log_init();
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
+	
+	// _Task led_task("led_task");
+	// led_task.start([](){
+	// 	while(true){
+	// 		roller_sensor.set_led_pwm(100);
+	// 		_Task::delay(100);
+	// 	}
+	// });
+
 	// Data::init();
 	_Controller::init();
 	delay(300);
@@ -163,7 +172,16 @@ Auton auton2("auton2", auton2func);
 Auton auton3("auton3", auton3func);
 
 
+// thinks: (133.69, 122.40, -90.0) 
+// at: (133.75 , 112.25, -90.0)
+
 void opcontrol() {
+
+	// autonLine();
+
+	skills3();
+
+
 	// E - angler_p is single
 	// C - transmission is double
 
@@ -187,7 +205,7 @@ void opcontrol() {
 	}
 	*/
 
-	driverPractice();
+	// driverPractice();
 	
 	Auton::selectAuton();
 	// Auton::runAuton();
