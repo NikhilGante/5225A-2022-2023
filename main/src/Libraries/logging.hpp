@@ -2,6 +2,7 @@
 #include "queue.hpp"
 #include "printing.hpp"
 #include "counter.hpp"
+#include "../config.hpp"
 
 class _Task;
 
@@ -15,11 +16,11 @@ enum class log_locations{
 //All dump into the same queue
 class Logging: public Counter<Logging>{
   private:
+  public:
     term_colours print_colour;
     bool newline;
-    std::string id;
     log_locations log_location;
-    std::string file_name;
+    std::string name;
     Queue<char, 2000> queue;
 
     static constexpr size_t print_max_size{10000};
@@ -45,7 +46,7 @@ class Logging: public Counter<Logging>{
         case log_locations::both:
           printf2(colour, str);
         case log_locations::sd: //fallthrough intentional
-          master_queue.insert(id);
+          master_queue.insert(name + ": ");
           master_queue.insert(str);
           queue.insert(str);
           break;

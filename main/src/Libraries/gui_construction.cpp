@@ -78,7 +78,7 @@
       Text tuning_instructions_2(MID_X, 50, GUI::Style::CENTRE, TEXT_SMALL, tuning, "the terminal for instructions and results");
       Button encoder_direction (15, 70, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Encoder Direction");
       Button side_corkscrew (130, 70, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Side Corkscrew");
-      Button back_corkscrew (245, 70, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Back Corkcrew");
+      Button back_corkscrew (245, 70, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Back Corkscrew");
       Button spin360 (360, 70, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Spins");
       Button wheel_size (15, 155, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Wheel Size");
       Button back_wheel_size (130, 155, 100, 70, GUI::Style::SIZE, Button::SINGLE, tuning, "Back Wheel Size");

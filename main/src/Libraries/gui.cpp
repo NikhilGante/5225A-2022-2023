@@ -394,7 +394,7 @@ namespace alert{
     //Buttons
     if(min > max) increment = -increment;
     dec.setFunc([&, increment](){this->val-=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->min;});
-    inc.setFunc([&, increment](){this->val +=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
+    inc.setFunc([&, increment](){this->val+=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
   }
 
   Page::Page(std::string title, Color background_colour){
