@@ -80,8 +80,13 @@ void autonomous() {
 void opcontrol(){
   DEBUG;
 
-  std::cout << Logging::getList().size() << std::endl;
-  std::cout << Piston::getList().size() << std::endl;
+  // std::cout << Logging::getList().size() << std::endl;
+  // std::cout << Piston::getList().size() << std::endl;
+
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+
+  // c::adi_digital_write('F', HIGH);
+
 
   DEBUG;
   WAIT_UNTIL(false);
