@@ -179,7 +179,7 @@ void opcontrol() {
 
 	// autonLine();
 
-	skills3();
+	// skills3();
 
 
 	// E - angler_p is single
@@ -194,20 +194,25 @@ void opcontrol() {
 		single: LOW, double: HIGH
 	*/
 
-	/*
-	master.clear();
-	master.print(0,0, "press a to shoot");
-	endgame_s_p.setState(HIGH);
-	while(true){
-		if(master.get_digital_new_press(DIGITAL_A))	endgame_d_p.toggleState();
-		printf("%d %d\n", endgame_s_p.getState(), endgame_d_p.getState());
-		delay(10);
-	}
-	*/
 
-	// driverPractice();
+
+
 	
-	Auton::selectAuton();
+	master.clear();
+	// master.print(0,0, "press a to shoot");
+	// endgame_s_p.setState(HIGH);
+	// while(true){
+	// 	// if(master.get_digital_new_press(DIGITAL_A))	endgame_s_p.toggleState();
+	// 	if(master.get_digital_new_press(DIGITAL_A))	endgame_d_p.toggleState();
+	// 	printf("%d %d\n", endgame_s_p.getState(), endgame_d_p.getState());
+	// 	delay(10);
+	// }
+
+
+	driverPractice();
+	
+	// Auton::selectAuton();
+	
 	// Auton::runAuton();
 	// spinRoller();
 	// do{

@@ -216,6 +216,8 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   angleOverride = false;
 	while(true){
 
+    if(master.get_digital_new_press(endgameBtn))  endgame_s_p.setState(HIGH);
+
 		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
