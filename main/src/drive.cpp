@@ -87,16 +87,16 @@ void driveHandleInput(){
   if(fabs(power_y) < deadzone) power_y = 0;
  
   backwards = power_y < 0;
-  if(backwards && !last_backwards){
-    backwards_timer.reset();
-  }
-  if(!backwards && last_backwards){
-    backwards_timer.reset(false);
-  }
-  last_backwards = backwards;
-  if(backwards_timer.getTime() > 800){
-    power_y = 0;
-  }
+  // if(backwards && !last_backwards){
+  //   backwards_timer.reset();
+  // }
+  // if(!backwards && last_backwards){
+  //   backwards_timer.reset(false);
+  // }
+  // last_backwards = backwards;
+  // if(backwards_timer.getTime() > 800){
+  //   power_y = 0;
+  // }
 
 
   if(fabs(power_a) < deadzone) power_a = 0;
@@ -108,14 +108,6 @@ void driveHandleInput(){
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
   lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
   lcd::print(7, "flywheel:%.lf", flywheel_m.get_temperature());
-
-
-  if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
-    moveDrive(0, 0);
-    master.rumble("----------");
-    WAIT_UNTIL(false);
-  } 
-
 
   if(master.get_digital_new_press(transToggleBtn)) trans_p.toggleState();
   moveDrive(power_y, power_a);
@@ -218,7 +210,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     if(master.get_digital_new_press(endgameBtn))  endgame_s_p.setState(HIGH);
 
-		// driveHandleInput();
+		driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
 		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
@@ -237,9 +229,11 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 			else master.print(1, 0, "Automatic");
 		}
 
-		// if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
-		// 	break;
-		// }
+    if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
+      moveDrive(0, 0);
+      master.rumble("----------");
+      WAIT_UNTIL(false);
+    } 
 		delay(10);
 	}
 }
