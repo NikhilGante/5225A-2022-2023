@@ -1,26 +1,26 @@
 #pragma once
-#include "main.h"
-#include <iostream>
+#include <numbers>
+
+inline constexpr double rot_to_deg = 360;
+inline constexpr double rot_to_rad = 2*std::numbers::pi;
+inline constexpr double deg_to_rad = rot_to_rad/rot_to_deg;
+inline constexpr double rad_to_deg = 1/deg_to_rad;
+inline constexpr double deg_to_rot = 1/rot_to_deg;
+inline constexpr double rad_to_rot = 1/rot_to_rad;
 
 #define LOGS
 
-using namespace pros;
-using namespace std;
-//forward declarations
-class Timer;
-
-#define WAIT_UNTIL(condition) while(_Task::delay(10), !(condition));
-
+#define WAIT_UNTIL(condition) while(pros::delay(10), !(condition)) //! DO NOT ADD A SEMICOLON
 
 // cycle check macro (checks a condition for a specified amount of cycles)
 #define CYCLE_CHECK(exit_condition, checkCount, delayTime) \
 {\
-    int successCount = 0;\
-    while (successCount < checkCount){\
-      if (exit_condition) successCount++;\
-      else successCount = 0;\
-      _Task::delay(delayTime);\
-    }\
+  int successCount = 0;\
+  while (successCount < checkCount){\
+    if (exit_condition) successCount++;\
+    else successCount = 0;\
+    _Task::delay(delayTime);\
+  }\
 }
 
 /**
@@ -70,17 +70,10 @@ double degToRad(double deg);
  */
 double nearAngle(double angle, double reference);
 
-int random_direction();
-
 // gets the sign of a value (0, 1 or -1)
 template <typename T>
 int sgn(T value){
   return (T(0) < value) - (value < T(0));
-}
-
-template <typename T>
-bool contains(T& container, typename T::value_type item){
-  return std::find(container.begin(), container.end(), item) != container.end();
 }
 
 // maps a value to a range
@@ -93,7 +86,7 @@ template <typename T>
 T mapSet(T input, T in_min, T in_max, T out_min, T out_max, T range, T val){
   if (input <= range) return map(input, in_min, range, out_min, val);
   else {
-    printf("INVALID INPUT IN MAP FUNCTION");
+    // misc.print("INVALID INPUT IN MAP FUNCTION");
     return static_cast<T>(0);
   }
 }

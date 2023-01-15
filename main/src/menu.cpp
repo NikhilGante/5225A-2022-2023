@@ -1,6 +1,5 @@
 #include "menu.hpp"
-#include "stdio.h"
-using namespace pros;
+#include "Libraries/controller.hpp"
 
 array<Auton*, MAX_AUTON_ARR_SIZE> Auton::autonArr;
 

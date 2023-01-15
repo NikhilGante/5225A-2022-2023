@@ -1,13 +1,7 @@
 #pragma once
-#include "config.hpp"
-#include "util.hpp"
-
-extern const int deadzone;
 
 int polynomial(int x, double curvature);
 int poly_min_pow(int x, double curvature);
-
-extern double angle_curvature;
 
 class CustomDrive{
   int lookup_table[255];

@@ -1,53 +1,73 @@
 #pragma once
-#include "main.h"
-#include <fstream>
-#include <stdarg.h>
-
 #include "queue.hpp"
-#include "task.hpp"
-#include "timer.hpp"
+#include "printing.hpp"
+#include "counter.hpp"
+#include "../config.hpp"
 
-extern FILE* logfile;
+class _Task;
 
-void log(const char * format, ...);
-void log_init();
-
-// ACTUAL LOGGING START
-
-#define QUEUE_SIZE 10000
-
-enum E_Log_Levels{
-  error = 1,
-  warning =1,
-  general =1,
-  debug = 2,
-  off = 0,
-};
-
-enum class E_Log_Locations
-{
-  terminal,
+enum class log_locations{
+  t,
   sd,
   both,
   none
 };
 
+//All dump into the same queue
+class Logging: public Counter<Logging>{
+  private:
+  public:
+    term_colours print_colour;
+    bool newline;
+    log_locations log_location;
+    std::string name;
+    Queue<char, 2000> queue;
 
-class Data{
-  static Queue<char, QUEUE_SIZE> queue;
-  static _Task task;
-  static void logHandle(); // runs in task to flush out contents of queue to file
-  static Timer log_timer;
-public:
-  static ofstream log_file;
-  static void init(); // starts log task
+    static constexpr size_t print_max_size{10000};
+    static constexpr uint32_t print_max_time{500};
+    static _Task task;
+    static std::vector<Logging*> logs;
+    static std::string master_file_name;
+    static Queue<char, 20000> master_queue;
 
-  static E_Log_Levels g_log_level;
+  public:
+    Logging(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
+    
+    static void init();
 
-  E_Log_Locations log_location;
-  E_Log_Levels log_level;
+    static std::vector<Logging*> const & getList() {return logs;}
 
-  void print(const char* format, ...);
+    template <typename... Params>
+    void print(term_colours colour, std::string format, Params... args){
+      std::string str{sprintf2(format, args...)};
+      if(newline) str += '\n';
 
+      switch(log_location){
+        case log_locations::both:
+          printf2(colour, str);
+        case log_locations::sd: //fallthrough intentional
+          master_queue.insert(name + ": ");
+          master_queue.insert(str);
+          queue.insert(str);
+          break;
+        case log_locations::t:
+          printf2(colour, str);
+          break;
+        case log_locations::none:
+          break;
+      }
+    }
+
+    template <typename... Params> void print(std::string format, Params... args) {print(print_colour, format, args...);}
 };
 
+extern Logging task_log;
+extern Logging state_log;
+extern Logging sensor_data;
+extern Logging auton_log;
+extern Logging tracking_data;
+extern Logging controller_queue;
+extern Logging misc;
+extern Logging term;
+extern Logging log_d;
+extern Logging error;

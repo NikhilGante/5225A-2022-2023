@@ -1,6 +1,5 @@
 #include "pid.hpp"
 #include "../util.hpp"
-#include <cmath>
 
 PID::PID(double kP, double kI, double kD, double bias, bool integral_sgn_reset, double integral_lower_bound, double integral_upper_bound):
   kP(kP), kI(kI), kD(kD),
@@ -28,7 +27,7 @@ double PID::compute(double input, double target){
   //(kI || kD) && 
   if (last_update_timer.getTime() > 0.0){  // if only P is activated, don't compute I and D-related variables
     // resets integral if sign of error flips and user enabled this feature, or error is out of bounds
-    if ((integral_sgn_reset && sgn(error) != last_error_sgn) || (fabs(error) < integral_lower_bound || fabs(error) > integral_upper_bound)){
+    if ((integral_sgn_reset && sgn(error) != last_error_sgn) || (std::abs(error) < integral_lower_bound || std::abs(error) > integral_upper_bound)){
       integral = 0;
     }
     else integral += error * last_update_timer.getTime() * kI;

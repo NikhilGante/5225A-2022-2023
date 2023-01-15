@@ -1,10 +1,6 @@
 #pragma once
 #include "main.h"
 #include "timer.hpp"
-#include <float.h>
-
-
-using namespace pros;
 
 class PID{
 public:
@@ -14,7 +10,7 @@ public:
   double error, last_error, kP, kI, kD, proportional, integral, integral_lower_bound, integral_upper_bound, derivative, bias, output;
 
 public:
-  PID(double kP, double kI, double kD, double bias, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = DBL_MAX);
+  PID(double kP, double kI, double kD, double bias, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = std::numeric_limits<double>::max());
   double getError() const;
   double getOutput() const;
   double getProportional() const;

@@ -1,7 +1,4 @@
 #pragma once
-#include  "config.hpp"
-#include "tracking.hpp"
-using namespace pros;
 
 void moveInches(double target);
 

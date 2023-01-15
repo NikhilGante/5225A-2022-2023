@@ -1,12 +1,9 @@
 #pragma once
-#include "main.h"
-#include "../config.hpp"
 #include "../Libraries/state.hpp"
-#include "intake.hpp"
 #include "flywheel.hpp"
 
-extern const int toaster_rpm;
-extern const int barrier_rpm;
+static constexpr int toaster_rpm = 1400;
+static constexpr int barrier_rpm = 1875;
 
 void shooterHandleInput();
 
@@ -18,28 +15,28 @@ extern bool angleOverride;
 
 #define SHOOTER_STATE_TYPES ShooterIdleParams, ShooterShootParams
 
-#define SHOOTER_STATE_TYPES_VARIANT std::variant<SHOOTER_STATE_TYPES>
+using shooterVariant = std::variant<SHOOTER_STATE_TYPES>;
 
 extern Machine<SHOOTER_STATE_TYPES> shooter;
 
 struct ShooterIdleParams{
-  const char* getName();
+  inline static const std::string name = "ShooterIdle";
   void handle();
-  void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(shooterVariant prev_state);
 };
 
 struct ShooterShootParams{  
   ShooterShootParams(int shots = 3);
 
-  const char* getName();
+  inline static const std::string name = "ShooterIdle";
   void handle();
-  void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(shooterVariant prev_state);
 
   int shots_left;
 
-  FLYWHEEL_STATE_TYPES_VARIANT flywheel_state;
-private:
-  Timer shoot_timer{"shoot_timer"};
+  flywheelVariant flywheel_state;
+
+  private: Timer shoot_timer{"shoot_timer"};
 
   Timer cycle_check{"cycle_check"};
 };

@@ -1,24 +1,28 @@
 #include "intake.hpp"
+#include "../config.hpp"
+#include "../Libraries/timer.hpp"
 #include "../tracking.hpp"
-#include "../drive.hpp"
+#include "../Libraries/controller.hpp"
+#include "../Libraries/motor.hpp"
+#include "../Libraries/piston.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
 void intakeHandleInput(){
-  INTAKE_STATE_TYPES_VARIANT cur_state = intake.getState();
-  if(get_if<IntakeOnParams>(&cur_state)){
+  intakeVariant cur_state = intake.getState();
+  if(std::get_if<IntakeOnParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
     if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
-  else if(get_if<IntakeOffParams>(&cur_state)){
+  else if(std::get_if<IntakeOffParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
     if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
   }
-  else if(get_if<IntakeRevParams>(&cur_state)){
+  else if(std::get_if<IntakeRevParams>(&cur_state)){
     if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
     if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
   }
-  else if(get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
+  else if(std::get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
     if(master.get_digital_new_press(rollerBtn)){
       // Gives driver back control
       trans_p.setState(HIGH);
@@ -27,26 +31,20 @@ void intakeHandleInput(){
     }
   }
   // Spin roller if btn is pressed and not already spinning
-  if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
+  if(master.get_digital_new_press(rollerBtn) && !std::get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
 
 }
 
-atomic<int> g_mag_disc_count = 0;
+std::atomic<int> g_mag_disc_count = 0;
 
 // Intake idle state
-const char* IntakeIdleParams::getName(){
-  return "IntakeIdle";
-}
 void IntakeIdleParams::handle(){}
-void IntakeIdleParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){}
+void IntakeIdleParams::handleStateChange(intakeVariant prev_state){}
 
 // Intake on state
 
 IntakeOnParams::IntakeOnParams(int8_t speed) : speed(speed){}
 
-const char* IntakeOnParams::getName(){
-  return "IntakeOn";
-}
 void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = mag_ds.get_value();
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
@@ -72,7 +70,7 @@ void IntakeOnParams::handle(){  // synchronous state
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
-void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);
   intake_m.move(speed);
 }
@@ -83,11 +81,8 @@ void intakeOn(int8_t speed){
 }
 
 // Intake off state
-const char* IntakeOffParams::getName(){
-  return "IntakeOff";
-}
 void IntakeOffParams::handle(){}
-void IntakeOffParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeOffParams::handleStateChange(intakeVariant prev_state){
   intake_m.move(0);
 }
 
@@ -99,11 +94,8 @@ void intakeOff(){  // Wrapper function to turn intake off
 
 IntakeRevParams::IntakeRevParams(int8_t speed) : speed(speed){}
 
-const char* IntakeRevParams::getName(){
-  return "IntakeRev";
-}
 void IntakeRevParams::handle(){}
-void IntakeRevParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeRevParams::handleStateChange(intakeVariant prev_state){
   intake_m.move(speed);
 }
 
@@ -115,11 +107,8 @@ void intakeRev(int8_t speed){  // Wrapper function to turn intake in reverse
 
 IntakeIndexParams::IntakeIndexParams(int8_t speed) : speed(speed){}
 
-const char* IntakeIndexParams::getName(){
-  return "IntakeIndex";
-}
 void IntakeIndexParams::handle(){}
-void IntakeIndexParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeIndexParams::handleStateChange(intakeVariant prev_state){
   intake_m.move(speed);
 }
 
@@ -130,9 +119,6 @@ void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
 
 IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
 
-const char* IntakeRollerParams::getName(){
-  return "IntakeRoller";
-}
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
@@ -161,7 +147,7 @@ void IntakeRollerParams::handle(){
 	trans_p.setState(HIGH);
   intakeOff();
 }
-void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+void IntakeRollerParams::handleStateChange(intakeVariant prev_state){
 }
 
 void spinRoller(bool flatten){  // Wrapper function to make intake index discs

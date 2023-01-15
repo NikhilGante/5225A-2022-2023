@@ -1,15 +1,23 @@
 #include "auton.hpp"
-#include "tracking.hpp"
-#include "Subsystems/intake.hpp"
+#include "Libraries/controller.hpp"
+#include "Libraries/piston.hpp"
+#include "Libraries/timer.hpp"
 #include "Subsystems/flywheel.hpp"
+#include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
+#include "config.hpp"
+#include "drive.hpp"
+#include "tracking.hpp"
+#include "util.hpp"
+
+constexpr double TICKS_TO_INCHES_275 = 2.75*std::numbers::pi/36000;
 
 void moveInches(double target){
 	Timer move_timer{"move_timer"};
-	double start = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
+	double start = left_tracker.get_position()*TICKS_TO_INCHES_275;
 	double error;
 	do{
-		double cur_y = left_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start;
+		double cur_y = left_tracker.get_position()*TICKS_TO_INCHES_275 - start;
 		error = target - cur_y;
 		double power = 5.0*error;
 		if(fabs(power) < 30) power = sgn(error) * 30;
@@ -53,11 +61,11 @@ void skills1(){
   turnToAngleSync(177);
   spinRoller();
 
-	log("total: %d", total.getTime());
-	lcd::print(7, "total: %d", total.getTime());
+	auton_log.print("total: %d", total.getTime());
+	// lcd::print(7, "total: %d", total.getTime());
 }
 
-// tracking.g_pos = {68.0, 129.25, M_PI};
+// tracking.g_pos = {68.0, 129.25, std::numbers::pi};
 void skills2(){
   Timer total{"total_timer"};
   setFlywheelVel(2340);
@@ -97,7 +105,7 @@ void skills2(){
   moveInches(-16);
   spinRoller();
 
-	log("total: %d", total.getTime());
+	auton_log.print("total: %d", total.getTime());
 	master.print(0,0, "total: %d", total.getTime());
   // shoot match loads here
 }
@@ -128,8 +136,8 @@ void skills3(){
   moveToTargetSync({127,108}, E_Brake_Modes::brake, 127);
 
 
-  log("total: %d", total.getTime());
-	lcd::print(7, "total: %d", total.getTime());
+  auton_log.print("total: %d", total.getTime());
+	// lcd::print(7, "total: %d", total.getTime());
   // expand
 }
 
@@ -190,7 +198,8 @@ void autonAWP(){
   intake.waitToReachState(IntakeOffParams{});
 	moveInches(2.0);  // Move away from wall
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+  auton_log.print("total: %d", timer1.getTime());
+	// lcd::print(6, "total:%ld", timer1.getTime());
 }
 
 void autonLine(){

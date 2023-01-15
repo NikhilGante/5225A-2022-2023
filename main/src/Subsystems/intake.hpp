@@ -1,11 +1,9 @@
 #pragma once
-#include "main.h"
-#include "../config.hpp"
 #include "../Libraries/state.hpp"
 
 void intakeHandleInput();
 
-extern atomic<int> g_mag_disc_count;
+extern std::atomic<int> g_mag_disc_count;
 
 // forward declarations
 struct IntakeIdleParams;
@@ -17,14 +15,15 @@ struct IntakeRollerParams;
 
 #define INTAKE_STATE_TYPES IntakeIdleParams, IntakeOnParams, IntakeOffParams, IntakeRevParams, IntakeIndexParams, IntakeRollerParams
 
-#define INTAKE_STATE_TYPES_VARIANT std::variant<INTAKE_STATE_TYPES>
+using intakeVariant = std::variant<INTAKE_STATE_TYPES>;
 
 extern Machine<INTAKE_STATE_TYPES> intake;
 
 struct IntakeIdleParams{
-  const char* getName();
+  inline static const std::string name = "IntakeIdle";
+
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 struct IntakeOnParams{
@@ -32,9 +31,9 @@ struct IntakeOnParams{
 
   IntakeOnParams(int8_t speed = 127);
   
-  const char* getName();
+  inline static const std::string name = "IntakeOn";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 
 private:
   int mag_ds_val;
@@ -45,9 +44,9 @@ private:
 void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on
 
 struct IntakeOffParams{
-  const char* getName();
+  inline static const std::string name = "IntakeOff";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void intakeOff();  // Wrapper function to turn intake off
@@ -57,9 +56,9 @@ struct IntakeRevParams{
 
   IntakeRevParams(int8_t speed = -127);
 
-  const char* getName();
+  inline static const std::string name = "IntakeRev";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void intakeRev(int8_t speed = -127);  // Wrapper function to turn intake in reverse
@@ -69,9 +68,9 @@ struct IntakeIndexParams{
 
   IntakeIndexParams(int8_t speed = -127);
 
-  const char* getName();
+  inline static const std::string name = "IntakeIndex";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs
@@ -80,9 +79,9 @@ struct IntakeRollerParams{
   bool flatten; // Whether to flatten against wall or not
   IntakeRollerParams(bool flatten = true);
 
-  const char* getName();
+  inline static const std::string name = "IntakeRoller";
   void handle();
-  void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+  void handleStateChange(intakeVariant prev_state);
 };
 
 void spinRoller(bool flatten = true);  // Wrapper function to make intake index discs

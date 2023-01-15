@@ -8,7 +8,7 @@
 using namespace std;
 using namespace pros;
 
-#define MAX_AUTON_ARR_SIZE 10
+static constexpr int MAX_AUTON_ARR_SIZE = 10;
 
 class Auton{
 	const char* name;

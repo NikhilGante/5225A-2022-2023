@@ -1,33 +1,10 @@
 #include "main.h"
-#include "Libraries/geometry.hpp"
-#include "Libraries/pid.hpp"
-#include "Libraries/piston.hpp"
-#include "Libraries/timer.hpp"
-#include "Libraries/state.hpp"
-
+#include "Libraries/gui.hpp"
 #include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
-
-#include "auton.hpp"
-#include "menu.hpp"
-
-#include "lift.hpp"
-#include "pros/misc.h"
-#include "tracking.hpp"
-#include "drive.hpp"
-#include "config.hpp"
 #include "Libraries/controller.hpp"
-
-#include "pros/llemu.hpp"
-#include "pros/rtos.h"
-
-// Subsystem includes
-#include "Subsystems/shooter.hpp"
-#include "Subsystems/flywheel.hpp"
-#include "Subsystems/intake.hpp"
-#include "util.hpp"
-
-#include <cmath>
+#include "auton.hpp"
+#include "tracking.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -36,49 +13,16 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	// log_init();
-	lcd::initialize();
-	// tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
-
-	// tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// new_skills2
-
-	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
-	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
-	// tracking.g_pos = {11.25, 23.5, degToRad(90.0)};	// new_skills3
-	// tracking.g_pos = {129.75, 116.5, degToRad(-90.0)}; // new_skills4
-
-
-	// tracking.g_pos = {35.25, 11.25, 0.0};	// skills1
-	// tracking.g_pos = {68.00, 129.25, M_PI};	// skills2
-	// tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
-
-	// tracking.g_pos = {0.0, 0.0, 0.0};
-	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
-	// tracking.g_pos = {128.5, 83.5, degToRad(0.0)};	// Line auton
-
-	log_init();
-	_Task tracking_task("tracking_update_task");
-	tracking_task.start(trackingUpdate);
-	
-	// _Task led_task("led_task");
-	// led_task.start([](){
-	// 	while(true){
-	// 		roller_sensor.set_led_pwm(100);
-	// 		_Task::delay(100);
-	// 	}
-	// });
-
-	// Data::init();
+	Logging::init();
+  GUI::init();
 	_Controller::init();
-	delay(300);
-	// lift.runMachine();
 
-	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
-	
+	tracking.g_pos = {31.0, 11.5, 0.0};
+	// tracking.g_pos = {70.0, 129.5, std::numbers::pi};
+	_Task tracking_task("Tracking Update");
+	tracking_task.start(trackingUpdate);
 
+	delay(500);
 }
 
 /**
@@ -111,7 +55,6 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-
 }
 
 /**
@@ -128,205 +71,9 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
+void opcontrol(){
+  DEBUG;
 
-// start (70, 129.5)
-// end: (71, 11.5)
-
-// coords of high goal (approx)
-// Red: (18.0, 123.0)
-
-// STACK TRACE
-
-
-// acc: 
-
-// tracking:
-// (69.75, 134.625, 180)
-
-// 2600, 2000 red
-// 350, 200 blue
-// THRESH: 1000
-
-// 2900 red
-// 420 blue
-
-//1/4/2023
-// red: 4100-5600
-// blue: 1170
-// thresh 3000
-
-void auton1func(){
-	printf("yooo\n");
-}
-
-void auton2func(){
-	printf("whatup\n");
-}
-
-void auton3func(){
-	printf("ayyyy\n");
-}
-
-Auton auton1("auton1", auton1func);
-Auton auton2("auton2", auton2func);
-Auton auton3("auton3", auton3func);
-
-
-// thinks: (133.69, 122.40, -90.0) 
-// at: (133.75 , 112.25, -90.0)
-
-void opcontrol() {
-
-	// autonLine();
-
-	// skills3();
-
-
-	// E - angler_p is single
-	// C - transmission is double
-
-	/* 
-	To fill:
-		single: HIGH, double: LOW
-	To Hold:
-		single: LOW, double: LOW
-	To Release:
-		single: LOW, double: HIGH
-	*/
-
-
-
-
-	
-	master.clear();
-	// master.print(0,0, "press a to shoot");
-	// endgame_s_p.setState(HIGH);
-	// while(true){
-	// 	// if(master.get_digital_new_press(DIGITAL_A))	endgame_s_p.toggleState();
-	// 	if(master.get_digital_new_press(DIGITAL_A))	endgame_d_p.toggleState();
-	// 	printf("%d %d\n", endgame_s_p.getState(), endgame_d_p.getState());
-	// 	delay(10);
-	// }
-
-
-	driverPractice();
-	
-	// Auton::selectAuton();
-	
-	// Auton::runAuton();
-	// spinRoller();
-	// do{
-	// 	roller_sensor.set_led_pwm(100);
-  //   double cur_val = roller_sensor.get_rgb().red;
-  //   printf("r: %lf \n", cur_val);
-  //   _Task::delay(100);
-  // }while(true);
-	// autonLine();
-
-
-	// autonStack();
-	// driverPractice();
-
-	WAIT_UNTIL(false);
-	// indexer_p.setState(HIGH);
-	// skills1();
-/*
-	while(true) {
-		// printf("dist: %d \n", roller_sensor.get_proximity());
-		if(master.get_digital_new_press(DIGITAL_A)){
-			spinRoller();
-			intake.waitToReachState(IntakeOffParams{});
-		}
-		// printf("r: %lf \n", roller_sensor.get_rgb().red);
-
-		delay(10);
-	}
-*/
-	// auton::program1();
-	// cout << auton::arr[3]->name << endl;
-	// cout << "size " << auton::arr.size() << endl;
-
-	// cout << auton::GetCurAuton() << endl;
-
-
-	// WAIT_UNTIL(false);
-
-
-	// setFlywheelVel(2320);
-
-	Timer disc_count_print{"disc_count_print"};
-	Timer angle_override_print{"angle_override_print"};
-	master.clear();
-	drive.changeState(DriveOpControlParams{});
-	while(true){
-
-		// driveHandleInput();
-		shooterHandleInput();
-		intakeHandleInput();
-		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
-		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
-
-
-		if(disc_count_print.getTime() > 100){
-			master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
-			// partner.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
-			disc_count_print.reset();
-		}
-
-		if(angle_override_print.getTime() > 100){
-			angle_override_print.reset();
-			if (angleOverride) master.print(1, 0, "Override");
-			else master.print(1, 0, "Automatic");
-		}
-
-		// if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
-		// 	break;
-		// }
-		delay(10);
-	}
-
-
-	// while(true){
-	// 	if(master.get_digital_new_press(DIGITAL_A)) indexer_p.toggleState();
-	// 	delay(10);
-	// }
-
-	// moveInches(20.0);
-	Timer timer1{"timer"};
-	angler_p.setState(LOW);
-	moveToTargetSync({30.75, 12.5});
-	aimAtBlue(10.0);
-	delay(2000);
-	Timer shoot_timer{"timer"};
-	shoot(2);
-	shooter.waitToReachState(ShooterIdleParams{});
-	lcd::print(5, "shoot_time:%ld", shoot_timer.getTime());
-	setFlywheelVel(2320);
-	turnToTargetSync({69.0, 45.0});
-	tracking.waitForDistance(15.0);
-	intakeOn();
-	moveToTargetSync({69.0, 45.0}, E_Brake_Modes::brake, 55);
-	aimAtBlue(10.5);
-	shoot(3);
-	turnToTargetSync({126.0, 111.0});
-	moveToTargetSync({126.0, 111.0});
-
-	turnToAngleSync(-90.0);
-	lcd::print(6, "total:%ld", timer1.getTime());
-
-	// turnToAngleSync(179.0);
-	// moveInches(120.0);
-	// turnToAngleSync(180.0);
-	// flattenAgainstWallSync(true);
-	// while(true){
-	// 	// if(master.get_digital_new_press(DIGITAL_Y))	moveInches(10.0);
-	// 	driveHandleInput();
-	// 	intakeHandleInput();
-	// 	delay(10);
-	// }
-	// WAIT_UNTIL(false);
-	// Timer disc_count_print{"g_mag_disc_count_print"};
-	// moveDrive(0, 127);
-	
-
+  DEBUG;
+  WAIT_UNTIL(false);
 }
