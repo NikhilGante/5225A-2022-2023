@@ -6,6 +6,7 @@
 #include "../tracking.hpp"
 #include "../drive.hpp"
 #include "../util.hpp"
+#include "pros/misc.hpp"
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
 
@@ -238,6 +239,7 @@ void mainSetup(){
 
     misc_checks.setFunc([](){
       if (!usd::is_installed()) alert::start("No SD Card!");
+      else if (battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
       else(alert::start("No Errors Found", term_colours::GREEN));
     });
 

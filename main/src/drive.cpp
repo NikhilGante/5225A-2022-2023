@@ -233,11 +233,13 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 			else master.print(1, 0, "Automatic");
 		}
 
-    if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
-      moveDrive(0, 0);
-      master.rumble("----------");
-      WAIT_UNTIL(false);
-    } 
+    for(_Motor* motor: _Motor::getList()){
+      if(motor->getTemperature() >= 50){
+        moveDrive(0, 0);
+        master.rumble("----------");
+        WAIT_UNTIL(false);
+      }
+    }
 		delay(10);
 	}
 }

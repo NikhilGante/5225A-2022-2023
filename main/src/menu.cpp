@@ -1,7 +1,7 @@
 #include "menu.hpp"
 #include "Libraries/controller.hpp"
 
-array<Auton*, MAX_AUTON_ARR_SIZE> Auton::autonArr;
+std::array<Auton*, MAX_AUTON_ARR_SIZE> Auton::autonArr;
 
 int Auton::autons_constructed = 0;
 
@@ -21,9 +21,8 @@ void Auton::selectAuton(){
 		}
 		if(master.get_digital_new_press(DIGITAL_A)){	// Press A to save
 			master.clear();
-			ofstream myfile ("/usd/auton.txt", ios::out);
-			myfile << cur_auton << endl; 
-			myfile.close();
+			std::ofstream myfile ("/usd/auton.txt", std::ofstream::out);
+			myfile << cur_auton << std::endl;
 			master.print(0, 0, "Saved.");
 			break;
 		}
@@ -33,17 +32,17 @@ void Auton::selectAuton(){
 }
 
 void Auton::runAuton(){
-	ifstream myfile ("/usd/auton.txt", ios::in);
+	std::ifstream myfile ("/usd/auton.txt", std::ifstream::in);
 	int auton_num;
 	myfile >> auton_num; 
-	myfile.close();
 	autonArr[auton_num]->run();	// Runs Auton
 }
 
-Auton::Auton(const char* name, std::function<void(void)> program): name(name), program(program){
+Auton::Auton(std::string name, std::function<void(void)> program): name(name), program(program){
 	autonArr[autons_constructed++] = this;
 }
 
 void Auton::run(){
-	program();
+  if(program) program();
+  else alert::start("No Auton function for" + name);
 }

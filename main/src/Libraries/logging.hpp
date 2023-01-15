@@ -16,7 +16,6 @@ enum class log_locations{
 //All dump into the same queue
 class Logging: public Counter<Logging>{
   private:
-  public:
     term_colours print_colour;
     bool newline;
     log_locations log_location;

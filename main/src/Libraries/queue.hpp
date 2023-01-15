@@ -43,7 +43,7 @@ class Queue{
         using reference         = Queue<T, N>::reference;
         using iterator_category = std::random_access_iterator_tag;
 
-      public:
+      private:
         pointer internal;
         pointer begin, end;
         int cycle;
