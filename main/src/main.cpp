@@ -111,54 +111,23 @@ void turnToAngle(double target){
 	} while (fabs(error) > 0.5); //do while loop is for calculating error before we compare it.
 }
 */
-
+bool solenoid = false;
 void opcontrol() {
-	// _Task trackingUpdate;
-	// turnToAngle(45);
-	// cout << "ENDING" << endl; //Lets us know that its ending.
+	pros::ADIDigitalOut sensor ('g');
 
-	int cur_speed, target = 20, diff, cycle_count = 0, expected_cycle; 
-	bool jammed = false;
-	Motor motor(12);
-	Controller master(E_CONTROLLER_MASTER);
-
-	master.clear();
-
-	motor.move(target);
-
-	while(jammed != true){
-		screen::print(pros::E_TEXT_SMALL, 1, "Target:%d  Cur:%d  cycles: %d", target, cur_speed, cycle_count);
-		cur_speed = motor.get_actual_velocity();
-	
-		// master.print(0,0,"%d", cur_speed);
-		// printf("%d\n", cur_speed); 
-		cout << cur_speed << endl;
-
-		if (abs(target) > 110) { 
-			diff = 5;
-			expected_cycle = 10;
-		} else if(abs(target) > 50 ) {
-			diff = 3;
-			expected_cycle = 6;
-		} else if(abs(target) > 10) {
-			diff = 1;
-			expected_cycle = 3;
-		} else diff = 0;
-
-		if (cur_speed < abs(target) - diff){
-			cycle_count += 1;
-		} else {
-			cycle_count -= 1;
+	while (true){
+		if (master.get_digital_new_press(DIGITAL_A)){
+  			solenoid = !solenoid;
+			sensor.set_value(solenoid);
+			printf("Solenoid: %d\n", solenoid);
+			printf("Battery: %.2f\n", pros::battery::get_capacity());
 		}
-
-		if (cycle_count == expected_cycle){
-			jammed = true;
+		if(pros::battery::get_capacity() <= 55.00 ){
+			printf("Battery below 60 \n");
+			return;
 		}
-
 		delay(10);
-		// master.clear_line(0);
-	}
-
+	}	
 }
 
 /*
