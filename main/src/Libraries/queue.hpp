@@ -1,126 +1,158 @@
 #pragma once
 #include "main.h"
-#include <iostream>
-#include <cstring>
-#include <array>
-#include <limits.h>
-#include <fstream>
-using namespace std;
+#include "printing.hpp"
 
-template <typename T, size_t size>
-class Queue{
-  T data[size];  // array to store queue
-  const size_t t_size = sizeof(T);  // size of element
-  const char* name;
-  size_t front = -1, rear = -1;  // first and last index of queue data respectively
-  
-  pros::Mutex queue_mutex;
+//Forward Declare
+namespace alert {template <typename... Params> void priority(term_colours colour, std::string fmt, Params... args);}
 
-  // declares as friend to give access to front and rear pointers
-  template<size_t size_cpy>
-  friend void queuePrintFile (Queue<char, size_cpy>& queue, ofstream& file, const char* file_name);
+template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 
-public:
-  Queue(const char* name):  name(name)
-  {}
-
-  bool isFull(){
-    return (front == 0 && rear == size - 1) || front - rear == 1;
-  }
-
-  bool isEmpty(){
-    return front == -1;
-  }
-
-  void print(){ // prints all the elements in the queue
-    if(isEmpty()){
-      printf("Queue \"%s\" is empty, nothing to print\n", name);
-      return;
-    }
-    int index;
-    for(size_t i = 0; i < getDataSize(); i++){
-      index = (front + i) % size; // stores the current index, rolling over if necessary
-      cout << data[(front + i) % size] << " " << index << " | ";
-      if(index == rear) break;
-    }
-    cout << endl;
-  }
-
-
-  void push(T val){ // enqueue single element
-    queue_mutex.take();
-    if(isFull()){
-      printf("Queue \"%s\" is full, push of value \"%d\" failed\n", name, val);
-      return;
-    }
-    // cout << "pushed" << val << endl;
-    if (isEmpty()) front = rear = 0; // inserts first element if queue is empty
-    else rear = (rear + 1) % size;  // otherwise move it forwards, wrapping around if necessary
-    
-    data[rear] = val; // push value at that position
-    queue_mutex.give();
-  }
-
-  void push(T arr[], size_t arr_len){ // enqueue multiple elements
-    size_t elements_available = size - getDataSize();
-    if(arr_len > elements_available){
-      // pros::lcd::print();
-      pros::lcd::print(0, "%s | More elements pushed than elements available: pushing %d elements of %d elements requested.\n", name, elements_available, arr_len);
-      arr_len = elements_available;
-    }
-    size_t elements_till_end = size - rear - 1;
-    if(arr_len > elements_till_end){ // if the push needs to rollover
-      memcpy(data + rear + 1, arr, elements_till_end * t_size);  // copies from rear to end of queue
-      size_t leftover = arr_len - elements_till_end;
-      memcpy(data, arr + elements_till_end, leftover * t_size);  // copies leftover to start of queue
-      rear = leftover - 1;
-    }
-    else{
-      if (isEmpty()){
-        front = rear = 0; // inserts first element if queue is empty
-        memcpy(data + rear, arr, arr_len * t_size);  // copies arr to rear
-      }
-      else  memcpy(data + rear + 1, arr, arr_len * t_size);  // copies arr to rear
-      rear += arr_len;
-    }
-  }
-
-  T pop(){ // dequeue
-    queue_mutex.take();
-    if(isEmpty()){
-      printf("Queue \"%s\" is empty, pop failed\n", name);
-      return std::numeric_limits<T>::min();
-    }
-
-    T result = data[front];
-    if (front == rear) front = rear = -1; // if queue has 1 element left, make it empty after popping
-    else front = (front + 1) % size;  // otherwise move it forwards, wrapping around if necessary
-    queue_mutex.give();
-    
-    return result;
-  }
-
-  size_t getDataSize(){  // returns amount of elements currently filled
-    if(isEmpty()) return 0;
-    // if the queue rolls over
-    if(rear < front) return rear + 1 + size - front; // adds elements up from start until back then from front until end
-    else return rear - front + 1;
-  }
-
-  void clear(){ // empties the queue
-    front = -1, rear = -1;
-  }
-};
-
-// prints the contents of a char queue to a file (used for logging)
-template<size_t size_cpy>
-void queuePrintFile(Queue<char, size_cpy>& queue, ofstream& file, const char* file_name){
-  file.open(file_name, ios::app);
-  if(queue.rear < queue.front){ // if the queue rolls over
-    file.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
-    file.write(queue.data, queue.rear + 1);  // prints from start to rear of queue    
-  }
-  else  file.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
-  file.close();
-  queue.clear();
+template <std::input_or_output_iterator I, std::input_or_output_iterator SIZE>
+constexpr std::pair<std::pair<I, I>, std::pair<I, I>> split(I first, I last, std::pair<SIZE, SIZE> size){
+  auto offset = std::distance(size.first, size.second);
+  I middle = std::clamp(std::next(offset < 0 ? last : first, offset), first, last);
+  return {{first, middle}, {middle, last}};
 }
+
+template <std::input_iterator I, output_iter<I> O>
+constexpr auto copy_pair(std::pair<I, I> in, std::pair<O, O> out){
+  auto amount = std::min(std::distance(in.first, in.second), std::distance(out.first, out.second));
+  std::copy_n(in.first, amount, out.first);
+  return amount;
+}
+
+template <typename T,  std::size_t N> requires std::same_as<std::remove_cvref_t<T>, T>
+class Queue{
+  public:
+    using size_type              = std::size_t;
+    using array                  = std::array<T, N>;
+    using difference_type        = std::ptrdiff_t;
+    using value_type             = T;
+    using pointer                = value_type*;
+    using reference              = value_type&;
+    using const_value_type       = value_type const;
+    using const_pointer          = const_value_type*;
+    using const_reference        = const_value_type&;
+
+    class iterator{
+      friend Queue<T, N>;
+      public:
+        using difference_type   = Queue<T, N>::difference_type;
+        using value_type        = Queue<T, N>::value_type;
+        using pointer           = Queue<T, N>::pointer;
+        using reference         = Queue<T, N>::reference;
+        using iterator_category = std::random_access_iterator_tag;
+
+      public:
+        pointer internal;
+        pointer begin, end;
+        int cycle;
+
+        constexpr bool same_container(iterator const& rhs) const {return begin == rhs.begin && end == rhs.end;}
+      public:
+        constexpr iterator(pointer ptr, pointer begin, pointer end): internal{ptr}, begin{begin}, end{end}, cycle{0} {};
+        constexpr iterator(std::nullptr_t = nullptr): iterator{nullptr, nullptr, nullptr} {};
+
+        constexpr iterator& operator+=(difference_type n) {
+          cycle += floor(n / static_cast<double>(N));
+          n %= static_cast<std::ptrdiff_t>(N);
+          if(n < 0) {n += N;}
+          if(n >= end-internal) {internal -= N; cycle++;}
+          internal += n;
+          return *this;
+        }
+        constexpr iterator& operator-=(difference_type n) {return *this += -n;}
+        constexpr iterator operator+(difference_type n) const {iterator temp{*this}; return temp += n;}
+        friend constexpr iterator operator+(difference_type n, iterator const& rhs) {return rhs+n;}
+        constexpr iterator operator-(difference_type n) const {return *this + -n;}
+        constexpr iterator& operator++() {return *this += 1;}
+        constexpr iterator& operator--() {return *this += -1;}
+        constexpr iterator operator++(int) {iterator temp{*this}; ++(*this); return temp;}
+        constexpr iterator operator--(int) {iterator temp{*this}; --(*this); return temp;}
+        constexpr reference operator[](difference_type n) const {return *(*this + n);} //? Needed?
+        constexpr reference operator*() const {return *internal;}
+        constexpr pointer operator->() {return internal;}
+        friend constexpr difference_type operator-(iterator const& lhs, iterator const& rhs) {return lhs.same_container(rhs) ? lhs.internal-rhs.internal+(lhs.cycle-rhs.cycle)*(lhs.end-lhs.begin) : std::numeric_limits<difference_type>::max();}
+
+        //== checks for equality on the same cycle. <=> only checks pointer equality
+        friend constexpr bool operator==(iterator const& lhs, iterator const& rhs) {return lhs.internal == rhs.internal && lhs.cycle == rhs.cycle;}
+        constexpr std::partial_ordering operator<=>(iterator const& rhs) const{
+          if(same_container(rhs)) return cycle == rhs.cycle ? internal <=> rhs.internal : cycle <=> rhs.cycle;
+          else return std::partial_ordering::unordered;
+        }
+    };
+
+
+  private:
+    //front_iter points to element about to be popped, back_iter points to location where element will be inserted
+    std::string name;
+    array arr;
+    iterator front_iter, back_iter;
+
+    constexpr std::pair<std::pair<pointer, pointer>, std::pair<pointer, pointer>> empty_contiguous_iterators(){ //Returns two ranges corresponding to unfilled part of queue
+      if(full()) return {};
+      if(begin().internal <= end().internal) return {std::pair{end().internal, arr.end()}, std::pair{arr.begin(), begin().internal}}; //Wraparound
+      else return {std::pair{end().internal, begin().internal}, {}}; //Single Range
+    }
+    constexpr std::pair<std::pair<const_pointer, const_pointer>, std::pair<const_pointer, const_pointer>> full_contiguous_iterators() const { //Returns two ranges corresponding to filled part of queue
+      if(empty()) return {};
+      if(begin().internal < end().internal) return {std::pair{begin().internal, end().internal}, {}}; //Single Range
+      else return {std::pair{begin().internal, arr.end()}, std::pair{arr.begin(), end().internal}}; //Wraparound
+    }
+
+    constexpr iterator construct_iterator(pointer pointer) {return {pointer, arr.begin(), arr.end()};}
+
+  public:
+  //Constructors
+    constexpr Queue(): name{}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
+    Queue(std::string name): name{name}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
+
+    //Getters
+    constexpr size_type size() const {return end()-begin();}
+    constexpr size_type capacity() const {return N;}
+    constexpr bool full() const {return size() == capacity();}
+    constexpr bool empty() const {return size() == 0;}
+    constexpr iterator        begin() const {return front_iter;}
+    constexpr iterator        end()   const {return back_iter ;}
+    constexpr const_reference front() const {return *begin();}
+    constexpr const_reference back()  const {return *(end()-1);}
+    constexpr const_reference operator[](difference_type n) const {return *(begin() + n);}
+    constexpr reference       front(){return *begin();}
+    constexpr reference       back() {return *(end()-1);}
+    constexpr reference       operator[](difference_type n) {return *(begin() + n);}
+    
+    //Insert Modifiers
+    constexpr void priority_push(const_reference value){
+      if(full()) back_iter--;
+      *end() = value;
+      back_iter++;
+    }
+    constexpr void push(const_reference value){
+      if(full()) return;
+      *end() = value;
+      back_iter++;
+      if(size() >= capacity()) alert::priority(term_colours::ERROR , "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+      else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+    }
+    template <std::input_iterator I> constexpr iterator insert(I first, I last){
+      auto out = empty_contiguous_iterators();
+      auto in  = split(first, last, out.first);
+      back_iter += copy_pair(in.first,  out.first );
+      back_iter += copy_pair(in.second, out.second);
+      if(size() >= capacity()) alert::priority(term_colours::ERROR , "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+      else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
+      return end();
+    }
+    template <typename R> constexpr iterator insert(R const & range) {return insert(range.cbegin(), range.cend());}
+
+    //Remove Modifiers
+    constexpr void pop() {if(!empty()) front_iter++;}
+    constexpr void clear() {front_iter = end();}
+    constexpr void output(std::ostream& out) requires std::same_as<T, char>{
+      auto cur_end = end();
+      auto in = full_contiguous_iterators();
+      out.write(in.first .first, std::distance(in.first .first, in.first .second));
+      out.write(in.second.first, std::distance(in.second.first, in.second.second));
+      front_iter = cur_end;
+    }
+};

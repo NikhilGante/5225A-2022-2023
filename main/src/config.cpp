@@ -1,21 +1,35 @@
-#include "config.hpp"
+#include "Libraries/controller.hpp"
+#include "Libraries/motor.hpp"
+#include "Libraries/piston.hpp"
 
+_Controller master {CONTROLLER_MASTER};
+_Controller partner{CONTROLLER_PARTNER};
 
-_Controller master(pros::E_CONTROLLER_MASTER);
-_Controller partner(pros::E_CONTROLLER_PARTNER);
-
-static constexpr int e_port = 20;
-
-pros::ADIEncoder LeftEncoder(1, 2, false), RightEncoder(5, 6, true), BackEncoder(3, 4, false);
+ADIEncoder LeftEncoder{1, 2, false}, RightEncoder{5, 6, true}, BackEncoder{3, 4, false};
 
 // tank-drive motor config
-pros::Rotation left_tracker(1), right_tracker(2), back_tracker(3);
-pros::Motor front_l(15, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor centre_l(14, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor back_l(16, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
+Rotation left_tracker{6}, right_tracker{1}, back_tracker{10};
+_Motor front_l{20, "Front Left"};
+_Motor centre_l{19, "Centre Left", true};
+_Motor back_l{17, "Back Left"};
 
-pros::Motor front_r(11, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor centre_r(12, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor back_r(17, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+_Motor front_r{11, "Front Right", true};
+_Motor centre_r{12, "Centre Right"};
+_Motor back_r{13, "Back Right", true};
 
-pros::Motor b_lift_m(16);
+_Motor intakm{5, "Intake", true, MOTOR_GEARSET_18};
+_Motor flywheel_m{9, "Flywheel"};
+
+Piston indexer_p{'D', "Indexer", false, LOW};
+
+ADIAnalogIn mag_ds{'A'};
+ADIAnalogIn shooter_ds{'B'};
+
+Rotation flywheel_rot_sensor{7};	// Configures rotation sensor in port 1
+
+Piston angler_p{'E', "Angler", false, LOW};
+Piston trans_p{'C', "Transmission", true, HIGH};
+Piston endgame_s_p{'F', "Endgame Single", false, LOW}; // Single acting
+Piston endgame_d_p{'G', "Endgame Double", false, LOW}; // Double acting
+
+Optical roller_sensor{8};

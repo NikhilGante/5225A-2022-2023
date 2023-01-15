@@ -9,17 +9,17 @@ double operator "" _rad(long double radians){
 }
 
 double operator "" _rot(long double rotations){
-  return rotations * 2*M_PI;
+  return rotations * rot_to_rad;
 }
 
 double degToRad(double deg){
-  return deg / 180.0 * M_PI;
+  return deg * deg_to_rad;
 }
 
 double radToDeg(double rad){
-  return rad / M_PI * 180.0;
+  return rad * rad_to_deg;
 }
 
 double nearAngle(double angle, double reference){
-	return round((reference - angle)/(2*M_PI)) * (2*M_PI) + angle - reference;
+	return std::round((reference - angle)/(2*std::numbers::pi)) * (2*std::numbers::pi) + angle - reference;
 }

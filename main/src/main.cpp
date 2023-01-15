@@ -1,24 +1,16 @@
 #include "main.h"
-#include "Libraries/geometry.hpp"
-#include "Libraries/pid.hpp"
-#include "Libraries/piston.hpp"
-#include "Libraries/timer.hpp"
-#include "Libraries/state.hpp"
-
+#include "Libraries/gui.hpp"
 #include "Libraries/task.hpp"
-
 #include "Libraries/logging.hpp"
+#include "Libraries/controller.hpp"
 #include "auton.hpp"
+#include "Libraries/piston.hpp"
 
-#include "lift.hpp"
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "pros/motors.h"
 #include "pros/screen.h"
 #include "tracking.hpp"
-#include "drive.hpp"
-#include "config.hpp"
-#include "Libraries/controller.hpp"
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
@@ -27,6 +19,7 @@
 
 using namespace pros;
 void initialize() {
+	GUI::init();
 	// log_init();
 	//lcd::initialize();
 	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
@@ -50,6 +43,7 @@ void initialize() {
 	// lift.runMachine();
 	//drive.runMachine();
 
+	delay(500);
 }
 
 /**
@@ -111,19 +105,17 @@ void turnToAngle(double target){
 	} while (fabs(error) > 0.5); //do while loop is for calculating error before we compare it.
 }
 */
-bool solenoid = false;
-void opcontrol() {
-	pros::ADIDigitalOut sensor ('g');
 
+void opcontrol() {
+	Piston sensor('g',"Meow");
 	while (true){
 		if (master.get_digital_new_press(DIGITAL_A)){
-  			solenoid = !solenoid;
-			sensor.set_value(solenoid);
-			printf("Solenoid: %d\n", solenoid);
+  			sensor.toggleState();
+			printf("Solenoid: %d\n", sensor.getState());
 			printf("Battery: %.2f\n", pros::battery::get_capacity());
 		}
-		if(pros::battery::get_capacity() <= 55.00 ){
-			printf("Battery below 60 \n");
+		if(pros::battery::get_capacity() <= 50){
+			printf("Battery below 50 \n");
 			return;
 		}
 		delay(10);

@@ -1,12 +1,25 @@
-// #pragma once
-// #include "auton.hpp"
-// #include <array>
-// #include <functional>
-// using namespace std;
+#pragma once
+#include "main.h"
+#include "config.hpp"
 
-// struct Auton{
-//   const char* name;
-//   function<void()> func;
-// };
+#include <fstream>
+#include <array>
+#include <functional>
+using namespace std;
+using namespace pros;
 
-// extern std::vecotr<Auton>;
+static constexpr int MAX_AUTON_ARR_SIZE = 10;
+
+class Auton{
+	const char* name;
+	std::function<void(void)> program;
+	static array<Auton*, MAX_AUTON_ARR_SIZE> autonArr;
+	static int autons_constructed;
+
+public:
+
+	Auton(const char* name, std::function<void(void)> program);
+	static void selectAuton();
+	static void runAuton();	// Reads auton from SD card and runs it
+	void run();
+};

@@ -1,33 +1,26 @@
 #pragma once
 #include "main.h"
+#include "gui.hpp"
+#include "counter.hpp"
 
-using namespace std;
-using namespace pros;
-
-class Button;
-
-//maybe a get_port if needed?
-class Piston : public ADIDigitalOut{
-  private:    
-    bool state;  // the state of the SUBSYSTEM (e.g. 1 if the claw is closed, 0 if open)
-    bool reversed;  // if the state of the subsytem is opposite the state of the piston
-    int change_time = 0;
+class Piston: public ADIDigitalOut, public Counter<Piston, 12>{
+  private:
+    Button toggle;
     std::string name;
 
-    static int count;
-  public:
-    // static array<std::pair<Piston*, Button*>, 8> list_for_gui;
+    bool state;  // the state of the SUBSYSTEM (e.g. 1 if the claw is closed, 0 if open)
+    bool reversed;  // if the state of the subsytem is opposite the state of the piston
 
-    Piston(std::uint8_t adi_port, std::string name, bool reversed = false, bool init_state = LOW);
+    void construct(std::string name, bool reversed, ext_adi_port_pair_t port_pair);
+
+  public:
+
+    Piston(std::uint8_t port, std::string name, bool reversed = false, bool init_state = LOW);
     Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed = false, bool init_state = LOW);
 
     void setState(bool state);
+    void toggleState();
     bool getState() const;
-    bool toggleState();
 
-    int getStateTime() const;
     std::string getName() const;
-
-    //static overloads (mostly for Nathan)
-    // static std::string get_name(int number);
 };
