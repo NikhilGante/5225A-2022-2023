@@ -3,6 +3,7 @@
 #include "drive.hpp"
 #include "util.hpp"
 #include "Libraries/pid.hpp"
+#include "Libraries/piston.hpp"
 #include "Libraries/timer.hpp"
 
 
@@ -22,7 +23,7 @@ Tracking tracking; // singleton tracking object
  -5.9
   0.9
 */
-constexpr double TICKS_TO_INCHES = (3.25*std::numbers::pi)/36000;
+constexpr double TICKS_TO_INCHES_325 = 3.25*std::numbers::pi/36000;
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
@@ -31,9 +32,9 @@ void trackingUpdate(){
   double dist_lr = 11.32, dist_b = 0.0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
-  double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES;
-  double last_back = back_tracker.get_position()*TICKS_TO_INCHES;
+  double last_left = left_tracker.get_position()*TICKS_TO_INCHES_325;
+  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES_325;
+  double last_back = back_tracker.get_position()*TICKS_TO_INCHES_325;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0;
   double radius_r, radius_b, h_y, h_x;
@@ -55,9 +56,9 @@ void trackingUpdate(){
     // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
     // lcd::print(3, "dist_lr: %lf", dist_lr);
 
-    new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
-    new_back = back_tracker.get_position()*TICKS_TO_INCHES;
+    new_left = left_tracker.get_position()*TICKS_TO_INCHES_325;
+    new_right = -right_tracker.get_position()*TICKS_TO_INCHES_325;
+    new_back = back_tracker.get_position()*TICKS_TO_INCHES_325;
     
     lcd::print(2, "l:%lf r:%lf", new_left, new_right);
 
@@ -226,7 +227,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(std::abs(power) > 60) power = sgn(power) * 60;
-    else if(std::abs(power) < tracking.min_move_power_a && std::abs(radToDeg(tracking.g_vel.a)) < 30.0) power = sgn(power) * tracking.min_move_power_a;
+    else if(std::abs(power)) power = sgn(power) * tracking.min_move_power_a;
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     moveDrive(0.0, power);
     _Task::delay(10);
@@ -239,7 +240,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
 
 // STATE MACHINE STUFF 
 
-Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
+Machine<DRIVE_STATE_TYPES> drive("Drive", DriveOpControlParams{});
 
 // Drive idle state
 void DriveIdleParams::handle(){}
@@ -348,35 +349,42 @@ void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}
 
 void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
-  moveDrive(40, 0);
-  // Waits until velocity rises or takes > 12 cycles (120ms)
-  CYCLE_CHECK((tracking.l_vel) > 2.0 && (tracking.r_vel) > 2.0 && std::abs(tracking.r_vel), 12, 10);
+  moveDrive(0, 0);
+	trans_p.setState(LOW);
+  moveDrive(-60, 0);  // moves backwards
+  // Waits until velocity rises or takes > 10 cycles (10ms)
+  int cycle_count = 0;
+  while(tracking.l_vel > -2.0 && tracking.r_vel > -2.0 && cycle_count < 10){
+    cycle_count++;
+    _Task::delay(10);
+  }
   bool l_slow = false, r_slow = false; //
   // Waits until velocity drops (to detect wall)
-  int cycle_count = 0;
+  cycle_count = 0;
   while(cycle_count < 10){
-    l_slow = std::abs(tracking.l_vel) < 1.0, r_slow = std::abs(tracking.r_vel) < 1.0;
+    printf("l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
+    l_slow = std::abs(tracking.l_vel) < 3.0, r_slow = std::abs(tracking.r_vel) < 3.0;
     if(l_slow){
       if(r_slow){
-        moveDrive(10, 0); // Applies holding power 
+        moveDrive(-30, 0); // Presses into roller 
         cycle_count++;
       }
       else{
-        moveDriveSide(5, 60); // Turns right
+        moveDriveSide(-5, -40); // Turns right
         cycle_count = 0;  // Reset count
       }
     }
     else if(r_slow){
-      moveDriveSide(60, 5); // Turns left
+      moveDriveSide(-40, -5); // Turns left
       cycle_count = 0;  // Reset count
     }
     else{
-      moveDriveSide(40, 40);
+      moveDrive(-60, 0);
       cycle_count = 0;  // reset count
     }
     _Task::delay(10);
   }
-  moveDrive(10, 0); // Applies holding power
+  moveDrive(-10, 0); // Applies holding power
   tracking_data.print("DRIVE FLATTEN DONE, took %lld ms\n", motion_timer.getTime());
   drive.changeState(DriveIdleParams{});
 }

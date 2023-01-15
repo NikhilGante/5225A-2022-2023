@@ -20,13 +20,16 @@ _Motor back_r{13, "Back Right", true};
 _Motor intakm{5, "Intake", true, MOTOR_GEARSET_18};
 _Motor flywheel_m{9, "Flywheel"};
 
-Piston indexer_p{'E', "Indexer", true, LOW};
+Piston indexer_p{'D', "Indexer", false, LOW};
 
 ADIAnalogIn mag_ds{'A'};
 ADIAnalogIn shooter_ds{'B'};
 
 Rotation flywheel_rot_sensor{7};	// Configures rotation sensor in port 1
 
-Piston transmission{'C', "transmission", false, HIGH};
+Piston angler_p{'E', "Angler", false, LOW};
+Piston trans_p{'C', "Transmission", true, HIGH};
+Piston endgame_s_p{'F', "Endgame Single", false, LOW}; // Single acting
+Piston endgame_d_p{'G', "Endgame Double", false, LOW}; // Double acting
 
 Optical roller_sensor{8};

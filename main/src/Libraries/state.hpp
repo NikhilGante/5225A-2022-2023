@@ -5,37 +5,6 @@
 #include <variant>
 #include <atomic>
 
-// class TaskEndException: public std::exception{
-// public:
-//   const char* what();
-// };
-
-// struct aParams{
-//   int speed;
-//   bool brake = true;
-//   const char* getName(){
-//     return "";
-//   }
-//   void handle(){
-
-//   }
-//   void handleStateChange(size_t prev_state){
-
-//   }
-// };
-
-// struct bParams{
-//   const char* getName(){
-//     return "";
-//   }
-//   void handle(){
-
-//   }
-//   void handleStateChange(size_t prev_state){
-//     // if(prev_state == GET_ID(aParams)) 
-//   }
-// };
-
 template <typename... StateTypes>
 class Machine{
   using variant = std::variant<StateTypes...>;
@@ -88,15 +57,13 @@ public:
     return temp;
   }
 
-
   void runMachine(){
     task.start([&](){
       while(true){
         try{
           visit([](auto&& arg){arg.handle();}, state);  // Calls handler for current state
         }
-        catch(const TaskEndException& exception){
-        }
+        catch(const TaskEndException& exception){}
 
         if(state_change_requested){
           variant target_state_cpy = getTargetState();

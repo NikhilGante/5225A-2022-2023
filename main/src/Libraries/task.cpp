@@ -39,13 +39,11 @@ void _Task::resume(){
   else task_log.print("%s | resume failed, task not started yet", name);
 }
 
-
-// static methods
 void _Task::delay(uint32_t delay_time){
   Timer delay_timer{"Task Delay Timer"};
   do {
     task_t current_task = task_get_current();
-    // handle notifications from current task
+    // Handle notifications from current task
     switch((notify_types_2)task_notify_take(true, 0)){
       case notify_types_2::none:
         break;

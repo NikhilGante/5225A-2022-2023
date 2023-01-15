@@ -4,11 +4,8 @@
 #include "../Libraries/controller.hpp"
 #include "../Libraries/piston.hpp"
 
-const int toaster_rpm = 1400;
-const int barrier_rpm = 1875;
-
 bool angleOverride = false;
-bool flywheelOff = false;
+static constexpr bool flywheelOff = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 
@@ -17,7 +14,7 @@ void shooterHandleInput(){
   if(std::get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
     if(master.get_digital_new_press(singleShotBtn)) shoot(1);
-    if(master.get_digital_new_press(flywheelOffBtn)) flywheelOff = !flywheelOff;
+    // if(master.get_digital_new_press(flywheelOffBtn)) flywheelOff = !flywheelOff;
   }
 
   if(master.get_digital_new_press(anglerToggleBtn) && !flywheelOff) {
@@ -62,7 +59,7 @@ void ShooterShootParams::handle(){
     printf("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
-    delay(150); // wait for SHOOTER to extend
+    delay(150); // Waits for SHOOTER to extend
     printf(" %d FINISHED SHOT\n", millis());
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
@@ -70,13 +67,13 @@ void ShooterShootParams::handle(){
     if (g_mag_disc_count > 0) g_mag_disc_count--;
     
 
-    delay(100);// wait for SHOOTER to retract
+    _Task::delay(100);// wait for SHOOTER to retract
     if(shots_left <= 0){  // If shooting is done
-      delay(100); // waits for last disc to shoot
+      _Task::delay(100); // waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
-      delay(50);
+      _Task::delay(50);
 
       if (!angleOverride && !flywheelOff){
         if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);

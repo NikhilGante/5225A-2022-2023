@@ -11,8 +11,9 @@ struct IntakeOnParams;
 struct IntakeOffParams;
 struct IntakeRevParams;
 struct IntakeIndexParams;
+struct IntakeRollerParams;
 
-#define INTAKE_STATE_TYPES IntakeIdleParams, IntakeOnParams, IntakeOffParams, IntakeRevParams, IntakeIndexParams
+#define INTAKE_STATE_TYPES IntakeIdleParams, IntakeOnParams, IntakeOffParams, IntakeRevParams, IntakeIndexParams, IntakeRollerParams
 
 using intakeVariant = std::variant<INTAKE_STATE_TYPES>;
 
@@ -73,3 +74,14 @@ struct IntakeIndexParams{
 };
 
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs
+
+struct IntakeRollerParams{
+  bool flatten; // Whether to flatten against wall or not
+  IntakeRollerParams(bool flatten = true);
+
+  inline static const std::string name = "IntakeRoller";
+  void handle();
+  void handleStateChange(intakeVariant prev_state);
+};
+
+void spinRoller(bool flatten = true);  // Wrapper function to make intake index discs

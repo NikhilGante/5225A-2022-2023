@@ -1,7 +1,7 @@
 #pragma once
 
 int polynomial(int x, double curvature);
-extern double angle_curvature;
+int poly_min_pow(int x, double curvature);
 
 class CustomDrive{
   int lookup_table[255];
@@ -22,5 +22,5 @@ void moveDrive(double y, double a);
 void moveDriveSide(double l, double r); // sends powers to each side of the drivebase
 void driveBrake(); // holds all the drivebase motors
 void driveHandleInput(); // takes input from the joysticks and moves the drivebase
-void resetDrive();
-void flattenToWall();
+
+void driverPractice();  // Initializes state and runs driver code logic in loop

@@ -1,19 +1,30 @@
 #include "drive.hpp"
 #include "config.hpp"
+#include "tracking.hpp"
 #include "util.hpp"
 #include "Libraries/controller.hpp"
 #include "Libraries/motor.hpp"
 #include "Libraries/piston.hpp"
 #include "Libraries/timer.hpp"
+#include "Subsystems/intake.hpp"
+#include "Subsystems/shooter.hpp"
 
 #include <cmath>
 
-double drive_curvature = 1.0;
-double angle_curvature = 2.0;
+static constexpr double drive_curvature = 1.0;
+static constexpr double angle_curvature = 2.0;
+
+static constexpr int deadzone = 7;
 
 int polynomial(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
   return std::round(std::pow(127, 1 - n) * std::pow(std::abs(x), n) * sgn(x));
+}
+
+int poly_min_pow(int x, double curvature){
+  double n = curvature * 0.2 + 1; // scales curvature value to match expo function
+  if(abs(x) < deadzone) return 0;
+  return round(sgn(x) * ((127 - tracking.min_move_power_a)/pow(127 - deadzone, n) * pow(abs(x) - deadzone, n) + tracking.min_move_power_a));
 }
 // private methods
 int CustomDrive::polynomial(int x){
@@ -70,9 +81,27 @@ void driveBrake(){
 
 Timer curve_print_timer{"curve_print_timer"};
 int slew = 5;
+Timer backwards_timer{"backwards_timer"};
+bool backwards = false;
+bool last_backwards = false;
+
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+ 
+  if(fabs(power_y) < deadzone) power_y = 0;
+ 
+  backwards = power_y < 0;
+  if(backwards && !last_backwards){
+    backwards_timer.reset();
+  }
+  if(!backwards && last_backwards){
+    backwards_timer.reset(false);
+  }
+  last_backwards = backwards;
+  if(backwards_timer.getTime() > 800){
+    power_y = 0;
+  }
 
   if(std::abs(power_y) < 7) power_y = 0;
   if(std::abs(power_a) < 7) power_a = 0;
@@ -85,7 +114,7 @@ void driveHandleInput(){
     }
   }
 
-  if(master.get_digital_new_press(transToggleBtn)) transmission.toggleState();
+  if(master.get_digital_new_press(transToggleBtn)) trans_p.toggleState();
   moveDrive(power_y, power_a);
 }
 
@@ -169,4 +198,42 @@ void driveHandleInputProg(){
     }
   }
 
+}
+
+void driverPractice(){  // Initializes state and runs driver code logic in loop
+  Timer disc_count_print{"disc_count_print"};
+	Timer angle_override_print{"angle_override_print"};
+	master.clear();
+
+  // Initialises states of subsystems
+	drive.changeState(DriveOpControlParams{});
+  setFlywheelVel(barrier_rpm);
+  intakeOn();
+  angleOverride = false;
+	while(true){
+
+		// driveHandleInput();
+		shooterHandleInput();
+		intakeHandleInput();
+		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
+		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
+
+
+		if(disc_count_print.getTime() > 100){
+			master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+			// partner.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+			disc_count_print.reset();
+		}
+
+		if(angle_override_print.getTime() > 100){
+			angle_override_print.reset();
+			if (angleOverride) master.print(1, 0, "Override");
+			else master.print(1, 0, "Automatic");
+		}
+
+		// if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
+		// 	break;
+		// }
+		delay(10);
+	}
 }

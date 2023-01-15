@@ -1,12 +1,12 @@
 #pragma once
 
+void moveInches(double target);
+
 void skills1();
 void skills2();
 void skills3();
 
-void newSkills1();
-void newSkills2();
-void newSkills3();
-void newSkills4();
+void autonStack();
+void autonAWP();
+void autonLine();
 
-void auton50pts();

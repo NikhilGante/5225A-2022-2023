@@ -3,12 +3,8 @@
 #include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
 #include "Libraries/controller.hpp"
-#include "Subsystems/flywheel.hpp"
 #include "auton.hpp"
 #include "tracking.hpp"
-#include "config.hpp"
-#include "Subsystems/intake.hpp"
-#include "util.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -59,7 +55,6 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	newSkills2();
 }
 
 /**
@@ -75,7 +70,6 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-#include "Libraries/piston.hpp"
 
 void opcontrol(){
   DEBUG;

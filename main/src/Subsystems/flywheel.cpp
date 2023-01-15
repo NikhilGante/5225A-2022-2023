@@ -1,4 +1,5 @@
 #include "flywheel.hpp"
+#include "shooter.hpp"
 #include "../config.hpp"
 #include "../Libraries/controller.hpp"
 #include "../Libraries/motor.hpp"
@@ -16,7 +17,7 @@ constexpr double CARTRIDGE_TO_RAW = 6;
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{1900});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{barrier_rpm});
 
 // Flywheel idle state
 
@@ -80,7 +81,7 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   #ifdef LOGS
-  printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.getRPM());
+  // printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
   #endif
 
   if (flywheel_m.getTemperature() >= 50){

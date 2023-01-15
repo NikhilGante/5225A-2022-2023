@@ -65,7 +65,6 @@ void _Controller::init(){
   });
 }
 
-
 void _Controller::clearLine (std::uint8_t line){
   queue.push([=, this](){
     pros::Controller::clear_line(line);
@@ -109,29 +108,29 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
 
 void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
 
-void _Controller::updateButtons(){
-  for(int i = 0; i < 12; i++){
-    last_press_arr[i] = cur_press_arr[i];
-    // + 6 because controller_digital_e_t starts with 6 instead of 0
-    cur_press_arr[i] = this->get_digital(static_cast<pros::controller_digital_e_t>(i + 6));
-    // printf2("%d, %d ", i, cur_press_arr[i]);
-  }
-}
+// void _Controller::updateButtons(){
+//   for(int i = 0; i < 12; i++){
+//     last_press_arr[i] = cur_press_arr[i];
+//     // + 6 because controller_digital_e_t starts with 6 instead of 0
+//     cur_press_arr[i] = this->get_digital(static_cast<pros::controller_digital_e_t>(i + 6));
+//     // printf2("%d, %d ", i, cur_press_arr[i]);
+//   }
+// }
 
-bool _Controller::getButtonState(pros::controller_digital_e_t button){
-  return cur_press_arr[static_cast<int>(button) - 6];
-}
+// bool _Controller::getButtonState(pros::controller_digital_e_t button){
+//   return cur_press_arr[static_cast<int>(button) - 6];
+// }
 
-bool _Controller::getButtonLastState(pros::controller_digital_e_t button){
-  return last_press_arr[static_cast<int>(button) - 6];
-}
+// bool _Controller::getButtonLastState(pros::controller_digital_e_t button){
+//   return last_press_arr[static_cast<int>(button) - 6];
+// }
 
-bool _Controller::isRising(pros::controller_digital_e_t button){
-  int index = static_cast<int>(button) - 6;
-  return !last_press_arr[index] && cur_press_arr[index];
-}
+// bool _Controller::isRising(pros::controller_digital_e_t button){
+//   int index = static_cast<int>(button) - 6;
+//   return !last_press_arr[index] && cur_press_arr[index];
+// }
 
-bool _Controller::isFalling(pros::controller_digital_e_t button){
-  int index = static_cast<int>(button) - 6;
-  return last_press_arr[index] && !cur_press_arr[index];
-}
+// bool _Controller::isFalling(pros::controller_digital_e_t button){
+//   int index = static_cast<int>(button) - 6;
+//   return last_press_arr[index] && !cur_press_arr[index];
+// }

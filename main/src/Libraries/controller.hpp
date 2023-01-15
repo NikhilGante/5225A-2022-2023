@@ -70,9 +70,9 @@ public:
   // button handling methods
   // NOTE: all the following methods are only updated every cycle as opposed to every function call, unlike the pros API
 
-  void updateButtons();  // called once every loop, updates current and last state for every button
-  bool getButtonState(pros::controller_digital_e_t button); // returns current state of desired button
-  bool getButtonLastState(pros::controller_digital_e_t button); // returns last state of desired button
-  bool isRising(pros::controller_digital_e_t button); // if button wasn't pressed but now is
-  bool isFalling(pros::controller_digital_e_t button); // if button was pressed but now is not
+  // void updateButtons();  // called once every loop, updates current and last state for every button
+  // bool getButtonState(pros::controller_digital_e_t button); // returns current state of desired button
+  // bool getButtonLastState(pros::controller_digital_e_t button); // returns last state of desired button
+  // bool isRising(pros::controller_digital_e_t button); // if button wasn't pressed but now is
+  // bool isFalling(pros::controller_digital_e_t button); // if button was pressed but now is not
 };
