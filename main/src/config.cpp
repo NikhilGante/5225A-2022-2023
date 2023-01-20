@@ -36,4 +36,6 @@ Piston endgame_d_p('G', "endgame_d_p", false, LOW); // Double acting
 
 Optical roller_sensor(8);
 
+Distance l_reset_dist(3), r_reset_dist(7);
+
 Motor b_lift_m(16);

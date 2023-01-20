@@ -136,7 +136,7 @@ const char* IntakeRollerParams::getName(){
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
-  printf("flatten:%d\n", flatten);
+  log("%d | flatten:%d\n", millis(), flatten);
 
   if(flatten) flattenAgainstWallSync();
   trans_p.setState(LOW);
@@ -146,13 +146,13 @@ void IntakeRollerParams::handle(){
   // Switches to opposite colour it saw
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
-  printf("init_value: %lf\n", init_value);
+  log("init_value: %lf\n", init_value);
   // waits to see a value > 1500 different than inital value (waits for a colour change)
   double cur_val;
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
-    printf("r: %lf \n", cur_val);
+    log("r: %lf \n", cur_val);
     _Task::delay(100);
   }while(fabs(cur_val - init_value) < 1300);
 	roller_timer.print();

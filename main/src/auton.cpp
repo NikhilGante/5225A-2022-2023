@@ -4,6 +4,18 @@
 #include "Subsystems/flywheel.hpp"
 #include "Subsystems/shooter.hpp"
 
+constexpr double DRIVEBASE_WIDTH = 14.5;
+constexpr double LEFT_DIST_OFFSET = 2.25;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 2.5;  // How far in the right sensor is from right edge
+
+double getDistL(){
+  return (l_reset_dist.get()/25.4) - LEFT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
+}
+
+double getDistR(){
+  return (r_reset_dist.get()/25.4) - RIGHT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
+}
+
 void moveInches(double target){
 	Timer move_timer{"move_timer"};
 	double start = left_tracker.get_position()*1/36000.0 *(2.75*M_PI);
@@ -25,79 +37,80 @@ void moveInches(double target){
 // start coord 
 // tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
-  tracking.reset({31.0, 7.5, degToRad(0.0)});
+  tracking.reset({getDistL(), 7.5, 0.0});
   Timer total{"total_timer"};
-  setFlywheelVel(2200);
+  setFlywheelVel(2175);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({31.0, 7.5, degToRad(0.0)});
   master.rumble("-");
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   intakeOn();
   moveToTargetSync({37.0, 43.0}, E_Brake_Modes::brake, 50); // picks up stack
-  aimAtBlue(12);
+  aimAtBlue(12.5);
   intake.waitToReachState(IntakeOffParams{}); // wait to intake 3rd disc
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
-  setFlywheelVel(2000);
+  setFlywheelVel(1930);
 
 
   moveToTargetSync({62.0, 85.0}); // picks up line of discs
-  aimAtBlue(12);
+  aimAtBlue(13);
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
-  turnToTargetSync({108, 132.0});
+  turnToTargetSync({108, 126.0});
   intakeOn();
-  moveToTargetSync({108, 132.0}, E_Brake_Modes::brake, 127);
+  moveToTargetSync({108, 126.0}, E_Brake_Modes::brake, 127);  // Drive to corner
   turnToAngleSync(177);
-  spinRoller();
 
 	log("total: %d", total.getTime());
 	lcd::print(7, "total: %d", total.getTime());
 }
 
-// tracking.g_pos = {68.0, 129.25, M_PI};
+// tracking.g_pos = {110.5, 133.75, degToRad(180.0)}
 void skills2(){
   Timer total{"total_timer"};
+
   setFlywheelVel(2340);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({110.5, 133.75, degToRad(180.0)});
+  tracking.reset({141.0 - getDistL(), 133.75, degToRad(180.0)});
 
-  moveToTargetSync({110.5, 120.75});
+  moveToTargetSync({111.5, 120.75});
   aimAtRed(9);
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
-  setFlywheelVel(2150);
+  setFlywheelVel(2100);
   intakeOn();
-  moveToTargetSync({110.5, 93.0}); // Intake stack
+  moveToTargetSync({110.5, 90.0}, E_Brake_Modes::brake, 50); // Intake stack
   intake.waitToReachState(IntakeOffParams{}); // wait to intake 3rd disc
   aimAtRed(11);
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
-  setFlywheelVel(2000);
+  setFlywheelVel(1950);
   intakeOn();
-  moveToTargetSync({80.0, 56.0}); // Intake line
-  aimAtRed(11);
+  moveToTargetSync({84.0, 60.0}); // Intake line
+  aimAtRed(12);
   driveBrake();
-  shoot(3);
+  shoot(3); // Shoot from barrier
   shooter.waitToReachState(ShooterIdleParams{});
 
-  moveToTargetSync({66.0, 69.0}); // Go to centre of field
+  moveToTargetSync({70.0, 70.0}); // Go to centre of field
   turnToTargetSync({26.0, 26.0}); // Turn to face corner
   intakeOn();
-  moveToTargetSync({26.0, 26.0}); // Move to face corner
-  moveToTargetSync({28.0, 28.0}); // backup
-  turnToAngleSync(90);
-  moveInches(-16);
-  spinRoller();
-
-	log("total: %d", total.getTime());
+  moveToTargetSync({25.0, 25.0}, E_Brake_Modes::brake, 127); // Move to corner
+  moveToTargetSync({28.0, 28.0}); // backup from corner
+  turnToAngleSync(95);
+  moveToTargetSync({9.0, 28.0}, E_Brake_Modes::coast, 127); // backup to wall
+  // spinRoller();
+  // intake.waitToReachState(IntakeOffParams{});
+	log("total: %d\n", total.getTime());
 	master.print(0,0, "total: %d", total.getTime());
   // shoot match loads here
 }
@@ -107,7 +120,7 @@ void skills3(){
   setFlywheelVel(2150);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({7.25, 30.0, degToRad(90.0)});
+  tracking.reset({7.25, getDistR(), degToRad(90.0)});
 
 
   moveToTargetSync({42.0, 30.0}); // Moves in front of stack
@@ -119,17 +132,22 @@ void skills3(){
   setFlywheelVel(1975);
   intakeOn();
   moveToTargetSync({82.0, 57.0}); // Moves in front of barrier
-  aimAtRed(11);
+  aimAtRed(13);
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
-  turnToTargetSync({127,108}, 0.0, true);
-  moveToTargetSync({127,108}, E_Brake_Modes::brake, 127);
+  turnToTargetSync({130,111}, 0.0, true); // Face corner backwards
+  moveToTargetSync({130,111}, E_Brake_Modes::brake, 127); // Move to corner
 
+  turnToAngleSync(-90);
+  moveToTargetSync({134,111}, E_Brake_Modes::coast, 127);
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+  moveInches(2.0);
 
-  log("total: %d", total.getTime());
-	lcd::print(7, "total: %d", total.getTime());
+  log("total: %lld\n", total.getTime());
+	lcd::print(7, "total: %lld", total.getTime());
   // expand
 }
 

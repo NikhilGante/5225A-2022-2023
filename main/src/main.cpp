@@ -36,21 +36,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	// log_init();
 	lcd::initialize();
-	// tracking.g_pos = {29.25, 0.0, degToRad(0.0)};	// new_skills2
-
-	// tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// new_skills2
-
-	// tracking.g_pos = {34.75, 11.25, degToRad(0.0)};	// newSkills1
-	// tracking.g_pos = {108.0, 129.75, degToRad(180.0)};	// new_skills2
-	// tracking.g_pos = {11.25, 23.5, degToRad(90.0)};	// new_skills3
-	// tracking.g_pos = {129.75, 116.5, degToRad(-90.0)}; // new_skills4
-
-
-	// tracking.g_pos = {35.25, 11.25, 0.0};	// skills1
-	// tracking.g_pos = {68.00, 129.25, M_PI};	// skills2
-	// tracking.g_pos = {72.0, 11.25, 0.0};	// skills3
 
 	// tracking.g_pos = {0.0, 0.0, 0.0};
 	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
@@ -176,6 +162,20 @@ Auton auton3("auton3", auton3func);
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
+	skills1();
+	skills2();
+	skills3();
+  // turnToAngleSync(-90);
+	WAIT_UNTIL(false);
+
+	// spinRoller();
+	// intake.waitToReachState(IntakeOffParams{});
+	// tracking.reset({getDistL(), 7.5, 0.0});
+	// while(true){
+	// 	printf("dist:%lf | %lf\n", 141 - getDistL(), getDistR());
+	// 	delay(10);
+	// }
+
 
 	// autonLine();
 
