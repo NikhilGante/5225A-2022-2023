@@ -97,7 +97,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-
+	Auton::runAuton();
 }
 
 /**
@@ -153,20 +153,26 @@ void auton3func(){
 	printf("ayyyy\n");
 }
 
-Auton auton1("auton1", auton1func);
-Auton auton2("auton2", auton2func);
-Auton auton3("auton3", auton3func);
+Auton auton1("autonStack", autonStack);
+Auton auton2("autonAWP", autonAWP);
+Auton auton3("autonLine", autonLine);
+Auton auton4("Skills", fullSkills);
+
 
 
 // thinks: (133.69, 122.40, -90.0) 
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
-	skills1();
-	skills2();
-	skills3();
-  // turnToAngleSync(-90);
-	WAIT_UNTIL(false);
+	driverPractice();
+	// skills1();
+	// skills2();
+	// skills3();
+	// WAIT_UNTIL(false);
+	// THIS BY ITSELF
+	// /*
+		// Auton::selectAuton();
+	// */
 
 	// spinRoller();
 	// intake.waitToReachState(IntakeOffParams{});

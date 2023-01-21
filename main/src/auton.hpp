@@ -8,6 +8,8 @@ double getDistR();  // Gets tracking centre's position from wall on right
 
 void moveInches(double target);
 
+void fullSkills();
+
 void skills1();
 void skills2();
 void skills3();

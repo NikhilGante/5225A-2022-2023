@@ -32,7 +32,7 @@ void Auton::selectAuton(){
 	}
 
 }
-
+// Runs selected auton
 void Auton::runAuton(){
 	ifstream myfile ("/usd/auton.txt", ios::in);
 	int auton_num;

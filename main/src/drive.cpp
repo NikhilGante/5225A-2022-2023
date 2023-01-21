@@ -206,9 +206,28 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   setFlywheelVel(barrier_rpm);
   intakeOn();
   angleOverride = false;
+
+  Timer endgame_click_timer{"endgame_timer"};
+  endgame_click_timer.reset(false);
+  bool endgame_dbl_click = false;
 	while(true){
 
-    if(master.get_digital_new_press(endgameBtn))  endgame_s_p.setState(HIGH);
+    if(endgame_click_timer.getTime() > 300){
+      printf("timer reset: %lld\n", endgame_click_timer.getTime());
+      endgame_click_timer.reset(false);
+      endgame_dbl_click = false;
+      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click);
+
+    }
+    if(master.get_digital_new_press(endgameBtn)){
+      printf("PRESSED | timer reset: %lld\n", endgame_click_timer.getTime());
+      printf("dbl_click: %d\n", endgame_dbl_click);
+      if(endgame_dbl_click) {
+        endgame_s_p.setState(HIGH);
+      }
+      else endgame_dbl_click = true;
+      endgame_click_timer.reset();
+    }
 
 		driveHandleInput();
 		shooterHandleInput();

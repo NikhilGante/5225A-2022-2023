@@ -1,5 +1,6 @@
 #include "auton.hpp"
 #include "tracking.hpp"
+#include "config.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/flywheel.hpp"
 #include "Subsystems/shooter.hpp"
@@ -34,6 +35,13 @@ void moveInches(double target){
 	master.rumble("-");
 }
 
+void fullSkills(){
+  skills1();
+  skills2();
+  skills3();
+}
+
+
 // start coord 
 // tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
@@ -56,14 +64,14 @@ void skills1(){
 
 
   moveToTargetSync({62.0, 85.0}); // picks up line of discs
-  aimAtBlue(13);
+  aimAtBlue(13.5);
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
-  turnToTargetSync({108, 126.0});
+  turnToTargetSync({113, 127.0});
   intakeOn();
-  moveToTargetSync({108, 126.0}, E_Brake_Modes::brake, 127);  // Drive to corner
-  turnToAngleSync(177);
+  moveToTargetSync({113, 127.0});  // Drive to corner
+  turnToAngleSync(177, E_Brake_Modes::brake, 2.0, 127);
 
 	log("total: %d", total.getTime());
 	lcd::print(7, "total: %d", total.getTime());
@@ -77,8 +85,12 @@ void skills2(){
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({141.0 - getDistL(), 133.75, degToRad(180.0)});
-
+  moveInches(2);
+  turnToTargetSync({111.5, 120.75});
   moveToTargetSync({111.5, 120.75});
+
+  // moveToTargetSync({111.5, 120.75});
+  // moveInches(13);
   aimAtRed(9);
   driveBrake();
   shoot(3);
@@ -86,8 +98,9 @@ void skills2(){
 
   setFlywheelVel(2100);
   intakeOn();
-  moveToTargetSync({110.5, 90.0}, E_Brake_Modes::brake, 50); // Intake stack
-  intake.waitToReachState(IntakeOffParams{}); // wait to intake 3rd disc
+  moveToTargetSync({110.5, 92.0}, E_Brake_Modes::brake, 50); // Intake stack
+  // intake.waitToReachState(IntakeOffParams{}); // wait to intake 3rd disc
+  delay(500);
   aimAtRed(11);
   driveBrake();
   shoot(3);
@@ -96,20 +109,21 @@ void skills2(){
   setFlywheelVel(1950);
   intakeOn();
   moveToTargetSync({84.0, 60.0}); // Intake line
-  aimAtRed(12);
+  // turnToTargetSync(r_goal, 12.0, false, E_Brake_Modes::brake, 80);
+  aimAtRed(12.0);
+
   driveBrake();
   shoot(3); // Shoot from barrier
   shooter.waitToReachState(ShooterIdleParams{});
 
-  moveToTargetSync({70.0, 70.0}); // Go to centre of field
+  moveToTargetSync({71.0, 69.0}); // Go to centre of field
   turnToTargetSync({26.0, 26.0}); // Turn to face corner
   intakeOn();
   moveToTargetSync({25.0, 25.0}, E_Brake_Modes::brake, 127); // Move to corner
   moveToTargetSync({28.0, 28.0}); // backup from corner
-  turnToAngleSync(95);
+  turnToAngleSync(95, E_Brake_Modes::brake, 2.0, 127);
   moveToTargetSync({9.0, 28.0}, E_Brake_Modes::coast, 127); // backup to wall
-  // spinRoller();
-  // intake.waitToReachState(IntakeOffParams{});
+
 	log("total: %d\n", total.getTime());
 	master.print(0,0, "total: %d", total.getTime());
   // shoot match loads here
@@ -121,7 +135,11 @@ void skills3(){
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({7.25, getDistR(), degToRad(90.0)});
+  moveInches(3.0);
 
+  endgame_s_p.setState(HIGH);
+
+/*
 
   moveToTargetSync({42.0, 30.0}); // Moves in front of stack
   aimAtRed(13);
@@ -131,23 +149,30 @@ void skills3(){
 
   setFlywheelVel(1975);
   intakeOn();
-  moveToTargetSync({82.0, 57.0}); // Moves in front of barrier
-  aimAtRed(13);
-  driveBrake();
-  shoot(3);
-  shooter.waitToReachState(ShooterIdleParams{});
+  // moveToTargetSync({82.0, 57.0}); // Moves in front of barrier
 
-  turnToTargetSync({130,111}, 0.0, true); // Face corner backwards
+  // aimAtRed(13);
+  // driveBrake();
+  // shoot(3);
+  // shooter.waitToReachState(ShooterIdleParams{});
+
+  turnToTargetSync({10, 24}, 0.0, true, E_Brake_Modes::brake, 2.0, 127); // Face corner backwards
+  moveToTargetSync({10, 24}, E_Brake_Modes::brake, 127); // Move to corner
+
+
+
+  turnToTargetSync({130,111}, 0.0, false, E_Brake_Modes::brake, 2.0, 127); // Face corner backwards
   moveToTargetSync({130,111}, E_Brake_Modes::brake, 127); // Move to corner
 
-  turnToAngleSync(-90);
-  moveToTargetSync({134,111}, E_Brake_Modes::coast, 127);
-  spinRoller();
-  intake.waitToReachState(IntakeOffParams{});
-  moveInches(2.0);
+  turnToAngleSync(-90, E_Brake_Modes::brake, 2.0, 127);
+*/
+  endgame_s_p.setState(HIGH);
+
 
   log("total: %lld\n", total.getTime());
 	lcd::print(7, "total: %lld", total.getTime());
+
+
   // expand
 }
 
@@ -167,10 +192,10 @@ void autonStack(){
   shooter.waitToReachState(ShooterIdleParams{});
 
 	setFlywheelVel(2300);
-	turnToTargetSync({69.0, 45.0});
+	turnToTargetSync({69.0, 44.0});
 	intakeOn();
-	moveToTargetSync({69.0, 45.0}); // Pickup stack of discs
-	aimAtBlue(9.0);
+	moveToTargetSync({69.0, 44.0}); // Pickup stack of discs
+	aimAtBlue(11.0);
 	shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
@@ -187,24 +212,55 @@ void autonAWP(){
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({31.0, 7.375, degToRad(0.0)});
+  tracking.reset({getDistL(), 7.375, degToRad(0.0)});
 	moveToTargetSync({30.75, 12.5});  // Move away from wall
-	// aimAtBlue(9.5);
-	// shoot(2);
-  // shooter.waitToReachState(ShooterIdleParams{});
-
-	turnToTargetSync({69.0, 45.0});
+// YOOOO
+	turnToTargetSync({69.0, 43.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 45); 
 	intakeOn();
-	moveToTargetSync({69.0, 45.0}); // Pickup stack of discs
-	aimAtBlue(9.5);
+	moveToTargetSync({69.0, 43.0}); // Pickup stack of discs
+	aimAtBlue(11.0);
 	shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
-	turnToTargetSync({127.0, 114.0});
-	moveToTargetSync({127.0, 114.0},  E_Brake_Modes::coast, 127); // Move to corner
+  
+// YOOOO
+	turnToTargetSync({125.0, 111.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 45);
+	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
+	moveToTargetSync({125.0, 111.0},  E_Brake_Modes::coast, 127); // Move to corner
 
-	turnToAngleSync(-90.0);
-  spinRoller();
+	turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 100);
+  // spinRoller(false);
+
+// START OF ROLLER
+    roller_sensor.set_led_pwm(100);
+
+  Timer led{"timer"};
+
+  flattenAgainstWallAsync();
+  trans_p.setState(LOW);
+  WAIT_UNTIL(led.getTime() > 200 && roller_sensor.get_rgb().red != 0 && roller_sensor.get_proximity() >= 253);  // Waits for LED to turn on and robot to touch roller
+	intake_m.move(-127);
+	Timer roller_timer{"roller_timer"};
+  // Switches to opposite colour it saw
+  const int thresh = 3000;
+  double init_value = roller_sensor.get_rgb().red;
+  log("init_value: %lf\n", init_value);
+  // waits to see a value > 1500 different than inital value (waits for a colour change)
+  double cur_val;
+  do{
+		roller_sensor.set_led_pwm(100);
+    cur_val = roller_sensor.get_rgb().red;
+    log("r: %lf \n", cur_val);
+    _Task::delay(100);
+  }while(fabs(cur_val - init_value) < 1400);
+	roller_timer.print();
+  drive.changeState(DriveOpControlParams{});
+  master.rumble("-"); // Notifies driver spinning roller has finished
+	trans_p.setState(HIGH);
+  intakeOff();
+
+// END
+
   intake.waitToReachState(IntakeOffParams{});
 	moveInches(2.0);  // Move away from wall
   master.print(2,0, "total:%ld", timer1.getTime());
@@ -216,13 +272,15 @@ void autonLine(){
   
   Timer timer1{"timer"};
   setFlywheelVel(2420);
-  moveToTargetSync({127, 110});
-  turnToAngleSync(-90.0);
-  moveInches(-2.0);
+  moveToTargetSync({127, 108}, E_Brake_Modes::brake, 127); // move in front of roller
+  turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
+  moveInches(-3.0);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({133.75, tracking.g_pos.y, -M_PI_2});
-  moveToTargetSync({128.0, 112.25});
+  tracking.reset({133.75, 141-getDistR(), -M_PI_2});
+  moveToTargetSync({128.0, tracking.g_pos.y});
+  aimAtBlue(11);
+  // turnToTargetSync(b_goal, 11, false, E_Brake_Modes::brake, 2.0, 70);
   aimAtBlue(11);
   driveBrake();
   shoot(2);
@@ -230,10 +288,12 @@ void autonLine(){
   shooter.waitToReachState(ShooterIdleParams{});
 
   setFlywheelVel(2270);
-  turnToTargetSync({83.0, 59.0});
+  turnToTargetSync({83.0, 61.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 50);
   intakeOn();
-  moveToTargetSync({83.0, 59.0});
-  aimAtBlue(11);
+  moveToTargetSync({83.0, 61.0},  E_Brake_Modes::brake, 100); // Drives through line
+  aimAtBlue(11.5);
+  // turnToTargetSync(b_goal, 11.5, false, E_Brake_Modes::brake, 2.0, 60);
+
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});

@@ -61,7 +61,7 @@ void IntakeOnParams::handle(){  // synchronous state
   mag_disc_detected_last = mag_disc_detected;
 
   // If mag is full, don't let any more discs in
-  printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
     printf("COUNTED 3\n");
@@ -154,7 +154,7 @@ void IntakeRollerParams::handle(){
     cur_val = roller_sensor.get_rgb().red;
     log("r: %lf \n", cur_val);
     _Task::delay(100);
-  }while(fabs(cur_val - init_value) < 1300);
+  }while(fabs(cur_val - init_value) < 1400);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
