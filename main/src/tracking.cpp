@@ -378,7 +378,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   moveDrive(-50, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
-  while(tracking.l_vel > -3.0 && tracking.r_vel > -3.0 && cycle_count < 10){
+  while(tracking.l_vel > -3.0 && tracking.r_vel > -3.0 && cycle_count < 15){
     log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
     cycle_count++;
     _Task::delay(10);
