@@ -165,6 +165,15 @@ Auton auton4("Skills", fullSkills);
 
 void opcontrol() {
 	driverPractice();
+	// intake_m.move(-127);
+	//  do{
+	// 	roller_sensor.set_led_pwm(100);
+  //   double cur_val = roller_sensor.get_rgb().red;
+  //   log("%lf \n", roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
+  //   _Task::delay(100);
+  // }while(true);
+
+
 	// skills1();
 	// skills2();
 	// skills3();

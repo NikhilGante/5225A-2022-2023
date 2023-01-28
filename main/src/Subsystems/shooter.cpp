@@ -3,10 +3,13 @@
 #include "intake.hpp"
 
 const int toaster_rpm = 1400;
-const int barrier_rpm = 1875;
+const int barrier_rpm = 1820;
+bool goal_disturb = false;
 
+// 1820
 bool angleOverride = false;
 bool flywheelOff = false;
+
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 
@@ -22,7 +25,10 @@ void shooterHandleInput(){
     angler_p.toggleState();
     if (!angleOverride){
       if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
-      else setFlywheelVel(toaster_rpm);
+      else{
+        if(goal_disturb)  setFlywheelVel(3600);
+        else  setFlywheelVel(toaster_rpm);
+      }
     }
   } 
 
@@ -31,10 +37,14 @@ void shooterHandleInput(){
     if(angleOverride) setFlywheelVel(toaster_rpm);
     else{
       if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
-      else setFlywheelVel(toaster_rpm);
+      else{
+        if(goal_disturb)  setFlywheelVel(3600);
+        else  setFlywheelVel(toaster_rpm);
+      }
     }
   }
 
+  if(master.get_digital_new_press(goalDisturbBtn))  goal_disturb = !goal_disturb;
 
   
   
@@ -57,7 +67,12 @@ const char* ShooterShootParams::getName(){
 }
 void ShooterShootParams::handle(){
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
-  if(fabs(flywheel_error) > 150) cycle_check.reset();
+  if(goal_disturb){
+    if(fabs(flywheel_error) > 1000) cycle_check.reset();
+  }
+  else{
+    if(fabs(flywheel_error) > 150) cycle_check.reset();
+  }
 
   // printf("cycle_check:%lld\n", cycle_check.getTime());
   // cycle_check.getTime() >= 30

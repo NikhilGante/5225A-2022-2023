@@ -8,6 +8,8 @@
 extern const int toaster_rpm;
 extern const int barrier_rpm;
 
+extern bool goal_disturb;
+
 void shooterHandleInput();
 
 // forward declarations

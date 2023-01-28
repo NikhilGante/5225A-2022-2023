@@ -146,16 +146,19 @@ void IntakeRollerParams::handle(){
   // Switches to opposite colour it saw
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
-  log("init_value: %lf\n", init_value);
-  // waits to see a value > 1500 different than inital value (waits for a colour change)
+  log("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
+  // waits to see a value > 700  different than inital value (waits for a colour change)
   double cur_val;
   Timer timeout{"timeout"};
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
-    log("r: %lf \n", cur_val);
+    // log("r: %lf \n", cur_val);
+    log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
-  }while(fabs(cur_val - init_value) < 1200 && timeout.getTime() < 1500);
+  } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
+
+  // while(fabs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished

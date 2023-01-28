@@ -210,6 +210,8 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   Timer endgame_click_timer{"endgame_timer"};
   endgame_click_timer.reset(false);
   bool endgame_dbl_click = false;
+  // driveBrake();
+  // drive.changeState(DriveIdleParams{});
 	while(true){
 
     if(endgame_click_timer.getTime() > 300){
@@ -229,7 +231,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       endgame_click_timer.reset();
     }
 
-		driveHandleInput();
+		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
 		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
@@ -248,7 +250,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 			else master.print(1, 0, "Automatic");
 		}
 
-    if(front_l.get_temperature() >= 55 || centre_l.get_temperature() >= 55 || back_l.get_temperature() >= 55 || front_r.get_temperature() >= 55 || centre_r.get_temperature() >= 55 || back_r.get_temperature() >= 55 || intake_m.get_temperature() > 55 || flywheel_m.get_temperature() >= 55){
+    if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
       moveDrive(0, 0);
       master.rumble("----------");
       WAIT_UNTIL(false);
