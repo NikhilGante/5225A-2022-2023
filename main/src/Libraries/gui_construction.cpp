@@ -42,7 +42,7 @@
     Page track ("Tracking"); //Display tracking vals and reset btns
       Text track_x(50, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", tracking.g_pos.x);
       Text track_y(135, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "Y:%.1f", tracking.g_pos.y);
-      Text track_a(220, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", std::function([](){return fmod(tracking.g_pos.a, 360);}));
+      Text track_a(220, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", std::function([](){return std::fmod(tracking.g_pos.a, 360);}));
       Text enc_l(50, 130, GUI::Style::CENTRE, TEXT_SMALL, track, "L:%d", std::function([](){return left_tracker.get_position() != std::numeric_limits<int32_t>::max() ? left_tracker.get_position() : 0;}));
       Text enc_r(135, 130, GUI::Style::CENTRE, TEXT_SMALL, track, "R:%d", std::function([](){return right_tracker.get_position() != std::numeric_limits<int32_t>::max() ? right_tracker.get_position() : 0;}));
       Text enc_b(220, 130, GUI::Style::CENTRE, TEXT_SMALL, track, "B:%d", std::function([](){return back_tracker.get_position() != std::numeric_limits<int32_t>::max() ? back_tracker.get_position() : 0;}));

@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <numbers>
 
 inline constexpr double rot_to_deg = 360;
@@ -22,58 +23,35 @@ inline constexpr double rad_to_rot = 1/rot_to_rad;
     _Task::delay(delayTime);\
   }\
 }
-
-/**
- * @brief checks whether a value is in range
- * 
- * @param value value to be checked
- * @param minimum range minimum value
- * @param maximum range maximum value
- * @return whether value is between minimum and maximum. will work even if maximum < minimum
- */
-template <typename T>
-bool inRange(T value, T minimum, T maximum){
+constexpr bool inRange(double value, double minimum, double maximum){
   return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);
 }
 
-//degrees to radians
-double operator "" _deg(long double degree);
+constexpr double degToRad(double deg){
+  return deg * deg_to_rad;
+}
 
-//radians to degrees
-double operator "" _rad(long double radians);
+constexpr double radToDeg(double rad){
+  return rad * rad_to_deg;
+}
 
-//rotations to radians
-double operator "" _rot(long double rotations);
+constexpr double operator "" _deg(long double degree){
+  return degToRad(degree);
+}
+constexpr double operator "" _rad(long double radians){
+  return radToDeg(radians);
+}
 
-/**
- * @brief converts radians to degrees
- * 
- * @param rad 
- * @return degrees
- */
-double radToDeg(double rad);
+constexpr double operator "" _rot(long double rotations){
+  return rotations * rot_to_rad;
+}
 
-/**
- * @brief converts degrees to radians
- * 
- * @param deg 
- * @return radians
- */
-double degToRad(double deg);
+constexpr double nearAngle(double angle, double reference){
+	return std::round((reference - angle)/(2*std::numbers::pi)) * (2*std::numbers::pi) + angle - reference;
+}
 
-/**
- * @brief returns the closest equivalent angle to refrence in radians
- * 
- * @param angle 
- * @param reference 
- * @return double 
- */
-double nearAngle(double angle, double reference);
-
-// gets the sign of a value (0, 1 or -1)
-template <typename T>
-int sgn(T value){
-  return (T(0) < value) - (value < T(0));
+constexpr int sgn(double x){
+	return x == 0 ? 0 : x > 0 ? 1 : -1;
 }
 
 // maps a value to a range
@@ -81,7 +59,7 @@ template <typename T>
 T mapValues(T x, T in_min, T in_max, T out_min, T out_max){
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
-// base case for recrusive function map_set
+// base case for recursive function map_set
 template <typename T>
 T mapSet(T input, T in_min, T in_max, T out_min, T out_max, T range, T val){
   if (input <= range) return map(input, in_min, range, out_min, val);

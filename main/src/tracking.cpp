@@ -8,7 +8,7 @@
 
 
 // Coords of high goal
-Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
+Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
 /* Tests:
@@ -219,9 +219,9 @@ void aimAtBlue(double offset){
 void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error){
   end_error = degToRad(end_error);
   PID angle_pid(5.0, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
-  double kB = 13.78; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  constexpr double kB = 13.78; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
-  double kP_vel = 0.0;
+  constexpr double kP_vel = 0.0;
   do{
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
@@ -232,11 +232,11 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     moveDrive(0.0, power);
     _Task::delay(10);
   }
-  while(std::abs(angle_pid.getError()) > end_error);
+  while(std::abs(angle_pid.getError()) > end_error); //why not wait_until
   handleBrake(brake_mode);
   tracking_data.print("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
-  }
+}
 
 // STATE MACHINE STUFF 
 

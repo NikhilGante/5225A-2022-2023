@@ -80,7 +80,7 @@ void driveBrake(){
 }
 
 Timer curve_print_timer{"curve_print_timer"};
-int slew = 5;
+constexpr int slew = 5;
 Timer backwards_timer{"backwards_timer"};
 bool backwards = false;
 bool last_backwards = false;

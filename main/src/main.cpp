@@ -71,9 +71,15 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
+//print logs as .rtf
+//use \033[1m for bold
+//use abbreviated template
+
+
+
 void opcontrol(){
   DEBUG;
-
+  
   DEBUG;
   WAIT_UNTIL(false);
 }
