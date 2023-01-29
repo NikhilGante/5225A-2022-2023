@@ -22,28 +22,16 @@ void Piston::construct(std::string name, bool reversed, ext_adi_port_pair_t port
 }
 
 Piston::Piston(std::uint8_t port, std::string name, bool reversed, bool init_state):
-ADIDigitalOut{port, init_state}, Counter{name} {
-  construct(name, reversed, {0, port});
-}
+ADIDigitalOut{port, init_state}, Counter{name} {construct(name, reversed, {0, port});}
 
 Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state):
-ADIDigitalOut{port_pair, init_state}, Counter{name} {
-  construct(name, reversed, port_pair);
-}
+ADIDigitalOut{port_pair, init_state}, Counter{name} {construct(name, reversed, port_pair);}
+
+bool Piston::getState() const {return this->state != reversed;}
+void Piston::toggleState() {setState(!getState());}
+std::string Piston::getName() const {return this->name;}
 
 void Piston::setState(bool state){
   if(state) toggle.select();
   else toggle.deselect();
-}
-
-bool Piston::getState() const{
-  return this->state != reversed;
-}
-
-void Piston::toggleState(){
-  setState(!getState());
-}
-
-std::string Piston::getName() const{
-  return this->name;
 }

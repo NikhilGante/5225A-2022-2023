@@ -3,7 +3,7 @@
 #include "printing.hpp"
 
 //Forward Declare
-namespace alert {template <typename... Params> void priority(term_colours colour, std::string fmt, Params... args);}
+namespace alert {void priority(term_colours colour, std::string fmt, auto... args);}
 
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 
@@ -43,7 +43,7 @@ class Queue{
         using reference         = Queue<T, N>::reference;
         using iterator_category = std::random_access_iterator_tag;
 
-      public:
+      private:
         pointer internal;
         pointer begin, end;
         int cycle;
@@ -69,7 +69,6 @@ class Queue{
         constexpr iterator& operator--() {return *this += -1;}
         constexpr iterator operator++(int) {iterator temp{*this}; ++(*this); return temp;}
         constexpr iterator operator--(int) {iterator temp{*this}; --(*this); return temp;}
-        constexpr reference operator[](difference_type n) const {return *(*this + n);} //? Needed?
         constexpr reference operator*() const {return *internal;}
         constexpr pointer operator->() {return internal;}
         friend constexpr difference_type operator-(iterator const& lhs, iterator const& rhs) {return lhs.same_container(rhs) ? lhs.internal-rhs.internal+(lhs.cycle-rhs.cycle)*(lhs.end-lhs.begin) : std::numeric_limits<difference_type>::max();}
@@ -134,7 +133,7 @@ class Queue{
       if(size() >= capacity()) alert::priority(term_colours::ERROR , "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
       else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
     }
-    template <std::input_iterator I> constexpr iterator insert(I first, I last){
+    template <std::input_iterator I> constexpr iterator insert(I first, I last) requires output_iter<iterator, I> {
       auto out = empty_contiguous_iterators();
       auto in  = split(first, last, out.first);
       back_iter += copy_pair(in.first,  out.first );
@@ -143,7 +142,7 @@ class Queue{
       else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
       return end();
     }
-    template <typename R> constexpr iterator insert(R const & range) {return insert(range.cbegin(), range.cend());}
+    constexpr iterator insert(auto const & range) {return insert(std::cbegin(range), std::cend(range));}
 
     //Remove Modifiers
     constexpr void pop() {if(!empty()) front_iter++;}

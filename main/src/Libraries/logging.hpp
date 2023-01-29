@@ -16,7 +16,6 @@ enum class log_locations{
 //All dump into the same queue
 class Logging: public Counter<Logging>{
   private:
-  public:
     term_colours print_colour;
     bool newline;
     log_locations log_location;
@@ -37,8 +36,7 @@ class Logging: public Counter<Logging>{
 
     static std::vector<Logging*> const & getList() {return logs;}
 
-    template <typename... Params>
-    void print(term_colours colour, std::string format, Params... args){
+    void print(term_colours colour, std::string format, auto... args){
       std::string str{sprintf2(format, args...)};
       if(newline) str += '\n';
 
@@ -58,7 +56,7 @@ class Logging: public Counter<Logging>{
       }
     }
 
-    template <typename... Params> void print(std::string format, Params... args) {print(print_colour, format, args...);}
+    void print(std::string format, auto... args) {print(print_colour, format, args...);}
 };
 
 extern Logging task_log;

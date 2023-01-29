@@ -7,8 +7,11 @@ extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
 Motor{port, gearset, reversed, encoder_units}, name{name}, Counter{name} {
-  std::stringstream ss(getName());
-  for(auto begin = std::istream_iterator<std::string>{ss}; begin != std::istream_iterator<std::string>{}; begin++) short_name += begin->front();
+  {
+    std::stringstream ss{getName()};
+    using iterator = std::istream_iterator<std::string>;
+    for(auto begin = iterator{ss}; begin != iterator{}; begin++) short_name += begin->front();
+  }
 
   on         .construct(115*(getID()%4) + 15, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
   off        .construct(115*(getID()%4) + 70, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
@@ -37,6 +40,7 @@ void _Motor::move(int voltage){
 void _Motor::brake(){
   sensor_data.print("Motor %s braking", getName());
   Motor::move_relative(0, 200);
+  speed = 0;
 }
 
 int _Motor::getTemperature() const {

@@ -30,11 +30,9 @@ class Machine{
   }
 
 public:
-  template <typename base_state_type>
-  Machine(std::string name, base_state_type base_state): name(name), state(base_state), target_state(base_state){}
+  Machine(std::string name, auto base_state): name(name), state(base_state), target_state(base_state){}
 
-  template <typename next_state_type>
-  void changeState(next_state_type next_state){
+  void changeState(auto next_state){
     state_log.print("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     setTargetState(next_state);
     state_change_requested = true;

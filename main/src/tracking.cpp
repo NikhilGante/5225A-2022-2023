@@ -8,7 +8,7 @@
 
 
 // Coords of high goal
-Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
+Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
 /* Tests:
@@ -23,7 +23,7 @@ Tracking tracking; // singleton tracking object
  -5.9
   0.9
 */
-constexpr double TICKS_TO_INCHES_325 = 3.25*std::numbers::pi/36000;
+static constexpr double TICKS_TO_INCHES_325 = 3.25*std::numbers::pi/36000;
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
@@ -182,16 +182,16 @@ void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode, uint8_t max_powe
   drive.changeState(DriveMttParams{target, brake_mode, max_power, end_error_x, robot_side});
 }
 
-void turnToAngleSync(double angle, E_Brake_Modes brake_mode, double end_error){
-  drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error});
+void turnToAngleSync(double angle, E_Brake_Modes brake_mode, double end_error, double max_power){
+  drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error, max_power});
   tracking.waitForComplete();
 }
-void turnToAngleAsync(double angle, E_Brake_Modes brake_mode, double end_error){
-  drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error});
+void turnToAngleAsync(double angle, E_Brake_Modes brake_mode, double end_error, double max_power){
+  drive.changeState(DriveTurnToAngleParams{angle, brake_mode, end_error, max_power});
 }
 
-void turnToTargetSync(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error){
-  drive.changeState(DriveTurnToTargetParams{target, offset, reverse, brake_mode, end_error});
+void turnToTargetSync(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error, double max_power){
+  drive.changeState(DriveTurnToTargetParams{target, offset, reverse, brake_mode, end_error, max_power});
   tracking.waitForComplete();
 }
 
@@ -216,27 +216,34 @@ void aimAtBlue(double offset){
   turnToTargetSync(b_goal, offset);
 }
 
-void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error){
+void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
-  PID angle_pid(5.0, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
+  double angle_kp = 5.0;
+  
+  if(max_power > 50)  angle_kp = 4.0;
+  PID temp(angle_kp, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
+
+  PID angle_pid = temp;
+
   double kB = 13.78; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
-  double kP_vel = 0.0;
+  constexpr double kP_vel = 0.0;
   do{
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
-    if(std::abs(power) > 60) power = sgn(power) * 60;
-    else if(std::abs(power)) power = sgn(power) * tracking.min_move_power_a;
-    // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
+    if(std::abs(power) > max_power) power = sgn(power) * max_power;
+    else if(std::abs(power) < 30) power = sgn(power) * tracking.min_move_power_a;
+    // tracking_data.print("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
+    tracking_data.print("%d err:%lf power: %lf\n", millis(), radToDeg(angle_pid.getError()), power);
     moveDrive(0.0, power);
     _Task::delay(10);
   }
-  while(std::abs(angle_pid.getError()) > end_error);
+  while(std::abs(angle_pid.getError()) > end_error); //why not wait_until
   handleBrake(brake_mode);
   tracking_data.print("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
-  }
+}
 
 // STATE MACHINE STUFF 
 
@@ -277,7 +284,7 @@ void DriveMttParams::handle(){
       if(!power_sgn) power_sgn = 1; // Doesn't let power_sgn be 0
       break;
   }
-  // log("power_sgn: %d\n", power_sgn);
+  // tracking_data.print("power_sgn: %d\n", power_sgn);
   constexpr double kP_a = 2.5;  // proportional multiplier for angular error
   do{
     line_error = target - tracking.g_pos;
@@ -326,22 +333,22 @@ void DriveMttParams::handle(){
 void DriveMttParams::handleStateChange(driveVariant prev_state){}
 
 // Drive Turn to Angle State
-DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode, double end_error):
-  angle(angle), brake_mode(brake_mode), end_error(end_error){}
+DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode, double end_error, double max_power):
+  angle(angle), brake_mode(brake_mode), end_error(end_error), max_power(max_power){}
 
 void DriveTurnToAngleParams::handle(){
-  turnToAngleInternal(std::function([&](){return degToRad(angle);}), brake_mode, end_error);
+  turnToAngleInternal(std::function([&](){return degToRad(angle);}), brake_mode, end_error, max_power);
 }
 void DriveTurnToAngleParams::handleStateChange(driveVariant prev_state){}
 
 // Drive Turn to Target State
-DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error):
-  target(target), offset(offset), reverse(reverse), brake_mode(brake_mode), end_error(end_error){}
+DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error, double max_power):
+  target(target), offset(offset), reverse(reverse), brake_mode(brake_mode), end_error(end_error), max_power(max_power){}
 
 void DriveTurnToTargetParams::handle(){
   turnToAngleInternal(std::function([&](){
     return std::numbers::pi/2 - (target - tracking.g_pos).getAngle() + degToRad(offset) + (reverse ? std::numbers::pi : 0);
-  }), brake_mode, end_error);
+  }), brake_mode, end_error, max_power);
 }
 void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}
 
@@ -351,10 +358,12 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
   moveDrive(0, 0);
 	trans_p.setState(LOW);
-  moveDrive(-60, 0);  // moves backwards
+  delay(100); // waits for Transmission to shift
+  moveDrive(-50, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
-  while(tracking.l_vel > -2.0 && tracking.r_vel > -2.0 && cycle_count < 10){
+  while(tracking.l_vel > -3.0 && tracking.r_vel > -3.0 && cycle_count < 15){
+    tracking_data.print("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
     cycle_count++;
     _Task::delay(10);
   }
@@ -362,24 +371,25 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   // Waits until velocity drops (to detect wall)
   cycle_count = 0;
   while(cycle_count < 10){
-    printf("l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
+    tracking_data.print("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
+    tracking_data.print("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
     l_slow = std::abs(tracking.l_vel) < 3.0, r_slow = std::abs(tracking.r_vel) < 3.0;
     if(l_slow){
       if(r_slow){
-        moveDrive(-30, 0); // Presses into roller 
+        moveDrive(-20, 0); // Presses into roller 
         cycle_count++;
       }
       else{
-        moveDriveSide(-5, -40); // Turns right
+        moveDriveSide(-5, -30); // Turns right
         cycle_count = 0;  // Reset count
       }
     }
     else if(r_slow){
-      moveDriveSide(-40, -5); // Turns left
+      moveDriveSide(-30, -5); // Turns left
       cycle_count = 0;  // Reset count
     }
     else{
-      moveDrive(-60, 0);
+      moveDrive(-50, 0);
       cycle_count = 0;  // reset count
     }
     _Task::delay(10);

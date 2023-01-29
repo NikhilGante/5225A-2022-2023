@@ -10,7 +10,7 @@ class _Motor: protected Motor, public Counter<_Motor, 8>{
     Text<> text;
     std::string name, short_name;
 
-    int speed;
+    int speed; //Represents the target speed
 
   public:
     _Motor(std::int8_t port, std::string name, bool reversed = false, motor_gearset_e_t gearset = MOTOR_GEAR_BLUE, motor_encoder_units_e_t encoder_units = MOTOR_ENCODER_DEGREES);

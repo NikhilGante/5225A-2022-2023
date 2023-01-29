@@ -17,7 +17,7 @@ _Motor front_r{11, "Front Right", true};
 _Motor centre_r{12, "Centre Right"};
 _Motor back_r{13, "Back Right", true};
 
-_Motor intakm{5, "Intake", true, MOTOR_GEARSET_18};
+_Motor intake_m{5, "Intake", true, MOTOR_GEARSET_18};
 _Motor flywheel_m{9, "Flywheel"};
 
 Piston indexer_p{'D', "Indexer", false, LOW};
@@ -33,3 +33,5 @@ Piston endgame_s_p{'F', "Endgame Single", false, LOW}; // Single acting
 Piston endgame_d_p{'G', "Endgame Double", false, LOW}; // Double acting
 
 Optical roller_sensor{8};
+
+Distance l_reset_dist{3}, r_reset_dist{7};
