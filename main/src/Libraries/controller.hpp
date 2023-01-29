@@ -14,7 +14,6 @@ using namespace std;
 
 // Buttons
 // ------------------------------ Direction Buttons ------------------------------
-extern controller_digital_e_t transToggleBtn;
 extern controller_digital_e_t goalDisturbBtn;
 // Up and Down Taken by Adjusting Disc count
 
@@ -32,7 +31,7 @@ extern controller_digital_e_t endgameBtn;
 
 // ------------------------------ Front Buttons ------------------------------
 extern controller_digital_e_t anglerToggleBtn;
-extern controller_digital_e_t rollerBtn;
+extern controller_digital_e_t transToggleBtn;
 extern controller_digital_e_t singleShotBtn;
 extern controller_digital_e_t tripleShotBtn;
 

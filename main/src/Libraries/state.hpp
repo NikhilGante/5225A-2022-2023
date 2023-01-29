@@ -51,7 +51,7 @@ class Machine{
 
   atomic<bool> state_change_requested = false;
 
-  _Task task;
+  _Task task{name};
 
   // Getters and setters for state and target state (since they need mutexes)
   void setState(variant<StateTypes...> state_param){
@@ -71,8 +71,8 @@ public:
   Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
 
   template <typename next_state_type>
-  void changeState(next_state_type next_state){
-    printf("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+  void changeState(next_state_type next_state, int line = -1){
+    printf("%s state change requested from %s to %s, LINE:%d\n", name, getStateName(state), getStateName(next_state), line);
     setTargetState(next_state);
     state_change_requested = true;
     task.kill();  // Interrupts current state
@@ -105,6 +105,7 @@ public:
         }
 
         if(state_change_requested){
+          task_notify_take(true, 0);  // Clears notification
           variant<StateTypes...> target_state_cpy = getTargetState();
           variant<StateTypes...> state_cpy = getState();
           // Calls handle state change method for target state and logs the change

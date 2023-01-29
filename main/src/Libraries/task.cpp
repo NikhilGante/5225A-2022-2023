@@ -56,11 +56,11 @@ void _Task::delay(uint32_t delay_time){
       case notify_types_2::none:
         break;
       case notify_types_2::interrupt:
-        printf("%s interrupted", task_get_name(current_task));
+        printf("%s interrupted\n", task_get_name(current_task));
         throw TaskEndException{};
         break;
       case notify_types_2::suspend:
-        printf("%s suspended", task_get_name(current_task));
+        printf("%s suspended\n", task_get_name(current_task));
         task_suspend(current_task);
         break;
     }

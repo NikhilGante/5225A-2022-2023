@@ -18,6 +18,7 @@ void intakeHandleInput(){
     if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
     if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
   }
+  /*
   else if(get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
     if(master.get_digital_new_press(rollerBtn)){
       // Gives driver back control
@@ -26,8 +27,10 @@ void intakeHandleInput(){
       intakeOff();
     }
   }
+  */
+  
   // Spin roller if btn is pressed and not already spinning
-  if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
+  // if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
 
 }
 
@@ -66,7 +69,7 @@ void IntakeOnParams::handle(){  // synchronous state
   if(g_mag_disc_count >= 3) {
     printf("COUNTED 3\n");
     master.rumble("-");
-    _Task::delay(125);
+    _Task::delay(185);
     intakeOff();
   }
 

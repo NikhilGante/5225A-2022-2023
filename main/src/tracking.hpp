@@ -21,7 +21,7 @@ enum class E_Robot_Sides{
 class Tracking{
   
 public:
-  const double min_move_power_y = 30.0, min_move_power_a = 30.0;
+  const double min_move_power_y = 30.0, min_move_power_a = 45.0;
   // Odometry related variables
   double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
   Mutex pos_mutex; // locks g_pos
@@ -46,17 +46,17 @@ void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake
 void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 60, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = 60, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 
-void turnToAngleSync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
-void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
+void turnToAngleSync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 45);
+void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 45);
 
-void turnToTargetSync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
-void turnToTargetAsync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
+void turnToTargetSync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 45);
+void turnToTargetAsync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 45);
 
 void flattenAgainstWallSync();
 void flattenAgainstWallAsync();
 
 // Takes a function that returns an angle in radians
-void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
+void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 45);
 void aimAtRed(double offset = 0.0);
 void aimAtBlue(double offset = 0.0);
 
@@ -103,10 +103,10 @@ struct DriveMttParams{
 struct DriveTurnToAngleParams{
   double angle;
   E_Brake_Modes brake_mode = E_Brake_Modes::brake;
-  double end_error = 2.0;
-  double max_power = 35;
+  double end_error = 1.0;
+  double max_power = 50;
   
-  DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
+  DriveTurnToAngleParams(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 50);
 
   const char* getName();
   void handle();
@@ -118,10 +118,10 @@ struct DriveTurnToTargetParams{
   double offset = 0.0;
   bool reverse = false;
   E_Brake_Modes brake_mode = E_Brake_Modes::brake;
-  double end_error = 2.0;
-  double max_power = 35;
+  double end_error = 1.0;
+  double max_power = 50;
   
-  DriveTurnToTargetParams(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 2.0, double max_power = 35);
+  DriveTurnToTargetParams(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 1.0, double max_power = 50);
 
   const char* getName();
   void handle();
