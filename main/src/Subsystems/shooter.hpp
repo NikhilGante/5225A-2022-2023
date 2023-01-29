@@ -2,8 +2,7 @@
 #include "../Libraries/state.hpp"
 #include "flywheel.hpp"
 
-static constexpr int toaster_rpm = 1400;
-static constexpr int barrier_rpm = 1875;
+static constexpr int barrier_rpm = 1820;
 
 void shooterHandleInput();
 

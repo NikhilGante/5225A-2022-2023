@@ -4,6 +4,7 @@
 #include "Libraries/logging.hpp"
 #include "Libraries/controller.hpp"
 #include "auton.hpp"
+#include "menu.hpp"
 #include "tracking.hpp"
 
 /**
@@ -17,7 +18,7 @@ void initialize() {
   GUI::init();
 	_Controller::init();
 
-	tracking.g_pos = {31.0, 11.5, 0.0};
+	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
 	// tracking.g_pos = {70.0, 129.5, std::numbers::pi};
 	_Task tracking_task("Tracking Update");
 	tracking_task.start(trackingUpdate);
@@ -55,6 +56,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	Auton::runAuton();
 }
 
 /**
@@ -71,13 +73,23 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
+void auton2func(){
+	printf("whatup\n");
+}
+
+void auton3func(){
+	printf("ayyyy\n");
+}
+
+Auton auton1("autonStack", autonStack);
+Auton auton2("autonAWP", autonAWP);
+Auton auton3("autonLine", autonLine);
+Auton auton4("Skills", fullSkills);
+
 //print logs as .rtf
 //use \033[1m for bold
 //use abbreviated template
-
-
-
-void opcontrol(){
+void opcontrol() {
   DEBUG;
   
   DEBUG;

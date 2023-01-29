@@ -30,7 +30,7 @@ void Auton::selectAuton(){
 	}
 
 }
-
+// Runs selected auton
 void Auton::runAuton(){
 	std::ifstream myfile ("/usd/auton.txt", std::ifstream::in);
 	int auton_num;

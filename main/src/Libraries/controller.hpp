@@ -6,7 +6,7 @@
 // Buttons
 // ------------------------------ Direction Buttons ------------------------------
 extern controller_digital_e_t transToggleBtn;
-extern controller_digital_e_t flywheelOffBtn;
+extern controller_digital_e_t goalDisturbBtn;
 // Up and Down Taken by Adjusting Disc count
 
 
@@ -57,8 +57,7 @@ public:
   void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
   controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
 
-  template <typename... Params>
-  void print(std::uint8_t line, std::uint8_t col, std::string fmt, Params... args){
+  void print(std::uint8_t line, std::uint8_t col, std::string fmt, auto... args){
     std::string str = sprintf2(fmt, args...);
     queue.push([=, this](){
       pros::Controller::print(line, col, str.c_str());

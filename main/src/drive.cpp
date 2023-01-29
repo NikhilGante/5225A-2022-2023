@@ -89,7 +89,7 @@ void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
-  if(fabs(power_y) < deadzone) power_y = 0;
+  if(std::abs(power_y) < deadzone) power_y = 0;
  
   backwards = power_y < 0;
   // if(backwards && !last_backwards){
@@ -210,11 +210,32 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   setFlywheelVel(barrier_rpm);
   intakeOn();
   angleOverride = false;
+
+  Timer endgame_click_timer{"endgame_timer"};
+  endgame_click_timer.reset(false);
+  bool endgame_dbl_click = false;
+  // driveBrake();
+  // drive.changeState(DriveIdleParams{});
 	while(true){
 
-    if(master.get_digital_new_press(endgameBtn))  endgame_s_p.setState(HIGH);
+    if(endgame_click_timer.getTime() > 300){
+      printf("timer reset: %lld\n", endgame_click_timer.getTime());
+      endgame_click_timer.reset(false);
+      endgame_dbl_click = false;
+      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click);
 
-		driveHandleInput();
+    }
+    if(master.get_digital_new_press(endgameBtn)){
+      printf("PRESSED | timer reset: %lld\n", endgame_click_timer.getTime());
+      printf("dbl_click: %d\n", endgame_dbl_click);
+      if(endgame_dbl_click) {
+        endgame_s_p.setState(HIGH);
+      }
+      else endgame_dbl_click = true;
+      endgame_click_timer.reset();
+    }
+
+		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
 		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;

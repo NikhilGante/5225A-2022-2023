@@ -3,7 +3,7 @@
 #include "printing.hpp"
 
 //Forward Declare
-namespace alert {template <typename... Params> void priority(term_colours colour, std::string fmt, Params... args);}
+namespace alert {void priority(term_colours colour, std::string fmt, auto... args);}
 
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 
@@ -142,7 +142,7 @@ class Queue{
       else if(size() >= capacity()*0.8) alert::priority(term_colours::WARNING, "%s queue has reached %d%% capacity", name, (100.0*size())/capacity());
       return end();
     }
-    template <typename R> constexpr iterator insert(R const & range) {return insert(std::cbegin(range), std::cend(range));}
+    constexpr iterator insert(auto const & range) {return insert(std::cbegin(range), std::cend(range));}
 
     //Remove Modifiers
     constexpr void pop() {if(!empty()) front_iter++;}

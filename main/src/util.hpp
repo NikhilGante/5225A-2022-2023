@@ -1,4 +1,5 @@
 #pragma once
+#include "Libraries/logging.hpp"
 #include <cmath>
 #include <numbers>
 
@@ -23,54 +24,31 @@ inline constexpr double rad_to_rot = 1/rot_to_rad;
     _Task::delay(delayTime);\
   }\
 }
-constexpr bool inRange(double value, double minimum, double maximum){
-  return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);
-}
+constexpr bool inRange(double value, double minimum, double maximum) {return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);}
 
-constexpr double degToRad(double deg){
-  return deg * deg_to_rad;
-}
+constexpr double degToRad(double deg) {return deg * deg_to_rad;}
+constexpr double radToDeg(double rad) {return rad * rad_to_deg;}
 
-constexpr double radToDeg(double rad){
-  return rad * rad_to_deg;
-}
+constexpr double operator "" _deg(long double degree) {return degToRad(degree);}
+constexpr double operator "" _rad(long double radians) {return radToDeg(radians);}
+constexpr double operator "" _rot(long double rotations) {return rotations * rot_to_rad;}
 
-constexpr double operator "" _deg(long double degree){
-  return degToRad(degree);
-}
-constexpr double operator "" _rad(long double radians){
-  return radToDeg(radians);
-}
+constexpr double nearAngle(double angle, double reference) {return std::round((reference - angle)/(2*std::numbers::pi)) * (2*std::numbers::pi) + angle - reference;}
 
-constexpr double operator "" _rot(long double rotations){
-  return rotations * rot_to_rad;
-}
-
-constexpr double nearAngle(double angle, double reference){
-	return std::round((reference - angle)/(2*std::numbers::pi)) * (2*std::numbers::pi) + angle - reference;
-}
-
-constexpr int sgn(double x){
-	return x == 0 ? 0 : x > 0 ? 1 : -1;
-}
+constexpr int sgn(double x) {return x == 0 ? 0 : x > 0 ? 1 : -1;}
 
 // maps a value to a range
-template <typename T>
-T mapValues(T x, T in_min, T in_max, T out_min, T out_max){
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-// base case for recursive function map_set
-template <typename T>
-T mapSet(T input, T in_min, T in_max, T out_min, T out_max, T range, T val){
+auto mapValues(auto x, auto in_min, auto in_max, auto out_min, auto out_max) {return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
+// base case for recursive function mapSet
+auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range, auto val){
   if (input <= range) return map(input, in_min, range, out_min, val);
   else {
-    // misc.print("INVALID INPUT IN MAP FUNCTION");
-    return static_cast<T>(0);
+    misc.print("INVALID INPUT IN MAP FUNCTION");
+    return 0;
   }
 }
 // maps a values to a set of maps (a piecewise function)
-template <typename T, typename... Ts>
-T mapSet(T input, T in_min, T in_max, T out_min, T out_max, T range1, T val_1, Ts... args){
+auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range1, auto val_1, auto... args){
   if (input <= range1) return map(input, in_min, range1, out_min, val_1);
   else return mapSet(input, range1, in_max, val_1, out_max, args...);
 }
