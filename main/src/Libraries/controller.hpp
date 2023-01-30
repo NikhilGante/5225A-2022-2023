@@ -5,9 +5,8 @@
 
 // Buttons
   constexpr controller_digital_e_t okBtn = DIGITAL_A;
-
+  
   // ------------------------------ Direction Buttons ------------------------------
-  extern controller_digital_e_t transToggleBtn;
   extern controller_digital_e_t goalDisturbBtn;
   // Up and Down Taken by Adjusting Disc count
 
@@ -21,7 +20,7 @@
 
   // ------------------------------ Front Buttons ------------------------------
   extern controller_digital_e_t anglerToggleBtn;
-  extern controller_digital_e_t rollerBtn;
+  extern controller_digital_e_t transToggleBtn;
   extern controller_digital_e_t singleShotBtn;
   extern controller_digital_e_t tripleShotBtn;
 
@@ -33,7 +32,7 @@ class _Controller: public pros::Controller{
   private:
     static _Controller *master_ptr, *partner_ptr;
     static _Task controller_task;
-    Queue<std::function<void()>, 20> queue{"Controller"};
+    static Queue<std::function<void()>, 20> queue;
     std::string name;
 
   public:

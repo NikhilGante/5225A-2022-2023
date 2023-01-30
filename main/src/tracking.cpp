@@ -232,8 +232,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(std::abs(power) > max_power) power = sgn(power) * max_power;
-    else if(std::abs(power) < 30) power = sgn(power) * tracking.min_move_power_a;
-    // tracking_data.print("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
+    else if(std::abs(power) < tracking.min_move_power_a) power = sgn(power) * tracking.min_move_power_a;
     tracking_data.print("%d err:%lf power: %lf\n", millis(), radToDeg(angle_pid.getError()), power);
     moveDrive(0.0, power);
     _Task::delay(10);
@@ -361,11 +360,15 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   moveDrive(-50, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
-  while(tracking.l_vel > -3.0 && tracking.r_vel > -3.0 && cycle_count < 15){
+
+  Timer timeout{"timeout"};
+  while(timeout.getTime() < 250 && cycle_count < 10){
     tracking_data.print("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
-    cycle_count++;
+    if(tracking.l_vel > -3.0 && tracking.r_vel > -3.0)  cycle_count++;
+    else cycle_count = 0;
     _Task::delay(10);
   }
+
   bool l_slow = false, r_slow = false; //
   // Waits until velocity drops (to detect wall)
   cycle_count = 0;

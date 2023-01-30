@@ -8,8 +8,6 @@ static constexpr int toaster_rpm = 1400;
 
 bool goal_disturb = false;
 bool angleOverride = false;
-bool flywheelOff = false;
-
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 
@@ -18,13 +16,12 @@ void shooterHandleInput(){
   if(std::get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
     if(master.get_digital_new_press(singleShotBtn)) shoot(1);
-    // if(master.get_digital_new_press(flywheelOffBtn)) flywheelOff = !flywheelOff;
   }
 
-  if(master.get_digital_new_press(anglerToggleBtn) && !flywheelOff) {
+  if(master.get_digital_new_press(anglerToggleBtn)) {
     angler_p.toggleState();
     if (!angleOverride){
-      if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
+      if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
       else{
         if(goal_disturb)  setFlywheelVel(3600);
         else  setFlywheelVel(toaster_rpm);
@@ -32,11 +29,11 @@ void shooterHandleInput(){
     }
   } 
 
-  if (master.get_digital_new_press(angleOverrideBtn) && !flywheelOff) {
+  if (master.get_digital_new_press(angleOverrideBtn)) {
     angleOverride = !angleOverride; 
     if(angleOverride) setFlywheelVel(toaster_rpm);
     else{
-      if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
+      if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
       else{
         if(goal_disturb)  setFlywheelVel(3600);
         else  setFlywheelVel(toaster_rpm);
@@ -44,8 +41,10 @@ void shooterHandleInput(){
     }
   }
 
-  if(master.get_digital_new_press(goalDisturbBtn))  goal_disturb = !goal_disturb;
-
+  if(master.get_digital_new_press(goalDisturbBtn)){
+    goal_disturb = !goal_disturb;
+    if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
+  }
   
   
 }
@@ -75,34 +74,44 @@ void ShooterShootParams::handle(){
     printf("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
-    delay(150); // Waits for SHOOTER to extend
+    _Task::delay(150); // Waits for SHOOTER to extend
     printf(" %d FINISHED SHOT\n", millis());
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
     shots_left--;
+    printf("shots left: %d\n", shots_left);
     if (g_mag_disc_count > 0) g_mag_disc_count--;
     
 
-    _Task::delay(100);// wait for SHOOTER to retract
+    printf("condition %d\n", shots_left <= 0);
+    _Task::delay(100);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
+    printf("condition2 %d\n", shots_left <= 0);
+
     if(shots_left <= 0){  // If shooting is done
+      printf("ENTERED SHOTS LEFT\n");
+      g_mag_disc_count = 0;
       _Task::delay(100); // waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
       _Task::delay(50);
 
-      if (!angleOverride && !flywheelOff){
+      if (!angleOverride){
         if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
         else setFlywheelVel(toaster_rpm);
       }
 
     }
+    printf("if statement finished\n");
+    _Task::delay(10);
+
     
   }
 
 }
 void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   // angler_p.setState(LOW);
+  printf("INIT shots_left %d\n", shots_left);
   intakeIndex();  // Sets intake to index state
 }
 

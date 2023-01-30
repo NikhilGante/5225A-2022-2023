@@ -6,10 +6,8 @@
 // Buttons
 
   // ------------------------------ Direction Buttons ------------------------------
-  controller_digital_e_t transToggleBtn = DIGITAL_LEFT;
   controller_digital_e_t goalDisturbBtn = DIGITAL_RIGHT;
   // Up and Down Taken by Adjusting Disc count
-
 
   // ------------------------------ Letter Buttons ------------------------------
   controller_digital_e_t intakeToggleBtn = DIGITAL_A;
@@ -17,14 +15,15 @@
   controller_digital_e_t angleOverrideBtn = DIGITAL_B;
   controller_digital_e_t endgameBtn = DIGITAL_Y;
 
-
   // ------------------------------ Front Buttons ------------------------------
   controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
-  controller_digital_e_t rollerBtn = DIGITAL_L2;
+  controller_digital_e_t transToggleBtn = DIGITAL_L2;
   controller_digital_e_t singleShotBtn = DIGITAL_R1;
   controller_digital_e_t tripleShotBtn = DIGITAL_R2;
 
+//Static Member Initializations
 _Task _Controller::controller_task{"Controller"};
+Queue<std::function<void()>, 20> _Controller::queue{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};
 _Controller* _Controller::partner_ptr{nullptr};
 

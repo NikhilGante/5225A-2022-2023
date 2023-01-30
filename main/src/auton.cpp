@@ -188,13 +188,14 @@ void autonStack(){
   tracking.reset({31.0, 7.375, degToRad(0.0)});
 	moveToTargetSync({30.75, 12.5});  // Move away from wall
 	aimAtBlue(9.5);
+  printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
 	setFlywheelVel(2300);
-	turnToTargetSync({69.0, 44.0});
+	turnToTargetSync({69.0, 43.0});
 	intakeOn();
-	moveToTargetSync({69.0, 44.0}); // Pickup stack of discs
+	moveToTargetSync({69.0, 43.0}); // Pickup stack of discs
 	aimAtBlue(11.0);
 	shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
