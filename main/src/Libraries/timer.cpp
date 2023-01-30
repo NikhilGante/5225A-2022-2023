@@ -3,7 +3,7 @@
 
 Timer::Timer(std::string name, Logging& log, bool play, timing_units timing_unit):
 name{name}, timing_unit{timing_unit}, log{&log} {
-  log.print("%s's initialize time is: %lld\n", name, getTimeInTimingUnit());
+  log.print(get_name() + "\'s initialize time is: %lld\n", getTimeInTimingUnit());
   reset(play);
 }
 
@@ -13,7 +13,7 @@ void Timer::reset(bool play){
     paused = true;
     this->play();
   }
-  else paused = true;
+  else paused = true; //? paused = true in both branches
 }
 
 uint64_t Timer::getTime(){
@@ -26,7 +26,7 @@ void Timer::play(){
     last_play_time = getTimeInTimingUnit();
     paused = false;
   }
-  else log->print("Timer \"%s\" is already playing.\n", name);
+  else log->print(get_name() + "is already playing.\n");
 }
 
 void Timer::pause(){
@@ -34,15 +34,17 @@ void Timer::pause(){
     time += getTimeInTimingUnit() - last_play_time;
     paused = true;
   }
-  else log->print("Timer \"%s\" is already paused.\n", name);
+  else log->print(get_name() + "is already paused.\n");
 }
 
 void Timer::print(std::string str){
-  log->print("%s's current time is: %lld | %s\n", name, getTime(), str);
+  log->print(get_name() + "\'s current time is: %lld | %s\n", getTime(), str);
 }
 
 bool Timer::playing() const {return !paused;}
 
 uint64_t Timer::getTimeInTimingUnit(){ // returns time in either millis or micros
-  return pros::micros() * (timing_unit == timing_units::micros ? 1 : 0.001);
+  return micros() * (timing_unit == timing_units::micros ? 1 : 0.001);
 }
+
+std::string Timer::get_name() const {return sprintf2("Timer \'%s\'", name);}

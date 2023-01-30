@@ -91,8 +91,8 @@ namespace alert{
     double y_space = (y_range-y_objects * y_size) / (y_objects+1.0);
 
     //Recalculates until it gets a nice multiple of 5
-    while (fmod(x_space, 5)) x_space = ((--x_range) - x_objects * x_size) / (x_objects+1.0);
-    while (fmod(y_space, 5)) y_space = ((--y_range) - y_objects * y_size) / (y_objects+1.0);
+    while (std::fmod(x_space, 5)) x_space = ((--x_range) - x_objects * x_size) / (x_objects+1.0);
+    while (std::fmod(y_space, 5)) y_space = ((--y_range) - y_objects * y_size) / (y_objects+1.0);
 
     newline(2);
     for (int y = 0; y < y_objects; y++){
@@ -120,43 +120,23 @@ namespace alert{
 
     //! Had to comment this out because our controller subclass has changed
 
-    // //Wait for Release
-    // WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(ok_button) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-    //   GUI::update_screen_status();
-    //   if (prompt_back_button.pressed()) interrupted = true;
-    // }
+    //Wait for Release
+    WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
+      GUI::update_screen_status();
+      if (prompt_back_button.pressed()) interrupted = true;
+    }
 
-    // //Wait for Press
-    // WAIT_UNTIL((prompt_button.pressed() || master.get_digital(ok_button)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-    //   GUI::update_screen_status();
-    //   if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
-    // }
+    //Wait for Press
+    WAIT_UNTIL((prompt_button.pressed() || master.get_digital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
+      GUI::update_screen_status();
+      if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
+    }
     
-    // //Wait for Release
-    // WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(ok_button) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-    //   GUI::update_screen_status();
-    //   if (prompt_back_button.pressed()) interrupted = true;
-    // }
-
-
-    // Alternative until Controller class is restored
-      //Wait for Release
-      WAIT_UNTIL(!prompt_button.pressed() || interrupted){ //checks that no button is being pressed
-        GUI::update_screen_status();
-        if (prompt_back_button.pressed()) interrupted = true;
-      }
-
-      //Wait for Press
-      WAIT_UNTIL(prompt_button.pressed() || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-        GUI::update_screen_status();
-        if (prompt_back_button.pressed()) interrupted = true;
-      }
-      
-      //Wait for Release
-      WAIT_UNTIL(!(prompt_button.pressed()) || interrupted){ //checks that no button is being pressed
-        GUI::update_screen_status();
-        if (prompt_back_button.pressed()) interrupted = true;
-      }
+    //Wait for Release
+    WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
+      GUI::update_screen_status();
+      if (prompt_back_button.pressed()) interrupted = true;
+    }
 
     if (!interrupted){
       if(delay_time){
@@ -336,7 +316,7 @@ namespace alert{
     }
   }
 
-  GUI::GUI(std::vector<Page*> pages, std::function <void()> setup, std::function <void()> background){
+  GUI::GUI(std::vector<Page*> pages, std::function<void()> setup, std::function<void()> background){
     //Saves pages to gui
     this->pages.push_back(&perm);
     for (auto page_ptr: pages) this->pages.push_back(page_ptr);

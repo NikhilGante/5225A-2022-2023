@@ -15,14 +15,13 @@ Logging tracking_data   {"Tracking"};
 Logging state_log       {"States"    , log_locations::both};
 Logging sensor_data     {"Sensor"    , log_locations::sd};
 Logging misc            {"Misc"      , log_locations::none};
-Logging term            {"Terminal"  , log_locations::t};
+Logging term            {"Terminal"  , log_locations::terminal};
 Logging log_d           {"Log"       , log_locations::sd};
 Logging task_log        {"Tasks"     , log_locations::both, term_colours::ERROR, true};
-Logging controller_queue{"Controller", log_locations::none, term_colours::NONE, true};
+Logging controller_data {"Controller", log_locations::none, term_colours::NONE, true};
 Logging error           {"Error"     , log_locations::both, term_colours::ERROR};
 
-Logging::Logging(std::string name, log_locations log_location, term_colours print_colour, bool newline):
-Counter{name}, name{name}, log_location{log_location}, print_colour{print_colour}, newline{newline} {
+Logging::Logging(std::string name, log_locations log_location, term_colours print_colour, bool newline): name{name}, log_location{log_location}, print_colour{print_colour}, newline{newline} {
   logs.push_back(this);
 }
 
@@ -45,7 +44,7 @@ void Logging::init(){
     alert::start("Logging Deactivating");
     for(Logging* log: getList()){
       log_locations& loc = log->log_location;
-      if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::t;
+      if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::terminal;
     }
   }
   else task.start([](){ //Logging is good to go

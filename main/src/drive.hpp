@@ -1,20 +1,24 @@
 #pragma once
 
-int polynomial(int x, double curvature);
-int poly_min_pow(int x, double curvature);
+#include <array>
+
+constexpr int polynomial(int x, double curvature);
+constexpr int poly_min_pow(int x, double curvature);
 
 class CustomDrive{
-  int lookup_table[255];
-  // curve functions
-  int polynomial(int x);  // transforms a linear input to a polynomially tranformed output
-  int exponential(int x);  // transforms a linear input to a exponentially tranformed output
+  private:
+    std::array<int, 255> lookup_table;
+    // curve functions
+    constexpr int polynomial(int x) const;  // transforms a linear input to a polynomially tranformed output
+    constexpr int exponential(int x) const;  // transforms a linear input to a exponentially tranformed output
+    constexpr int& lookup(unsigned char x);  // returns transformed value from lookup table, taking in an x input
+    void fillLookupTable(); // transforms linear mapping to exponential mapping for a singular axis
+    
+    double curvature;
 
-public:
-  double curvature;
-
-  CustomDrive(double curvature); // constructor
-  void fillLookupTable(); // transforms linear mapping to exponential mapping for a singular axis
-  int lookup(int x);  // returns transformed value from lookup table, taking in an x input
+  public:
+    constexpr CustomDrive(double curvature); // constructor
+    constexpr int lookup(unsigned char x) const;  // returns transformed value from lookup table, taking in an x input
 };
 
 // moves the drivebase given 2 local powers: y and angle

@@ -1,6 +1,8 @@
 #include "menu.hpp"
 #include "Libraries/controller.hpp"
 
+#include <fstream>
+
 std::array<Auton*, MAX_AUTON_ARR_SIZE> Auton::autonArr;
 
 int Auton::autons_constructed = 0;
@@ -38,7 +40,7 @@ void Auton::runAuton(){
 	autonArr[auton_num]->run();	// Runs Auton
 }
 
-Auton::Auton(std::string name, std::function<void(void)> program): name(name), program(program){
+Auton::Auton(std::string name, std::function<void()> program): name(name), program(program){
 	autonArr[autons_constructed++] = this;
 }
 

@@ -130,7 +130,7 @@ void IntakeRollerParams::handle(){
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
-  const int thresh = 3000;
+  constexpr int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
   sensor_data.print("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
   // waits to see a value > 700  different than inital value (waits for a colour change)

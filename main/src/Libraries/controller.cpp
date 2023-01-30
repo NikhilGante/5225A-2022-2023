@@ -5,29 +5,24 @@
 
 // Buttons
 
-
-// ------------------------------ Direction Buttons ------------------------------
-controller_digital_e_t transToggleBtn = DIGITAL_LEFT;
-controller_digital_e_t goalDisturbBtn = DIGITAL_RIGHT;
-// Up and Down Taken by Adjusting Disc count
-
+  // ------------------------------ Direction Buttons ------------------------------
+  controller_digital_e_t transToggleBtn = DIGITAL_LEFT;
+  controller_digital_e_t goalDisturbBtn = DIGITAL_RIGHT;
+  // Up and Down Taken by Adjusting Disc count
 
 
+  // ------------------------------ Letter Buttons ------------------------------
+  controller_digital_e_t intakeToggleBtn = DIGITAL_A;
+  controller_digital_e_t intakeRevBtn = DIGITAL_X;
+  controller_digital_e_t angleOverrideBtn = DIGITAL_B;
+  controller_digital_e_t endgameBtn = DIGITAL_Y;
 
 
-
-// ------------------------------ Letter Buttons ------------------------------
-controller_digital_e_t intakeToggleBtn = DIGITAL_A;
-controller_digital_e_t intakeRevBtn = DIGITAL_X;
-controller_digital_e_t angleOverrideBtn = DIGITAL_B;
-controller_digital_e_t endgameBtn = DIGITAL_Y;
-
-
-// ------------------------------ Front Buttons ------------------------------
-controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
-controller_digital_e_t rollerBtn = DIGITAL_L2;
-controller_digital_e_t singleShotBtn = DIGITAL_R1;
-controller_digital_e_t tripleShotBtn = DIGITAL_R2;
+  // ------------------------------ Front Buttons ------------------------------
+  controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
+  controller_digital_e_t rollerBtn = DIGITAL_L2;
+  controller_digital_e_t singleShotBtn = DIGITAL_R1;
+  controller_digital_e_t tripleShotBtn = DIGITAL_R2;
 
 _Task _Controller::controller_task{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};
@@ -46,9 +41,9 @@ _Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}{
   }
 }
 
-void _Controller::queueHandle(){
+void _Controller::handle(){
   if(!queue.empty()){
-    controller_queue.print("Running function on %s controller\n", name);
+    controller_data.print("Running function on %s controller\n", name);
     queue.front()();
     queue.pop();
     _Task::delay(50);
@@ -58,8 +53,8 @@ void _Controller::queueHandle(){
 void _Controller::init(){
   controller_task.start([](){
     while(true){
-      if(master_ptr) master_ptr->queueHandle();
-      if(partner_ptr) partner_ptr->queueHandle();
+      if(master_ptr) master_ptr->handle();
+      if(partner_ptr) partner_ptr->handle();
       _Task::delay();
     }
   });
@@ -68,69 +63,76 @@ void _Controller::init(){
 void _Controller::clearLine (std::uint8_t line){
   queue.push([=, this](){
     pros::Controller::clear_line(line);
-    controller_queue.print("clearing line %d on %s controller", line, name);
+    controller_data.print("clearing line %d on %s controller", line, name);
   });
-  controller_queue.print("Adding clearLine for %s controller", name);
+  controller_data.print("Adding clearLine for %s controller", name);
 }
 
 void _Controller::clear(){
   queue.push([=, this](){
     pros::Controller::clear();
-    controller_queue.print("Clearing screen on %s controller", name);
+    controller_data.print("Clearing screen on %s controller", name);
   });
-  controller_queue.print("Adding clear to %s controller queue", name);
+  controller_data.print("Adding clear to %s controller queue", name);
 }
-
 
 void _Controller::rumble(std::string rumble_pattern){
   queue.push([=, this](){
     pros::Controller::rumble(rumble_pattern.c_str());
-    controller_queue.print("Rumbling %s controller", name);
+    controller_data.print("Rumbling %s controller", name);
   });
-  controller_queue.print("Adding rumble to %s controller queue", name);
-}
-
-controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
-  Timer timer{"Controller Button Timeout"};
-  controller_queue.print("Waiting for button press on %s controller with a timeout of %d", name, timeout);
-  
-  WAIT_UNTIL(timer.getTime() > timeout){
-    for(controller_digital_e_t btn: buttons){
-      if(get_digital_new_press(btn)){
-        controller_queue.print("Button %d pressed on %s controller", btn, name);
-        return btn;
-      }
-    }
-  }
-  controller_queue.print("Timed out on waiting for button press from controller %s", name);
-  return static_cast<controller_digital_e_t>(0);
+  controller_data.print("Adding rumble to %s controller queue", name);
 }
 
 void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
 
-// void _Controller::updateButtons(){
-//   for(int i = 0; i < 12; i++){
-//     last_press_arr[i] = cur_press_arr[i];
-//     // + 6 because controller_digital_e_t starts with 6 instead of 0
-//     cur_press_arr[i] = this->get_digital(static_cast<pros::controller_digital_e_t>(i + 6));
-//     // printf2("%d, %d ", i, cur_press_arr[i]);
-//   }
-// }
+controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
+  Timer timer{"Controller Button Timeout"};
+  controller_data.print("Waiting for button press on %s controller with a timeout of %d", name, timeout);
+  
+  WAIT_UNTIL(timer.getTime() > timeout){
+    for(controller_digital_e_t btn: buttons){
+      if(get_digital_new_press(btn)){
+        controller_data.print("Button %d pressed on %s controller", btn, name);
+        return btn;
+      }
+    }
+  }
+  controller_data.print("Timed out on waiting for button press from controller %s", name);
+  return static_cast<controller_digital_e_t>(0);
+}
 
-// bool _Controller::getButtonState(pros::controller_digital_e_t button){
-//   return cur_press_arr[static_cast<int>(button) - 6];
-// }
+int _Controller::getAnalog(controller_analog_e_t joystick){
+  return getAnalog(joystick, deadzone);
+}
 
-// bool _Controller::getButtonLastState(pros::controller_digital_e_t button){
-//   return last_press_arr[static_cast<int>(button) - 6];
-// }
+int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone){
+  int value = get_analog(joystick);
+  return std::abs(value) > deadzone ? value : 0;
+}
 
-// bool _Controller::isRising(pros::controller_digital_e_t button){
-//   int index = static_cast<int>(button) - 6;
-//   return !last_press_arr[index] && cur_press_arr[index];
-// }
+bool _Controller::interrupt(bool analog, bool digital, bool OK_except){
+  if (analog){
+    if (get_analog(ANALOG_LEFT_X ), 20) return true;
+    if (get_analog(ANALOG_LEFT_Y ), 20) return true;
+    if (get_analog(ANALOG_RIGHT_X), 20) return true;
+    if (get_analog(ANALOG_RIGHT_Y), 20) return true;
+  }
+  if(digital){
+    if (get_digital(okBtn)) return !OK_except;
+    if (get_digital(DIGITAL_A)) return true;
+    if (get_digital(DIGITAL_B)) return true;
+    if (get_digital(DIGITAL_Y)) return true;
+    if (get_digital(DIGITAL_X)) return true;
+    if (get_digital(DIGITAL_R1)) return true;
+    if (get_digital(DIGITAL_R2)) return true;
+    if (get_digital(DIGITAL_L1)) return true;
+    if (get_digital(DIGITAL_L2)) return true;
+    if (get_digital(DIGITAL_RIGHT)) return true;
+    if (get_digital(DIGITAL_DOWN)) return true;
+    if (get_digital(DIGITAL_LEFT)) return true;
+    if (get_digital(DIGITAL_UP)) return true;
+  }
 
-// bool _Controller::isFalling(pros::controller_digital_e_t button){
-//   int index = static_cast<int>(button) - 6;
-//   return last_press_arr[index] && !cur_press_arr[index];
-// }
+  return false;
+}

@@ -1,65 +1,47 @@
 #include "drive.hpp"
-#include "config.hpp"
 #include "tracking.hpp"
-#include "util.hpp"
 #include "Libraries/controller.hpp"
 #include "Libraries/motor.hpp"
 #include "Libraries/piston.hpp"
-#include "Libraries/timer.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
-
-#include <cmath>
 
 static constexpr double drive_curvature = 1.0;
 static constexpr double angle_curvature = 2.0;
 
-static constexpr int deadzone = 7;
-
-int polynomial(int x, double curvature){
-  double n = curvature * 0.2 + 1; // scales curvature value to match expo function
+constexpr int polynomial(int x, double curvature){
+  const double n = curvature * 0.2 + 1; // scales curvature value to match expo function
   return std::round(std::pow(127, 1 - n) * std::pow(std::abs(x), n) * sgn(x));
 }
 
-int poly_min_pow(int x, double curvature){
+constexpr int poly_min_pow(int x, double curvature){
   double n = curvature * 0.2 + 1; // scales curvature value to match expo function
-  if(abs(x) < deadzone) return 0;
-  return round(sgn(x) * ((127 - tracking.min_move_power_a)/pow(127 - deadzone, n) * pow(abs(x) - deadzone, n) + tracking.min_move_power_a));
+  if(std::abs(x) < _Controller::deadzone) return 0;
+  return round(sgn(x) * ((127 - tracking.min_move_power_a)/pow(127 - _Controller::deadzone, n) * pow(abs(x) - _Controller::deadzone, n) + tracking.min_move_power_a));
 }
 // private methods
-int CustomDrive::polynomial(int x){
-  double n = curvature * 0.2 + 1; // scales curvature value to match expo function
-  return std::round(std::pow(127, 1 - n) * std::pow(std::abs(x), n) * sgn(x));
-}
-int CustomDrive::exponential(int x){
-  double n = curvature;
+constexpr int CustomDrive::polynomial (int x) const {return ::polynomial(x, curvature);}
+constexpr int CustomDrive::exponential(int x) const {
+  const double n = curvature;
   return std::round(exp(0.002 * n * (std::abs(x) - 127)) * x);
 }
 
 // CustomDrive constructor
-CustomDrive::CustomDrive(double curvature): curvature(curvature){}
+constexpr CustomDrive::CustomDrive(double curvature): curvature(curvature){}
 
 void CustomDrive::fillLookupTable(){
   for (short x = -127; x < 128; x++){ // fills lookup table with values from appropriate function
-    lookup_table[(unsigned char)x] = exponential(x);
+    lookup(x) = exponential(x);
     // UNCOMMENT THESE FOR DEBUGGING, comment for performance
-    // printf2("%d, %d", x, lookup_table[(unsigned char)x]);
+    // printf2("%d, %d", x, lookup(x));
     // delay(1);
   }
 }
 
-int CustomDrive::lookup(int x){
-  return lookup_table[(unsigned char)x];
-}
+constexpr int& CustomDrive::lookup(unsigned char x)       {return lookup_table[x];}
+constexpr int  CustomDrive::lookup(unsigned char x) const {return lookup_table[x];}
 
-void moveDrive(double y, double a){
-  front_l.move(y+a);
-  centre_l.move(y+a);
-  back_l.move(y+a);
-  front_r.move(y-a);
-  centre_r.move(y-a);
-  back_r.move(y-a);
-}
+void moveDrive(double y, double a) {moveDriveSide(y+a, y-a);}
 
 void moveDriveSide(double l, double r){
   front_l.move(l);
@@ -79,9 +61,9 @@ void driveBrake(){
   centre_r.brake();
 }
 
-Timer curve_print_timer{"curve_print_timer"};
+Timer curve_print_timer{"Curve Print"};
+Timer backwards_timer{"Backwards"};
 constexpr int slew = 5;
-Timer backwards_timer{"backwards_timer"};
 bool backwards = false;
 bool last_backwards = false;
 
@@ -89,7 +71,7 @@ void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
-  if(std::abs(power_y) < deadzone) power_y = 0;
+  if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
  
   backwards = power_y < 0;
   // if(backwards && !last_backwards){
@@ -118,50 +100,9 @@ void driveHandleInput(){
   moveDrive(power_y, power_a);
 }
 
-constexpr int dz = 7; // Deadzone for joystick
-
 int power_sgn = 0; // Equals -1 if power < -dz, 1 if power > dz, and 0 otherwise (used to check for sudden braking by driver)
 int last_power_sgn = 0; // sgn of power last cycle
 int prev_power_sgn = 0; // sgn of power before it was 0 (need to think of better name for this var)
-
-Timer zero_power_timer{"zero_power_timer"};
-// void driveHandleInput(){
-//   int power_x, power_y, power_a;
-
-//   power_y = master.get_analog(ANALOG_LEFT_Y);
-//   power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
-
-//   if(std::abs(power_y) < dz) power_y = 0;
-//   if(std::abs(power_a) < dz) power_a = 0;
-
-
-//   if(power_y > dz)  power_sgn = 1;
-//   else if(power_y < dz)  power_sgn = -1;
-//   else power_sgn = 0;
-
-//   // if power sgn just became 0
-//   if (power_sgn == 0 && last_power_sgn != 0)  zero_power_timer.reset();
-
-//   // if power sgn just became -1 or 1
-//   if (power_sgn != 0 && last_power_sgn == 0){
-//     if(power_sgn != prev_power_sgn && zero_power_timer.getTime() < 100)  master.rumble("-"); // notifies driver that they just harshly applied the brakes
-//     prev_power_sgn = power_sgn; 
-//   }
-
-//   last_power_sgn = power_sgn;
-
-//   lcd::print(4, "intk: %.lf", intake_m.get_temperature());
-//   lcd::print(5, "L| f:%.lf c:%.lf, b:%.lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
-//   lcd::print(6, "R| f:%.lf c:%.lf, b:%.lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
-
-
-//   if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50){
-//     moveDrive(0, 0);
-//     master.rumble("----------");
-//     WAIT_UNTIL(false);
-//   } 
-//   moveDrive(power_y, power_a);
-// }
 
 double l_power_last, r_power_last;
 constexpr double slew_val = 3;
@@ -171,8 +112,8 @@ void driveHandleInputProg(){
   power_y = master.get_analog(ANALOG_LEFT_Y);
   power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(std::abs(power_y) < dz) power_y = 0;
-  if(std::abs(power_a) < dz) power_a = 0;
+  if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
+  if(std::abs(power_a) < _Controller::deadzone) power_a = 0;
   // if(power_y < -30){
   //   power_y = -30;
   //   // master.rumble("-");

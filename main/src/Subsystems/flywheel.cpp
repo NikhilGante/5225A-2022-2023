@@ -54,14 +54,14 @@ void FlywheelMoveVelParams::handle(){
   // flywheel_m.move(output);
   // printf("%d, %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), flywheel_ds.get_value(), target_vel, rot_vel, error.load(), output, target_vel * kB, kP*error);
 
-// ***********************
+  // ***********************
 
   // if(master.get_digital_new_press(DIGITAL_UP))  target_vel += 25;
   // if(master.get_digital_new_press(DIGITAL_DOWN))  target_vel -= 25;
 
   // Calculating filtered velocity
   if(motor_vel_read.getTime() >= 40){
-    double pos = flywheel_m.getPosition() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * deg_to_rot;
+    const double pos = flywheel_m.getPosition() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * deg_to_rot;
     manual_vel = (pos - last_pos)/motor_vel_read.getTime();
     last_pos = pos;
 
@@ -74,7 +74,7 @@ void FlywheelMoveVelParams::handle(){
   // Velocity control
   flywheel_error = target_vel - smoothed_vel;
   // double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
-  double correction = flywheel_error*kP;
+  const double correction = flywheel_error*kP;
   // if(std::abs(correction) > 2500) correction = 2500;
   output = kB * target_vel + correction;
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most

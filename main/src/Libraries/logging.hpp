@@ -7,7 +7,7 @@
 class _Task;
 
 enum class log_locations{
-  t,
+  terminal,
   sd,
   both,
   none
@@ -48,7 +48,7 @@ class Logging: public Counter<Logging>{
           master_queue.insert(str);
           queue.insert(str);
           break;
-        case log_locations::t:
+        case log_locations::terminal:
           printf2(colour, str);
           break;
         case log_locations::none:
@@ -64,7 +64,7 @@ extern Logging state_log;
 extern Logging sensor_data;
 extern Logging auton_log;
 extern Logging tracking_data;
-extern Logging controller_queue;
+extern Logging controller_data;
 extern Logging misc;
 extern Logging term;
 extern Logging log_d;

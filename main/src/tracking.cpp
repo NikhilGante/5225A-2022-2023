@@ -218,14 +218,13 @@ void aimAtBlue(double offset){
 
 void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
-  double angle_kp = 5.0;
-  
-  if(max_power > 50)  angle_kp = 4.0;
+  double angle_kp = max_power > 50 ? 4: 5;
+
   PID temp(angle_kp, 0.03, 40.0, 0.0, true, 0.0, degToRad(10.0));
 
   PID angle_pid = temp;
 
-  double kB = 13.78; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  constexpr double kB = 13.78; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
   constexpr double kP_vel = 0.0;
   do{
@@ -239,7 +238,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     moveDrive(0.0, power);
     _Task::delay(10);
   }
-  while(std::abs(angle_pid.getError()) > end_error); //why not wait_until
+  while(std::abs(angle_pid.getError()) > end_error); //? why not wait_until
   handleBrake(brake_mode);
   tracking_data.print("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
@@ -399,4 +398,3 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   drive.changeState(DriveIdleParams{});
 }
 void DriveFlattenParams::handleStateChange(driveVariant prev_state){}
-
