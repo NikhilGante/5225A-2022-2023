@@ -12,10 +12,11 @@ class Auton{
     std::function<void()> program;
     static std::array<Auton*, MAX_AUTON_ARR_SIZE> autonArr;
     static int autons_constructed;
+    
+    void runFunction() const;
 
   public:
     Auton(std::string name, std::function<void()> program);
-    static void selectAuton();
-    static void runAuton();	// Reads auton from SD card and runs it
-    void run();
+    static void select();
+    static void run();	// Reads auton from SD card and runs it
 };

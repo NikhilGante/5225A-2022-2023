@@ -30,13 +30,13 @@ class Logging: public Counter<Logging>{
     static Queue<char, 20000> master_queue;
 
   public:
-    Logging(std::string name, log_locations log_location = log_locations::both, term_colours print_colour = term_colours::NONE, bool newline = false);
+    Logging(std::string name, bool newline = false, term_colours print_colour = term_colours::NONE, log_locations log_location = log_locations::both);
     
     static void init();
 
     static std::vector<Logging*> const & getList() {return logs;}
 
-    void print(term_colours colour, std::string format, auto... args){
+    void operator() (term_colours colour, std::string format, auto... args){
       std::string str{sprintf2(format, args...)};
       if(newline) str += '\n';
 
@@ -56,16 +56,19 @@ class Logging: public Counter<Logging>{
       }
     }
 
-    void print(std::string format, auto... args) {print(print_colour, format, args...);}
+    void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}
 };
 
-extern Logging task_log;
-extern Logging state_log;
-extern Logging sensor_data;
-extern Logging auton_log;
-extern Logging tracking_data;
-extern Logging controller_data;
-extern Logging misc;
-extern Logging term;
-extern Logging log_d;
-extern Logging error;
+extern Logging tracking_log  ;
+extern Logging state_log     ;
+extern Logging auton_log     ;
+extern Logging shoot_log     ;
+extern Logging intake_log    ;
+extern Logging controller_log;
+extern Logging task_log      ;
+extern Logging error         ;
+extern Logging misc          ;
+extern Logging driver_log    ;
+extern Logging term          ;
+extern Logging sensor_log    ;
+extern Logging log_d         ;

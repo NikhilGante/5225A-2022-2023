@@ -7,13 +7,13 @@ std::array<Auton*, MAX_AUTON_ARR_SIZE> Auton::autonArr;
 
 int Auton::autons_constructed = 0;
 
-void Auton::selectAuton(){
+void Auton::select(){
 	int cur_auton = 0;
 	master.clear();
 	master.print(0, 0, "%s            ", autonArr[cur_auton]->name);
 	master.print(1, 0, "Up/dn change auton");
 	master.print(2, 0, "Press A to save");
-	printf("constructed: %d\n", autons_constructed);
+	auton_log("constructed: %d", autons_constructed);
 	while(true){
 		if(master.get_digital_new_press(DIGITAL_UP) && cur_auton < autons_constructed - 1){
 			master.print(0, 0, "%s            ", autonArr[++cur_auton]->name);
@@ -33,7 +33,7 @@ void Auton::selectAuton(){
 
 }
 // Runs selected auton
-void Auton::runAuton(){
+void Auton::run(){
 	std::ifstream myfile ("/usd/auton.txt", std::ifstream::in);
 	int auton_num;
 	myfile >> auton_num; 
@@ -44,7 +44,7 @@ Auton::Auton(std::string name, std::function<void()> program): name(name), progr
 	autonArr[autons_constructed++] = this;
 }
 
-void Auton::run(){
+void Auton::runFunction() const{
   if(program) program();
   else alert::start("No Auton function for" + name);
 }

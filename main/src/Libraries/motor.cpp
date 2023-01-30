@@ -32,13 +32,13 @@ Motor{port, gearset, reversed, encoder_units}, name{name}{
 }
 
 void _Motor::move(int voltage){
-  sensor_data.print("Motor %s moving from %d to %d speed", getName(), speed, voltage);
+  sensor_log("Motor %s moving from %d to %d speed", getName(), speed, voltage);
   Motor::move(voltage);
   speed = voltage;
 }
 
 void _Motor::brake(){
-  sensor_data.print("Motor %s braking", getName());
+  sensor_log("Motor %s braking", getName());
   Motor::move_relative(0, 200);
   speed = 0;
 }

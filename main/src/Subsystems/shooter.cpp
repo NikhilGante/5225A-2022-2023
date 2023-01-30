@@ -67,28 +67,28 @@ void ShooterShootParams::handle(){
     if(std::abs(flywheel_error) > 150) cycle_check.reset();
   }
 
-  // printf("cycle_check:%lld\n", cycle_check.getTime());
+  // shoot_log("cycle_check:%lld", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
   if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
-    printf("%d STARTED SHOOTING\n", millis());
+    shoot_log("%d STARTED SHOOTING", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
     _Task::delay(150); // Waits for SHOOTER to extend
-    printf(" %d FINISHED SHOT\n", millis());
+    shoot_log("%d FINISHED SHOT", millis());
     indexer_p.setState(LOW);
-    printf("%d FINISHED Retraction\n", millis());
+    shoot_log("%d FINISHED Retraction", millis());
     shots_left--;
-    printf("shots left: %d\n", shots_left);
+    shoot_log("shots left: %d", shots_left);
     if (g_mag_disc_count > 0) g_mag_disc_count--;
     
 
-    printf("condition %d\n", shots_left <= 0);
+    shoot_log("condition %d", shots_left <= 0);
     _Task::delay(100);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
-    printf("condition2 %d\n", shots_left <= 0);
+    shoot_log("condition2 %d", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done
-      printf("ENTERED SHOTS LEFT\n");
+      shoot_log("ENTERED SHOTS LEFT");
       g_mag_disc_count = 0;
       _Task::delay(100); // waits for last disc to shoot
       // Sets subsystems back to their state before shooting
@@ -102,7 +102,7 @@ void ShooterShootParams::handle(){
       }
 
     }
-    printf("if statement finished\n");
+    shoot_log("if statement finished");
     _Task::delay(10);
 
     
@@ -111,7 +111,7 @@ void ShooterShootParams::handle(){
 }
 void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   // angler_p.setState(LOW);
-  printf("INIT shots_left %d\n", shots_left);
+  shoot_log("INIT shots_left %d", shots_left);
   intakeIndex();  // Sets intake to index state
 }
 

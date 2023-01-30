@@ -54,18 +54,18 @@ void IntakeOnParams::handle(){  // synchronous state
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
-    printf("INCR, count: %d\n", g_mag_disc_count.load());
+    intake_log("INCR, count: %d", g_mag_disc_count.load());
     #ifdef LOGS
-    printf("INCR\n");
+    intake_log("INCR");
     #endif
   }
   mag_disc_detected_last = mag_disc_detected;
 
   // If mag is full, don't let any more discs in
-  // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  // intake_log("%d MAG| %d %d", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
-    printf("COUNTED 3\n");
+    intake_log("COUNTED 3");
     master.rumble("-");
     _Task::delay(185);
     intakeOff();
@@ -125,7 +125,7 @@ IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
-  sensor_data.print("%d | flatten:%d\n", millis(), flatten);
+  sensor_log("%d | flatten:%d\n", millis(), flatten);
 
   if(flatten) flattenAgainstWallSync();
   trans_p.setState(LOW);
@@ -135,15 +135,15 @@ void IntakeRollerParams::handle(){
   // Switches to opposite colour it saw
   constexpr int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
-  sensor_data.print("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
+  sensor_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
   // waits to see a value > 700  different than inital value (waits for a colour change)
   double cur_val;
   Timer timeout{"timeout"};
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
-    // sensor_data.print("r: %lf \n", cur_val);
-    sensor_data.print("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
+    // sensor_log("r: %lf \n", cur_val);
+    sensor_log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
   } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
 

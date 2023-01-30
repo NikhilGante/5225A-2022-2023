@@ -34,7 +34,7 @@ class Machine{
     Machine(std::string name, auto base_state): name(name), state(base_state), target_state(base_state){}
 
     void changeState(auto next_state){
-      state_log.print("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
+      state_log("%s state change requested from %s to %s", name, getStateName(state), getStateName(next_state));
       setTargetState(next_state);
       state_change_requested = true;
       task.kill();  // Interrupts current state
@@ -69,9 +69,9 @@ class Machine{
             variant target_state_cpy = getTargetState();
             variant state_cpy = getState();
             // calls handle state change method for target state and logs the change
-            state_log.print("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+            state_log("%s state change started from %s to %s", name, getStateName(state_cpy), getStateName(target_state_cpy));
             visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
-            state_log.print("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+            state_log("%s state change finished from %s to %s", name, getStateName(state_cpy), getStateName(target_state_cpy));
             setState(target_state_cpy);
 
             state_change_requested = false;

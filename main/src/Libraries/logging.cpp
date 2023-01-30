@@ -10,20 +10,22 @@ _Task Logging::task{"Logging"};
 std::vector<Logging*> Logging::logs{};
 Queue<char, 20000> Logging::master_queue{"Logging"};
 
-Logging auton_log       {"Auton"};
-Logging tracking_data   {"Tracking"};
-Logging state_log       {"States"    , log_locations::both};
-Logging sensor_data     {"Sensor"    , log_locations::sd};
-Logging misc            {"Misc"      , log_locations::none};
-Logging term            {"Terminal"  , log_locations::terminal};
-Logging log_d           {"Log"       , log_locations::sd};
-Logging task_log        {"Tasks"     , log_locations::both, term_colours::ERROR, true};
-Logging controller_data {"Controller", log_locations::none, term_colours::NONE, true};
-Logging error           {"Error"     , log_locations::both, term_colours::ERROR};
+Logging tracking_log  {"Tracking"};
+Logging state_log     {"States"    , true};
+Logging auton_log     {"Auton"     , true};
+Logging shoot_log     {"Shooter"   , true};
+Logging intake_log    {"Intake"    , true};
+Logging controller_log{"Controller", true , term_colours::NONE, log_locations::sd};
+Logging task_log      {"Tasks"     , true , term_colours::ERROR};
+Logging error         {"Error"     , false, term_colours::ERROR};
+Logging misc          {"Misc"      , false, term_colours::NONE, log_locations::terminal};
+Logging driver_log    {"Driver"    , false, term_colours::NONE, log_locations::terminal};
+Logging term          {"Terminal"  , false, term_colours::NONE, log_locations::terminal};
+Logging sensor_log    {"Sensor"    , false, term_colours::NONE, log_locations::sd};
+Logging log_d         {"Log"       , false, term_colours::NONE, log_locations::sd};
 
-Logging::Logging(std::string name, log_locations log_location, term_colours print_colour, bool newline): name{name}, log_location{log_location}, print_colour{print_colour}, newline{newline} {
-  logs.push_back(this);
-}
+Logging::Logging(std::string name, bool newline, term_colours print_colour, log_locations log_location):
+name{name}, newline{newline}, print_colour{print_colour}, log_location{log_location} {logs.push_back(this);} //! Fix the issue with Counter
 
 void Logging::init(){
   using std::ofstream;

@@ -3,7 +3,7 @@
 
 Timer::Timer(std::string name, Logging& log, bool play, timing_units timing_unit):
 name{name}, timing_unit{timing_unit}, log{&log} {
-  log.print(get_name() + "\'s initialize time is: %lld\n", getTimeInTimingUnit());
+  log(get_name() + "\'s initialize time is: %lld\n", getTimeInTimingUnit());
   reset(play);
 }
 
@@ -26,7 +26,7 @@ void Timer::play(){
     last_play_time = getTimeInTimingUnit();
     paused = false;
   }
-  else log->print(get_name() + "is already playing.\n");
+  else (*log)(get_name() + "is already playing.\n");
 }
 
 void Timer::pause(){
@@ -34,11 +34,11 @@ void Timer::pause(){
     time += getTimeInTimingUnit() - last_play_time;
     paused = true;
   }
-  else log->print(get_name() + "is already paused.\n");
+  else (*log)(get_name() + "is already paused.\n");
 }
 
 void Timer::print(std::string str){
-  log->print(get_name() + "\'s current time is: %lld | %s\n", getTime(), str);
+  (*log)(get_name() + "\'s current time is: %lld | %s\n", getTime(), str);
 }
 
 bool Timer::playing() const {return !paused;}

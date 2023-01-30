@@ -43,7 +43,7 @@ auto mapValues(auto x, auto in_min, auto in_max, auto out_min, auto out_max) {re
 auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range, auto val){
   if (input <= range) return map(input, in_min, range, out_min, val);
   else {
-    misc.print("INVALID INPUT IN MAP FUNCTION");
+    misc("INVALID INPUT IN MAP FUNCTION");
     return 0;
   }
 }

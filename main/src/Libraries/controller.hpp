@@ -55,8 +55,8 @@ class _Controller: public pros::Controller{
       std::string str = sprintf2(fmt, args...);
       queue.push([=, this](){
         pros::Controller::print(line, col, str.c_str());
-        controller_data.print("Printing %s to %s controller", str, name);
+        controller_log("Printing %s to %s controller", str, name);
       });
-      controller_data.print("Adding print to %s controller queue", name);
+      controller_log("Adding print to %s controller queue", name);
     }
 };

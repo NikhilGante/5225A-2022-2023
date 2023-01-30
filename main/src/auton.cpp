@@ -76,7 +76,7 @@ void skills1(){
   moveToTargetSync({113, 127.0});  // Drive to corner
   turnToAngleSync(177, E_Brake_Modes::brake, 2.0, 127);
 
-	auton_log.print("total: %d", total.getTime());
+	auton_log("total: %d", total.getTime());
 	// lcd::print(7, "total: %d", total.getTime());
 }
 
@@ -127,7 +127,7 @@ void skills2(){
   turnToAngleSync(95, E_Brake_Modes::brake, 2.0, 127);
   moveToTargetSync({9.0, 28.0}, E_Brake_Modes::coast, 127); // backup to wall
 
-	auton_log.print("total: %d\n", total.getTime());
+	auton_log("total: %d", total.getTime());
 	master.print(0,0, "total: %d", total.getTime());
   // shoot match loads here
 }
@@ -171,7 +171,7 @@ void skills3(){
 */
   endgame_s_p.setState(HIGH);
 
-  auton_log.print("total: %d", total.getTime());
+  auton_log("total: %d", total.getTime());
 	// lcd::print(7, "total: %d", total.getTime());
   // expand
 }
@@ -188,7 +188,7 @@ void autonStack(){
   tracking.reset({31.0, 7.375, degToRad(0.0)});
 	moveToTargetSync({30.75, 12.5});  // Move away from wall
 	aimAtBlue(9.5);
-  printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
+  auton_log("DONE AIMING: %lld %d", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
@@ -245,13 +245,13 @@ void autonAWP(){
   // Switches to opposite colour it saw
   constexpr int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
-  auton_log.print("init_value: %lf\n", init_value);
+  auton_log("init_value: %lf", init_value);
   // waits to see a value > 1500 different than inital value (waits for a colour change)
   double cur_val;
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
-    auton_log.print("r: %lf \n", cur_val);
+    auton_log("r: %lf", cur_val);
     _Task::delay(100);
   }while(std::abs(cur_val - init_value) < 1400);
 	roller_timer.print();
@@ -265,7 +265,7 @@ void autonAWP(){
   intake.waitToReachState(IntakeOffParams{});
 	moveInches(2.0);  // Move away from wall
   master.print(2,0, "total:%ld", timer1.getTime());
-  auton_log.print("total: %d", timer1.getTime());
+  auton_log("total: %d", timer1.getTime());
 	// lcd::print(6, "total:%ld", timer1.getTime());
 }
 

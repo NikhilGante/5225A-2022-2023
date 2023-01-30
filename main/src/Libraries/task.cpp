@@ -13,7 +13,7 @@ bool _Task::isAlive(){
 
 void _Task::killUnsafe(){
   if(isAlive()) task_delete(task_handle); // remove the task from scheduler if it's running
-  else task_log.print("%s | Already dead, killUnsafe failed", name);
+  else task_log("%s | Already dead, killUnsafe failed", name);
 }
 
 void _Task::kill(){
@@ -22,7 +22,7 @@ void _Task::kill(){
     task_notify_ext(task_handle, static_cast<int>(notify_types_2::interrupt), NOTIFY_ACTION_OWRITE, nullptr);
     if(task_get_state(task_handle) == TASK_STATE_SUSPENDED) resume();
   }
-  else task_log.print("%s | Already dead, kill failed", name);
+  else task_log("%s | Already dead, kill failed", name);
 }
 
 void _Task::suspend(){
@@ -30,13 +30,13 @@ void _Task::suspend(){
     task_notify_ext(task_handle, static_cast<int>(notify_types_2::suspend), NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
     WAIT_UNTIL(task_get_state(task_handle) == TASK_STATE_SUSPENDED); // wait for the task to suspend
   }
-  else task_log.print("%s | suspend failed, task is dead", name);
+  else task_log("%s | suspend failed, task is dead", name);
 }
 
 void _Task::resume(){
   // attempts to resume only if the task has started, otherwise a resume would block the program
   if(task_handle) task_resume(task_handle);
-  else task_log.print("%s | resume failed, task not started yet", name);
+  else task_log("%s | resume failed, task not started yet", name);
 }
 
 void _Task::delay(uint32_t delay_time){
@@ -48,11 +48,11 @@ void _Task::delay(uint32_t delay_time){
       case notify_types_2::none:
         break;
       case notify_types_2::interrupt:
-        task_log.print(term_colours::BLUE, "%s interrupted", task_get_name(current_task));
+        task_log(term_colours::BLUE, "%s interrupted", task_get_name(current_task));
         throw TaskEndException{};
         break;
       case notify_types_2::suspend:
-        task_log.print(term_colours::BLUE, "%s suspended", task_get_name(current_task));
+        task_log(term_colours::BLUE, "%s suspended", task_get_name(current_task));
         task_suspend(current_task);
         break;
     }

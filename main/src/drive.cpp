@@ -127,7 +127,7 @@ void driveHandleInputProg(){
   if(std::abs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
   if(std::abs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
 
-  // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
+  // driver_log("%lf %lf %lf %lf", l_power, l_power_last, r_power, r_power_last);
   moveDriveSide(l_power, r_power);
   l_power_last = l_power,  r_power_last = r_power;
 
@@ -160,15 +160,15 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 	while(true){
 
     if(endgame_click_timer.getTime() > 300){
-      printf("timer reset: %lld\n", endgame_click_timer.getTime());
+      driver_log("timer reset: %lld", endgame_click_timer.getTime());
       endgame_click_timer.reset(false);
       endgame_dbl_click = false;
-      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click);
+      driver_log("SHOULD BE FALSE dbl_click: %d", endgame_dbl_click);
 
     }
     if(master.get_digital_new_press(endgameBtn)){
-      printf("PRESSED | timer reset: %lld\n", endgame_click_timer.getTime());
-      printf("dbl_click: %d\n", endgame_dbl_click);
+      driver_log("PRESSED | timer reset: %lld", endgame_click_timer.getTime());
+      driver_log("dbl_click: %d", endgame_dbl_click);
       if(endgame_dbl_click) {
         endgame_s_p.setState(HIGH);
       }

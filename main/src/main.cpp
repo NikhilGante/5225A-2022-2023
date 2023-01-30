@@ -19,7 +19,6 @@ void initialize() {
 	_Controller::init();
 
 	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
-	// tracking.g_pos = {70.0, 129.5, std::numbers::pi};
 	_Task tracking_task("Tracking Update");
 	tracking_task.start(trackingUpdate);
 
@@ -56,7 +55,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	Auton::runAuton();
+	Auton::run();
 }
 
 /**
@@ -74,11 +73,11 @@ void autonomous() {
  */
 
 void auton2func(){
-	printf("whatup\n");
+	auton_log("whatup");
 }
 
 void auton3func(){
-	printf("ayyyy\n");
+	auton_log("ayyyy");
 }
 
 Auton auton1("autonStack", autonStack);
@@ -86,9 +85,7 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine);
 Auton auton4("Skills", fullSkills);
 
-//print logs as .rtf
-//use \033[1m for bold
-//use abbreviated template
+//TODO: Use Counter for Auton
 void opcontrol() {
   DEBUG;
   
