@@ -80,7 +80,7 @@ void ShooterShootParams::handle(){
     printf("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
-    _Task::delay(150); // Waits for SHOOTER to extend
+    _Task::delay(100); // Waits for SHOOTER to extend
     printf(" %d FINISHED SHOT\n", millis());
     indexer_p.setState(LOW);
     printf("%d FINISHED Retraction\n", millis());
@@ -90,17 +90,15 @@ void ShooterShootParams::handle(){
     
 
     printf("condition %d\n", shots_left <= 0);
-    _Task::delay(100);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
+    _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
     printf("condition2 %d\n", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done
-      printf("ENTERED SHOTS LEFT\n");
       g_mag_disc_count = 0;
       _Task::delay(100); // waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{}, 102);
-      _Task::delay(50);
 
       if (!angleOverride){
         if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
@@ -108,10 +106,7 @@ void ShooterShootParams::handle(){
       }
 
     }
-    printf("if statement finished\n");
-    _Task::delay(10);
 
-    
   }
 
 }

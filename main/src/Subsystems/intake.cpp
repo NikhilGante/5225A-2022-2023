@@ -147,6 +147,10 @@ void IntakeRollerParams::handle(){
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
+
+  intake_m.move_relative(-550, 200);  // should be 450
+  WAIT_UNTIL(fabs(intake_m.get_target_position() - intake_m.get_position()) < 10); // wait for intake to reach poisiton 
+  /*
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
   log("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
@@ -160,13 +164,18 @@ void IntakeRollerParams::handle(){
     log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
   } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
-
+  */
+  printf("**DONE ROLLER\n");
   // while(fabs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
+	moveDrive(0, 0);
+  delay(100);
+
 	trans_p.setState(HIGH);
   intakeOff();
+
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
 }

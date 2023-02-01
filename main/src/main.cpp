@@ -164,6 +164,17 @@ Auton auton4("Skills", fullSkills);
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
+	// tracking.reset({0.0, 0.0, degToRad(0.0)});
+
+	// moveToTargetSync({0.0, 5.0});
+
+	// Auton::selectAuton();
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// Auton::runAuton();
+
+	// turnToAngleSync(45);
+
+
 	driverPractice();
 
 	WAIT_UNTIL(false);

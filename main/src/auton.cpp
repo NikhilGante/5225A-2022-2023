@@ -6,8 +6,8 @@
 #include "Subsystems/shooter.hpp"
 
 constexpr double DRIVEBASE_WIDTH = 14.5;
-constexpr double LEFT_DIST_OFFSET = 2.25;  // How far in the left sensor is from left edge
-constexpr double RIGHT_DIST_OFFSET = 2.5;  // How far in the right sensor is from right edge
+constexpr double LEFT_DIST_OFFSET = 1.75;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 2.125;  // How far in the right sensor is from right edge
 
 double getDistL(){
   return (l_reset_dist.get()/25.4) - LEFT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
@@ -177,7 +177,8 @@ void skills3(){
 }
 
 void autonStack(){
-  tracking.reset({30.75, 9.0, degToRad(0.0)});
+  // tracking.reset({30.75, 9.0, degToRad(0.0)});
+  printf("STARTED AUTON\n");
 
   Timer timer1{"timer"};
   setFlywheelVel(2440);
@@ -185,9 +186,10 @@ void autonStack(){
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({31.0, 7.375, degToRad(0.0)});
-	moveToTargetSync({30.75, 12.5});  // Move away from wall
-	aimAtBlue(9.5);
+  // tracking.reset({31.0, 7.375, degToRad(0.0)});
+	// moveToTargetSync({37.0, 12.5});  // Move away from wall
+  moveInches(5.0);
+	aimAtBlue(10.0);
   printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
@@ -205,65 +207,56 @@ void autonStack(){
 }
 
 void autonAWP(){
-  tracking.reset({30.75, 9.0, degToRad(0.0)});
+  // tracking.reset({30.75, 9.0, degToRad(0.0)});
 
   Timer timer1{"timer"};
   setFlywheelVel(2300);
 	angler_p.setState(LOW);
 
-  spinRoller();
+  moveDrive(-40, 0);
+  delay(150);
+  spinRoller(false);
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({getDistL(), 7.375, degToRad(0.0)});
-	moveToTargetSync({30.75, 12.5});  // Move away from wall
+  // tracking.reset({getDistL(), 7.375, degToRad(0.0)});
+	// moveToTargetSync({30.75, 12.5});  // Move away from wall
+
+  // moveInches(5.0);
+  // moveInches(1.0);// Move away from wall
+
+
 // YOOOO
-	turnToTargetSync({69.0, 43.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 45); 
+	// turnToTargetSync({69.0, 43.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 45); 
 	intakeOn();
-	moveToTargetSync({69.0, 43.0}); // Pickup stack of discs
+	moveToTargetSync({73.0, 45.0}, E_Brake_Modes::brake, 60); // Pickup stack of discs
 	aimAtBlue(11.0);
+  driveBrake();
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
 	shoot(3);
+  WAIT_UNTIL(false);
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
+  setFlywheelVel(2440);
   
 // YOOOO
-	turnToTargetSync({125.0, 111.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 45);
+	turnToTargetSync({122.0, 109.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 100);
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
-	moveToTargetSync({125.0, 111.0},  E_Brake_Modes::coast, 127); // Move to corner
+	moveToTargetSync({122.0, 109.0},  E_Brake_Modes::coast, 110); // Move to corner
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 100);
   // spinRoller(false);
 
-// START OF ROLLER
-    roller_sensor.set_led_pwm(100);
 
-  Timer led{"timer"};
-
-  flattenAgainstWallAsync();
-  trans_p.setState(LOW);
-  WAIT_UNTIL(led.getTime() > 200 && roller_sensor.get_rgb().red != 0 && roller_sensor.get_proximity() >= 253);  // Waits for LED to turn on and robot to touch roller
-	intake_m.move(-127);
-	Timer roller_timer{"roller_timer"};
-  // Switches to opposite colour it saw
-  const int thresh = 3000;
-  double init_value = roller_sensor.get_rgb().red;
-  log("init_value: %lf\n", init_value);
-  // waits to see a value > 1500 different than inital value (waits for a colour change)
-  double cur_val;
-  do{
-		roller_sensor.set_led_pwm(100);
-    cur_val = roller_sensor.get_rgb().red;
-    log("r: %lf \n", cur_val);
-    _Task::delay(100);
-  }while(fabs(cur_val - init_value) < 1400);
-	roller_timer.print();
-  drive.changeState(DriveOpControlParams{});
-  master.rumble("-"); // Notifies driver spinning roller has finished
-	trans_p.setState(HIGH);
-  intakeOff();
-
-// END
-
+  
+  spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-	moveInches(2.0);  // Move away from wall
+
+  // tracking.reset({141.0 - getDistR(), 141 - 9.75, degToRad(-90.0)});
+
+  // moveInches(4.0);
+
+  // aimAtBlue(12.0);
+  // shoot(3);
+  // shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
 }
