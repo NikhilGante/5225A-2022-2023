@@ -32,6 +32,7 @@ extern atomic<double> flywheel_error; // Target vel - actual vel (global static 
 struct FlywheelMoveVelParams{
   int target_vel;
   Timer flywheel_print{"flywheel_print"};
+	double kP = 0.7;
 
   FlywheelMoveVelParams(int target_vel);
 
@@ -40,7 +41,6 @@ struct FlywheelMoveVelParams{
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 private:
   static constexpr double kB = 0.0332;	// Target velocity multiplied by this outputs a motor voltage
-	static constexpr double kP = 0.7;
   // static int32_t rot_vel; // Velocity detected by rotation sensor
   static double output; // Power that goes to the flywheel motor
 

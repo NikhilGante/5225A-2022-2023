@@ -71,7 +71,11 @@ void ShooterShootParams::handle(){
     if(fabs(flywheel_error) > 1000) cycle_check.reset();
   }
   else{
-    if(fabs(flywheel_error) > 150) cycle_check.reset();
+    FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
+    if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
+      if(fabs(flywheel_error) > 150) cycle_check.reset();
+    }
+    else if(fabs(flywheel_error) > 150)  cycle_check.reset();
   }
 
   // log("cycle_check:%lld\n", cycle_check.getTime());
@@ -113,6 +117,10 @@ void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_stat
   // angler_p.setState(LOW);
   log("INIT shots_left %d\n", shots_left);
   intakeIndex();  // Sets intake to index state
+  FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
+  // if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;
+  // else get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.5;
+
 }
 
 void shoot(int shots){

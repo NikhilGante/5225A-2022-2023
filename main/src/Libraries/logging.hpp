@@ -9,6 +9,8 @@
 
 extern FILE* logfile;
 
+extern pros::Mutex log_mutex;
+
 void log(const char * format, ...);
 void log_init();
 

@@ -212,8 +212,8 @@ void flattenAgainstWallAsync(){
 void aimAtRed(double offset){
   turnToTargetSync(r_goal, offset);
 }
-void aimAtBlue(double offset){
-  turnToTargetSync(b_goal, offset, false, E_Brake_Modes::brake, TURNING_END_ERROR, 70);
+void aimAtBlue(double offset, double max_power){
+  turnToTargetSync(b_goal, offset, false, E_Brake_Modes::brake, TURNING_END_ERROR, max_power);
 }
 
 // power 400
@@ -381,7 +381,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   moveDrive(0, 0);
 	trans_p.setState(LOW);
   delay(100); // waits for Transmission to shift
-  moveDrive(-50, 0);  // moves backwards
+  moveDrive(-70, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
 
@@ -414,7 +414,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
       cycle_count = 0;  // Reset count
     }
     else{
-      moveDrive(-50, 0);
+      moveDrive(-70, 0);
       cycle_count = 0;  // reset count
     }
     _Task::delay(10);

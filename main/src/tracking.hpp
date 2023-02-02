@@ -64,7 +64,7 @@ void flattenAgainstWallAsync();
 // Takes a function that returns an angle in radians
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
 void aimAtRed(double offset = 0.0);
-void aimAtBlue(double offset = 0.0);
+void aimAtBlue(double offset = 0.0, double max_power = 60.0);
 
 // State machine stuff
 

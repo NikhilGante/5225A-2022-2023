@@ -13,10 +13,12 @@ E_Auton_Reset_Types Auton::getResetType(){ // Getter
 }
 
 int Auton::getAuton(){	// Returns selected Auton as an int
+	log_mutex.take();
 	ifstream myfile ("/usd/auton.txt", ios::in);
 	int auton_num;
 	myfile >> auton_num; 
 	myfile.close();
+	log_mutex.give();
 	return auton_num;
 }
 
@@ -36,9 +38,11 @@ void Auton::selectAuton(){
 		}
 		if(master.get_digital_new_press(DIGITAL_A)){	// Press A to save
 			master.clear();
+			log_mutex.take();
 			ofstream myfile ("/usd/auton.txt", ios::out);
 			myfile << cur_auton << endl; 
 			myfile.close();
+			log_mutex.give();
 			master.print(0, 0, "Saved.");
 			break;
 		}

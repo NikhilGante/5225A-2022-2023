@@ -210,7 +210,9 @@ void autonAWP(){
   // tracking.reset({30.75, 9.0, degToRad(0.0)});
 
   Timer timer1{"timer"};
-  setFlywheelVel(2325);
+  setFlywheelVel(2250);
+  // setFlywheelVel(2200);
+
 	angler_p.setState(LOW);
 
   moveDrive(-40, 0);
@@ -227,26 +229,27 @@ void autonAWP(){
 
 
 // YOOOO
-	// turnToTargetSync({69.0, 43.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 45); 
 	intakeOn();
-	moveToTargetSync({73.0, 45.0}, E_Brake_Modes::brake, 60); // Pickup stack of discs
-	aimAtBlue(11.0);
+	moveToTargetSync({73.0, 47.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
+	aimAtBlue(13.5);
+  // moveToTargetSync({67.5, 55.0}); // Pickup stack of discs
+
+	// aimAtBlue(11.0);
   driveBrake();
-  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
 	shoot(3);
-  WAIT_UNTIL(false);
+  // WAIT_UNTIL(false);
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
-  setFlywheelVel(2440);
+  setFlywheelVel(2420);
   
 // YOOOO
-	turnToTargetSync({122.0, 109.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 100);
+	turnToTargetSync({126.0, 107.0});
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
-	moveToTargetSync({122.0, 109.0},  E_Brake_Modes::coast, 110); // Move to corner
+	moveToTargetSync({126.0, 107.0}); // Move to corner
 
-	turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 100);
-  // spinRoller(false);
-
+	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
+  intakeOff();
 
   
   spinRoller();
@@ -254,11 +257,12 @@ void autonAWP(){
 
   // tracking.reset({141.0 - getDistR(), 141 - 9.75, degToRad(-90.0)});
 
-  // moveInches(4.0);
+  moveInches(4.0);
 
-  // aimAtBlue(12.0);
-  // shoot(3);
-  // shooter.waitToReachState(ShooterIdleParams{});
+  aimAtBlue(12.0);
+  shoot(3);
+  WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
+  shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
 }
