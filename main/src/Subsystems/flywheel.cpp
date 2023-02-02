@@ -1,5 +1,7 @@
 #include "flywheel.hpp"
 #include "shooter.hpp"
+#include "../Libraries/logging.hpp"
+
 #define DEG_TO_ROT 1/360
 #define MS_TO_MIN 60000
 #define SPROCKET_RATIO 1/1
@@ -86,7 +88,10 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   #ifdef LOGS
-  // printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+  if(log_timer.getTime() > 100){
+    log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+    log_timer.reset();
+  }
   #endif
 
   if (flywheel_m.get_temperature() >= 50){
@@ -98,7 +103,9 @@ void FlywheelMoveVelParams::handle(){
   flywheel_m.move(output);
   // flywheel_m.move(60);
 }
-void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){}
+void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){
+  log_timer.reset();
+}
 
 void setFlywheelVel(int32_t vel){
   flywheel.changeState(FlywheelMoveVelParams{vel});

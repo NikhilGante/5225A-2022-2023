@@ -1,6 +1,7 @@
 #include "shooter.hpp"
 #include "flywheel.hpp"
 #include "intake.hpp"
+#include "../Libraries/logging.hpp"
 
 const int toaster_rpm = 1400;
 const int barrier_rpm = 1820;
@@ -73,25 +74,23 @@ void ShooterShootParams::handle(){
     if(fabs(flywheel_error) > 150) cycle_check.reset();
   }
 
-  // printf("cycle_check:%lld\n", cycle_check.getTime());
+  // log("cycle_check:%lld\n", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
   if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
-    printf("%d STARTED SHOOTING\n", millis());
+    log("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
     _Task::delay(100); // Waits for SHOOTER to extend
-    printf(" %d FINISHED SHOT\n", millis());
+    log(" %d FINISHED SHOT\n", millis());
     indexer_p.setState(LOW);
-    printf("%d FINISHED Retraction\n", millis());
+    log("%d FINISHED Retraction\n", millis());
     shots_left--;
-    printf("shots left: %d\n", shots_left);
+    log("shots left: %d\n", shots_left);
     if (g_mag_disc_count > 0) g_mag_disc_count--;
     
 
-    printf("condition %d\n", shots_left <= 0);
     _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
-    printf("condition2 %d\n", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done
       g_mag_disc_count = 0;
@@ -112,7 +111,7 @@ void ShooterShootParams::handle(){
 }
 void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state){
   // angler_p.setState(LOW);
-  printf("INIT shots_left %d\n", shots_left);
+  log("INIT shots_left %d\n", shots_left);
   intakeIndex();  // Sets intake to index state
 }
 

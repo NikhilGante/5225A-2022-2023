@@ -282,7 +282,7 @@ void DriveMttParams::handle(){
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
-  PID y_pid(4.5, 0.008, 300.0, 0.0, true, 0.0, 8.0);
+  PID y_pid(4.5, 0.008, 400.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:
@@ -337,9 +337,10 @@ void DriveMttParams::handle(){
     moveDriveSide(left_power, right_power);
     _Task::delay(10);
   }  
-  while(line_error.getY() > 0.5);
-  log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  while(line_error.getY() > 1.0);
   handleBrake(brake_mode);
+  delay(50);  // Waits for brake to be applied
+  log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
 }
 void DriveMttParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}

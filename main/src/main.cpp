@@ -166,18 +166,18 @@ Auton auton4("Skills", fullSkills);
 void opcontrol() {
 	// tracking.reset({0.0, 0.0, degToRad(0.0)});
 
-	// moveToTargetSync({0.0, 5.0});
+	// moveToTargetSync({0.0, 50.0});
 
-	// Auton::selectAuton();
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// Auton::runAuton();
+	Auton::selectAuton();
+	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	Auton::runAuton();
 
+	WAIT_UNTIL(false);
 	// turnToAngleSync(45);
 
 
 	driverPractice();
 
-	WAIT_UNTIL(false);
 	// intake_m.move(-127);
 	//  do{
 	// 	roller_sensor.set_led_pwm(100);

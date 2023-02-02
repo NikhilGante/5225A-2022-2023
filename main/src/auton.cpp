@@ -210,11 +210,13 @@ void autonAWP(){
   // tracking.reset({30.75, 9.0, degToRad(0.0)});
 
   Timer timer1{"timer"};
-  setFlywheelVel(2300);
+  setFlywheelVel(2325);
 	angler_p.setState(LOW);
 
   moveDrive(-40, 0);
-  delay(150);
+  delay(250);
+  moveDrive(-10, 0);
+
   spinRoller(false);
   intake.waitToReachState(IntakeOffParams{});
   // tracking.reset({getDistL(), 7.375, degToRad(0.0)});
