@@ -212,8 +212,8 @@ void flattenAgainstWallAsync(){
 void aimAtRed(double offset){
   turnToTargetSync(r_goal, offset);
 }
-void aimAtBlue(double offset, double max_power){
-  turnToTargetSync(b_goal, offset, false, E_Brake_Modes::brake, TURNING_END_ERROR, max_power);
+void aimAtBlue(double offset, double max_power, double end_error){
+  turnToTargetSync(b_goal, offset, false, E_Brake_Modes::brake, end_error, max_power);
 }
 
 // power 400
@@ -365,9 +365,12 @@ const char* DriveTurnToTargetParams::getName(){
   return "DriveTurnToAngle";
 }
 void DriveTurnToTargetParams::handle(){
+  log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), (b_goal-tracking.g_pos).getAngle());
   turnToAngleInternal(function([&](){
     return M_PI_2 - (target - tracking.g_pos).getAngle() + degToRad(offset) + (reverse? M_PI : 0);
   }), brake_mode, end_error, max_power);
+  log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), (b_goal-tracking.g_pos).getAngle());
+
 }
 void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 

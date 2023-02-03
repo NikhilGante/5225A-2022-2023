@@ -58,7 +58,7 @@ void Auton::selectAuton(){
 					break;
 
 				case E_Auton_Reset_Types::far:
-					tracking.reset({141.0 - getDistR(), 141 - 9.75, degToRad(-90.0)});
+					tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});;
 					break;
 			}
 			moveDrive(0, 0);

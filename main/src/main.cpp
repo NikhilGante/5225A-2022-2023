@@ -155,7 +155,7 @@ void auton3func(){
 
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
-Auton auton3("autonLine", autonLine);
+Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
 
@@ -164,13 +164,29 @@ Auton auton4("Skills", fullSkills);
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
+	driveBrake();
+	while (true){
+		if (master.get_digital_new_press(DIGITAL_A)) {
+			shoot(3);
+			setFlywheelVel(2400);
+		}
+
+		delay(20);
+	}
+	
+
+
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// turnToAngleSync(-90);
+
+	// WAIT_UNTIL(false);
 	// tracking.reset({0.0, 0.0, degToRad(0.0)});
 
 	// moveToTargetSync({0.0, 50.0});
 
-	Auton::selectAuton();
-	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	Auton::runAuton();
+	// Auton::selectAuton();
+	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	// Auton::runAuton();
 
 	WAIT_UNTIL(false);
 	// turnToAngleSync(45);

@@ -267,36 +267,134 @@ void autonAWP(){
 	lcd::print(6, "total:%ld", timer1.getTime());
 }
 
+void autonLineTest(){ // No moving after start
+  Timer timer1{"timer"};
+  angler_p.setState(LOW);
+
+  
+  setFlywheelVel(2225);
+  intakeOn();
+  moveToTargetSync({96, 84}, E_Brake_Modes::brake, 127); // move to single disc in front
+
+  aimAtBlue(10);
+
+
+  driveBrake();
+  shoot(3);
+  shooter.waitToReachState(ShooterIdleParams{});
+  turnToAngleSync(-90, E_Brake_Modes::none, 4, 127);
+
+  setFlywheelVel(2250);
+
+  moveInches(-5);
+  turnToAngleSync(-135);
+  moveToTargetSync({124, 104}, E_Brake_Modes::brake, 127, 1.0, E_Robot_Sides::back); // move to two discs in front
+  intakeOff();
+  moveDrive(-65, 0);
+  delay(750);
+  moveDrive(-10, 0);
+  spinRoller(false);
+  intake.waitToReachState(IntakeOffParams{});
+  moveInches(2);
+  driveBrake();
+
+
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  intakeOn();
+  turnToTargetSync({75, 50});
+  moveToTargetSync({75, 50}, E_Brake_Modes::brake, 127); // move to two discs in front
+
+  aimAtBlue(10);
+
+
+  driveBrake();
+  shoot(2);
+  shooter.waitToReachState(ShooterIdleParams{});
+
+
+  // setFlywheelVel(2250);
+  // moveInches(-6.0);
+  // turnToAngleSync(-135);
+  // moveToTargetSync({75, 51}, E_Brake_Modes::brake, 70); // move to two discs in front
+  // aimAtBlue(11);
+  // moveInches(7);
+  // driveBrake();
+  // shoot(3);
+  // shooter.waitToReachState(ShooterIdleParams{});
+  // moveInches(-7);
+
+
+
+  driveBrake();
+  master.print(2,0, "total:%ld", timer1.getTime());
+	lcd::print(6, "total:%ld", timer1.getTime());
+ 
+
+}
+
+void autonLineTestTurn(){ // Moving 90 degrees after start
+  Timer timer1{"timer"};
+  angler_p.setState(LOW);
+
+  
+  turnToAngleSync(-90);
+  setFlywheelVel(2225);
+  intakeOn();
+  moveToTargetSync({96, 84}, E_Brake_Modes::brake, 70); // move to single disc in front
+  aimAtBlue(11);
+  driveBrake();
+  shoot(3);
+  shooter.waitToReachState(ShooterIdleParams{});
+
+  // Turn back to spin roller, than forward to get the last two discs
+
+
+
+  driveBrake();
+  master.print(2,0, "total:%ld", timer1.getTime());
+	lcd::print(6, "total:%ld", timer1.getTime());
+ 
+
+}
+
+
 void autonLine(){
-  tracking.reset({128.75, 83.25, degToRad(0.0)});
+  // tracking.reset({128.75, 83.25, degToRad(0.0)});
   
   Timer timer1{"timer"};
   setFlywheelVel(2420);
-  moveToTargetSync({127, 108}, E_Brake_Modes::brake, 127); // move in front of roller
+  moveToTargetSync({tracking.g_pos.x, 102}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
   moveInches(-3.0);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({133.75, 141-getDistR(), -M_PI_2});
+  tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
+
+  
   moveToTargetSync({128.0, tracking.g_pos.y});
-  aimAtBlue(11);
+  aimAtBlue(10, 60, 3);
+  moveInches(3);
+  aimAtBlue(10, 60, 1);
   // turnToTargetSync(b_goal, 11, false, E_Brake_Modes::brake, 2.0, 70);
-  aimAtBlue(11);
+  // aimAtBlue(11);
+
   driveBrake();
   shoot(2);
 
   shooter.waitToReachState(ShooterIdleParams{});
 
-  setFlywheelVel(2270);
-  turnToTargetSync({83.0, 61.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 50);
-  intakeOn();
-  moveToTargetSync({83.0, 61.0},  E_Brake_Modes::brake, 100); // Drives through line
-  aimAtBlue(11.5);
-  // turnToTargetSync(b_goal, 11.5, false, E_Brake_Modes::brake, 2.0, 60);
+  // setFlywheelVel(2200);
+  // turnToTargetSync({83.0, 61.0}, 0.0, false, E_Brake_Modes::brake, 2.0, 80);
+  // intakeOn();
+  // moveToTargetSync({82.0, 58.0},  E_Brake_Modes::brake, 115); // Drives through line
+  // aimAtBlue(13);
+  // moveInches(8);
+  // aimAtBlue(13);
+  // // turnToTargetSync(b_goal, 11.5, false, E_Brake_Modes::brake, 2.0, 60);
 
-  driveBrake();
-  shoot(3);
-  shooter.waitToReachState(ShooterIdleParams{});
+  // driveBrake();
+  // shoot(3);
+  // shooter.waitToReachState(ShooterIdleParams{});
 
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
