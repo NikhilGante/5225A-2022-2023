@@ -79,11 +79,11 @@ void trackingUpdate(){
       last_vel_b = new_back;
 
       // gives us linear velocity in inches per second, and angular velocity in radians per second
-      tracking.g_vel.x = (tracking.g_pos.x - last_position.x) / velocity_update_time * 1000;
-      tracking.g_vel.y = (tracking.g_pos.y - last_position.y) / velocity_update_time * 1000;
-      tracking.g_vel.a = (tracking.g_pos.a - last_position.a) / velocity_update_time * 1000;
+      tracking.g_vel.x = (tracking.getPos().x - last_position.x) / velocity_update_time * 1000;
+      tracking.g_vel.y = (tracking.getPos().y - last_position.y) / velocity_update_time * 1000;
+      tracking.g_vel.a = (tracking.getPos().a - last_position.a) / velocity_update_time * 1000;
 
-      last_position = tracking.g_pos;
+      last_position = tracking.getPos();
 
       velocity_timer.reset();
     }
@@ -106,7 +106,7 @@ void trackingUpdate(){
       h_x = back;
       beta = 0.0;
     }
-    alpha = tracking.g_pos.a + beta;  // angle of local x and y vectors
+    alpha = tracking.getPos().a + beta;  // angle of local x and y vectors
     sin_alpha = sin(alpha);
     cos_alpha = cos(alpha);
 
@@ -115,20 +115,16 @@ void trackingUpdate(){
     y_x = h_y * sin_alpha; // global x movement detected by local y (right wheel) arc
     y_y = h_y * cos_alpha; // global y movement detected by local y (right wheel) arc
 
-    tracking.pos_mutex.take();
-    tracking.g_pos.x += x_x + y_x;
-    tracking.g_pos.y += y_y + x_y;
-    tracking.g_pos.a += theta;
-    tracking.pos_mutex.give();
+    tracking.reset(tracking.getPos() + Position{x_x + y_x, y_y + x_y, theta});
 
 
     // tracking_log("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     if(tracking_timer.getTime() > 50){
-      // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
-      // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+      // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.g_vel.x, tracking.g_vel.y);
+      // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // tracking_log("%lf\n", radToDeg(tracking.g_vel.a));
 
-      // tracking_log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+      // tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
       tracking_timer.reset();
     }
     // tracking_log("a_vel: %lf\n", radToDeg(tracking.g_vel.a));
@@ -137,7 +133,7 @@ void trackingUpdate(){
     // pros::lcd::print(2, "h_x:%lf, h_y: %lf", h_x, h_y);
     // pros::lcd::print(0, "L:%d R:%d B:%d", new_left, new_right, new_back);
     pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), -right_tracker.get_position(), back_tracker.get_position());
-		pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), fmod(radToDeg(tracking.g_pos.a), 360));
+		pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), fmod(radToDeg(tracking.getPos().a), 360));
 
     delay(10);
   }
@@ -152,11 +148,20 @@ void Tracking::waitForDistance(double distance){
 }
 
 void Tracking::reset(Position pos){
-  tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), pos.x,pos.y, radToDeg(pos.a));
-  tracking.pos_mutex.take();
-  tracking.g_pos = pos;
-  tracking.pos_mutex.give();
+  pos_mutex.take();
+  tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", g_pos.x, g_pos.y, radToDeg(g_pos.a), pos.x,pos.y, radToDeg(pos.a));
+  g_pos = pos;
+  pos_mutex.give();
   alert::start(term_colours::NOTIF, "RESET!");
+}
+
+Position Tracking::getPos(){
+  // pos_mutex.take();
+  // Position pos = g_pos;
+  // pos_mutex.give();
+  // return pos;
+
+  return g_pos;
 }
 
 void handleBrake(E_Brake_Modes brake_mode){
@@ -228,7 +233,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
   Timer motion_timer{"motion_timer"};
   constexpr double kP_vel = 0.0;
   do{
-    tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
+    tracking.drive_error = nearAngle(getAngleFunc(), tracking.getPos().a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(std::abs(power) > max_power) power = sgn(power) * max_power;
@@ -239,7 +244,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
   }
   while(std::abs(angle_pid.getError()) > end_error); //? why not wait_until
   handleBrake(brake_mode);
-  tracking_log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  tracking_log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
   drive.changeState(DriveIdleParams{});
 }
 
@@ -263,9 +268,9 @@ DriveMttParams::DriveMttParams(Vector target, E_Brake_Modes brake_mode, uint8_t 
  target(target), brake_mode(brake_mode), max_power(max_power), end_error_x(end_error_x), robot_side(robot_side){}
 
 void DriveMttParams::handle(){
-  Vector line_error = target - tracking.g_pos;  // Displacement from robot's position to target
+  Vector line_error = target - tracking.getPos();  // Displacement from robot's position to target
   double line_angle = std::numbers::pi/2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
-  line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
+  line_error.rotate(tracking.getPos().a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
   PID y_pid(5.0, 0.008, 300.0, 0.0, true, 0.0, 8.0);
@@ -285,10 +290,10 @@ void DriveMttParams::handle(){
   // tracking_log("power_sgn: %d\n", power_sgn);
   constexpr double kP_a = 2.5;  // proportional multiplier for angular error
   do{
-    line_error = target - tracking.g_pos;
+    line_error = target - tracking.getPos();
     // How much robot has to turn to face target
     // tracking_log("vals %lf %lf\n", M_PI_2 - line_error.getAngle(), (power_sgn == -1 ? std::numbers::pi : 0));
-    double error_a = nearAngle((std::numbers::pi/2 - line_error.getAngle()) + (power_sgn == -1 ? std::numbers::pi : 0), tracking.g_pos.a);
+    double error_a = nearAngle((std::numbers::pi/2 - line_error.getAngle()) + (power_sgn == -1 ? std::numbers::pi : 0), tracking.getPos().a);
     line_error.rotate(line_angle);  // Now represents displacement relative to the line the robot is following
     tracking.drive_error = line_error.getY(); 
     double power_y = y_pid.compute(-power_sgn*line_error.getY(), 0.0);
@@ -296,7 +301,7 @@ void DriveMttParams::handle(){
     else if(std::abs(power_y) < tracking.min_move_power_y) power_y = sgn(power_y) * tracking.min_move_power_y;
     
     // Perpendicular distance robot will land from the target travelling at the current orientation
-    double error_x = -line_error.getX() + line_error.getY() * tan(nearAngle(tracking.g_pos.a, line_angle));
+    double error_x = -line_error.getX() + line_error.getY() * tan(nearAngle(tracking.getPos().a, line_angle));
     // Only corrects if necessary (if robot won't land within an acceptable distance from the target)
     double correction = std::abs(error_x) > end_error_x? kP_a * error_a * sgn(power_sgn): 0.0;
     double left_power, right_power;
@@ -312,19 +317,19 @@ void DriveMttParams::handle(){
         break;
     }
     // x, y, a, l, r, errA
-    // tracking_log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
+    // tracking_log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), left_power, right_power, radToDeg(error_a));
 
     // tracking_log("%d l:%lf, r:%lf\n", millis(), left_power, right_power);
     // tracking_log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
     // tracking_log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
 
-    //tracking_log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
+    //tracking_log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.getPos().a, line_angle)));
 
     moveDriveSide(left_power, right_power);
     _Task::delay(10);
   }  
   while(line_error.getY() > 0.5);
-  tracking_log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+  tracking_log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
   handleBrake(brake_mode);
   drive.changeState(DriveIdleParams{});
 }
@@ -345,7 +350,7 @@ DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, double offset, b
 
 void DriveTurnToTargetParams::handle(){
   turnToAngleInternal(std::function([&](){
-    return std::numbers::pi/2 - (target - tracking.g_pos).getAngle() + degToRad(offset) + (reverse ? std::numbers::pi : 0);
+    return std::numbers::pi/2 - (target - tracking.getPos()).getAngle() + degToRad(offset) + (reverse ? std::numbers::pi : 0);
   }), brake_mode, end_error, max_power);
 }
 void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}

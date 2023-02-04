@@ -19,21 +19,25 @@ enum class E_Robot_Sides{
 };
 
 class Tracking{
-  
-public:
-  static constexpr double min_move_power_y = 30.0, min_move_power_a = 45.0;
-  // Odometry related variables
-  double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
-  Mutex pos_mutex; // locks g_pos
-  Position g_pos{};
-  Position g_vel;
+  private:
+    Mutex pos_mutex; // locks g_pos
+    Position g_pos{};
 
-  // Movement related fields
-  Position power; // power to apply to the drive motors
-  std::atomic<double> drive_error; // How far the robot is from it's target 
-  void waitForComplete(); // Waits until the motion completes
-  void waitForDistance(double distance); // Waits until the robot is within a certain distance from it's target
-  void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
+    // Movement related fields
+    Position power; // power to apply to the drive motors
+  
+  public:
+    static constexpr double min_move_power_y = 30.0, min_move_power_a = 45.0;
+
+    // Odometry related variables
+    double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
+    Position g_vel;
+    std::atomic<double> drive_error; // How far the robot is from it's target
+
+    void waitForComplete(); // Waits until the motion completes
+    void waitForDistance(double distance); // Waits until the robot is within a certain distance from it's target
+    void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
+    Position getPos(); // Getter for g_pos. Should probably wrap in a mutex
 };
 extern Tracking tracking;
 

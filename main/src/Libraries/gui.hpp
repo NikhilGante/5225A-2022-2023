@@ -21,7 +21,7 @@ extern GUI main_obj, util_obj;
 
 //From gui.cpp
 extern Page terminal, testing;
-extern Button testing_button_1, testing_button_2;
+extern Button testing_button_1, testing_button_2, misc_checks;
 extern Text<> testing_text_1, testing_text_2;
 extern Slider testing_slider;
 

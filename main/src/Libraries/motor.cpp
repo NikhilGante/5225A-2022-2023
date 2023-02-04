@@ -10,7 +10,7 @@ Motor{port, gearset, reversed, encoder_units}, name{name}{
   {
     std::stringstream ss{getName()};
     using iterator = std::istream_iterator<std::string>;
-    for(auto begin = iterator{ss}; begin != iterator{}; begin++) short_name += begin->front();
+    for(auto it = iterator{ss}; it != iterator{}; it++) short_name += it->front();
   }
 
   on         .construct(115*(getID()%4) + 15, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);

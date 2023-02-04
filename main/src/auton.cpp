@@ -46,7 +46,7 @@ void fullSkills(){
 
 
 // start coord 
-// tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
+// tracking.getPos() = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
   tracking.reset({getDistL(), 7.5, 0.0});
   Timer total{"total_timer"};
@@ -80,7 +80,7 @@ void skills1(){
 	// lcd::print(7, "total: %d", total.getTime());
 }
 
-// tracking.g_pos = {110.5, 133.75, degToRad(180.0)}
+// tracking.getPos() = {110.5, 133.75, degToRad(180.0)}
 void skills2(){
   Timer total{"total_timer"};
 
@@ -131,7 +131,7 @@ void skills2(){
 	master.print(0,0, "total: %d", total.getTime());
   // shoot match loads here
 }
-// tracking.g_pos = {72.0, 11.25, 0.0};
+// tracking.getPos() = {72.0, 11.25, 0.0};
 void skills3(){
   Timer total{"total_timer"};
   setFlywheelVel(2150);
@@ -280,7 +280,7 @@ void autonLine(){
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({133.75, 141-getDistR(), -std::numbers::pi/2});
-  moveToTargetSync({128.0, tracking.g_pos.y});
+  moveToTargetSync({128.0, tracking.getPos().y});
   aimAtBlue(11);
   // turnToTargetSync(b_goal, 11, false, E_Brake_Modes::brake, 2.0, 70);
   aimAtBlue(11);

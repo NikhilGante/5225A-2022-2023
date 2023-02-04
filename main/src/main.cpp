@@ -18,10 +18,11 @@ void initialize() {
   GUI::init();
 	_Controller::init();
 
-	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
+	tracking.reset({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
 	_Task tracking_task("Tracking Update");
 	tracking_task.start(trackingUpdate);
 
+  misc_checks.select();
 	delay(500);
 }
 
@@ -86,6 +87,8 @@ Auton auton3("autonLine", autonLine);
 Auton auton4("Skills", fullSkills);
 
 //TODO: Use Counter for Auton
+//TODO: Log to terminal
+
 void opcontrol() {
   DEBUG;
   
