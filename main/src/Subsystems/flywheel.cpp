@@ -15,7 +15,7 @@
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2400});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2380});
 
 // Flywheel idle state
 
@@ -108,6 +108,7 @@ void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_
   log_timer.reset();
 }
 
-void setFlywheelVel(int32_t vel){
+void setFlywheelVel(int32_t vel, int line){
+  log("Flywheel was changed on %d to velocity %d", line, vel);
   flywheel.changeState(FlywheelMoveVelParams{vel});
 }

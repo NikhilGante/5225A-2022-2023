@@ -53,4 +53,4 @@ private:
   static double manual_vel;  // Pre-smoothed velocity
 };
 
-void setFlywheelVel(int32_t vel);
+void setFlywheelVel(int32_t vel, int line = -1);

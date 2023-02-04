@@ -45,6 +45,16 @@ void initialize() {
 	log_init();
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
+
+	_Task battery_check("Battery_Checker");
+	battery_check.start([](){
+		while(true){
+			// if(pros::battery::get_voltage()){master.}
+			printf("%d\n\n\n", pros::c::battery_get_voltage());
+			delay(100);
+
+		}
+	});
 	
 	// _Task led_task("led_task");
 	// led_task.start([](){
@@ -164,15 +174,19 @@ Auton auton4("Skills", fullSkills);
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
-	driveBrake();
-	while (true){
-		if (master.get_digital_new_press(DIGITAL_A)) {
-			shoot(3);
-			setFlywheelVel(2400);
-		}
 
-		delay(20);
-	}
+	// spinRoller();
+
+	// WAIT_UNTIL(false);
+	// driveBrake();
+	// while (true){
+	// 	if (master.get_digital_new_press(DIGITAL_A)) {
+	// 		shoot(3);
+	// 		setFlywheelVel(2380);
+	// 	}
+
+	// 	delay(20);
+	// }
 	
 
 
@@ -184,9 +198,9 @@ void opcontrol() {
 
 	// moveToTargetSync({0.0, 50.0});
 
-	// Auton::selectAuton();
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// Auton::runAuton();
+	Auton::selectAuton();
+	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	Auton::runAuton();
 
 	WAIT_UNTIL(false);
 	// turnToAngleSync(45);
