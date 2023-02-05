@@ -730,6 +730,6 @@ void utilBackground(){
   }
 }
 
-GUI main_obj ({&temps, &checks, &track, &moving, &tuning, &motors, &pneumatics}, &mainSetup, &mainBackground);
+GUI main_obj ({&temps, &checks, &track, &moving, &tuning, &motors, &pneumatics, &logging}, &mainSetup, &mainBackground);
 
 GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground);

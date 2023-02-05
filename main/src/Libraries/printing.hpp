@@ -21,6 +21,7 @@ enum class term_colours{
   ERROR,
   WARNING,
   NOTIF,
+  UNDERLINE,
 };
 
 /**

@@ -149,10 +149,10 @@ void Tracking::waitForDistance(double distance){
 
 void Tracking::reset(Position pos){
   pos_mutex.take();
-  tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", g_pos.x, g_pos.y, radToDeg(g_pos.a), pos.x,pos.y, radToDeg(pos.a));
+  // tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", g_pos.x, g_pos.y, radToDeg(g_pos.a), pos.x,pos.y, radToDeg(pos.a));
   g_pos = pos;
   pos_mutex.give();
-  alert::start(term_colours::NOTIF, "RESET!");
+  // alert::start(term_colours::NOTIF, "RESET!");
 }
 
 Position Tracking::getPos(){
@@ -303,7 +303,7 @@ void DriveMttParams::handle(){
     // Perpendicular distance robot will land from the target travelling at the current orientation
     double error_x = -line_error.getX() + line_error.getY() * tan(nearAngle(tracking.getPos().a, line_angle));
     // Only corrects if necessary (if robot won't land within an acceptable distance from the target)
-    double correction = std::abs(error_x) > end_error_x? kP_a * error_a * sgn(power_sgn): 0.0;
+    double correction = std::abs(error_x) > end_error_x ? kP_a * error_a * sgn(power_sgn): 0.0;
     double left_power, right_power;
     switch(sgn(correction)){
       case 0:
