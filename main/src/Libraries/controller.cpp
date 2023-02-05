@@ -23,7 +23,6 @@
 
 //Static Member Initializations
 _Task _Controller::controller_task{"Controller"};
-Queue<std::function<void()>, 20> _Controller::queue{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};
 _Controller* _Controller::partner_ptr{nullptr};
 
@@ -38,6 +37,7 @@ _Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}{
       name = "Partner";
     break;
   }
+  queue.changeName("Controller" + name);
 }
 
 void _Controller::handle(){

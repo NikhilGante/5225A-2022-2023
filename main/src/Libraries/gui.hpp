@@ -298,6 +298,7 @@ class Button{
   friend class Text_;
   friend class _Motor;
   friend class Piston;
+  friend class Logging;
   friend void
     mainSetup(),
     mainBackground(),

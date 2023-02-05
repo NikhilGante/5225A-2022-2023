@@ -119,6 +119,8 @@ class Queue{
     constexpr reference       front(){return *begin();}
     constexpr reference       back() {return *(end()-1);}
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
+
+    void changeName(std::string name) {this->name = name;}
     
     //Insert Modifiers
     constexpr void priority_push(const_reference value){

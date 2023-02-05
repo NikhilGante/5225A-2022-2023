@@ -79,6 +79,9 @@
     Page pneumatics ("Pneumatics"); //Pneumatic testing page for known ports
       //Remaining elements created upon instantiation of Piston objects
 
+    Page logging ("Logging"); //Log printing page from file to terminal
+      //Remaining elements created upon instantiation of Logging objects
+
 
   //Utility
 

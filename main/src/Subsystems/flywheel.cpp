@@ -80,9 +80,7 @@ void FlywheelMoveVelParams::handle(){
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
   // output = 127;
   
-  #ifdef LOGS
   // printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
-  #endif
 
   if (flywheel_m.getTemperature() >= 50){
     master.rumble("-");

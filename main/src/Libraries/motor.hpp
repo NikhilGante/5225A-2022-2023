@@ -3,7 +3,7 @@
 #include "gui.hpp"
 #include "counter.hpp"
 
-class _Motor: protected Motor, public Counter<_Motor, 8>{
+class _Motor: private Motor, public Counter<_Motor, 8>{
   private:
     Button on, off;
     Text<int> temperature, data;

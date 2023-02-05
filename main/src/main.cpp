@@ -86,8 +86,10 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine);
 Auton auton4("Skills", fullSkills);
 
+//TODO: Use underline escape code to title terminal dumps
+//TODO: Check //? across files
 //TODO: Use Counter for Auton
-//TODO: Log to terminal
+//TODO: Test log to terminal
 
 void opcontrol() {
   DEBUG;

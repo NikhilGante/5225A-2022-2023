@@ -2,7 +2,6 @@
 #include "queue.hpp"
 #include "printing.hpp"
 #include "counter.hpp"
-#include "../config.hpp"
 
 class _Task;
 
@@ -13,12 +12,14 @@ enum class log_locations{
   none
 };
 
-//All dump into the same queue
 class Logging: public Counter<Logging>{
   private:
+    static Button master_print_btn;
+    Button print_btn;
+
     term_colours print_colour;
     bool newline;
-    log_locations log_location;
+    log_locations location;
     std::string name;
     Queue<char, 2000> queue;
 
@@ -30,7 +31,7 @@ class Logging: public Counter<Logging>{
     static Queue<char, 20000> master_queue;
 
   public:
-    Logging(std::string name, bool newline = false, term_colours print_colour = term_colours::NONE, log_locations log_location = log_locations::both);
+    Logging(std::string name, bool newline = false, term_colours print_colour = term_colours::NONE, log_locations location = log_locations::both);
     
     static void init();
 
@@ -40,7 +41,7 @@ class Logging: public Counter<Logging>{
       std::string str{sprintf2(format, args...)};
       if(newline) str += '\n';
 
-      switch(log_location){
+      switch(location){
         case log_locations::both:
           printf2(colour, str);
         case log_locations::sd: //fallthrough intentional

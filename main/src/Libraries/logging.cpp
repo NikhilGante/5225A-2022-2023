@@ -5,6 +5,9 @@
 
 #include <fstream>
 
+extern Page logging;
+
+Button Logging::master_print_btn(20, 15, 80, 40, GUI::Style::SIZE, Button::SINGLE, logging, "Master Terminal Dump");
 std::string Logging::master_file_name{"/usd/MasterLog.txt"};
 _Task Logging::task{"Logging"};
 std::vector<Logging*> Logging::logs{};
@@ -24,10 +27,31 @@ Logging term          {"Terminal"  , false, term_colours::NONE, log_locations::t
 Logging sensor_log    {"Sensor"    , false, term_colours::NONE, log_locations::sd};
 Logging log_d         {"Log"       , false, term_colours::NONE, log_locations::sd};
 
-Logging::Logging(std::string name, bool newline, term_colours print_colour, log_locations log_location):
-name{name}, newline{newline}, print_colour{print_colour}, log_location{log_location} {logs.push_back(this);} //! Fix the issue with Counter
+Logging::Logging(std::string name, bool newline, term_colours print_colour, log_locations location):
+name{name}, newline{newline}, print_colour{print_colour}, location{location} {
+  logs.push_back(this); //! Fix the issue with Counter
+
+  //4x5
+  //(20, 110, 200, 290, 380) x (15, 65, 115, 165)
+  //insert one more for master file
+  print_btn.construct(90*(getID()%5) + 20, 50*std::floor(getID()/4) + 15, 80, 40, GUI::Style::SIZE, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
+
+  print_btn.setFunc([name](){
+    std::cout << "\n\n" << name << " Log Terminal Dump";
+    std::ifstream file{"/usd/" + name + ".txt", std::ofstream::app};
+    if(file.is_open()) std::cout << file.rdbuf() << "\n\n" << std::endl;
+    else std::cout << "Could not open" + name + " log file" << std::endl;
+  });
+}
 
 void Logging::init(){
+  master_print_btn.setFunc([](){
+    std::cout << "\n\nMaster Log Terminal Dump";
+    std::ifstream file{master_file_name};
+    if(file.is_open()) std::cout << file.rdbuf() << "\n\n" << std::endl;
+    else std::cout << "Could not open Master log file" << std::endl;
+  });
+
   using std::ofstream;
   bool file_openable = true;
   if(!usd::is_installed()){
@@ -45,9 +69,11 @@ void Logging::init(){
   if(!file_openable){
     alert::start("Logging Deactivating");
     for(Logging* log: getList()){
-      log_locations& loc = log->log_location;
+      log_locations& loc = log->location;
       if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::terminal;
+      log->print_btn.setActive(false);
     }
+    master_print_btn.setActive(false);
   }
   else task.start([](){ //Logging is good to go
     Timer timer{"Logging Queue"};

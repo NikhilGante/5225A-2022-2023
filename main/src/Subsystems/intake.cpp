@@ -55,9 +55,6 @@ void IntakeOnParams::handle(){  // synchronous state
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
     intake_log("INCR, count: %d", g_mag_disc_count.load());
-    #ifdef LOGS
-    intake_log("INCR");
-    #endif
   }
   mag_disc_detected_last = mag_disc_detected;
 

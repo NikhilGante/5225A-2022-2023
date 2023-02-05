@@ -32,16 +32,18 @@ class _Controller: public pros::Controller{
   private:
     static _Controller *master_ptr, *partner_ptr;
     static _Task controller_task;
-    static Queue<std::function<void()>, 20> queue;
+
+    Queue<std::function<void()>, 20> queue;
     std::string name;
 
+    void handle();
+    
   public:
     _Controller(pros::controller_id_e_t id);
     static void init();
 
     static constexpr int deadzone = 7;
     
-    void handle();
     void clearLine (std::uint8_t line);
     void clear();
     void rumble(std::string rumble_pattern);
@@ -55,7 +57,7 @@ class _Controller: public pros::Controller{
       std::string str = sprintf2(fmt, args...);
       queue.push([=, this](){
         pros::Controller::print(line, col, str.c_str());
-        controller_log("Printing %s to %s controller", str, name);
+        controller_log("Printing \"%s\" to %s controller", str, name);
       });
       controller_log("Adding print to %s controller queue", name);
     }

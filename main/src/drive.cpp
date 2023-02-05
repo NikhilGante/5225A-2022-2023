@@ -1,4 +1,5 @@
 #include "drive.hpp"
+#include "config.hpp"
 #include "tracking.hpp"
 #include "Libraries/controller.hpp"
 #include "Libraries/motor.hpp"
