@@ -185,15 +185,15 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
 
 		if(disc_count_print.getTime() > 100){
-			master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+			master.print(0, "disc count: %d  ", g_mag_disc_count.load());
 			// partner.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
 			disc_count_print.reset();
 		}
 
 		if(angle_override_print.getTime() > 100){
 			angle_override_print.reset();
-			if (angleOverride) master.print(1, 0, "Override");
-			else master.print(1, 0, "Automatic");
+			if (angleOverride) master.print(1, "Override");
+			else master.print(1, "Automatic");
 		}
 
     for(_Motor* motor: _Motor::getList()){

@@ -1,17 +1,11 @@
 #pragma once
 #include "main.h"
-#include "config.hpp"
+#include "Libraries/counter.hpp"
 
-#include <functional>
-
-static constexpr int MAX_AUTON_ARR_SIZE = 10;
-
-class Auton{
+class Auton: public Counter<Auton, 10>{
   private:
     std::string name;
     std::function<void()> program;
-    static std::array<Auton*, MAX_AUTON_ARR_SIZE> autonArr;
-    static int autons_constructed;
     
     void runFunction() const;
 

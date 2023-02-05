@@ -6,6 +6,10 @@
 #include "../tracking.hpp"
 #include "../drive.hpp"
 #include "../util.hpp"
+#include "../Subsystems/intake.hpp"
+#include "../Subsystems/flywheel.hpp"
+#include "../Subsystems/shooter.hpp"
+
 #include "pros/misc.hpp"
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
@@ -59,6 +63,19 @@
       Button go_to_xya(320, 45, 150, 40, GUI::Style::SIZE, Button::SINGLE, moving, "Target");
       Button go_home(320, 110, 150, 40, GUI::Style::SIZE, Button::SINGLE, moving, "Home");
       Button go_centre(320, 175, 150, 40, GUI::Style::SIZE, Button::SINGLE, moving, "Centre");
+
+    Page systems ("Subsystems"); //Activates Subsystems
+      Text shoot_text(0, 0, GUI::Style::CENTRE, TEXT_SMALL, systems, "Shooter");
+      Button shoot1(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "1");
+      Button shoot2(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "2");
+      Button shoot3(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "3");
+      Text intake_text(0, 0, GUI::Style::CENTRE, TEXT_SMALL, systems, "Intake");
+      Button intake_on(0, 0, 0, 0, GUI::Style::SIZE, Button::TOGGLE, systems, "On");
+      Button intake_rev(0, 0, 0, 0, GUI::Style::SIZE, Button::TOGGLE, systems, "Off");
+      Button intake_off(0, 0, 0, 0, GUI::Style::SIZE, Button::TOGGLE, systems, "Reverse");
+      Slider flywheel_vel(0, 0, 0, 0, GUI::Style::CENTRE, Slider::HORIZONTAL, 0, 127, systems, "Flywheel Velocity");
+      Button flywheel_set(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "Flywheel Set");
+
 
     Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
       Text tuning_instructions_1(MID_X, 35, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow");
@@ -301,6 +318,15 @@ void mainSetup(){
       Position target (72, 72, tracking.getPos().a);
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
+
+  //Subsystems
+    shoot1.setFunc([](){shoot(1);});
+    shoot2.setFunc([](){shoot(2);});
+    shoot3.setFunc([](){shoot(3);});
+    intake_on.setFunc([](){intakeOn();});
+    intake_rev.setFunc([](){intakeRev();});
+    intake_off.setFunc([](){intakeOff();});
+    flywheel_set.setFunc([](){setFlywheelVel(flywheel_vel.getValue());});
 
   //Tuning Tracking
     manual.select();
@@ -730,6 +756,6 @@ void utilBackground(){
   }
 }
 
-GUI main_obj ({&temps, &checks, &track, &moving, &tuning, &motors, &pneumatics, &logging}, &mainSetup, &mainBackground);
+GUI main_obj ({&temps, &checks, &track, &moving, &tuning, &systems, &motors, &pneumatics, &logging}, &mainSetup, &mainBackground);
 
 GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground);

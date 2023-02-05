@@ -87,7 +87,7 @@ Auton auton3("autonLine", autonLine);
 Auton auton4("Skills", fullSkills);
 
 //TODO: Check //? across files
-//TODO: Use Counter for Auton
+//TODO: Always clear line when controller printing
 
 void opcontrol(){
   DEBUG;

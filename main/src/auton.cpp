@@ -33,7 +33,7 @@ void moveInches(double target){
 		moveDrive(power, 0.0);
 
 	} while(std::abs(error) > 0.5);
-	master.print(2, 0, "time: %ld", move_timer.getTime());
+	master.print(2, "time: %ld", move_timer.getTime());
 	driveBrake();
 	master.rumble("-");
 }
@@ -128,7 +128,7 @@ void skills2(){
   moveToTargetSync({9.0, 28.0}, E_Brake_Modes::coast, 127); // backup to wall
 
 	auton_log("total: %d", total.getTime());
-	master.print(0,0, "total: %d", total.getTime());
+	master.print(0, "total: %d", total.getTime());
   // shoot match loads here
 }
 // tracking.getPos() = {72.0, 11.25, 0.0};
@@ -264,7 +264,7 @@ void autonAWP(){
 
   intake.waitToReachState(IntakeOffParams{});
 	moveInches(2.0);  // Move away from wall
-  master.print(2,0, "total:%ld", timer1.getTime());
+  master.print(2, "total:%ld", timer1.getTime());
   auton_log("total: %d", timer1.getTime());
 	// lcd::print(6, "total:%ld", timer1.getTime());
 }
@@ -300,6 +300,6 @@ void autonLine(){
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
-  master.print(2,0, "total:%ld", timer1.getTime());
+  master.print(2, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
 }

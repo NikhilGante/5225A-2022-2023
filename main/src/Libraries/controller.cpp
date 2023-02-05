@@ -25,6 +25,9 @@
 _Task _Controller::controller_task{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};
 _Controller* _Controller::partner_ptr{nullptr};
+std::string _Controller::line_0{"Line 0 Empty"};
+std::string _Controller::line_1{"Line 1 Empty"};
+std::string _Controller::line_2{"Line 2 Empty"};
 
 _Controller::_Controller(pros::controller_id_e_t id): pros::Controller{id}{
   switch(id){
@@ -99,10 +102,6 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
   }
   controller_log("Timed out on waiting for button press from controller %s", name);
   return static_cast<controller_digital_e_t>(0);
-}
-
-int _Controller::getAnalog(controller_analog_e_t joystick){
-  return getAnalog(joystick, deadzone);
 }
 
 int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone){

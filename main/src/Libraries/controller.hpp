@@ -51,16 +51,16 @@ class _Controller: public pros::Controller{
     void clear();
     void rumble(std::string rumble_pattern);
     int getAnalog(controller_analog_e_t joystick);
-    int getAnalog(controller_analog_e_t joystick, int deadzone);
+    int getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
     bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
     void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
     controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
     std::string getText(int line) const;
 
-    void print(std::uint8_t line, std::uint8_t col, std::string fmt, auto... args){
+    void print(std::uint8_t line, std::string fmt, auto... args){
       std::string str = sprintf2(fmt, args...);
       queue.push([=, this](){
-        pros::Controller::print(line, col, str.c_str());
+        pros::Controller::print(line, 0, str.c_str());
         controller_log("Printing \"%s\" to %s controller", str, name);
       });
       controller_log("Adding print to %s controller queue", name);
@@ -68,13 +68,10 @@ class _Controller: public pros::Controller{
       getText(line) = str;
     }
 
-    void printScroll(std::uint8_t col, std::string fmt, auto... args){
+    void printScroll(std::string fmt, auto... args){
       std::string str = sprintf2(fmt, args...);
-      print(0, col, getText(1));
-      print(1, col, getText(2));
-      print(2, col, str);
+      print(0, getText(1));
+      print(1, getText(2));
+      print(2, str);
     }
-
-    void print(std::uint8_t line, std::string fmt, auto... args) {print(line, 0, fmt, args...);}
-    void printScroll(std::string fmt, auto... args) {print(0, fmt, args...);}
 };

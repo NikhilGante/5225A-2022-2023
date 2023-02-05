@@ -113,7 +113,7 @@ namespace alert{
     if(term == "") term = screen;
     printf2(term_colours::BLUE, "\n\n%s\nPress the screen big button or the controller OK button when ready.", term);
     master.clear();
-    master.print(0, 0, "Press OK btn");
+    master.print(0, "Press OK btn");
     bool interrupted = false;
     const Page* page = GUI::current_page;
     prompt_sequence.goTo();
