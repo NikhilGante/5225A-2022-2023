@@ -88,35 +88,9 @@ Auton auton4("Skills", fullSkills);
 
 //TODO: Check //? across files
 //TODO: Use Counter for Auton
-//TODO: Test log to terminal
-
-void print_controller_internal(std::string text){
-  static std::string line_1 = "", line_2 = "";
-  master.print(0, 0, line_1);
-  master.print(1, 0, line_2);
-  master.print(2, 0, text);
-
-  line_1 = line_2;
-  line_2 = text;
-}
-
-void print_controller(const char* format, ...) {
-  va_list arguments;
-  va_start(arguments,format);
-  char buffer[100];
-  vsprintf(buffer, format, arguments);
-  va_end(arguments);
-  print_controller_internal(buffer);
-}
 
 void opcontrol(){
   DEBUG;
-
-  WAIT_UNTIL(false){
-    if(master.get_digital_new_press(DIGITAL_A)) print_controller("%d", 1);
-    if(master.get_digital_new_press(DIGITAL_B)) print_controller("%d", 2);
-    if(master.get_digital_new_press(DIGITAL_X)) print_controller("%d", 3);
-  }
   
   DEBUG;
   WAIT_UNTIL(false);

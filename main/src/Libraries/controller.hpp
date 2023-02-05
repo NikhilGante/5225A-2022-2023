@@ -32,11 +32,14 @@ class _Controller: public pros::Controller{
   private:
     static _Controller *master_ptr, *partner_ptr;
     static _Task controller_task;
+    static std::string line_0, line_1, line_2;
 
     Queue<std::function<void()>, 20> queue;
     std::string name;
 
     void handle();
+    std::string& getText(int line);
+
     
   public:
     _Controller(pros::controller_id_e_t id);
@@ -52,6 +55,7 @@ class _Controller: public pros::Controller{
     bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
     void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
     controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
+    std::string getText(int line) const;
 
     void print(std::uint8_t line, std::uint8_t col, std::string fmt, auto... args){
       std::string str = sprintf2(fmt, args...);
@@ -60,5 +64,17 @@ class _Controller: public pros::Controller{
         controller_log("Printing \"%s\" to %s controller", str, name);
       });
       controller_log("Adding print to %s controller queue", name);
+
+      getText(line) = str;
     }
+
+    void printScroll(std::uint8_t col, std::string fmt, auto... args){
+      std::string str = sprintf2(fmt, args...);
+      print(0, col, getText(1));
+      print(1, col, getText(2));
+      print(2, col, str);
+    }
+
+    void print(std::uint8_t line, std::string fmt, auto... args) {print(line, 0, fmt, args...);}
+    void printScroll(std::string fmt, auto... args) {print(0, fmt, args...);}
 };

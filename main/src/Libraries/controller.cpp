@@ -110,6 +110,26 @@ int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone){
   return std::abs(value) > deadzone ? value : 0;
 }
 
+std::string _Controller::getText(int line) const{
+  switch(line){
+    case 0: return line_0; break;
+    case 1: return line_1; break;
+    case 2: return line_2; break;
+    default: return "Invalid line"; break;
+  }
+}
+
+std::string& _Controller::getText(int line){
+  static std::string error = "Invalid line";
+  switch(line){
+    case 0: return line_0; break;
+    case 1: return line_1; break;
+    case 2: return line_2; break;
+    default: return error; break;
+  }
+}
+
+
 bool _Controller::interrupt(bool analog, bool digital, bool OK_except){
   if (analog){
     if (get_analog(ANALOG_LEFT_X ), 20) return true;
