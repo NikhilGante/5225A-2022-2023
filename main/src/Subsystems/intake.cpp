@@ -67,7 +67,7 @@ void IntakeOnParams::handle(){  // synchronous state
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
-    printf("COUNTED 3\n");
+    log("COUNTED 3\n");
     master.rumble("-");
     _Task::delay(185);
     intakeOff();

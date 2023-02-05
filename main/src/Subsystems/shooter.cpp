@@ -4,7 +4,9 @@
 #include "../Libraries/logging.hpp"
 
 const int toaster_rpm = 1400;
-const int barrier_rpm = 1820;
+// const int barrier_rpm = 1820;
+const int barrier_rpm = 2235;
+
 bool goal_disturb = false;
 
 // 1820

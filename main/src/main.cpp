@@ -50,7 +50,10 @@ void initialize() {
 	battery_check.start([](){
 		while(true){
 			// if(pros::battery::get_voltage()){master.}
-			printf("%d\n\n\n", pros::c::battery_get_voltage());
+			// printf("%d\n\n\n", pros::c::battery_get_voltage());
+			if(pros::c::battery_get_voltage() < 12200){
+				master.rumble("-");
+			}
 			delay(100);
 
 		}
@@ -175,28 +178,14 @@ Auton auton4("Skills", fullSkills);
 
 void opcontrol() {
 
-	// spinRoller();
-
-	// WAIT_UNTIL(false);
-	// driveBrake();
-	// while (true){
-	// 	if (master.get_digital_new_press(DIGITAL_A)) {
-	// 		shoot(3);
-	// 		setFlywheelVel(2380);
-	// 	}
-
-	// 	delay(20);
+  // drive.changeState(DriveIdleParams{});
+  // drive.waitToReachState(DriveIdleParams{});
+  // moveDrive(-50, 0);
+	// while(true){
+  //   log("%d l:%lf, r:%lf\n", millis(), tracking.l_vel, tracking.r_vel);
+	// 	delay(10);
 	// }
-	
-
-
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	// turnToAngleSync(-90);
-
-	// WAIT_UNTIL(false);
-	// tracking.reset({0.0, 0.0, degToRad(0.0)});
-
-	// moveToTargetSync({0.0, 50.0});
+  // moveDrive(-10, 0);
 
 	Auton::selectAuton();
 	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));

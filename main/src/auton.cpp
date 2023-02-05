@@ -186,6 +186,7 @@ void autonStack(){
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
+  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
   // tracking.reset({31.0, 7.375, degToRad(0.0)});
 	// moveToTargetSync({37.0, 12.5});  // Move away from wall
   moveInches(5.0);
@@ -194,48 +195,68 @@ void autonStack(){
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
-	setFlywheelVel(2300);
-	turnToTargetSync({69.0, 43.0});
+	setFlywheelVel(2150);
+  turnToTargetSync({73.0, 50.0}); // Faces stack
 	intakeOn();
-	moveToTargetSync({69.0, 43.0}); // Pickup stack of discs
-	aimAtBlue(11.0);
+	moveToTargetSync({73.0, 50.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
+
+	aimAtBlue(0);
+  moveInches(10.0);
+	aimAtBlue(11.5);
+
+
+  driveBrake();
 	shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
+
+	// turnToTargetSync({69.0, 43.0});
+	// intakeOn();
+	// moveToTargetSync({69.0, 43.0}); // Pickup stack of discs
+	// aimAtBlue(11.0);
+	// shoot(3);
+  // shooter.waitToReachState(ShooterIdleParams{});
+  master.print(2,0, "total:%ld", timer1.getTime());
 
 	lcd::print(6, "total:%ld", timer1.getTime());
 
 }
 
 void autonAWP(){
-  // tracking.reset({30.75, 9.0, degToRad(0.0)});
+
 
   Timer timer1{"timer"};
-  setFlywheelVel(2250);
-  // setFlywheelVel(2200);
+  setFlywheelVel(2300);
 
-
-  spinRoller(true);
+  spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({getDistL(), 7.375, degToRad(0.0)});
+  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+
+	moveToTargetSync({tracking.g_pos.x, 14.75}); // Moves away from wall
+
+// START of roller code
+
+  // intakeRev();
+  // drive.changeState(DriveIdleParams{});
+  // drive.waitToReachState(DriveIdleParams{});
+  
+  // double intake_pos = intake_m.get_position();
+
+  // moveDrive(-40, 0);
+  // WAIT_UNTIL(fabs(intake_pos- intake_m.get_position()) > 450);
+  // intakeOff();
+  // moveInches(2.0);
 
 
-  drive.setState(DriveIdleParams{});
-  drive.waitToReachState(DriveIdleParams{});
-  moveDriveSide(60, 0);
-  delay(500);
-	// moveToTargetSync({30.75, 12.5});  // Move away from wall
-
-  // moveInches(5.0);
-  // moveInches(1.0);// Move away from wall
+// END of roller code
 
 
 // YOOOO
+  turnToTargetSync({73.0, 48.0}); // Faces stack
 	intakeOn();
-	moveToTargetSync({73.0, 47.0}, E_Brake_Modes::brake, 127); // Pickup stack of discs
-	aimAtBlue(13.5);
-  // moveToTargetSync({67.5, 55.0}); // Pickup stack of discs
+	moveToTargetSync({73.0, 48.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
 
-	// aimAtBlue(11.0);
+	aimAtBlue(11.5);
+
   driveBrake();
 	shoot(3);
   // WAIT_UNTIL(false);
@@ -245,88 +266,73 @@ void autonAWP(){
   setFlywheelVel(2420);
   
 // YOOOO
-	turnToTargetSync({126.0, 127.0});
+	turnToTargetSync({125.0, 105.0}); // Face corner
+  
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
-	moveToTargetSync({126.0, 127.0}); // Move to corner
+	moveToTargetSync({125.0, 105.0}); // Move to corner
+  log("TURNED INTAKE OFF\n");
+  intakeOff();
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
-  intakeOff();
 
   
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
 
-  // tracking.reset({141.0 - getDistR(), 141 - 9.75, degToRad(-90.0)});
-
   moveInches(4.0);
 
-  aimAtBlue(12.0);
-  shoot(3);
+  // aimAtBlue(11.0);
+  // shoot(3);
   WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
 }
 
-void autonLineTest(){ // No moving after start
+void autonLine(){ // No moving after start
   Timer timer1{"timer"};
   angler_p.setState(LOW);
 
-  
-  setFlywheelVel(2225);
-  intakeOn();
-  moveToTargetSync({96, 84}, E_Brake_Modes::brake, 127); // move to single disc in front
+  flattenAgainstWallSync();
+  tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
 
-  aimAtBlue(10);
+  setFlywheelVel(2215);
+  intakeOn();
+  moveToTargetSync({96, 82}); // move to single disc in front
+  aimAtBlue(10.5);
 
 
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
-  turnToAngleSync(-90, E_Brake_Modes::none, 4, 127);
+  setFlywheelVel(2225);
 
-  setFlywheelVel(2250);
-
-  moveInches(-5);
-  turnToAngleSync(-135);
-  moveToTargetSync({124, 104}, E_Brake_Modes::brake, 127, 1.0, E_Robot_Sides::back); // move to two discs in front
-  intakeOff();
-  moveDrive(-65, 0);
-  delay(750);
-  moveDrive(-10, 0);
-  spinRoller(false);
-  intake.waitToReachState(IntakeOffParams{});
-  moveInches(2);
-  driveBrake();
-
-
-  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  moveToTargetSync({102, 78}); // Backup
   intakeOn();
-  turnToTargetSync({75, 50});
-  moveToTargetSync({75, 50}, E_Brake_Modes::brake, 127); // move to two discs in front
-
+  turnToTargetSync({84, 60}, 0.0, false, E_Brake_Modes::brake, 3); // Backup
+  moveToTargetSync({84, 60}); // Backup
   aimAtBlue(10);
-
-
-  driveBrake();
-  shoot(2);
+  shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
 
-  // setFlywheelVel(2250);
-  // moveInches(-6.0);
-  // turnToAngleSync(-135);
-  // moveToTargetSync({75, 51}, E_Brake_Modes::brake, 70); // move to two discs in front
-  // aimAtBlue(11);
-  // moveInches(7);
-  // driveBrake();
-  // shoot(3);
-  // shooter.waitToReachState(ShooterIdleParams{});
-  // moveInches(-7);
+  turnToTargetSync({126, 108}, 0.0, true, E_Brake_Modes::coast); // Backup
+  intakeOff();
+  moveToTargetSync({128, 108}); // Backup
 
+  intakeRev();
+  drive.changeState(DriveIdleParams{});
+  drive.waitToReachState(DriveIdleParams{});
+  
+  double intake_pos = intake_m.get_position();
 
+  moveDrive(-40, 0);
+  WAIT_UNTIL(fabs(intake_pos- intake_m.get_position()) > 450);
+  intakeOff();
+  moveInches(2.0);
 
-  driveBrake();
+  intake.waitToReachState(IntakeOffParams{});
+  
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
  
@@ -401,7 +407,7 @@ void autonLineOld(){
 	lcd::print(6, "total:%ld", timer1.getTime());
 }
 
-void autonLine(){
+void autonLinePrev(){
   // tracking.reset({128.75, 83.25, degToRad(0.0)});
   
   Timer timer1{"timer"};

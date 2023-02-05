@@ -48,6 +48,7 @@ void Auton::selectAuton(){
 		}
 		delay(10);
 	}
+	/*
 	while(true){
 		if(master.get_digital_new_press(DIGITAL_A)){	// Press A to reset
 			flattenAgainstWallSync();
@@ -58,18 +59,18 @@ void Auton::selectAuton(){
 					break;
 
 				case E_Auton_Reset_Types::far:
-					tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});;
+					tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
 					break;
 			}
 			moveDrive(0, 0);
 			trans_p.setState(HIGH);
 			break;
 		}
-		
 		delay(10);
 
 	}
-
+	*/
+	
 }
 // Runs selected auton
 void Auton::runAuton(){

@@ -26,7 +26,7 @@ Piston indexer_p('D', "indexer_p", false, LOW);
 ADIAnalogIn mag_ds('A');
 ADIAnalogIn shooter_ds('B');
 
-Rotation flywheel_rot_sensor(7);	// Configures rotation sensor in port 1
+Rotation flywheel_rot_sensor(2);	// Configures rotation sensor in port 1
 
 Piston angler_p('E', "angler_p", false, LOW);
 Piston trans_p('C', "trans_p", true, HIGH);

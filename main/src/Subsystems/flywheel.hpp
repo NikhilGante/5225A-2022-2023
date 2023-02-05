@@ -41,7 +41,7 @@ struct FlywheelMoveVelParams{
   void handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state);
 private:
   static constexpr double kB = 0.0332;	// Target velocity multiplied by this outputs a motor voltage
-  // static int32_t rot_vel; // Velocity detected by rotation sensor
+  static double rot_vel; // Velocity detected by rotation sensor
   static double output; // Power that goes to the flywheel motor
 
   static constexpr double smooth_val = 0.65; // Tuned to smooth velocity values

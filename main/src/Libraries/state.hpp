@@ -6,6 +6,7 @@
 #include <atomic>
 #include "main.h"
 
+#include "logging.hpp"
 #include "task.hpp"
 #include "../util.hpp"
 
@@ -72,7 +73,7 @@ public:
 
   template <typename next_state_type>
   void changeState(next_state_type next_state, int line = -1){
-    printf("%s state change requested from %s to %s, LINE:%d\n", name, getStateName(state), getStateName(next_state), line);
+    log("%s state change requested from %s to %s, LINE:%d\n", name, getStateName(state), getStateName(next_state), line);
     setTargetState(next_state);
     state_change_requested = true;
     task.kill();  // Interrupts current state
@@ -109,9 +110,9 @@ public:
           variant<StateTypes...> target_state_cpy = getTargetState();
           variant<StateTypes...> state_cpy = getState();
           // Calls handle state change method for target state and logs the change
-          printf("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          log("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
-          printf("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          log("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           setState(target_state_cpy);
 
           state_change_requested = false;

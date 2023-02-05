@@ -408,12 +408,12 @@ void DriveFlattenParams::handle(){  // Flattens against wall
         cycle_count++;
       }
       else{
-        moveDriveSide(-5, -30); // Turns right
+        moveDriveSide(-5, -50); // Turns right
         cycle_count = 0;  // Reset count
       }
     }
     else if(r_slow){
-      moveDriveSide(-30, -5); // Turns left
+      moveDriveSide(-50, -5); // Turns left
       cycle_count = 0;  // Reset count
     }
     else{
