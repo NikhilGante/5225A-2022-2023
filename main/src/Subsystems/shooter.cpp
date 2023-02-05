@@ -14,11 +14,11 @@ Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
 void shooterHandleInput(){
   shooterVariant cur_state = shooter.getState();
   if(std::get_if<ShooterIdleParams>(&cur_state)){
-    if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
-    if(master.get_digital_new_press(singleShotBtn)) shoot(1);
+    if(master.getNewDigital(tripleShotBtn)) shoot(3);
+    if(master.getNewDigital(singleShotBtn)) shoot(1);
   }
 
-  if(master.get_digital_new_press(anglerToggleBtn)) {
+  if(master.getNewDigital(anglerToggleBtn)) {
     angler_p.toggleState();
     if (!angleOverride){
       if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
@@ -29,7 +29,7 @@ void shooterHandleInput(){
     }
   } 
 
-  if (master.get_digital_new_press(angleOverrideBtn)) {
+  if (master.getNewDigital(angleOverrideBtn)) {
     angleOverride = !angleOverride; 
     if(angleOverride) setFlywheelVel(toaster_rpm);
     else{
@@ -41,7 +41,7 @@ void shooterHandleInput(){
     }
   }
 
-  if(master.get_digital_new_press(goalDisturbBtn)){
+  if(master.getNewDigital(goalDisturbBtn)){
     goal_disturb = !goal_disturb;
     if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
   }

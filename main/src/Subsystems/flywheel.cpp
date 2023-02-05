@@ -56,8 +56,8 @@ void FlywheelMoveVelParams::handle(){
 
   // ***********************
 
-  // if(master.get_digital_new_press(DIGITAL_UP))  target_vel += 25;
-  // if(master.get_digital_new_press(DIGITAL_DOWN))  target_vel -= 25;
+  // if(master.getNewDigital(DIGITAL_UP))  target_vel += 25;
+  // if(master.getNewDigital(DIGITAL_DOWN))  target_vel -= 25;
 
   // Calculating filtered velocity
   if(motor_vel_read.getTime() >= 40){

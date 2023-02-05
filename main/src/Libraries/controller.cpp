@@ -86,15 +86,13 @@ void _Controller::rumble(std::string rumble_pattern){
   controller_log("Adding rumble to %s controller queue", name);
 }
 
-void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
-
 controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
   Timer timer{"Controller Button Timeout"};
   controller_log("Waiting for button press on %s controller with a timeout of %d", name, timeout);
   
   WAIT_UNTIL(timer.getTime() > timeout){
     for(controller_digital_e_t btn: buttons){
-      if(get_digital_new_press(btn)){
+      if(getNewDigital(btn)){
         controller_log("Button %d pressed on %s controller", btn, name);
         return btn;
       }
@@ -104,9 +102,40 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
   return static_cast<controller_digital_e_t>(0);
 }
 
+void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
+
+bool _Controller::getDigital(controller_digital_e_t button) {return get_digital(button);}
+bool _Controller::getNewDigital(controller_digital_e_t button) {return get_digital_new_press(button);}
+
 int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone){
   int value = get_analog(joystick);
   return std::abs(value) > deadzone ? value : 0;
+}
+
+bool _Controller::interrupt(bool analog, bool digital, bool OK_except){
+  if (analog){
+    if (getAnalog(ANALOG_LEFT_X ), 20) return true;
+    if (getAnalog(ANALOG_LEFT_Y ), 20) return true;
+    if (getAnalog(ANALOG_RIGHT_X), 20) return true;
+    if (getAnalog(ANALOG_RIGHT_Y), 20) return true;
+  }
+  if(digital){
+    if (getDigital(okBtn)) return !OK_except;
+    if (getDigital(DIGITAL_A)) return true;
+    if (getDigital(DIGITAL_B)) return true;
+    if (getDigital(DIGITAL_Y)) return true;
+    if (getDigital(DIGITAL_X)) return true;
+    if (getDigital(DIGITAL_R1)) return true;
+    if (getDigital(DIGITAL_R2)) return true;
+    if (getDigital(DIGITAL_L1)) return true;
+    if (getDigital(DIGITAL_L2)) return true;
+    if (getDigital(DIGITAL_RIGHT)) return true;
+    if (getDigital(DIGITAL_DOWN)) return true;
+    if (getDigital(DIGITAL_LEFT)) return true;
+    if (getDigital(DIGITAL_UP)) return true;
+  }
+
+  return false;
 }
 
 std::string _Controller::getText(int line) const{
@@ -126,31 +155,4 @@ std::string& _Controller::getText(int line){
     case 2: return line_2; break;
     default: return error; break;
   }
-}
-
-
-bool _Controller::interrupt(bool analog, bool digital, bool OK_except){
-  if (analog){
-    if (get_analog(ANALOG_LEFT_X ), 20) return true;
-    if (get_analog(ANALOG_LEFT_Y ), 20) return true;
-    if (get_analog(ANALOG_RIGHT_X), 20) return true;
-    if (get_analog(ANALOG_RIGHT_Y), 20) return true;
-  }
-  if(digital){
-    if (get_digital(okBtn)) return !OK_except;
-    if (get_digital(DIGITAL_A)) return true;
-    if (get_digital(DIGITAL_B)) return true;
-    if (get_digital(DIGITAL_Y)) return true;
-    if (get_digital(DIGITAL_X)) return true;
-    if (get_digital(DIGITAL_R1)) return true;
-    if (get_digital(DIGITAL_R2)) return true;
-    if (get_digital(DIGITAL_L1)) return true;
-    if (get_digital(DIGITAL_L2)) return true;
-    if (get_digital(DIGITAL_RIGHT)) return true;
-    if (get_digital(DIGITAL_DOWN)) return true;
-    if (get_digital(DIGITAL_LEFT)) return true;
-    if (get_digital(DIGITAL_UP)) return true;
-  }
-
-  return false;
 }
