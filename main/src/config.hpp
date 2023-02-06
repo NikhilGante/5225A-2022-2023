@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
 
+extern uint8_t rotation_port;
+
 class _Controller;
 class _Motor;
 class Piston;

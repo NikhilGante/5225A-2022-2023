@@ -87,45 +87,10 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine);
 Auton auton4("Skills", fullSkills);
 
-//TODO: Check //? across files
-//TODO: Use Counter for Auton
 //TODO: Test log to terminal
-//TODO: Check if all ports are pluuged in
-
-
-// void print_object(vision_object_s_t obj){
-//   constexpr int deadzone = 35;
-//   std::string type;
-//   switch(obj.type){
-//     case VISION_OBJECT_NORMAL: type = "Normal"; break;
-//     case VISION_OBJECT_COLOR_CODE: type = "Colour"; break;
-//     case VISION_OBJECT_LINE: type = "Line"; break;
-//   }
-//   printf2("Time:%d | Type:%s, Left:%d, Top:%d, Width:%d, Height:%d, Angle:%d", millis(), type, obj.left_coord, obj.top_coord, obj.width, obj.height, obj.angle);
-//   if(std::abs(obj.left_coord) > deadzone) printf2("    Go %s", obj.left_coord > 0 ? "Right" : "Left");
-//   else if(std::abs(obj.top_coord) > deadzone) printf2("    Go %s", obj.top_coord > 0 ? "Up" : "Down");
-  
-//   printf2("\n");
-// }
 
 void opcontrol() {
   DEBUG;
-  // Vision vis(2, VISION_ZERO_CENTER);
-  // // vis.set_auto_white_balance(true);
-
-  // vision_signature_s_t blue_sig = Vision::signature_from_utility(1, -2835, -983, -1909, 6951, 9185, 8068, 3.0, 0);
-  // vision_signature_s_t red_sig = Vision::signature_from_utility(2, 10795, 13423, 12109, -399, 809, 205, 3.0, 0);
-  // vis.set_signature(blue_sig.id, &blue_sig);
-  // vis.set_signature(red_sig.id, &red_sig);
-
-  // while(true) {
-  //   vision_object_s_t blue = vis.get_by_sig(0, 1);
-  //   vision_object_s_t red = vis.get_by_sig(0, 2);
-  //   // printf2("Blue: %d, Red: %d\n", blue.signature, red.signature);
-  //   if (red.signature != 255) print_object(red);
-  //   delay(10);
-  // }
-
   
   DEBUG;
   WAIT_UNTIL(false);
