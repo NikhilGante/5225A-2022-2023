@@ -6,6 +6,7 @@
 #include "../tracking.hpp"
 #include "../drive.hpp"
 #include "../util.hpp"
+#include "../menu.hpp"
 #include "../Subsystems/intake.hpp"
 #include "../Subsystems/flywheel.hpp"
 #include "../Subsystems/shooter.hpp"
@@ -35,13 +36,11 @@
 
     Page checks("Competition");
       Button drive_motors (15, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Drive Motors");
-      Button intakes (130, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Intake Uptake");
-      Button lifts (245, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Lifts");
-      Button pneums (360, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Pneumatics");
-      Button save_pos (15, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Save Position");
-      Button auton_selector (130, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Select Autons");
-      Button misc_checks (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Misc");
-      Button dist (360, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Distance");
+      Button pneums (130, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Pneumatics");
+      Button auton_selector (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Select Autons");
+      Button sensor_check (15, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Distance");
+      Button misc_checks (130, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Misc");
+      // Button save_pos (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Save Position");
 
     Page track ("Tracking"); //Display tracking vals and reset btns
       Text track_x(50, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", std::function([](){return tracking.getPos().x;}));
@@ -183,43 +182,6 @@ void mainSetup(){
       }
     });
 
-    intakes.setFunc([](){
-      if(GUI::prompt("Press to check intake", "", 1000)){
-        DEPRECATE;
-        // b_lift.Subsystem::setState(b_lift_states::intake_on);
-        // delay(1000);
-
-        // b_lift.Subsystem::setState(b_lift_states::intake_off);
-        // delay(250);
-
-        // b_lift.Subsystem::setState(b_lift_states::intake_reversed);
-        // delay(1000);
-
-        // b_lift.Subsystem::setState(b_lift_states::intake_off);
-      }
-    });
-
-    lifts.setFunc([](){
-      if(GUI::prompt("Press to check lifts", "", 1000)){
-        DEPRECATE;
-        // b_lift.setState(b_lift_states::move_to_target, 0);
-        // f_lift.setState(f_lift_states::move_to_target, 0);
-        // delay(1000);
-
-        // b_lift.move_to_top();
-        // f_lift.move_to_top();
-        // delay(1000);
-
-        // b_lift.setState(b_lift_states::move_to_target, 0);
-        // f_lift.setState(f_lift_states::move_to_target, 0);
-
-        // delay(250);
-
-        // b_lift.setState(b_lift_states::managed, 0);
-        // f_lift.setState(f_lift_states::managed, 0);
-      }
-    });
-
     pneums.setFunc([](){
       for(auto piston: Piston::getList()){
         if (GUI::prompt("Press to check " + piston->getName())){
@@ -231,7 +193,7 @@ void mainSetup(){
       }
     });
 
-    dist.setFunc([](){
+    sensor_check.setFunc([](){
       DEPRECATE;
       // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) alert::start("Distance Sensor: Back");
       // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) alert::start("Distance Sensor: Front");
@@ -244,14 +206,14 @@ void mainSetup(){
     });
 
     misc_checks.setFunc([](){
+      for (_Motor* motor: _Motor::getList()) if (!motor->plugged()) alert::start("Motor %s unplugged", motor->getName());
       if (!usd::is_installed()) alert::start("No SD Card!");
       else if (battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
 
       else(alert::start("No Errors Found", term_colours::GREEN));
     });
 
-    save_pos.setFunc([](){DEPRECATE});
-    auton_selector.setFunc([](){DEPRECATE});
+    auton_selector.setFunc(Auton::select);
 
   //Tracking
     // for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
