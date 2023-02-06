@@ -1,8 +1,8 @@
 #include "flywheel.hpp"
 #include "shooter.hpp"
 #include "../config.hpp"
-#include "../Libraries/controller.hpp"
-#include "../Libraries/motor.hpp"
+#include "../Devices/controller.hpp"
+#include "../Devices/motor.hpp"
 #include "../util.hpp"
 
 constexpr double MS_TO_MIN = 60000;

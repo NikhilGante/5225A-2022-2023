@@ -1,6 +1,6 @@
-#include "Libraries/controller.hpp"
-#include "Libraries/motor.hpp"
-#include "Libraries/piston.hpp"
+#include "Devices/controller.hpp"
+#include "Devices/motor.hpp"
+#include "Devices/piston.hpp"
 
 uint8_t rotation_port = 7;
 

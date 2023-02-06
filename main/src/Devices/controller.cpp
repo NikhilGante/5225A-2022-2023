@@ -1,6 +1,6 @@
 #include "controller.hpp"
-#include "task.hpp"
-#include "timer.hpp"
+#include "../Libraries/task.hpp"
+#include "../Libraries/timer.hpp"
 #include "../util.hpp"
 
 // Buttons

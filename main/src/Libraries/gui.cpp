@@ -1,7 +1,7 @@
 #include "gui.hpp"
 #include "../config.hpp"
 #include "task.hpp"
-#include "controller.hpp"
+#include "../Devices/controller.hpp"
 #include "timer.hpp"
 #include "../util.hpp"
 

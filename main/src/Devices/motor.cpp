@@ -1,5 +1,5 @@
 #include "motor.hpp"
-#include "logging.hpp"
+#include "../Libraries/logging.hpp"
 #include <sstream>
 
 extern Page temps, motors;

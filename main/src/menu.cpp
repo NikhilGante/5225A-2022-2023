@@ -1,6 +1,6 @@
 #include "menu.hpp"
 #include "config.hpp"
-#include "Libraries/controller.hpp"
+#include "Devices/controller.hpp"
 
 #include <fstream>
 

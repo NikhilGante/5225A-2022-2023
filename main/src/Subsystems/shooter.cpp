@@ -1,8 +1,8 @@
 #include "shooter.hpp"
 #include "intake.hpp"
 #include "../config.hpp"
-#include "../Libraries/controller.hpp"
-#include "../Libraries/piston.hpp"
+#include "../Devices/controller.hpp"
+#include "../Devices/piston.hpp"
 
 static constexpr int toaster_rpm = 1400;
 

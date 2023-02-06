@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
-#include "gui.hpp"
-#include "counter.hpp"
+#include "../Libraries/gui.hpp"
+#include "../Libraries/counter.hpp"
 
 class _Motor: private Motor, public Counter<_Motor, 8>{
   private:

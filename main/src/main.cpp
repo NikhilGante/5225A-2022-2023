@@ -2,11 +2,12 @@
 #include "Libraries/gui.hpp"
 #include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
-#include "Libraries/controller.hpp"
+#include "Devices/controller.hpp"
 #include "auton.hpp"
 #include "config.hpp"
 #include "menu.hpp"
 #include "tracking.hpp"
+#include "Devices/vision.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -89,8 +90,34 @@ Auton auton4("Skills", fullSkills);
 
 //TODO: Test log to terminal
 
+
+void print_object(vision_object_s_t obj){
+  constexpr int deadzone = 35;
+  std::string type;
+  switch(obj.type){
+    case VISION_OBJECT_NORMAL: type = "Normal"; break;
+    case VISION_OBJECT_COLOR_CODE: type = "Colour"; break;
+    case VISION_OBJECT_LINE: type = "Line"; break;
+  }
+  _Vision::print_object(obj);
+  if(std::abs(obj.left_coord) > deadzone) printf2("    Go %s", obj.left_coord > 0 ? "Right" : "Left");
+  else if(std::abs(obj.top_coord) > deadzone) printf2("    Go %s", obj.top_coord > 0 ? "Up" : "Down");
+  
+  printf2("\n");
+}
+
 void opcontrol() {
   DEBUG;
+  _Vision vis(2);
+
+  while(true) {
+    vision_object_s_t blue = vis.blue_object();
+    vision_object_s_t red = vis.red_object();
+    // printf2("Blue: %d, Red: %d\n", blue.signature, red.signature);
+    if (red.signature != 255) print_object(red);
+    delay(10);
+  }
+
   
   DEBUG;
   WAIT_UNTIL(false);

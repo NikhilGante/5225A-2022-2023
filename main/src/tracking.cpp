@@ -3,8 +3,8 @@
 #include "drive.hpp"
 #include "util.hpp"
 #include "Libraries/pid.hpp"
-#include "Libraries/piston.hpp"
 #include "Libraries/timer.hpp"
+#include "Devices/piston.hpp"
 
 
 // Coords of high goal

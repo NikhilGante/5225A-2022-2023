@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
-#include "gui.hpp"
-#include "counter.hpp"
+#include "../Libraries/gui.hpp"
+#include "../Libraries/counter.hpp"
 
 class Piston: private ADIDigitalOut, public Counter<Piston, 12>{
   private:

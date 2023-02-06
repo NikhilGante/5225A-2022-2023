@@ -1,9 +1,9 @@
 #include "drive.hpp"
 #include "config.hpp"
 #include "tracking.hpp"
-#include "Libraries/controller.hpp"
-#include "Libraries/motor.hpp"
-#include "Libraries/piston.hpp"
+#include "Devices/controller.hpp"
+#include "Devices/motor.hpp"
+#include "Devices/piston.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
 

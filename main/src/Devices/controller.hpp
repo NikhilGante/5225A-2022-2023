@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
-#include "logging.hpp"
-#include "queue.hpp"
+#include "../Libraries/logging.hpp"
+#include "../Libraries/queue.hpp"
 
 // Buttons
   constexpr controller_digital_e_t okBtn = DIGITAL_A;
