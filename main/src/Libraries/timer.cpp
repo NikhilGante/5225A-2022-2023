@@ -9,11 +9,8 @@ name{name}, timing_unit{timing_unit}, log{&log} {
 
 void Timer::reset(bool play){
   time = 0;
-  if(play){
-    paused = true;
-    this->play();
-  }
-  else paused = true; //? paused = true in both branches
+  paused = true;
+  if(play) this->play();
 }
 
 uint64_t Timer::getTime(){

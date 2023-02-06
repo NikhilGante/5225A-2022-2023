@@ -58,7 +58,7 @@ void _Task::delay(uint32_t delay_time){
     }
     // ensures to sleep at most 10ms, or time left if that's less than 10ms 
     int time_left = delay_time - delay_timer.getTime();
-    pros::delay(std::min(time_left < 0 ? 0 : time_left, 10)); //?what if you wanted to delay 50. It would only delay 10?
+    pros::delay(std::min(time_left < 0 ? 0 : time_left, 10));
   }
   while(delay_timer.getTime() < delay_time);
 }

@@ -11,20 +11,20 @@ Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
   if(std::get_if<IntakeOnParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
+    if(master.getNewDigital(intakeToggleBtn))  intakeOff();
+    if(master.getNewDigital(intakeRevBtn)) intakeRev();
   }
   else if(std::get_if<IntakeOffParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
+    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
+    if(master.getNewDigital(intakeRevBtn)) intakeRev();
   }
   else if(std::get_if<IntakeRevParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
+    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
+    if(master.getNewDigital(intakeRevBtn)) intakeOff();
   }
   /*
   else if(std::get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
-    if(master.get_digital_new_press(rollerBtn)){
+    if(master.getNewDigital(rollerBtn)){
       // Gives driver back control
       trans_p.setState(HIGH);
       drive.changeState(DriveOpControlParams{});
@@ -34,7 +34,7 @@ void intakeHandleInput(){
   */
   
   // Spin roller if btn is pressed and not already spinning
-  // if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
+  // if(master.getNewDigital(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
 
 }
 

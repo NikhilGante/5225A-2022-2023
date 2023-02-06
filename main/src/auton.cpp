@@ -55,7 +55,7 @@ void skills1(){
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({31.0, 7.5, degToRad(0.0)});
   master.rumble("-");
-  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   intakeOn();
   moveToTargetSync({37.0, 43.0}, E_Brake_Modes::brake, 50); // picks up stack
   aimAtBlue(12.5);

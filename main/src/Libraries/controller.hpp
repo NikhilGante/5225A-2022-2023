@@ -28,7 +28,7 @@
 
 class _Task;
 
-class _Controller: public pros::Controller{
+class _Controller: private pros::Controller{
   private:
     static _Controller *master_ptr, *partner_ptr;
     static _Task controller_task;
@@ -50,14 +50,16 @@ class _Controller: public pros::Controller{
     void clearLine (std::uint8_t line);
     void clear();
     void rumble(std::string rumble_pattern);
-    int getAnalog(controller_analog_e_t joystick);
     int getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
+    bool getDigital(controller_digital_e_t);
+    bool getNewDigital(controller_digital_e_t);
     bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
     void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
     controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
     std::string getText(int line) const;
 
     void print(std::uint8_t line, std::string fmt, auto... args){
+      clearLine(line);
       std::string str = sprintf2(fmt, args...);
       queue.push([=, this](){
         pros::Controller::print(line, 0, str.c_str());

@@ -121,19 +121,19 @@ namespace alert{
     //! Had to comment this out because our controller subclass has changed
 
     //Wait for Release
-    WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
+    WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
       GUI::update_screen_status();
       if (prompt_back_button.pressed()) interrupted = true;
     }
 
     //Wait for Press
-    WAIT_UNTIL((prompt_button.pressed() || master.get_digital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
+    WAIT_UNTIL((prompt_button.pressed() || master.getDigital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
       GUI::update_screen_status();
       if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
     }
     
     //Wait for Release
-    WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
+    WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
       GUI::update_screen_status();
       if (prompt_back_button.pressed()) interrupted = true;
     }
@@ -155,14 +155,14 @@ namespace alert{
   void GUI::drawOblong(int x1, int y1, int x2, int y2, double kS, double kR){ //ks and kr and scale values for shrink and radius
     int s = std::min(x2-x1, y2-y1) * kS; //Scale for shrinking button (pressed look)
     int r = std::min(x2-x1, y2-y1) * kR; //Scale for how rounded the button edges should be
-    screen::fill_rect(x1+ s, y1+ s, x2-s, y2-s);
-    screen::erase_rect(x1+ s, y1+ s, x1+ s + r, y1+ s + r);
-    screen::erase_rect(x2-s, y1+ s, x2-s-r, y1+ s + r);
-    screen::erase_rect(x1+ s, y2-s, x1+ s + r, y2-s-r);
-    screen::erase_rect(x2-s, y2-s, x2-s-r, y2-s-r);
-    screen::fill_circle(x1+ s + r, y1+ s + r, r);
-    screen::fill_circle(x2-s-r, y1+ s + r, r);
-    screen::fill_circle(x1+ s + r, y2-s-r, r);
+    screen::fill_rect  (x1+s  , y1+s  , x2-s  , y2-s  );
+    screen::erase_rect (x1+s  , y1+s  , x1+s+r, y1+s+r);
+    screen::erase_rect (x2-s  , y1+s  , x2-s-r, y1+s+r);
+    screen::erase_rect (x1+s  , y2-s  , x1+s+r, y2-s-r);
+    screen::erase_rect (x2-s  , y2-s  , x2-s-r, y2-s-r);
+    screen::fill_circle(x1+s+r, y1+s+r, r);
+    screen::fill_circle(x2-s-r, y1+s+r, r);
+    screen::fill_circle(x1+s+r, y2-s-r, r);
     screen::fill_circle(x2-s-r, y2-s-r, r);
   }
 

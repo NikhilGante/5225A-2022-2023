@@ -51,9 +51,9 @@ void trackingUpdate(){
   while(true){
 
 
-    // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
-    // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
-    // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
+    // if(master.getNewDigital(DIGITAL_A)) tracking.reset();
+    // else if(master.getNewDigital(DIGITAL_UP)) dist_lr += 0.001;
+    // else if(master.getNewDigital(DIGITAL_DOWN)) dist_lr -= 0.001;
     // lcd::print(3, "dist_lr: %lf", dist_lr);
 
     new_left = left_tracker.get_position()*TICKS_TO_INCHES_325;
@@ -242,7 +242,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     moveDrive(0.0, power);
     _Task::delay(10);
   }
-  while(std::abs(angle_pid.getError()) > end_error); //? why not wait_until
+  while(std::abs(angle_pid.getError()) > end_error);
   handleBrake(brake_mode);
   tracking_log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
   drive.changeState(DriveIdleParams{});

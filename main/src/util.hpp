@@ -23,6 +23,7 @@ inline constexpr double rad_to_rot = 1/rot_to_rad;
   }\
 }
 constexpr bool inRange(double value, double minimum, double maximum) {return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);}
+constexpr bool inRangeExcl(double value, double minimum, double maximum) {return (minimum < value && value < maximum) || (maximum < value && value < minimum);}
 
 constexpr double degToRad(double deg) {return deg * deg_to_rad;}
 constexpr double radToDeg(double rad) {return rad * rad_to_deg;}

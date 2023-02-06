@@ -194,19 +194,17 @@ void mainSetup(){
     });
 
     sensor_check.setFunc([](){
-      DEPRECATE;
-      // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) alert::start("Distance Sensor: Back");
-      // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) alert::start("Distance Sensor: Front");
-      // if(!inRange(static_cast<int>(r_dist.get()), 20, 2000)) alert::start("Distance Sensor: Right");
-      // if(!inRange(static_cast<int>(l_dist.get()), 20, 2000)) alert::start("Distance Sensor: Left");
-      // if(!inRange(static_cast<int>(hitch_dist.get()), 20, 2000)) alert::start("Distance Sensor: Hitch");
-      // if(!inRange(static_cast<int>(r_reset_dist.get()), 20, 2000)) alert::start("Distance Sensor: Right Reset");
-      // if(!inRange(static_cast<int>(l_reset_dist.get()), 20, 2000)) alert::start("Distance Sensor: Left Reset");
-      // else(alert::start("All Distance Sensors Good", term_colours::GREEN));
+      for (_Motor* motor: _Motor::getList()) if (!motor->plugged()) alert::start("Motor %s unplugged", motor->getName());
+      if(c::registry_get_plugged_type(roller_sensor.get_port()-1) != c::E_DEVICE_OPTICAL) alert::start("Roller sensor not plugged in port %d", roller_sensor.get_port());
+      else if(c::registry_get_plugged_type(rotation_port-1) != c::E_DEVICE_ROTATION) alert::start("Roller sensor not plugged in port %d", rotation_port);
+
+      else if(!inRange(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
+      else if(!inRange(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
+
+      else(alert::start("All Sensors Good", term_colours::GREEN));
     });
 
     misc_checks.setFunc([](){
-      for (_Motor* motor: _Motor::getList()) if (!motor->plugged()) alert::start("Motor %s unplugged", motor->getName());
       if (!usd::is_installed()) alert::start("No SD Card!");
       else if (battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
 

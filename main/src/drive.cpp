@@ -69,8 +69,8 @@ bool backwards = false;
 bool last_backwards = false;
 
 void driveHandleInput(){
-  double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_y = polynomial(master.getAnalog(ANALOG_LEFT_Y), drive_curvature);
+  double power_a = 0.6 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
  
   if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
  
@@ -97,7 +97,7 @@ void driveHandleInput(){
     }
   }
 
-  if(master.get_digital_new_press(transToggleBtn)) trans_p.toggleState();
+  if(master.getNewDigital(transToggleBtn)) trans_p.toggleState();
   moveDrive(power_y, power_a);
 }
 
@@ -110,8 +110,8 @@ constexpr double slew_val = 3;
 void driveHandleInputProg(){
   int power_x, power_y, power_a;
 
-  power_y = master.get_analog(ANALOG_LEFT_Y);
-  power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  power_y = master.getAnalog(ANALOG_LEFT_Y);
+  power_a = 0.7 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
 
   if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
   if(std::abs(power_a) < _Controller::deadzone) power_a = 0;
@@ -167,7 +167,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       driver_log("SHOULD BE FALSE dbl_click: %d", endgame_dbl_click);
 
     }
-    if(master.get_digital_new_press(endgameBtn)){
+    if(master.getNewDigital(endgameBtn)){
       driver_log("PRESSED | timer reset: %lld", endgame_click_timer.getTime());
       driver_log("dbl_click: %d", endgame_dbl_click);
       if(endgame_dbl_click) {
@@ -180,13 +180,13 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
-		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
-		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
+		if((master.getNewDigital(DIGITAL_UP) || partner.getNewDigital(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
+		if((master.getNewDigital(DIGITAL_DOWN) || partner.getNewDigital(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
 
 
 		if(disc_count_print.getTime() > 100){
-			master.print(0, "disc count: %d  ", g_mag_disc_count.load());
-			// partner.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+			master.print(0, "disc count: %d", g_mag_disc_count.load());
+			// partner.print(0,0, "disc count: %d", g_mag_disc_count.load());
 			disc_count_print.reset();
 		}
 
