@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Piston Control",
+    "project_name": "Vision Sensor",
     "target": "v5",
     "templates": {
       "kernel": {

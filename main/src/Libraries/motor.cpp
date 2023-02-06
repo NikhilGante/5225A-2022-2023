@@ -24,13 +24,14 @@ Motor{port, gearset, reversed, encoder_units}, name{name}{
   off.setFunc([this](){move(0                       );});
   temperature.setBackground(40, 20);
 
-  if(static_cast<int>(get_temperature()) == std::numeric_limits<int>::max()){
+  if(!plugged()){
     on         .setActive(false);
     off        .setActive(false);
     data       .setActive(false);
     temperature.setActive(false);
   }
 }
+
 
 void _Motor::move(int voltage){
   sensor_log("Motor %s moving from %d to %d speed", getName(), speed, voltage);
@@ -46,14 +47,15 @@ void _Motor::brake(){
 
 int _Motor::getTemperature() const {
   int temp = get_temperature();
-  return temp != std::numeric_limits<int>::max() ? temp : 0;
+  return temp != std::numeric_limits<int>::max() ? temp : -1;
 }
 
 int _Motor::getRPM() const {
   int rpm = get_actual_velocity();
-  return rpm != std::numeric_limits<int>::max() ? rpm : 0;
+  return rpm != std::numeric_limits<int>::max() ? rpm : -1;
 }
 
+bool _Motor::plugged() const {return static_cast<int>(get_temperature()) != std::numeric_limits<int>::max();}
 double _Motor::getPosition() const {return get_position();}
 std::string _Motor::getName() const {return name;}
 std::string _Motor::getShortName() const {return short_name;}

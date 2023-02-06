@@ -19,6 +19,7 @@ class _Motor: private Motor, public Counter<_Motor, 8>{
     void brake();
     void updateTemperatureText();
 
+    bool plugged() const;
     double getPosition() const;
     int getTemperature() const;
     int getRPM() const;
