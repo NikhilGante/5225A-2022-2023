@@ -83,7 +83,7 @@ void auton3func(){
 
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
-Auton auton3("autonLine", autonLine);
+Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
 //print logs as .rtf

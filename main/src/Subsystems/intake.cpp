@@ -22,6 +22,7 @@ void intakeHandleInput(){
     if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
     if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
   }
+  /*
   else if(std::get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
     if(master.get_digital_new_press(rollerBtn)){
       // Gives driver back control
@@ -30,8 +31,10 @@ void intakeHandleInput(){
       intakeOff();
     }
   }
+  */
+  
   // Spin roller if btn is pressed and not already spinning
-  if(master.get_digital_new_press(rollerBtn) && !std::get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
+  // if(master.get_digital_new_press(rollerBtn) && !std::get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
 
 }
 
@@ -62,9 +65,9 @@ void IntakeOnParams::handle(){  // synchronous state
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
-    printf("COUNTED 3\n");
+    log("COUNTED 3\n");
     master.rumble("-");
-    _Task::delay(125);
+    _Task::delay(185);
     intakeOff();
   }
 
@@ -130,6 +133,10 @@ void IntakeRollerParams::handle(){
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
+
+  intake_m.move_relative(-450, 200);  // should be 450
+  WAIT_UNTIL(fabs(intake_m.get_target_position() - intake_m.get_position()) < 10); // wait for intake to reach poisiton 
+  /*
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
   sensor_data.print("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
@@ -143,13 +150,18 @@ void IntakeRollerParams::handle(){
     sensor_data.print("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
   } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
-
-  // while(std::abs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
+  */
+  printf("**DONE ROLLER\n");
+  // while(fabs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
+	moveDrive(0, 0);
+  delay(100);
+
 	trans_p.setState(HIGH);
   intakeOff();
+
 }
 void IntakeRollerParams::handleStateChange(intakeVariant prev_state){
 }

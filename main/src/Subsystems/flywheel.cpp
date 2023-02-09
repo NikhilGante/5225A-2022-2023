@@ -4,6 +4,7 @@
 #include "../Libraries/controller.hpp"
 #include "../Libraries/motor.hpp"
 #include "../util.hpp"
+#include "../Libraries/logging.hpp"
 
 constexpr double MS_TO_MIN = 60000;
 constexpr double SPROCKET_RATIO = 1.0/1;
@@ -17,7 +18,7 @@ constexpr double CARTRIDGE_TO_RAW = 6;
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{barrier_rpm});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2380});
 
 // Flywheel idle state
 
@@ -36,7 +37,7 @@ void FlywheelOffParams::handleStateChange(flywheelVariant prev_state){
 std::atomic<double> flywheel_error; // Target vel - actual vel (global static var)
 
 // static vars
-// int32_t FlywheelMoveVelParams::rot_vel; // Power that goes to the flywheel motor
+double FlywheelMoveVelParams::rot_vel; // Power that goes to the flywheel motor
 double FlywheelMoveVelParams::output; // Power that goes to the flywheel motor
 double FlywheelMoveVelParams::smoothed_vel;  // Velocity with exponential filter applied to it
 double FlywheelMoveVelParams::last_pos;  // Motor's position from previous cycle
@@ -46,8 +47,8 @@ double FlywheelMoveVelParams::manual_vel;  // Pre-smoothed velocity
 FlywheelMoveVelParams::FlywheelMoveVelParams(int target_vel): target_vel(target_vel){}
 
 void FlywheelMoveVelParams::handle(){
-  // rot_vel = -60*flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
-  
+  rot_vel = -60*(double)flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
+  // printf("vel:%d\n", rot_vel);
   // error = target_vel - rot_vel;
   // output = kB * target_vel + kP * error;
   // output = std::clamp(output, -1.0, 127.0);	// Decelerates at -1.0 at the most
@@ -72,7 +73,7 @@ void FlywheelMoveVelParams::handle(){
   }
 
   // Velocity control
-  flywheel_error = target_vel - smoothed_vel;
+  flywheel_error = target_vel - rot_vel;
   // double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
   double correction = flywheel_error*kP;
   // if(std::abs(correction) > 2500) correction = 2500;
@@ -81,7 +82,12 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   #ifdef LOGS
-  // printf("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+  // log_timer.getTime() > 100 ||
+  if(log_timer.getTime() > 40){
+    // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+    log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
+    log_timer.reset();
+  }
   #endif
 
   if (flywheel_m.getTemperature() >= 50){
@@ -93,8 +99,12 @@ void FlywheelMoveVelParams::handle(){
   flywheel_m.move(output);
   // flywheel_m.move(60);
 }
-void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state){}
 
-void setFlywheelVel(int32_t vel){
+void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state){
+    log_timer.reset();
+}
+
+void setFlywheelVel(int32_t vel, int line){
+  log("Flywheel was changed on %d to velocity %d", line, vel);
   flywheel.changeState(FlywheelMoveVelParams{vel});
 }

@@ -14,7 +14,7 @@ class Machine{
 
   std::atomic<bool> state_change_requested = false;
 
-  _Task task;
+  _Task task{name};
 
   // Getters and setters for state and target state (since they need mutexes)
   void setState(variant state_param){
@@ -64,9 +64,10 @@ public:
         catch(const TaskEndException& exception){}
 
         if(state_change_requested){
+          task_notify_take(true, 0);  // Clears notification
           variant target_state_cpy = getTargetState();
           variant state_cpy = getState();
-          // calls handle state change method for target state and logs the change
+          // Calls handle state change method for target state and logs the change
           state_log.print("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
           state_log.print("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));

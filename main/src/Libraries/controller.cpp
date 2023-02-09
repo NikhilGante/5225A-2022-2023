@@ -7,12 +7,9 @@
 
 
 // ------------------------------ Direction Buttons ------------------------------
-controller_digital_e_t transToggleBtn = DIGITAL_LEFT;
-controller_digital_e_t goalDisturbBtn = DIGITAL_RIGHT;
+controller_digital_e_t goalDisturbBtn = DIGITAL_LEFT;
+
 // Up and Down Taken by Adjusting Disc count
-
-
-
 
 
 
@@ -25,7 +22,7 @@ controller_digital_e_t endgameBtn = DIGITAL_Y;
 
 // ------------------------------ Front Buttons ------------------------------
 controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
-controller_digital_e_t rollerBtn = DIGITAL_L2;
+controller_digital_e_t transToggleBtn = DIGITAL_L2;
 controller_digital_e_t singleShotBtn = DIGITAL_R1;
 controller_digital_e_t tripleShotBtn = DIGITAL_R2;
 
