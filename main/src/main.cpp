@@ -179,6 +179,7 @@ Auton auton4("Skills", fullSkills);
 void opcontrol() {
 	while (true) {
 		driveHandleInput();
+		intakeHandleInput();
 
 		delay(10);
 	}
