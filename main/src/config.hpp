@@ -21,6 +21,7 @@ extern Piston angler_p, trans_p, endgame_s_p, endgame_d_p;
 
 extern Optical roller_sensor;
 
-extern Distance l_reset_dist, r_reset_dist;
+extern Distance l_reset_dist;
+extern Distance r_reset_dist;
 
 extern Motor b_lift_m;

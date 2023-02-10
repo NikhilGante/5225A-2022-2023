@@ -177,6 +177,10 @@ Auton auton4("Skills", fullSkills);
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
+	while (1) {
+		driveHandleInput();
+	}
+	WAIT_UNTIL(false);
 
   // drive.changeState(DriveIdleParams{});
   // drive.waitToReachState(DriveIdleParams{});

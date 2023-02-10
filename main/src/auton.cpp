@@ -446,3 +446,67 @@ void autonLinePrev(){
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
 }
+
+
+
+void insaneHighPointSkills(){
+  
+
+  Timer timer1{"timer"};
+  setFlywheelVel(2200);
+
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+
+	moveToTargetSync({tracking.g_pos.x, 14.75}); // Moves away from wall
+  aimAtRed(8);
+  shoot(2);
+
+  turnToTargetSync({73.0, 48.0}); // Faces stack
+	intakeOn();
+	moveToTargetSync({73.0, 48.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
+
+	aimAtRed(11.5);
+
+  driveBrake();
+	shoot(3);
+  // WAIT_UNTIL(false);
+  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  shooter.waitToReachState(ShooterIdleParams{});
+  intakeOn();
+  setFlywheelVel(2300);
+  
+
+	turnToTargetSync({125.0, 105.0}); // Face corner
+  
+	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
+	moveToTargetSync({125.0, 105.0}); // Move to corner
+  log("TURNED INTAKE OFF\n");
+  intakeOff();
+
+	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
+
+  
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+
+  moveInches(8.0);
+
+  aimAtRed(5.0);
+  moveInches(15);
+  aimAtRed(11);
+  shoot(3);
+  
+  turnToTargetSync({120, 120});
+  moveToTargetSync({120, 120});
+  turnToAngleSync(-135);
+
+  // FireEndgame
+
+  // shooter.waitToReachState(ShooterIdleParams{});
+  master.print(2,0, "total:%ld", timer1.getTime());
+	lcd::print(6, "total:%ld", timer1.getTime());
+ 
+
+}
