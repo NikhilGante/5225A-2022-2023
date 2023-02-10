@@ -24,6 +24,7 @@ void initialize() {
 	tracking_task.start(trackingUpdate);
 
 	delay(500);
+			if(pros::c::battery_get_voltage() < 12200){
 }
 
 /**

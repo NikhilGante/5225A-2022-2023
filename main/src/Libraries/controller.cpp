@@ -8,6 +8,7 @@
 
 // ------------------------------ Direction Buttons ------------------------------
 controller_digital_e_t goalDisturbBtn = DIGITAL_LEFT;
+controller_digital_e_t endgameBtnLeft = DIGITAL_RIGHT;
 
 // Up and Down Taken by Adjusting Disc count
 
@@ -17,7 +18,7 @@ controller_digital_e_t goalDisturbBtn = DIGITAL_LEFT;
 controller_digital_e_t intakeToggleBtn = DIGITAL_A;
 controller_digital_e_t intakeRevBtn = DIGITAL_X;
 controller_digital_e_t angleOverrideBtn = DIGITAL_B;
-controller_digital_e_t endgameBtn = DIGITAL_Y;
+controller_digital_e_t endgameBtnRight = DIGITAL_Y;
 
 
 // ------------------------------ Front Buttons ------------------------------

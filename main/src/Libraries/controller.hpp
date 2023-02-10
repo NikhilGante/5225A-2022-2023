@@ -6,6 +6,7 @@
 // Buttons
 // ------------------------------ Direction Buttons ------------------------------
 extern controller_digital_e_t goalDisturbBtn;
+extern controller_digital_e_t endgameBtnLeft;
 // Up and Down Taken by Adjusting Disc count
 
 
@@ -17,7 +18,7 @@ extern controller_digital_e_t goalDisturbBtn;
 extern controller_digital_e_t intakeToggleBtn;
 extern controller_digital_e_t intakeRevBtn;
 extern controller_digital_e_t angleOverrideBtn;
-extern controller_digital_e_t endgameBtn;
+extern controller_digital_e_t endgameBtnRight;
 
 
 // ------------------------------ Front Buttons ------------------------------

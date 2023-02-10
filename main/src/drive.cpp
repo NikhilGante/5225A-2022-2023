@@ -211,28 +211,52 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   intakeOn();
   angleOverride = false;
 
-  Timer endgame_click_timer{"endgame_timer"};
-  endgame_click_timer.reset(false);
-  bool endgame_dbl_click = false;
+  Timer endgame_click_timer_left{"endgame_timer"};
+  endgame_click_timer_left.reset(false);
+  bool endgame_dbl_click_left = false;
+
+  Timer endgame_click_timer_right{"endgame_timer"};
+  endgame_click_timer_right.reset(false);
+  bool endgame_dbl_click_right = false;
   // driveBrake();
   // drive.changeState(DriveIdleParams{});
 	while(true){
 
-    if(endgame_click_timer.getTime() > 300){
-      printf("timer reset: %lld\n", endgame_click_timer.getTime());
-      endgame_click_timer.reset(false);
-      endgame_dbl_click = false;
-      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click);
+    if(endgame_click_timer_left.getTime() > 300){
+      printf("timer reset: %lld\n", endgame_click_timer_left.getTime());
+      endgame_click_timer_left.reset(false);
+      endgame_dbl_click_left = false;
+      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_left);
 
     }
-    if(master.get_digital_new_press(endgameBtn)){
-      printf("PRESSED | timer reset: %lld\n", endgame_click_timer.getTime());
-      printf("dbl_click: %d\n", endgame_dbl_click);
-      if(endgame_dbl_click) {
+    if(master.get_digital_new_press(endgameBtnLeft)){
+      printf("PRESSED | timer reset: %lld\n", endgame_click_timer_left.getTime());
+      printf("dbl_click: %d\n", endgame_dbl_click_left);
+      if(endgame_dbl_click_left) {
         endgame_s_p.setState(HIGH);
       }
-      else endgame_dbl_click = true;
-      endgame_click_timer.reset();
+      else endgame_dbl_click_left = true;
+      endgame_click_timer_left.reset();
+    }
+    if(endgame_click_timer_right.getTime() > 300){
+      printf("timer reset: %lld\n", endgame_click_timer_right.getTime());
+      endgame_click_timer_right.reset(false);
+      endgame_dbl_click_right = false;
+      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_right);
+
+    }
+    if(master.get_digital_new_press(endgameBtnRight)){
+      printf("PRESSED | timer reset: %lld\n", endgame_click_timer_right.getTime());
+      printf("dbl_click: %d\n", endgame_dbl_click_right);
+      if(endgame_dbl_click_right) {
+        endgame_d_p.setState(HIGH);
+      }
+      else endgame_dbl_click_right = true;
+      endgame_click_timer_right.reset();
+    }
+    if(master.getButtonState(endgameBtnLeft) && master.getButtonState(endgameBtnRight)){
+      endgame_d_p.setState(HIGH);
+      endgame_s_p.setState(HIGH);
     }
 
 		// driveHandleInput();
