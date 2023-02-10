@@ -74,8 +74,8 @@ void initialize() {
 
 	drive.runMachine();
 	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 
 }
@@ -176,10 +176,20 @@ Auton auton4("Skills", fullSkills);
 // thinks: (133.69, 122.40, -90.0) 
 // at: (133.75 , 112.25, -90.0)
 
+void moveDrive(double y, double a){
+  front_l.move(y+a);
+  centre_l.move(y+a);
+  back_l.move(y+a);
+  front_r.move(y-a);
+  centre_r.move(y-a);
+  back_r.move(y-a);
+}
+
 void opcontrol() {
 	while (true) {
-		driveHandleInput();
-		intakeHandleInput();
+		double power_y = master.get_analog(ANALOG_LEFT_Y);
+  		double power_a = 0.6 * master.get_analog(ANALOG_RIGHT_X);
+
 
 		delay(10);
 	}
