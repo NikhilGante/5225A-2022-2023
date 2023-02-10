@@ -177,8 +177,10 @@ Auton auton4("Skills", fullSkills);
 // at: (133.75 , 112.25, -90.0)
 
 void opcontrol() {
-	while (1) {
+	while (true) {
 		driveHandleInput();
+
+		delay(10);
 	}
 	WAIT_UNTIL(false);
 
