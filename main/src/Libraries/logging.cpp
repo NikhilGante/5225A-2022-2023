@@ -37,11 +37,10 @@ name{name}, newline{newline}, print_colour{print_colour}, location{location} {
 
   print_btn.setFunc([this](){
     printf2("\n\n%s Log Terminal Dump", this->name);
-    pause();
-    std::ifstream file{"/usd/" + this->name + ".txt", std::ofstream::app};
-    if(file.is_open()) std::cout << file.rdbuf() << "\n\n" << std::endl;
+
+    auto file = Interrupter<std::ifstream>(this->name);
+    if(file.stream.is_open()) std::cout << file.stream.rdbuf() << "\n\n" << std::endl;
     else alert::start("Could not open %s log file", this->name);
-    restart();
   });
 }
 

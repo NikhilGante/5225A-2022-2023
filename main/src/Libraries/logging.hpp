@@ -2,6 +2,7 @@
 #include "queue.hpp"
 #include "printing.hpp"
 #include "counter.hpp"
+#include <fstream>
 
 enum class log_locations{
   terminal,
@@ -44,11 +45,13 @@ class Logging: public Counter<Logging>{
     static _Task task;
     static std::vector<Logging*> logs;
 
+    static void pause();
+    static void restart();
+
   public:
     Logging(std::string name, bool newline = false, term_colours print_colour = term_colours::NONE, log_locations location = log_locations::both);
     
     static void init();
-
     static std::vector<Logging*> const & getList() {return logs;}
 
     void operator() (term_colours colour, std::string format, auto... args){
@@ -73,6 +76,14 @@ class Logging: public Counter<Logging>{
 
     void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}
 
-    static void pause();
-    static void restart();
+    template <std::derived_from<std::ios> T>
+    class Interrupter{
+      public:
+        T stream;
+        Interrupter(std::string filename): stream{"/usd/" + filename + ".txt"} {
+          Logging::pause();
+          if(!stream.is_open()) alert::start("Unable to open %s file when Interrupting Logging", filename);
+        }
+        ~Interrupter() {Logging::restart();}
+    };
 };

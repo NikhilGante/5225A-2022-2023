@@ -1,8 +1,7 @@
 #include "menu.hpp"
 #include "config.hpp"
 #include "Devices/controller.hpp"
-
-#include <fstream>
+#include "Libraries/logging.hpp"
 
 Auton::E_Reset_Types Auton::getResetType() const {return reset_type;} // Getter
 
@@ -18,10 +17,8 @@ void Auton::select(){
 		if(master.getNewDigital(DIGITAL_DOWN) && cur_auton > 0) master.print(0, "%s", getNth(--cur_auton)->name);
 		if(master.getNewDigital(DIGITAL_A)){	// Press A to save
 			master.clear();
-      Logging::pause();
-			std::ofstream myfile ("/usd/auton.txt", std::ofstream::out);
-			myfile << cur_auton << std::endl;
-      Logging::restart();
+      auto file = Logging::Interrupter<std::ofstream>("auton");
+			file.stream << cur_auton << std::endl;
 			master.print(0, "Saved.");
 			break;
 		}
@@ -31,9 +28,9 @@ void Auton::select(){
 
 // Returns selected Auton as an int
 int Auton::get(){
-	std::ifstream myfile ("/usd/auton.txt", std::ifstream::in);
+  auto file = Logging::Interrupter<std::ifstream>("auton");
 	int auton_num;
-	myfile >> auton_num;
+	file.stream >> auton_num;
   return auton_num;
 }
 
