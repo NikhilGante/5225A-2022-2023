@@ -46,6 +46,7 @@ void initialize() {
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 
+	/*
 	_Task battery_check("Battery_Checker");
 	battery_check.start([](){
 		while(true){
@@ -58,6 +59,7 @@ void initialize() {
 
 		}
 	});
+	*/
 	
 	// _Task led_task("led_task");
 	// led_task.start([](){
