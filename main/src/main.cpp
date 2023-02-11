@@ -73,9 +73,9 @@ void initialize() {
 	// lift.runMachine();
 
 	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 
 }
@@ -178,6 +178,7 @@ Auton auton4("Skills", fullSkills);
 
 
 void opcontrol() {
+	tracking.reset();
 	driverPractice();
 
   // drive.changeState(DriveIdleParams{});

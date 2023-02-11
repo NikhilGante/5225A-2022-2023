@@ -27,7 +27,7 @@ enum class E_Robot_Sides{
 class Tracking{
   
 public:
-  const double min_move_power_y = 30.0, min_move_power_a = 50.0;
+  const double min_move_power_y = 30.0, min_move_power_a = 60.0;
   // Odometry related variables
   double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
   Mutex pos_mutex; // locks g_pos
@@ -136,7 +136,7 @@ struct DriveTurnToTargetParams{
 
 struct DriveFlattenParams{
   const char* getName();
-  void handle();
+  void  handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
 
