@@ -1,8 +1,10 @@
 #include "menu.hpp"
 #include "config.hpp"
-#include "Libraries/controller.hpp"
+#include "Devices/controller.hpp"
 
 #include <fstream>
+
+Auton::E_Reset_Types Auton::getResetType() const {return reset_type;} // Getter
 
 void Auton::select(){
 	int cur_auton = 0;
@@ -16,23 +18,29 @@ void Auton::select(){
 		if(master.getNewDigital(DIGITAL_DOWN) && cur_auton > 0) master.print(0, "%s", getNth(--cur_auton)->name);
 		if(master.getNewDigital(DIGITAL_A)){	// Press A to save
 			master.clear();
+      Logging::pause();
 			std::ofstream myfile ("/usd/auton.txt", std::ofstream::out);
 			myfile << cur_auton << std::endl;
+      Logging::restart();
 			master.print(0, "Saved.");
 			break;
 		}
 		delay(10);
 	}
 }
-// Runs selected auton
-void Auton::run(){
+
+// Returns selected Auton as an int
+int Auton::get(){
 	std::ifstream myfile ("/usd/auton.txt", std::ifstream::in);
 	int auton_num;
 	myfile >> auton_num;
-	getNth(auton_num)->runFunction();	//Runs Auton
+  return auton_num;
 }
 
-Auton::Auton(std::string name, std::function<void()> program): name(name), program(program) {}
+// Runs selected auton
+void Auton::run() {getNth(get())->runFunction();}
+
+Auton::Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type): name{name}, program{program}, reset_type{reset_type} {}
 
 void Auton::runFunction() const {
   if(program) program();

@@ -1,7 +1,7 @@
 #include "gui.hpp"
 #include "pros/apix.h"
-#include "piston.hpp"
-#include "motor.hpp"
+#include "../Devices/piston.hpp"
+#include "../Devices/motor.hpp"
 #include "../config.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
@@ -207,6 +207,7 @@ void mainSetup(){
     misc_checks.setFunc([](){
       if (!usd::is_installed()) alert::start("No SD Card!");
       else if (battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
+      else if(battery::get_voltage() < 12200) alert::start("Battery is at %dV",  battery::get_voltage() );
 
       else(alert::start("No Errors Found", term_colours::GREEN));
     });

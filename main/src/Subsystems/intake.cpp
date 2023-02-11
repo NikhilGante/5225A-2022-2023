@@ -1,10 +1,11 @@
 #include "intake.hpp"
 #include "../config.hpp"
+#include "../drive.hpp"
 #include "../Libraries/timer.hpp"
 #include "../tracking.hpp"
-#include "../Libraries/controller.hpp"
-#include "../Libraries/motor.hpp"
-#include "../Libraries/piston.hpp"
+#include "../Devices/controller.hpp"
+#include "../Devices/motor.hpp"
+#include "../Devices/piston.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
@@ -68,7 +69,7 @@ void IntakeOnParams::handle(){  // synchronous state
     intakeOff();
   }
 
-  // lcd::print(3, "count:%d", g_mag_disc_count.load());
+  // intake_log("count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);
@@ -130,7 +131,11 @@ void IntakeRollerParams::handle(){
 	intake_m.move(-127);
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
-  constexpr int thresh = 3000;
+
+  intake_m.moveRelative(-450);  // should be 450
+  WAIT_UNTIL(std::abs(intake_m.getTargetPosition() - intake_m.getPosition()) < 10); // wait for intake to reach poisiton 
+  /*
+  const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
   sensor_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
   // waits to see a value > 700  different than inital value (waits for a colour change)
@@ -143,13 +148,18 @@ void IntakeRollerParams::handle(){
     sensor_log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
   } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
-
+  */
+  intake_log("**DONE ROLLER\n");
   // while(std::abs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
+	moveDrive(0, 0);
+  delay(100);
+
 	trans_p.setState(HIGH);
   intakeOff();
+
 }
 void IntakeRollerParams::handleStateChange(intakeVariant prev_state){
 }

@@ -10,7 +10,7 @@ class Machine{
   private:
     using variant = std::variant<StateTypes...>;
     variant state, target_state;
-    pros::Mutex state_mutex, target_state_mutex;
+    Mutex state_mutex, target_state_mutex;
     std::string name;
 
     std::atomic<bool> state_change_requested = false;

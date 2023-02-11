@@ -3,7 +3,7 @@
 
 Timer::Timer(std::string name, Logging& log, bool play, timing_units timing_unit):
 name{name}, timing_unit{timing_unit}, log{&log} {
-  log(get_name() + "\'s initialize time is: %lld\n", getTimeInTimingUnit());
+  (log)(get_name() + "\'s initialize time is: %lld\n", getTimeInTimingUnit());
   reset(play);
 }
 

@@ -11,6 +11,7 @@ inline constexpr double deg_to_rot = 1/rot_to_deg;
 inline constexpr double rad_to_rot = 1/rot_to_rad;
 
 #define WAIT_UNTIL(condition) while(pros::delay(10), !(condition)) //! DO NOT ADD A SEMICOLON
+//* It's pros::delay because a macro replacement may be in different scopes that have Task as more visible than pros
 
 // cycle check macro (checks a condition for a specified amount of cycles)
 #define CYCLE_CHECK(exit_condition, checkCount, delayTime) \

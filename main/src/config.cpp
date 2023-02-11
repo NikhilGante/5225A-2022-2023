@@ -1,8 +1,7 @@
-#include "Libraries/controller.hpp"
-#include "Libraries/motor.hpp"
-#include "Libraries/piston.hpp"
-
-uint8_t rotation_port = 7;
+#include "config.hpp"
+#include "Devices/controller.hpp"
+#include "Devices/motor.hpp"
+#include "Devices/piston.hpp"
 
 _Controller master {CONTROLLER_MASTER};
 _Controller partner{CONTROLLER_PARTNER};

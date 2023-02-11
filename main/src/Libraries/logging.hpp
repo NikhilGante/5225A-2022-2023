@@ -19,6 +19,7 @@ extern Logging state_log     ;
 extern Logging auton_log     ;
 extern Logging shoot_log     ;
 extern Logging intake_log    ;
+extern Logging flywheel_log    ;
 extern Logging controller_log;
 extern Logging task_log      ;
 extern Logging error         ;
@@ -71,4 +72,7 @@ class Logging: public Counter<Logging>{
     }
 
     void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}
+
+    static void pause();
+    static void restart();
 };

@@ -2,11 +2,12 @@
 #include "Libraries/gui.hpp"
 #include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
-#include "Libraries/controller.hpp"
+#include "Devices/controller.hpp"
 #include "auton.hpp"
 #include "config.hpp"
 #include "menu.hpp"
 #include "tracking.hpp"
+#include "Devices/vision.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -84,11 +85,11 @@ void auton3func(){
 
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
-Auton auton3("autonLine", autonLine);
+Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
-//TODO: Test log to terminal
-
+//create task interrupter class with RAII
+//check that logging pause is good
 void opcontrol() {
   DEBUG;
   

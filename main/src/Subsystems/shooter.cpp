@@ -1,8 +1,8 @@
 #include "shooter.hpp"
 #include "intake.hpp"
 #include "../config.hpp"
-#include "../Libraries/controller.hpp"
-#include "../Libraries/piston.hpp"
+#include "../Devices/controller.hpp"
+#include "../Devices/piston.hpp"
 
 static constexpr int toaster_rpm = 1400;
 
@@ -64,7 +64,11 @@ void ShooterShootParams::handle(){
     if(std::abs(flywheel_error) > 1000) cycle_check.reset();
   }
   else{
-    if(std::abs(flywheel_error) > 150) cycle_check.reset();
+    flywheelVariant temp_flywheel_state = flywheel.getState();
+    if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
+      if(std::abs(flywheel_error) > 150) cycle_check.reset();
+    }
+    else if(std::abs(flywheel_error) > 150)  cycle_check.reset();
   }
 
   // shoot_log("cycle_check:%lld", cycle_check.getTime());
@@ -74,7 +78,7 @@ void ShooterShootParams::handle(){
     shoot_log("%d STARTED SHOOTING", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
-    _Task::delay(150); // Waits for SHOOTER to extend
+    _Task::delay(100); // Waits for SHOOTER to extend
     shoot_log("%d FINISHED SHOT", millis());
     indexer_p.setState(LOW);
     shoot_log("%d FINISHED Retraction", millis());
@@ -84,11 +88,10 @@ void ShooterShootParams::handle(){
     
 
     shoot_log("condition %d", shots_left <= 0);
-    _Task::delay(100);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
+    _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
     shoot_log("condition2 %d", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done
-      shoot_log("ENTERED SHOTS LEFT");
       g_mag_disc_count = 0;
       _Task::delay(100); // waits for last disc to shoot
       // Sets subsystems back to their state before shooting
@@ -102,10 +105,7 @@ void ShooterShootParams::handle(){
       }
 
     }
-    shoot_log("if statement finished");
-    _Task::delay(10);
 
-    
   }
 
 }
@@ -113,6 +113,10 @@ void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   // angler_p.setState(LOW);
   shoot_log("INIT shots_left %d", shots_left);
   intakeIndex();  // Sets intake to index state
+  flywheelVariant temp_flywheel_state = flywheel.getState();
+  // if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;
+  // else std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.5;
+
 }
 
 void shoot(int shots){

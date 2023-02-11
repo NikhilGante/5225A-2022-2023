@@ -20,7 +20,7 @@ class Counter{
         objects.push_back(static_cast<derived*>(this));
         count = total++;
       }
-      else alert::start("Too many objects are being created in Counter subclass.");
+      else throw std::length_error("Too many objects are being created in Counter subclass.");
     }
 
   public:

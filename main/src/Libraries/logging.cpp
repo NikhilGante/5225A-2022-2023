@@ -17,6 +17,7 @@ Logging state_log     {"States"    , true};
 Logging auton_log     {"Auton"     , true};
 Logging shoot_log     {"Shooter"   , true};
 Logging intake_log    {"Intake"    , true};
+Logging flywheel_log  {"Flywheel"  , true};
 Logging controller_log{"Controller", true , term_colours::NONE, log_locations::sd};
 Logging task_log      {"Tasks"     , true , term_colours::ERROR};
 Logging error         {"Error"     , false, term_colours::ERROR};
@@ -34,11 +35,13 @@ name{name}, newline{newline}, print_colour{print_colour}, location{location} {
   //(20, 110, 200, 290, 380) x (15, 65, 115, 165)
   print_btn.construct(90*(getID()%5) + 20, 50*std::floor(getID()/5) + 40, 80, 40, GUI::Style::SIZE, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
 
-  print_btn.setFunc([name](){
-    printf2("\n\n%s Log Terminal Dump", name);
-    std::ifstream file{"/usd/" + name + ".txt", std::ofstream::app};
+  print_btn.setFunc([this](){
+    printf2("\n\n%s Log Terminal Dump", this->name);
+    pause();
+    std::ifstream file{"/usd/" + this->name + ".txt", std::ofstream::app};
     if(file.is_open()) std::cout << file.rdbuf() << "\n\n" << std::endl;
-    else alert::start("Could not open %s log file", name);
+    else alert::start("Could not open %s log file", this->name);
+    restart();
   });
 }
 
@@ -66,3 +69,6 @@ void Logging::init(){
     }
   });
 }
+
+void Logging::pause() {task.suspend();}
+void Logging::restart() {task.resume();}
