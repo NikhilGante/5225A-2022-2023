@@ -7,52 +7,58 @@ using namespace c;
 _Task::_Task(std::string name): name{name} {}
 
 // private method
-bool _Task::isAlive(){
-  return task_handle && task_get_state(task_handle) != TASK_STATE_DELETED;
-}
+bool _Task::isAlive() {return task_handle && task_get_state(task_handle) != TASK_STATE_DELETED;}
 
 void _Task::killUnsafe(){
-  if(isAlive()) task_delete(task_handle); // remove the task from scheduler if it's running
-  else task_log.print("%s | Already dead, killUnsafe failed", name);
+  if(isAlive()){
+    task_delete(task_handle); // remove the task from scheduler if it's running
+    task_log("%s Task unsafely killed", name);
+  }
+  else task_log("%s Task already dead, killUnsafe failed", name);
 }
 
 void _Task::kill(){
   if(isAlive()){
     // sends a notification to kill the task
-    task_notify_ext(task_handle, (int)notify_types_2::interrupt, NOTIFY_ACTION_OWRITE, nullptr);
+    task_notify_ext(task_handle, static_cast<int>(notify_types_2::interrupt), NOTIFY_ACTION_OWRITE, nullptr);
+    task_log("%s Task killed", name);
     if(task_get_state(task_handle) == TASK_STATE_SUSPENDED) resume();
   }
-  else task_log.print("%s | Already dead, kill failed", name);
+  else task_log("%s Task already dead, kill failed", name);
 }
 
 void _Task::suspend(){
   if(isAlive()){
-    task_notify_ext(task_handle, (int)notify_types_2::suspend, NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
+    task_notify_ext(task_handle, static_cast<int>(notify_types_2::suspend), NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
     WAIT_UNTIL(task_get_state(task_handle) == TASK_STATE_SUSPENDED); // wait for the task to suspend
+    task_log("%s Task suspended", name);
   }
-  else task_log.print("%s | suspend failed, task is dead", name);
+  else task_log("%s Task already dead, suspend failed", name);
 }
 
 void _Task::resume(){
   // attempts to resume only if the task has started, otherwise a resume would block the program
-  if(task_handle) task_resume(task_handle);
-  else task_log.print("%s | resume failed, task not started yet", name);
+  if(task_handle){
+    task_resume(task_handle);
+    task_log("%s Task resumed", name);
+  }
+  else task_log("%s | resume failed, task not started yet", name);
 }
 
 void _Task::delay(uint32_t delay_time){
   Timer delay_timer{"Task Delay Timer"};
-  do {
+  do{
     task_t current_task = task_get_current();
     // Handle notifications from current task
-    switch((notify_types_2)task_notify_take(true, 0)){
+    switch(static_cast<notify_types_2>(task_notify_take(true, 0))){
       case notify_types_2::none:
         break;
       case notify_types_2::interrupt:
-        task_log.print("%s interrupted", task_get_name(current_task));
+        task_log(term_colours::BLUE, "%s interrupted [inside function]", task_get_name(current_task));
         throw TaskEndException{};
         break;
       case notify_types_2::suspend:
-        task_log.print("%s suspended", task_get_name(current_task));
+        task_log(term_colours::BLUE, "%s suspended [inside function]", task_get_name(current_task));
         task_suspend(current_task);
         break;
     }

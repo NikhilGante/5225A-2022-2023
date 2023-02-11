@@ -1,7 +1,7 @@
 #include "gui.hpp"
 #include "../config.hpp"
 #include "task.hpp"
-#include "controller.hpp"
+#include "../Devices/controller.hpp"
 #include "timer.hpp"
 #include "../util.hpp"
 
@@ -65,9 +65,9 @@ namespace alert{
       end_time = std::get<std::uint32_t>(queue.front());
       screen_flash.goTo();
 
-      // master.rumble("-.");
+      master.rumble("-.");
 
-      error.print(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
+      error(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
 
       if(end_time) printf2(term_colours::NOTIF, "Showing for %dms.\n\n", end_time);
       timer.reset(); //Starts counting down
@@ -91,8 +91,8 @@ namespace alert{
     double y_space = (y_range-y_objects * y_size) / (y_objects+1.0);
 
     //Recalculates until it gets a nice multiple of 5
-    while (fmod(x_space, 5)) x_space = ((--x_range) - x_objects * x_size) / (x_objects+1.0);
-    while (fmod(y_space, 5)) y_space = ((--y_range) - y_objects * y_size) / (y_objects+1.0);
+    while (std::fmod(x_space, 5)) x_space = ((--x_range) - x_objects * x_size) / (x_objects+1.0);
+    while (std::fmod(y_space, 5)) y_space = ((--y_range) - y_objects * y_size) / (y_objects+1.0);
 
     newline(2);
     for (int y = 0; y < y_objects; y++){
@@ -113,50 +113,30 @@ namespace alert{
     if(term == "") term = screen;
     printf2(term_colours::BLUE, "\n\n%s\nPress the screen big button or the controller OK button when ready.", term);
     master.clear();
-    master.print(0, 0, "Press OK btn");
+    master.print(0, "Press OK btn");
     bool interrupted = false;
     const Page* page = GUI::current_page;
     prompt_sequence.goTo();
 
     //! Had to comment this out because our controller subclass has changed
 
-    // //Wait for Release
-    // WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(ok_button) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-    //   GUI::update_screen_status();
-    //   if (prompt_back_button.pressed()) interrupted = true;
-    // }
+    //Wait for Release
+    WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
+      GUI::update_screen_status();
+      if (prompt_back_button.pressed()) interrupted = true;
+    }
 
-    // //Wait for Press
-    // WAIT_UNTIL((prompt_button.pressed() || master.get_digital(ok_button)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-    //   GUI::update_screen_status();
-    //   if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
-    // }
+    //Wait for Press
+    WAIT_UNTIL((prompt_button.pressed() || master.getDigital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
+      GUI::update_screen_status();
+      if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
+    }
     
-    // //Wait for Release
-    // WAIT_UNTIL(!(prompt_button.pressed() || master.get_digital(ok_button) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-    //   GUI::update_screen_status();
-    //   if (prompt_back_button.pressed()) interrupted = true;
-    // }
-
-
-    // Alternative until Controller class is restored
-      //Wait for Release
-      WAIT_UNTIL(!prompt_button.pressed() || interrupted){ //checks that no button is being pressed
-        GUI::update_screen_status();
-        if (prompt_back_button.pressed()) interrupted = true;
-      }
-
-      //Wait for Press
-      WAIT_UNTIL(prompt_button.pressed() || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-        GUI::update_screen_status();
-        if (prompt_back_button.pressed()) interrupted = true;
-      }
-      
-      //Wait for Release
-      WAIT_UNTIL(!(prompt_button.pressed()) || interrupted){ //checks that no button is being pressed
-        GUI::update_screen_status();
-        if (prompt_back_button.pressed()) interrupted = true;
-      }
+    //Wait for Release
+    WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
+      GUI::update_screen_status();
+      if (prompt_back_button.pressed()) interrupted = true;
+    }
 
     if (!interrupted){
       if(delay_time){
@@ -175,14 +155,14 @@ namespace alert{
   void GUI::drawOblong(int x1, int y1, int x2, int y2, double kS, double kR){ //ks and kr and scale values for shrink and radius
     int s = std::min(x2-x1, y2-y1) * kS; //Scale for shrinking button (pressed look)
     int r = std::min(x2-x1, y2-y1) * kR; //Scale for how rounded the button edges should be
-    screen::fill_rect(x1+ s, y1+ s, x2-s, y2-s);
-    screen::erase_rect(x1+ s, y1+ s, x1+ s + r, y1+ s + r);
-    screen::erase_rect(x2-s, y1+ s, x2-s-r, y1+ s + r);
-    screen::erase_rect(x1+ s, y2-s, x1+ s + r, y2-s-r);
-    screen::erase_rect(x2-s, y2-s, x2-s-r, y2-s-r);
-    screen::fill_circle(x1+ s + r, y1+ s + r, r);
-    screen::fill_circle(x2-s-r, y1+ s + r, r);
-    screen::fill_circle(x1+ s + r, y2-s-r, r);
+    screen::fill_rect  (x1+s  , y1+s  , x2-s  , y2-s  );
+    screen::erase_rect (x1+s  , y1+s  , x1+s+r, y1+s+r);
+    screen::erase_rect (x2-s  , y1+s  , x2-s-r, y1+s+r);
+    screen::erase_rect (x1+s  , y2-s  , x1+s+r, y2-s-r);
+    screen::erase_rect (x2-s  , y2-s  , x2-s-r, y2-s-r);
+    screen::fill_circle(x1+s+r, y1+s+r, r);
+    screen::fill_circle(x2-s-r, y1+s+r, r);
+    screen::fill_circle(x1+s+r, y2-s-r, r);
     screen::fill_circle(x2-s-r, y2-s-r, r);
   }
 
@@ -336,7 +316,7 @@ namespace alert{
     }
   }
 
-  GUI::GUI(std::vector<Page*> pages, std::function <void()> setup, std::function <void()> background){
+  GUI::GUI(std::vector<Page*> pages, std::function<void()> setup, std::function<void()> background){
     //Saves pages to gui
     this->pages.push_back(&perm);
     for (auto page_ptr: pages) this->pages.push_back(page_ptr);

@@ -1,18 +1,19 @@
 #include "motor.hpp"
-#include "logging.hpp"
+#include "../Libraries/logging.hpp"
 #include <sstream>
 
 extern Page temps, motors;
 extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
-Motor{port, gearset, reversed, encoder_units}, name{name}, Counter{name} {
+Motor{port, gearset, reversed, encoder_units}, name{name}{
   {
     std::stringstream ss{getName()};
     using iterator = std::istream_iterator<std::string>;
-    for(auto begin = iterator{ss}; begin != iterator{}; begin++) short_name += begin->front();
+    for(auto it = iterator{ss}; it != iterator{}; it++) short_name += it->front();
   }
 
+  //2x4
   on         .construct(115*(getID()%4) + 15, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
   off        .construct(115*(getID()%4) + 70, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
   text       .construct(115*(getID()%4) + 65, getID() < 4 ? 95  : 180,         GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName()                    , nullptr                                           , Color::white);
@@ -23,7 +24,7 @@ Motor{port, gearset, reversed, encoder_units}, name{name}, Counter{name} {
   off.setFunc([this](){move(0                       );});
   temperature.setBackground(40, 20);
 
-  if(static_cast<int>(get_temperature()) == std::numeric_limits<int>::max()){
+  if(!plugged()){
     on         .setActive(false);
     off        .setActive(false);
     data       .setActive(false);
@@ -31,29 +32,49 @@ Motor{port, gearset, reversed, encoder_units}, name{name}, Counter{name} {
   }
 }
 
+int _Motor::velocityToVoltage(int velocity){
+  double scaled_velocity = velocity*127;
+  switch(get_gearing()){
+    case MOTOR_GEAR_100: scaled_velocity /= 100; break;
+    case MOTOR_GEAR_200: scaled_velocity /= 200; break;
+    case MOTOR_GEAR_600: scaled_velocity /= 600; break;
+    case MOTOR_GEARSET_INVALID: scaled_velocity = std::numeric_limits<double>::infinity(); break;
+  }
+
+  return scaled_velocity;
+}
+
 void _Motor::move(int voltage){
-  sensor_data.print("Motor %s moving from %d to %d speed", getName(), speed, voltage);
+  sensor_log("Motor %s moving from %d to %d speed", getName(), speed, voltage);
   Motor::move(voltage);
   speed = voltage;
 }
 
+void _Motor::moveRelative(int velocity){
+  int new_speed = velocityToVoltage(velocity);
+  sensor_log("Motor %s relative moving from %d to %d speed", getName(), speed, new_speed);
+  Motor::move_relative(velocity, 200);
+  speed = new_speed;
+}
+
 void _Motor::brake(){
-  sensor_data.print("Motor %s braking", getName());
-  Motor::move_relative(0, 200);
-  speed = 0;
+  sensor_log("Motor %s braking", getName());
+  moveRelative(0);
 }
 
 int _Motor::getTemperature() const {
   int temp = get_temperature();
-  return temp != std::numeric_limits<int>::max() ? temp : 0;
+  return temp != std::numeric_limits<int>::max() ? temp : -1;
 }
 
 int _Motor::getRPM() const {
   int rpm = get_actual_velocity();
-  return rpm != std::numeric_limits<int>::max() ? rpm : 0;
+  return rpm != std::numeric_limits<int>::max() ? rpm : -1;
 }
 
+bool _Motor::plugged() const {return static_cast<int>(get_temperature()) != std::numeric_limits<int>::max();}
 double _Motor::getPosition() const {return get_position();}
+double _Motor::getTargetPosition() const {return get_target_position();}
 std::string _Motor::getName() const {return name;}
 std::string _Motor::getShortName() const {return short_name;}
 

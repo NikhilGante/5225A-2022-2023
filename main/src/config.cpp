@@ -1,6 +1,7 @@
-#include "Libraries/controller.hpp"
-#include "Libraries/motor.hpp"
-#include "Libraries/piston.hpp"
+#include "config.hpp"
+#include "Devices/controller.hpp"
+#include "Devices/motor.hpp"
+#include "Devices/piston.hpp"
 
 _Controller master {CONTROLLER_MASTER};
 _Controller partner{CONTROLLER_PARTNER};
@@ -25,7 +26,7 @@ Piston indexer_p{'D', "Indexer", false, LOW};
 ADIAnalogIn mag_ds{'A'};
 ADIAnalogIn shooter_ds{'B'};
 
-Rotation flywheel_rot_sensor{2};	// Configures rotation sensor in port 1
+Rotation flywheel_rot_sensor{rotation_port};
 
 Piston angler_p{'E', "Angler", false, LOW};
 Piston trans_p{'C', "Transmission", true, HIGH};

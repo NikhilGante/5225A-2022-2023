@@ -1,9 +1,9 @@
 #pragma once
 #include "main.h"
-#include "gui.hpp"
-#include "counter.hpp"
+#include "../Libraries/gui.hpp"
+#include "../Libraries/counter.hpp"
 
-class _Motor: protected Motor, public Counter<_Motor, 8>{
+class _Motor: private Motor, public Counter<_Motor, 8>{
   private:
     Button on, off;
     Text<int> temperature, data;
@@ -12,14 +12,20 @@ class _Motor: protected Motor, public Counter<_Motor, 8>{
 
     int speed; //Represents the target speed
 
+    int velocityToVoltage(int velocity);
+
   public:
     _Motor(std::int8_t port, std::string name, bool reversed = false, motor_gearset_e_t gearset = MOTOR_GEAR_BLUE, motor_encoder_units_e_t encoder_units = MOTOR_ENCODER_DEGREES);
 
     void move(int voltage);
+    void moveRelative(int velocity);
     void brake();
+
     void updateTemperatureText();
 
+    bool plugged() const;
     double getPosition() const;
+    double getTargetPosition() const;
     int getTemperature() const;
     int getRPM() const;
     std::string getName() const;

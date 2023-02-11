@@ -1,31 +1,26 @@
 #pragma once
 #include "main.h"
-#include "config.hpp"
+#include "Libraries/counter.hpp"
 
-#include <fstream>
-#include <array>
-#include <functional>
+class Auton: public Counter<Auton, 10>{
+  public:
 
-static constexpr int MAX_AUTON_ARR_SIZE = 10;
+    enum class E_Reset_Types{
+      home,
+      far
+    };
 
-enum class E_Auton_Reset_Types{
-	home,
-	far
-};
+  private:
+	  E_Reset_Types reset_type;
+    std::string name;
+    std::function<void()> program;
+    
+    void runFunction() const;
 
-class Auton{
-	std::string name;
-	std::function<void(void)> program;
-	E_Auton_Reset_Types reset_type;
-	static std::array<Auton*, MAX_AUTON_ARR_SIZE> autonArr;
-	static int autons_constructed;
-
-public:
-
-	Auton(const char* name, std::function<void(void)> program, E_Auton_Reset_Types reset_type = E_Auton_Reset_Types::home);
-	E_Auton_Reset_Types getResetType(); // Getter
-	static int getAuton();	// Returns selected Auton as an int
-	static void selectAuton();
-	static void runAuton();	// Reads auton from SD card and runs it
-	void run();
+  public:
+    Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type = E_Reset_Types::home);
+    static void select();
+    static void run();	// Reads auton from SD card and runs it
+	  static int get();	// Returns selected Auton as an int
+	  E_Reset_Types getResetType() const;	// Returns selected Auton as an int
 };

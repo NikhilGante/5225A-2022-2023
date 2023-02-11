@@ -1,30 +1,31 @@
 #include "intake.hpp"
 #include "../config.hpp"
+#include "../drive.hpp"
 #include "../Libraries/timer.hpp"
 #include "../tracking.hpp"
-#include "../Libraries/controller.hpp"
-#include "../Libraries/motor.hpp"
-#include "../Libraries/piston.hpp"
+#include "../Devices/controller.hpp"
+#include "../Devices/motor.hpp"
+#include "../Devices/piston.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
 void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
   if(std::get_if<IntakeOnParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
+    if(master.getNewDigital(intakeToggleBtn))  intakeOff();
+    if(master.getNewDigital(intakeRevBtn)) intakeRev();
   }
   else if(std::get_if<IntakeOffParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
+    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
+    if(master.getNewDigital(intakeRevBtn)) intakeRev();
   }
   else if(std::get_if<IntakeRevParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
+    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
+    if(master.getNewDigital(intakeRevBtn)) intakeOff();
   }
   /*
   else if(std::get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
-    if(master.get_digital_new_press(rollerBtn)){
+    if(master.getNewDigital(rollerBtn)){
       // Gives driver back control
       trans_p.setState(HIGH);
       drive.changeState(DriveOpControlParams{});
@@ -34,7 +35,7 @@ void intakeHandleInput(){
   */
   
   // Spin roller if btn is pressed and not already spinning
-  // if(master.get_digital_new_press(rollerBtn) && !std::get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
+  // if(master.getNewDigital(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
 
 }
 
@@ -54,24 +55,21 @@ void IntakeOnParams::handle(){  // synchronous state
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
-    printf("INCR, count: %d\n", g_mag_disc_count.load());
-    #ifdef LOGS
-    printf("INCR\n");
-    #endif
+    intake_log("INCR, count: %d", g_mag_disc_count.load());
   }
   mag_disc_detected_last = mag_disc_detected;
 
   // If mag is full, don't let any more discs in
-  // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  // intake_log("%d MAG| %d %d", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
-    log("COUNTED 3\n");
+    intake_log("COUNTED 3");
     master.rumble("-");
     _Task::delay(185);
     intakeOff();
   }
 
-  // lcd::print(3, "count:%d", g_mag_disc_count.load());
+  // intake_log("count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);
@@ -125,7 +123,7 @@ IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
-  sensor_data.print("%d | flatten:%d\n", millis(), flatten);
+  sensor_log("%d | flatten:%d\n", millis(), flatten);
 
   if(flatten) flattenAgainstWallSync();
   trans_p.setState(LOW);
@@ -134,25 +132,25 @@ void IntakeRollerParams::handle(){
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
 
-  intake_m.move_relative(-450, 200);  // should be 450
-  WAIT_UNTIL(fabs(intake_m.get_target_position() - intake_m.get_position()) < 10); // wait for intake to reach poisiton 
+  intake_m.moveRelative(-450);  // should be 450
+  WAIT_UNTIL(std::abs(intake_m.getTargetPosition() - intake_m.getPosition()) < 10); // wait for intake to reach poisiton 
   /*
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
-  sensor_data.print("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
+  sensor_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
   // waits to see a value > 700  different than inital value (waits for a colour change)
   double cur_val;
   Timer timeout{"timeout"};
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
-    // sensor_data.print("r: %lf \n", cur_val);
-    sensor_data.print("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
+    // sensor_log("r: %lf \n", cur_val);
+    sensor_log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
   } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
   */
-  printf("**DONE ROLLER\n");
-  // while(fabs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
+  intake_log("**DONE ROLLER\n");
+  // while(std::abs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished

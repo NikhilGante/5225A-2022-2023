@@ -1,11 +1,16 @@
 #include "gui.hpp"
 #include "pros/apix.h"
-#include "piston.hpp"
-#include "motor.hpp"
+#include "../Devices/piston.hpp"
+#include "../Devices/motor.hpp"
 #include "../config.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
 #include "../util.hpp"
+#include "../menu.hpp"
+#include "../Subsystems/intake.hpp"
+#include "../Subsystems/flywheel.hpp"
+#include "../Subsystems/shooter.hpp"
+
 #include "pros/misc.hpp"
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
@@ -31,18 +36,16 @@
 
     Page checks("Competition");
       Button drive_motors (15, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Drive Motors");
-      Button intakes (130, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Intake Uptake");
-      Button lifts (245, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Lifts");
-      Button pneums (360, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Pneumatics");
-      Button save_pos (15, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Save Position");
-      Button auton_selector (130, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Select Autons");
-      Button misc_checks (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Misc");
-      Button dist (360, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Distance");
+      Button pneums (130, 45, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Pneumatics");
+      Button auton_selector (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Select Autons");
+      Button sensor_check (15, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Distance");
+      Button misc_checks (130, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Misc");
+      // Button save_pos (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Save Position");
 
     Page track ("Tracking"); //Display tracking vals and reset btns
-      Text track_x(50, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", tracking.g_pos.x);
-      Text track_y(135, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "Y:%.1f", tracking.g_pos.y);
-      Text track_a(220, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", std::function([](){return std::fmod(tracking.g_pos.a, 360);}));
+      Text track_x(50, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", std::function([](){return tracking.getPos().x;}));
+      Text track_y(135, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "Y:%.1f", std::function([](){return tracking.getPos().y;}));
+      Text track_a(220, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", std::function([](){return std::fmod(tracking.getPos().a, 360);}));
       Text enc_l(50, 130, GUI::Style::CENTRE, TEXT_SMALL, track, "L:%d", std::function([](){return left_tracker.get_position() != std::numeric_limits<int32_t>::max() ? left_tracker.get_position() : 0;}));
       Text enc_r(135, 130, GUI::Style::CENTRE, TEXT_SMALL, track, "R:%d", std::function([](){return right_tracker.get_position() != std::numeric_limits<int32_t>::max() ? right_tracker.get_position() : 0;}));
       Text enc_b(220, 130, GUI::Style::CENTRE, TEXT_SMALL, track, "B:%d", std::function([](){return back_tracker.get_position() != std::numeric_limits<int32_t>::max() ? back_tracker.get_position() : 0;}));
@@ -52,12 +55,6 @@
       Button res_all(15, 160, 110, 60, GUI::Style::SIZE, Button::SINGLE, track, "Reset All");
       Button res_target(135, 160, 110, 60, GUI::Style::SIZE, Button::SINGLE, track, "Reset to Target");
 
-    Page driver_curve ("Drivers"); //Select a driver and their exp curve
-      Button prev_drivr(20, 70, 110, 120, GUI::Style::SIZE, Button::SINGLE, driver_curve, "Prev Driver");
-      // Text drivr_name(MID_X, MID_Y, GUI::Style::CENTRE, TEXT_LARGE, driver_curve, "%s", std::function([](){return drivebase.driver_name();}));
-      Text drivr_name(MID_X, MID_Y, GUI::Style::CENTRE, TEXT_LARGE, driver_curve, "DRIVER NAME");
-      Button next_drivr(350, 70, 110, 120, GUI::Style::SIZE, Button::SINGLE, driver_curve, "Next Driver");
-
     Page moving ("Moving"); //Moves to target, home, or centre
       Slider x_val(35, 45, 250, 40, GUI::Style::SIZE, Slider::HORIZONTAL, 0, 144, moving, "X");
       Slider y_val(35, 110, 250, 40, GUI::Style::SIZE, Slider::HORIZONTAL, 0, 144, moving, "Y");
@@ -66,13 +63,18 @@
       Button go_home(320, 110, 150, 40, GUI::Style::SIZE, Button::SINGLE, moving, "Home");
       Button go_centre(320, 175, 150, 40, GUI::Style::SIZE, Button::SINGLE, moving, "Centre");
 
-    Page lift_move ("Motorized Subsystems"); //Moving the lift
-      Slider f_lift_val(30, 45, 300, 35, GUI::Style::SIZE, Slider::HORIZONTAL, 1000, 2750, lift_move, "Front Lift", 10);
-      Slider b_lift_val(30, 110, 300, 40, GUI::Style::SIZE, Slider::HORIZONTAL, 1000, 2750, lift_move, "Back Lift", 10);
-      Button f_lift_move(470, 45, -100, 40, GUI::Style::SIZE, Button::SINGLE, lift_move, "Move Front Lift");
-      Button b_lift_move(470, 95, -100, 40, GUI::Style::SIZE, Button::SINGLE, lift_move, "Move Back Lift");
-      Button front_claw(470, 145, -100, 40, GUI::Style::SIZE, Button::TOGGLE, lift_move, "Front Claw");
-      Button back_claw(470, 195, -100, 40, GUI::Style::SIZE, Button::TOGGLE, lift_move, "Back Claw");
+    Page systems ("Subsystems"); //Activates Subsystems
+      Text shoot_text(0, 0, GUI::Style::CENTRE, TEXT_SMALL, systems, "Shooter");
+      Button shoot1(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "1");
+      Button shoot2(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "2");
+      Button shoot3(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "3");
+      Text intake_text(0, 0, GUI::Style::CENTRE, TEXT_SMALL, systems, "Intake");
+      Button intake_on(0, 0, 0, 0, GUI::Style::SIZE, Button::TOGGLE, systems, "On");
+      Button intake_rev(0, 0, 0, 0, GUI::Style::SIZE, Button::TOGGLE, systems, "Off");
+      Button intake_off(0, 0, 0, 0, GUI::Style::SIZE, Button::TOGGLE, systems, "Reverse");
+      Slider flywheel_vel(0, 0, 0, 0, GUI::Style::CENTRE, Slider::HORIZONTAL, 0, 127, systems, "Flywheel Velocity");
+      Button flywheel_set(0, 0, 0, 0, GUI::Style::SIZE, Button::SINGLE, systems, "Flywheel Set");
+
 
     Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
       Text tuning_instructions_1(MID_X, 35, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow");
@@ -92,6 +94,9 @@
 
     Page pneumatics ("Pneumatics"); //Pneumatic testing page for known ports
       //Remaining elements created upon instantiation of Piston objects
+
+    Page logging ("Logging"); //Log printing page from file to terminal
+      //Remaining elements created upon instantiation of Logging objects
 
 
   //Utility
@@ -177,43 +182,6 @@ void mainSetup(){
       }
     });
 
-    intakes.setFunc([](){
-      if(GUI::prompt("Press to check intake", "", 1000)){
-        DEPRECATE;
-        // b_lift.Subsystem::setState(b_lift_states::intake_on);
-        // delay(1000);
-
-        // b_lift.Subsystem::setState(b_lift_states::intake_off);
-        // delay(250);
-
-        // b_lift.Subsystem::setState(b_lift_states::intake_reversed);
-        // delay(1000);
-
-        // b_lift.Subsystem::setState(b_lift_states::intake_off);
-      }
-    });
-
-    lifts.setFunc([](){
-      if(GUI::prompt("Press to check lifts", "", 1000)){
-        DEPRECATE;
-        // b_lift.setState(b_lift_states::move_to_target, 0);
-        // f_lift.setState(f_lift_states::move_to_target, 0);
-        // delay(1000);
-
-        // b_lift.move_to_top();
-        // f_lift.move_to_top();
-        // delay(1000);
-
-        // b_lift.setState(b_lift_states::move_to_target, 0);
-        // f_lift.setState(f_lift_states::move_to_target, 0);
-
-        // delay(250);
-
-        // b_lift.setState(b_lift_states::managed, 0);
-        // f_lift.setState(f_lift_states::managed, 0);
-      }
-    });
-
     pneums.setFunc([](){
       for(auto piston: Piston::getList()){
         if (GUI::prompt("Press to check " + piston->getName())){
@@ -225,26 +193,26 @@ void mainSetup(){
       }
     });
 
-    dist.setFunc([](){
-      DEPRECATE;
-      // if(!inRange(static_cast<int>(b_dist.get()), 20, 2000)) alert::start("Distance Sensor: Back");
-      // if(!inRange(static_cast<int>(f_dist.get()), 20, 2000)) alert::start("Distance Sensor: Front");
-      // if(!inRange(static_cast<int>(r_dist.get()), 20, 2000)) alert::start("Distance Sensor: Right");
-      // if(!inRange(static_cast<int>(l_dist.get()), 20, 2000)) alert::start("Distance Sensor: Left");
-      // if(!inRange(static_cast<int>(hitch_dist.get()), 20, 2000)) alert::start("Distance Sensor: Hitch");
-      // if(!inRange(static_cast<int>(r_reset_dist.get()), 20, 2000)) alert::start("Distance Sensor: Right Reset");
-      // if(!inRange(static_cast<int>(l_reset_dist.get()), 20, 2000)) alert::start("Distance Sensor: Left Reset");
-      // else(alert::start("All Distance Sensors Good", term_colours::GREEN));
+    sensor_check.setFunc([](){
+      for (_Motor* motor: _Motor::getList()) if (!motor->plugged()) alert::start("Motor %s unplugged", motor->getName());
+      if(c::registry_get_plugged_type(roller_sensor.get_port()-1) != c::E_DEVICE_OPTICAL) alert::start("Roller sensor not plugged in port %d", roller_sensor.get_port());
+      else if(c::registry_get_plugged_type(rotation_port-1) != c::E_DEVICE_ROTATION) alert::start("Roller sensor not plugged in port %d", rotation_port);
+
+      else if(!inRange(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
+      else if(!inRange(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
+
+      else(alert::start("All Sensors Good", term_colours::GREEN));
     });
 
     misc_checks.setFunc([](){
       if (!usd::is_installed()) alert::start("No SD Card!");
       else if (battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
+      else if(battery::get_voltage() < 12200) alert::start("Battery is at %dV",  battery::get_voltage() );
+
       else(alert::start("No Errors Found", term_colours::GREEN));
     });
 
-    save_pos.setFunc([](){DEPRECATE});
-    auton_selector.setFunc([](){DEPRECATE});
+    auton_selector.setFunc(Auton::select);
 
   //Tracking
     // for (int x = 0; x < 200; x++) field[x].reset(); //Should be able to get rid of this
@@ -260,7 +228,7 @@ void mainSetup(){
     });
     track.setLoopFunc([](){
       screen::set_pen(static_cast<std::uint32_t>(Color::red));
-      screen::draw_pixel(270 + (200.0*tracking.g_pos.x / 144.0), 230-(200.0*tracking.g_pos.y / 144.0)); //Scales to screen
+      screen::draw_pixel(270 + (200.0*tracking.getPos().x / 144.0), 230-(200.0*tracking.getPos().y / 144.0)); //Scales to screen
 
       if(main_obj.pressed()){
         int x = GUI::x-270, y = 230-GUI::y;
@@ -271,9 +239,9 @@ void mainSetup(){
       }
     });
 
-    res_y.setFunc([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, 0.0, tracking.g_pos.a);*/});
-    res_x.setFunc([](){DEPRECATE;/*tracking.reset(0.0, tracking.g_pos.y, tracking.g_pos.a);*/});
-    res_a.setFunc([](){DEPRECATE;/*tracking.reset(tracking.g_pos.x, tracking.g_pos.y, 0.0);*/});
+    // res_y.setFunc([](){tracking.reset(tracking.getPos().x, 0.0, tracking.getPos().a);});
+    // res_x.setFunc([](){tracking.reset(0.0, tracking.getPos().y, tracking.getPos().a);});
+    // res_a.setFunc([](){tracking.reset(tracking.getPos().x, tracking.getPos().y, 0.0);});
 
     res_all.setFunc([](){
       right_tracker.reset();
@@ -291,15 +259,12 @@ void mainSetup(){
       // tracking.reset(Position(x_val.getValue(), y_val.getValue(), a_val.getValue()));
     });
 
-  //Driving
-    prev_drivr.setFunc([](){DEPRECATE;/*drivebase.prev_driver();*/});
-    next_drivr.setFunc([](){DEPRECATE;/*drivebase.next_driver();*/});
-
   //Moving
     moving.setSetupFunc([](){
-      x_val.setValue(tracking.g_pos.x);
-      y_val.setValue(tracking.g_pos.y);
-      a_val.setValue(tracking.g_pos.a);
+      Position pos = tracking.getPos();
+      x_val.setValue(pos.x);
+      y_val.setValue(pos.y);
+      a_val.setValue(pos.a);
     });
 
     go_to_xya.setFunc([&](){
@@ -307,50 +272,22 @@ void mainSetup(){
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
     go_home.setFunc([](){
-      Position target (0, 0, tracking.g_pos.a);
+      Position target (0, 0, tracking.getPos().a);
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
     go_centre.setFunc([](){
-      Position target (72, 72, tracking.g_pos.a);
+      Position target (72, 72, tracking.getPos().a);
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
 
   //Subsystems
-    // b_lift_val.min = b_lift.prog_positions.front();
-    // b_lift_val.max = b_lift.prog_positions.back();
-    // f_lift_val.min = f_lift.prog_positions.front();
-    // f_lift_val.max = f_lift.prog_positions.back();
-
-    lift_move.setSetupFunc([](){
-      printf("DEPRECATEd we don't have lifts\n");
-      // DEPRECATE;
-      // b_lift_val.setValue(b_lift_pot.getValue());
-      // f_lift_val.setValue(f_lift_pot.getValue());
-      // if(f_claw_o.get_state()) front_claw.select();
-      // if(b_claw.get_state()) back_claw.select();
-    });
-
-    front_claw.setFunc([](){DEPRECATE;/*f_claw(HIGH);*/});
-    front_claw.setOffFunc([](){DEPRECATE;/*f_claw(LOW);*/});
-    back_claw.setFunc([](){DEPRECATE;/*b_claw.setState(HIGH);*/});
-    back_claw.setOffFunc([](){DEPRECATE;/*b_claw.setState(LOW);*/});
-
-    f_lift_move.setFunc([&](){
-      if (GUI::prompt("Press to move front lift to " + std::to_string(f_lift_val.getValue()), "", 1000)){
-        DEPRECATE;
-        // f_lift.move_absolute(f_lift_val.getValue());
-      }
-    });
-    b_lift_move.setFunc([&](){
-      if (GUI::prompt("Press to move back lift to " + std::to_string(b_lift_val.getValue()), "", 1000)){
-        DEPRECATE;
-        // b_lift.move_absolute(b_lift_val.getValue());
-      }
-    });
-
-  //Elastic Test
-    // check_b_elastic.setFunc([](){DEPRECATE;/*b_lift.elastic_util(1011);*/});
-    // check_f_elastic.setFunc([](){DEPRECATE;/*f_lift.elastic_util(935);*/});
+    shoot1.setFunc([](){shoot(1);});
+    shoot2.setFunc([](){shoot(2);});
+    shoot3.setFunc([](){shoot(3);});
+    intake_on.setFunc([](){intakeOn();});
+    intake_rev.setFunc([](){intakeRev();});
+    intake_off.setFunc([](){intakeOff();});
+    flywheel_set.setFunc([](){setFlywheelVel(flywheel_vel.getValue());});
 
   //Tuning Tracking
     manual.select();
@@ -515,9 +452,9 @@ void mainSetup(){
           tracking.reset();
 
           if(GUI::prompt("Press when back at start position")){
-            printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", std::abs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
+            printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.getPos().x), tracking.getPos().x > 0 ? "right" : "left", std::abs(tracking.getPos().y), tracking.getPos().y > 0 ? "forward" : "back");
             
-            double turned = tracking.g_pos.a / 180.0;
+            double turned = tracking.getPos().a / 180.0;
             double rots = round(turned);
             turned = 180 * (turned-rots);
             rots /= 2;
@@ -538,18 +475,18 @@ void mainSetup(){
           tracking.waitForDistance(10);
           driveBrake();
           moveDrive(0.0, 80.0);
-          WAIT_UNTIL(std::abs(tracking.g_pos.a) > 3200);
+          WAIT_UNTIL(std::abs(tracking.getPos().a) > 3200);
           moveDrive(0.0, 40.0);
-          WAIT_UNTIL(std::abs(tracking.g_pos.a) > 3600);
+          WAIT_UNTIL(std::abs(tracking.getPos().a) > 3600);
           driveBrake();
           moveDrive(60.0, 0.0);
           tracking.waitForDistance(5);
           flattenAgainstWallSync();
           driveBrake();
 
-          printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.g_pos.x), tracking.g_pos.x > 0 ? "right" : "left", std::abs(tracking.g_pos.y), tracking.g_pos.y > 0 ? "forward" : "back");
+          printf2("The robot is %.2f inches %s and %.2f inches %s off the starting point.", std::abs(tracking.getPos().x), tracking.getPos().x > 0 ? "right" : "left", std::abs(tracking.getPos().y), tracking.getPos().y > 0 ? "forward" : "back");
             
-          double turned = tracking.g_pos.a / 180.0;
+          double turned = tracking.getPos().a / 180.0;
           double rots = round(turned);
           turned = 180 * (turned-rots);
           rots /= 2;
@@ -566,7 +503,7 @@ void mainSetup(){
 
 void mainBackground(){
   //Saving Field coords
-  int x = 200*tracking.g_pos.x / 144, y = 200*tracking.g_pos.y / 144;
+  int x = 200*tracking.getPos().x / 144, y = 200*tracking.getPos().y / 144;
   if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
 
   for (_Motor* motor: _Motor::getList()) motor->updateTemperatureText();
@@ -780,6 +717,6 @@ void utilBackground(){
   }
 }
 
-GUI main_obj ({&temps, &checks, &track, &moving, &lift_move,  &driver_curve, &tuning, &motors, &pneumatics}, &mainSetup, &mainBackground);
+GUI main_obj ({&temps, &checks, &track, &moving, &tuning, &systems, &motors, &pneumatics, &logging}, &mainSetup, &mainBackground);
 
 GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground);

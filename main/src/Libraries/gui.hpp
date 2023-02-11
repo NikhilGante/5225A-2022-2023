@@ -21,7 +21,7 @@ extern GUI main_obj, util_obj;
 
 //From gui.cpp
 extern Page terminal, testing;
-extern Button testing_button_1, testing_button_2;
+extern Button testing_button_1, testing_button_2, misc_checks;
 extern Text<> testing_text_1, testing_text_2;
 extern Slider testing_slider;
 
@@ -78,7 +78,7 @@ class GUI{
         prompt_enabled = true,
         testing_page_active = false;
       static const Page* current_page;
-      constexpr static const GUI* current_gui = &main_obj;
+      constexpr static const GUI* current_gui = &util_obj;
       static _Task task;
       static bool touched;
       static int x, y;
@@ -298,6 +298,7 @@ class Button{
   friend class Text_;
   friend class _Motor;
   friend class Piston;
+  friend class Logging;
   friend void
     mainSetup(),
     mainBackground(),

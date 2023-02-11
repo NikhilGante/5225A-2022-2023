@@ -2,7 +2,8 @@
 #include "main.h"
 #include "gui.hpp"
 
-template <typename derived, std::size_t size = 0>
+//! Figure out why vector goes to 0 with logging. Replace total with vector.size()
+template <typename derived, std::size_t size = std::numeric_limits<std::size_t>::max()>
 class Counter{
   private:
     Counter(Counter const &) = delete;
@@ -14,13 +15,12 @@ class Counter{
     std::size_t count;
 
   protected:
-    Counter(std::string name = ""){
-      if(size == 0 || (size && total < size)){
+    Counter(){
+      if(total < size){
         objects.push_back(static_cast<derived*>(this));
         count = total++;
       }
-      else if (name != "") alert::start("Too many objects of type are being created. Failed upon creation of \'%s\'", name);
-      else alert::start("Too many objects of type are being created.");
+      else throw std::length_error("Too many objects are being created in Counter subclass.");
     }
 
   public:
@@ -28,7 +28,7 @@ class Counter{
     static std::size_t getCount() {return total;}
     static std::vector<derived*> const & getList() {return objects;}
 
-    std::size_t getID() {return count;}
+    std::size_t getID() const {return count;}
 };
 
 template <typename derived, std::size_t size> std::size_t Counter<derived, size>::total;

@@ -1,7 +1,7 @@
 #include "auton.hpp"
-#include "Libraries/controller.hpp"
-#include "Libraries/motor.hpp"
-#include "Libraries/piston.hpp"
+#include "Devices/controller.hpp"
+#include "Devices/motor.hpp"
+#include "Devices/piston.hpp"
 #include "Libraries/timer.hpp"
 #include "Subsystems/flywheel.hpp"
 #include "Subsystems/intake.hpp"
@@ -33,7 +33,7 @@ void moveInches(double target){
 		moveDrive(power, 0.0);
 
 	} while(std::abs(error) > 0.5);
-	master.print(2, 0, "time: %ld", move_timer.getTime());
+	master.print(2, "time: %ld", move_timer.getTime());
 	driveBrake();
 	master.rumble("-");
 }
@@ -46,7 +46,7 @@ void fullSkills(){
 
 
 // start coord 
-// tracking.g_pos = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
+// tracking.getPos() = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
   tracking.reset({getDistL(), 7.5, 0.0});
   Timer total{"total_timer"};
@@ -55,7 +55,7 @@ void skills1(){
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({31.0, 7.5, degToRad(0.0)});
   master.rumble("-");
-  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   intakeOn();
   moveToTargetSync({37.0, 43.0}, E_Brake_Modes::brake, 50); // picks up stack
   aimAtBlue(12.5);
@@ -76,11 +76,11 @@ void skills1(){
   moveToTargetSync({113, 127.0});  // Drive to corner
   turnToAngleSync(177, E_Brake_Modes::brake, 2.0, 127);
 
-	auton_log.print("total: %d", total.getTime());
-	// lcd::print(7, "total: %d", total.getTime());
+	auton_log("total: %d", total.getTime());
+	// auton_log("total: %d", total.getTime());
 }
 
-// tracking.g_pos = {110.5, 133.75, degToRad(180.0)}
+// tracking.getPos() = {110.5, 133.75, degToRad(180.0)}
 void skills2(){
   Timer total{"total_timer"};
 
@@ -127,11 +127,11 @@ void skills2(){
   turnToAngleSync(95, E_Brake_Modes::brake, 2.0, 127);
   moveToTargetSync({9.0, 28.0}, E_Brake_Modes::coast, 127); // backup to wall
 
-	auton_log.print("total: %d\n", total.getTime());
-	master.print(0,0, "total: %d", total.getTime());
+	auton_log("total: %d", total.getTime());
+	master.print(0, "total: %d", total.getTime());
   // shoot match loads here
 }
-// tracking.g_pos = {72.0, 11.25, 0.0};
+// tracking.getPos() = {72.0, 11.25, 0.0};
 void skills3(){
   Timer total{"total_timer"};
   setFlywheelVel(2150);
@@ -171,14 +171,14 @@ void skills3(){
 */
   endgame_s_p.setState(HIGH);
 
-  auton_log.print("total: %d", total.getTime());
-	// lcd::print(7, "total: %d", total.getTime());
+  auton_log("total: %d", total.getTime());
+	// auton_log(7, "total: %d", total.getTime());
   // expand
 }
 
 void autonStack(){
   // tracking.reset({30.75, 9.0, degToRad(0.0)});
-  printf("STARTED AUTON\n");
+  auton_log("STARTED AUTON\n");
 
   Timer timer1{"timer"};
   setFlywheelVel(2440);
@@ -191,7 +191,7 @@ void autonStack(){
 	// moveToTargetSync({37.0, 12.5});  // Move away from wall
   moveInches(5.0);
 	aimAtBlue(10.0);
-  printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
+  auton_log("DONE AIMING: %lld %d", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
@@ -217,7 +217,7 @@ void autonStack(){
   // shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 
-	lcd::print(6, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
 
 }
 
@@ -231,7 +231,7 @@ void autonAWP(){
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({getDistL(), 9.75, degToRad(0.0)});
 
-	moveToTargetSync({tracking.g_pos.x, 14.75}); // Moves away from wall
+	moveToTargetSync({tracking.getPos().x, 14.75}); // Moves away from wall
 
 // START of roller code
 
@@ -239,10 +239,10 @@ void autonAWP(){
   // drive.changeState(DriveIdleParams{});
   // drive.waitToReachState(DriveIdleParams{});
   
-  // double intake_pos = intake_m.get_position();
+  // double intake_pos = intake_m.getPosition();
 
   // moveDrive(-40, 0);
-  // WAIT_UNTIL(fabs(intake_pos- intake_m.get_position()) > 450);
+  // WAIT_UNTIL(std::abs(intake_pos- intake_m.getPosition()) > 450);
   // intakeOff();
   // moveInches(2.0);
 
@@ -260,7 +260,7 @@ void autonAWP(){
   driveBrake();
 	shoot(3);
   // WAIT_UNTIL(false);
-  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
   setFlywheelVel(2420);
@@ -270,7 +270,7 @@ void autonAWP(){
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
 	moveToTargetSync({125.0, 105.0}); // Move to corner
-  log("TURNED INTAKE OFF\n");
+  auton_log("TURNED INTAKE OFF\n");
   intakeOff();
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
@@ -286,7 +286,7 @@ void autonAWP(){
   WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
 }
 
 void autonLine(){ // No moving after start
@@ -324,17 +324,17 @@ void autonLine(){ // No moving after start
   drive.changeState(DriveIdleParams{});
   drive.waitToReachState(DriveIdleParams{});
   
-  double intake_pos = intake_m.get_position();
+  double intake_pos = intake_m.getPosition();
 
   moveDrive(-40, 0);
-  WAIT_UNTIL(fabs(intake_pos- intake_m.get_position()) > 450);
+  WAIT_UNTIL(std::abs(intake_pos- intake_m.getPosition()) > 450);
   intakeOff();
   moveInches(2.0);
 
   intake.waitToReachState(IntakeOffParams{});
   
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
 }
 
 void autonLineTestTurn(){ // Moving 90 degrees after start
@@ -357,7 +357,7 @@ void autonLineTestTurn(){ // Moving 90 degrees after start
 
   driveBrake();
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
  
 
 }
@@ -368,7 +368,7 @@ void autonLineOld(){
   
   Timer timer1{"timer"};
   setFlywheelVel(2420);
-  moveToTargetSync({tracking.g_pos.x, 102}, E_Brake_Modes::brake, 127); // move in front of roller
+  moveToTargetSync({tracking.getPos().x, 102}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
   moveInches(-3.0);
   spinRoller();
@@ -376,7 +376,7 @@ void autonLineOld(){
   tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
 
   
-  moveToTargetSync({128.0, tracking.g_pos.y});
+  moveToTargetSync({128.0, tracking.getPos().y});
   aimAtBlue(10, 60, 3);
   moveInches(3);
   aimAtBlue(10, 60, 1);
@@ -402,7 +402,7 @@ void autonLineOld(){
   // shooter.waitToReachState(ShooterIdleParams{});
 
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
 }
 
 void autonLinePrev(){
@@ -410,7 +410,7 @@ void autonLinePrev(){
   
   Timer timer1{"timer"};
   setFlywheelVel(2300, 415);
-  moveToTargetSync({tracking.g_pos.x, 104}, E_Brake_Modes::brake, 127); // move in front of roller
+  moveToTargetSync({tracking.getPos().x, 104}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
   moveInches(-3.0);
   spinRoller();
@@ -442,7 +442,8 @@ void autonLinePrev(){
   // shooter.waitToReachState(ShooterIdleParams{});
 
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+  master.print(2, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
 }
 
 
@@ -457,7 +458,7 @@ void insaneHighPointSkills(){
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({getDistL(), 9.75, degToRad(0.0)});
 
-	moveToTargetSync({tracking.g_pos.x, 14.75}); // Moves away from wall
+	moveToTargetSync({tracking.getPos().x, 14.75}); // Moves away from wall
   aimAtRed(8);
   shoot(2);
 
@@ -470,7 +471,7 @@ void insaneHighPointSkills(){
   driveBrake();
 	shoot(3);
   // WAIT_UNTIL(false);
-  // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+  // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
   setFlywheelVel(2300);
@@ -480,7 +481,7 @@ void insaneHighPointSkills(){
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
 	moveToTargetSync({125.0, 105.0}); // Move to corner
-  log("TURNED INTAKE OFF\n");
+  auton_log("TURNED INTAKE OFF\n");
   intakeOff();
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
@@ -504,7 +505,7 @@ void insaneHighPointSkills(){
 
   // shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
+	auton_log("total:%ld", timer1.getTime());
  
 
 }

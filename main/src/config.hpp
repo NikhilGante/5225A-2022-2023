@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
 
+static constexpr uint8_t rotation_port = 2;
+
 class _Controller;
 class _Motor;
 class Piston;
@@ -8,7 +10,6 @@ class Piston;
 extern _Controller master;
 extern _Controller partner;
 extern _Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywheel_m, intake_m;
-// extern pros::ADIEncoder LeftEncoder, RightEncoder, BackEncoder;
 extern Rotation left_tracker, right_tracker, back_tracker;
 
 extern Piston indexer_p;

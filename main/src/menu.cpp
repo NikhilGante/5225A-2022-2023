@@ -1,85 +1,48 @@
 #include "menu.hpp"
-#include "Libraries/controller.hpp"
+#include "config.hpp"
+#include "Devices/controller.hpp"
 
-std::array<Auton*, MAX_AUTON_ARR_SIZE> Auton::autonArr;
+#include <fstream>
 
-int Auton::autons_constructed = 0;
+Auton::E_Reset_Types Auton::getResetType() const {return reset_type;} // Getter
 
-E_Auton_Reset_Types Auton::getResetType(){ // Getter
-	return reset_type;
-}
-
-int Auton::getAuton(){	// Returns selected Auton as an int
-	log_mutex.take();
-	ifstream myfile ("/usd/auton.txt", ios::in);
-	int auton_num;
-	myfile >> auton_num; 
-	myfile.close();
-	log_mutex.give();
-	return auton_num;
-}
-
-void Auton::selectAuton(){
+void Auton::select(){
 	int cur_auton = 0;
 	master.clear();
-	master.print(0, 0, "%s            ", auton_arr[cur_auton]->name);
-	master.print(1, 0, "Up/dn change auton");
-	master.print(2, 0, "Press A to save");
-	printf("constructed: %d\n", autons_constructed);
+	master.printScroll("%s", getNth(cur_auton)->name);
+	master.printScroll("Up/dn change auton");
+	master.printScroll("Press A to save");
+	auton_log("constructed: %d", getCount());
 	while(true){
-		if(master.get_digital_new_press(DIGITAL_UP) && cur_auton < autons_constructed - 1){
-			master.print(0, 0, "%s            ", auton_arr[++cur_auton]->name);
-		}
-		if(master.get_digital_new_press(DIGITAL_DOWN) && cur_auton > 0){
-			master.print(0, 0, "%s            ", auton_arr[--cur_auton]->name);
-		}
-		if(master.get_digital_new_press(DIGITAL_A)){	// Press A to save
+		if(master.getNewDigital(DIGITAL_UP) && cur_auton < getCount() - 1) master.print(0, "%s", getNth(++cur_auton)->name);
+		if(master.getNewDigital(DIGITAL_DOWN) && cur_auton > 0) master.print(0, "%s", getNth(--cur_auton)->name);
+		if(master.getNewDigital(DIGITAL_A)){	// Press A to save
 			master.clear();
-			log_mutex.take();
+      Logging::pause();
 			std::ofstream myfile ("/usd/auton.txt", std::ofstream::out);
 			myfile << cur_auton << std::endl;
-			myfile.close();
-			log_mutex.give();
-			master.print(0, 0, "Saved.");
+      Logging::restart();
+			master.print(0, "Saved.");
 			break;
 		}
 		delay(10);
 	}
-	/*
-	while(true){
-		if(master.get_digital_new_press(DIGITAL_A)){	// Press A to reset
-			flattenAgainstWallSync();
-
-			switch(auton_arr[getAuton()]->getResetType()){
-				case E_Auton_Reset_Types::home:
-					tracking.reset({getDistL(), 9.75, degToRad(0.0)});
-					break;
-
-				case E_Auton_Reset_Types::far:
-					tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
-					break;
-			}
-			moveDrive(0, 0);
-			trans_p.setState(HIGH);
-			break;
-		}
-		delay(10);
-
-	}
-	*/
-	
 }
+
+// Returns selected Auton as an int
+int Auton::get(){
+	std::ifstream myfile ("/usd/auton.txt", std::ifstream::in);
+	int auton_num;
+	myfile >> auton_num;
+  return auton_num;
+}
+
 // Runs selected auton
-void Auton::runAuton(){
-	int auton_num = getAuton();
-	auton_arr[auton_num]->run();	// Runs Auton
-}
+void Auton::run() {getNth(get())->runFunction();}
 
-Auton::Auton(const char* name, std::function<void(void)> program, E_Auton_Reset_Types reset_type): name(name), program(program), reset_type(reset_type){
-	auton_arr[autons_constructed++] = this;
-}
+Auton::Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type): name{name}, program{program}, reset_type{reset_type} {}
 
-void Auton::run(){
+void Auton::runFunction() const {
   if(program) program();
   else alert::start("No Auton function for" + name);
 }

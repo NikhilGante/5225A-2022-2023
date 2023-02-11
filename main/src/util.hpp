@@ -10,9 +10,8 @@ inline constexpr double rad_to_deg = 1/deg_to_rad;
 inline constexpr double deg_to_rot = 1/rot_to_deg;
 inline constexpr double rad_to_rot = 1/rot_to_rad;
 
-#define LOGS
-
 #define WAIT_UNTIL(condition) while(pros::delay(10), !(condition)) //! DO NOT ADD A SEMICOLON
+//* It's pros::delay because a macro replacement may be in different scopes that have Task as more visible than pros
 
 // cycle check macro (checks a condition for a specified amount of cycles)
 #define CYCLE_CHECK(exit_condition, checkCount, delayTime) \
@@ -25,6 +24,7 @@ inline constexpr double rad_to_rot = 1/rot_to_rad;
   }\
 }
 constexpr bool inRange(double value, double minimum, double maximum) {return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);}
+constexpr bool inRangeExcl(double value, double minimum, double maximum) {return (minimum < value && value < maximum) || (maximum < value && value < minimum);}
 
 constexpr double degToRad(double deg) {return deg * deg_to_rad;}
 constexpr double radToDeg(double rad) {return rad * rad_to_deg;}
@@ -43,7 +43,7 @@ auto mapValues(auto x, auto in_min, auto in_max, auto out_min, auto out_max) {re
 auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range, auto val){
   if (input <= range) return map(input, in_min, range, out_min, val);
   else {
-    misc.print("INVALID INPUT IN MAP FUNCTION");
+    misc("INVALID INPUT IN MAP FUNCTION");
     return 0;
   }
 }
