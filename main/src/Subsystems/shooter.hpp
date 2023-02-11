@@ -41,9 +41,11 @@ struct ShooterShootParams{
 
   FLYWHEEL_STATE_TYPES_VARIANT flywheel_state;
 private:
-  Timer shoot_timer{"shoot_timer"};
+  static Timer shoot_timer;
 
   Timer cycle_check{"cycle_check"};
 };
+
+
 
 void shoot(int shots = 3);  // Shoots x number of shots

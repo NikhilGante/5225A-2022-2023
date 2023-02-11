@@ -250,10 +250,10 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();
     }
-    if(master.getButtonState(endgameBtnLeft) && master.getButtonState(endgameBtnRight)){
-      endgame_d_p.setState(HIGH);
-      endgame_s_p.setState(HIGH);
-    }
+    // if(master.getButtonState(endgameBtnLeft) && master.getButtonState(endgameBtnRight)){
+    //   endgame_d_p.setState(HIGH);
+    //   endgame_s_p.setState(HIGH);
+    // }
 
 		// driveHandleInput();
 		shooterHandleInput();

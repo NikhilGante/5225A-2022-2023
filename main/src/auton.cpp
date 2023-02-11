@@ -295,6 +295,7 @@ void autonLine(){ // No moving after start
 
   flattenAgainstWallSync();
   tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
+  trans_p.setState(HIGH);
 
   setFlywheelVel(2215);
   intakeOn();

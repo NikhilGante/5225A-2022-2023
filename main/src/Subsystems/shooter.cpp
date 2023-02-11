@@ -4,10 +4,12 @@
 #include "../Libraries/logging.hpp"
 
 const int toaster_rpm = 1400;
-// const int barrier_rpm = 1820;
-const int barrier_rpm = 2235;
+const int barrier_rpm = 1850;
+// const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
+
+Timer ShooterShootParams::shoot_timer{"shoot_timer"};
 
 // 1820
 bool angleOverride = false;
@@ -18,7 +20,7 @@ void shooterHandleInput(){
   SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
-    if(master.get_digital_new_press(singleShotBtn)) shoot(1);
+    if(master.get_digital_new_press(singleShotBtn)) shoot(2);
   }
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
@@ -34,7 +36,9 @@ void shooterHandleInput(){
 
   if (master.get_digital_new_press(angleOverrideBtn)) {
     angleOverride = !angleOverride; 
-    if(angleOverride) setFlywheelVel(toaster_rpm);
+    if(angleOverride) {
+      setFlywheelVel(toaster_rpm);
+    }
     else{
       if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
       else{
@@ -68,6 +72,7 @@ const char* ShooterShootParams::getName(){
   return "ShooterShoot";
 }
 void ShooterShootParams::handle(){
+  // log("Shoot_time: %lld \n", shoot_timer.getTime());
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
   if(goal_disturb){
     if(fabs(flywheel_error) > 1000) cycle_check.reset();
@@ -83,7 +88,21 @@ void ShooterShootParams::handle(){
   // log("cycle_check:%lld\n", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
-  if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
+
+  bool trigger = shoot_timer.getTime() > 300;
+
+  if (angler_p.getState() == HIGH){
+    trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
+    // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
+
+  } else if(pros::competition::is_autonomous()){
+    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
+  }
+  // else if (check if shootig from far){
+  //   trigger = // ...
+  // }
+  
+  if(trigger){ // && cycle_check.getTime() >= 30){
     log("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
