@@ -135,16 +135,16 @@ void trackingUpdate(){
     tracking_log("L:%d R:%d B:%d", left_tracker.get_position(), -right_tracker.get_position(), back_tracker.get_position());
 		tracking_log("x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), fmod(radToDeg(tracking.getPos().a), 360));
 
-    delay(10);
+    _Task::delay(10);
   }
 }
 
-void Tracking::waitForComplete(){
-  drive.waitToReachState(DriveIdleParams{});
-}
+void Tracking::waitForComplete() {drive.waitToReachState(DriveIdleParams{});}
+void Tracking::waitForDistance(double distance) {WAIT_UNTIL(std::abs(drive_error.load()) <= distance);}
 
-void Tracking::waitForDistance(double distance){
-  WAIT_UNTIL(std::abs(drive_error.load()) <= distance);
+void Tracking::init(Position pos){
+  reset(pos);
+  task.start(trackingUpdate);
 }
 
 void Tracking::reset(Position pos){
@@ -262,9 +262,7 @@ void DriveIdleParams::handle(){}
 void DriveIdleParams::handleStateChange(driveVariant prev_state){}
 
 // Drive operator control params
-void DriveOpControlParams::handle(){
-  driveHandleInput();
-}
+void DriveOpControlParams::handle() {driveHandleInput();}
 void DriveOpControlParams::handleStateChange(driveVariant prev_state){}
 
 

@@ -25,6 +25,7 @@ enum class E_Robot_Sides{
 
 class Tracking{
   private:
+    _Task task{"Tracking Update"};
     Mutex pos_mutex; // locks g_pos
     Position g_pos{};
 
@@ -39,6 +40,7 @@ class Tracking{
     Position g_vel;
     std::atomic<double> drive_error; // How far the robot is from it's target
 
+    void init(Position initial_pos = {});
     void waitForComplete(); // Waits until the motion completes
     void waitForDistance(double distance); // Waits until the robot is within a certain distance from it's target
     void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos

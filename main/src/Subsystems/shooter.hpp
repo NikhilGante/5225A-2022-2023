@@ -27,7 +27,7 @@ struct ShooterIdleParams{
 struct ShooterShootParams{  
   ShooterShootParams(int shots = 3);
 
-  inline static const std::string name = "ShooterIdle";
+  inline static const std::string name = "ShooterShoot";
   void handle();
   void handleStateChange(shooterVariant prev_state);
 

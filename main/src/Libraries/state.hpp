@@ -7,8 +7,10 @@
 
 template <typename... StateTypes>
 class Machine{
-  private:
+  public:
     using variant = std::variant<StateTypes...>;
+
+  private:
     variant state, target_state;
     Mutex state_mutex, target_state_mutex;
     std::string name;

@@ -19,10 +19,7 @@ void initialize() {
 	Logging::init();
   GUI::init();
 	_Controller::init();
-
-	tracking.reset({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
-	_Task tracking_task("Tracking Update");
-	tracking_task.start(trackingUpdate);
+  tracking.init({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
 
   misc_checks.select();
 	delay(500);
@@ -75,20 +72,14 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
-void auton2func(){
-	auton_log("whatup");
-}
-
-void auton3func(){
-	auton_log("ayyyy");
-}
+void auton2func() {auton_log("whatup");}
+void auton3func() {auton_log("ayyyy");}
 
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
-//create task interrupter class with RAII
 //check that logging pause is good
 void opcontrol() {
   DEBUG;
