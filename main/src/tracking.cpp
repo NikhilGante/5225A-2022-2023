@@ -122,7 +122,7 @@ void trackingUpdate(){
     // printf("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     if(tracking_timer.getTime() > 50){
       // log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
-      log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+      log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // log("%lf\n", radToDeg(tracking.g_vel.a));
 
       // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
@@ -365,11 +365,11 @@ const char* DriveTurnToTargetParams::getName(){
   return "DriveTurnToAngle";
 }
 void DriveTurnToTargetParams::handle(){
-  log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), (b_goal-tracking.g_pos).getAngle());
+  log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), radToDeg(M_PI_2 - (b_goal-tracking.g_pos).getAngle()));
   turnToAngleInternal(function([&](){
     return M_PI_2 - (target - tracking.g_pos).getAngle() + degToRad(offset) + (reverse? M_PI : 0);
   }), brake_mode, end_error, max_power);
-  log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), (b_goal-tracking.g_pos).getAngle());
+  log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), radToDeg(M_PI_2 - (b_goal-tracking.g_pos).getAngle()));
 
 }
 void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}

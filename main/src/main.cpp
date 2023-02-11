@@ -73,9 +73,9 @@ void initialize() {
 	// lift.runMachine();
 
 	drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 
 }
