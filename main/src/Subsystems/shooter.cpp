@@ -3,8 +3,8 @@
 #include "intake.hpp"
 #include "../Libraries/logging.hpp"
 
-const int toaster_rpm = 1400;
-const int barrier_rpm = 1850;
+const int toaster_rpm = 1450;
+const int barrier_rpm = 1875;
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -89,7 +89,7 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 300;
+  bool trigger = shoot_timer.getTime() > 350;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;

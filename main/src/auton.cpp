@@ -36,9 +36,18 @@ void moveInches(double target){
 }
 
 void fullSkills(){
-  skills1();
-  skills2();
-  skills3();
+
+  autonAWP();
+  aimAtBlue(11.0);
+  shoot(3);
+  moveInches(15);
+  turnToAngleSync(-135);
+  endgame_s_p.setState(HIGH);
+  endgame_d_p.setState(HIGH);
+
+  // skills1();
+  // skills2();
+  // skills3();
 }
 
 
@@ -201,7 +210,7 @@ void autonStack(){
 	moveToTargetSync({73.0, 50.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
 
 	aimAtBlue(0);
-  moveInches(10.0);
+  moveInches(7.0);
 	aimAtBlue(11.0);
 
 
@@ -230,7 +239,7 @@ void autonAWP(){
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({getDistL(), 9.75, degToRad(0.0)});
-
+  // WAIT_UNTIL(false);
 	moveToTargetSync({tracking.g_pos.x, 14.75}); // Moves away from wall
 
 // START of roller code
@@ -290,7 +299,38 @@ void autonAWP(){
 }
 
 void autonLine(){ // No moving after start
+
+  tracking.reset({128.75, 83.25, degToRad(0.0)});
+
   Timer timer1{"timer"};
+  setFlywheelVel(2300, 415);
+  moveToTargetSync({tracking.g_pos.x, 104}, E_Brake_Modes::brake, 127); // move in front of roller
+  turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
+  moveInches(-3.0);
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+  tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
+
+  moveInches(5);
+  intakeOn();
+  turnToTargetSync({103.0, 79.0}); // Drives through line
+  moveToTargetSync({105.0, 81.0},  E_Brake_Modes::brake, 127); // Drives through line
+  aimAtBlue(10);
+  driveBrake();
+  shoot(3);
+  shooter.waitToReachState(ShooterIdleParams{});
+
+  turnToTargetSync({83.0, 60.0}); // Drives through line
+  setFlywheelVel(2300, 423);
+  moveToTargetSync({83.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
+  aimAtBlue(12);
+  driveBrake();
+  shoot(2);
+  shooter.waitToReachState(ShooterIdleParams{});
+  master.print(2,0, "total:%ld", timer1.getTime());
+
+
+/*  Timer timer1{"timer"};
   angler_p.setState(LOW);
 
   flattenAgainstWallSync();
@@ -320,7 +360,7 @@ void autonLine(){ // No moving after start
 
   turnToTargetSync({126, 108}, 0.0, true); // Turn to face corner
   intakeOff();
-  moveToTargetSync({128, 108}); // Backup to corner
+  moveToTargetSync({128, 108}, E_Brake_Modes::coast); // Backup to corner
 
   intakeRev();
   drive.changeState(DriveIdleParams{});
@@ -338,6 +378,6 @@ void autonLine(){ // No moving after start
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
  
-
+*/
 }
 

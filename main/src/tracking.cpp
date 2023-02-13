@@ -26,7 +26,7 @@ void trackingUpdate(){
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 7.72, dist_b = 0.95;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 7.66, dist_b = 0.95;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
@@ -282,7 +282,7 @@ void DriveMttParams::handle(){
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
-  PID y_pid(4.5, 0.008, 400.0, 0.0, true, 0.0, 8.0);
+  PID y_pid(5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:

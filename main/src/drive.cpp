@@ -82,7 +82,7 @@ bool last_backwards = false;
 
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
   if(fabs(power_y) < deadzone) power_y = 0;
  
@@ -274,11 +274,11 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 			else master.print(1, 0, "Automatic");
 		}
 
-    if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
-      moveDrive(0, 0);
-      master.rumble("----------");
-      WAIT_UNTIL(false);
-    } 
+    // if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
+    //   moveDrive(0, 0);
+    //   master.rumble("----------");
+    //   WAIT_UNTIL(false);
+    // } 
 		delay(10);
 	}
 }
