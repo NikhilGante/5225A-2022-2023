@@ -2,6 +2,7 @@
 #include "flywheel.hpp"
 #include "intake.hpp"
 #include "../Libraries/logging.hpp"
+#include "pros/misc.hpp"
 
 const int toaster_rpm = 1450;
 const int barrier_rpm = 1875;
@@ -89,7 +90,7 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 350;
+  bool trigger = shoot_timer.getTime() > 350 && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
@@ -124,7 +125,7 @@ void ShooterShootParams::handle(){
       intakeOn();
       shooter.changeState(ShooterIdleParams{}, 102);
 
-      if (!angleOverride){
+      if (!angleOverride && !pros::competition::is_autonomous()){
         if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
         else setFlywheelVel(toaster_rpm);
       }

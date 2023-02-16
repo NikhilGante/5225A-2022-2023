@@ -1,4 +1,5 @@
 #include "intake.hpp"
+#include "shooter.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
 
@@ -71,6 +72,7 @@ void IntakeOnParams::handle(){  // synchronous state
     master.rumble("-");
     _Task::delay(185);
     intakeOff();
+    if(angleOverride)  angler_p.setState(HIGH);
   }
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());

@@ -43,6 +43,7 @@ void initialize() {
 	// tracking.g_pos = {128.5, 83.5, degToRad(0.0)};	// Line auton
 
 	log_init();
+	gyro.reset(true);
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 
@@ -79,7 +80,6 @@ void initialize() {
 	flywheel.runMachine();
 	shooter.runMachine();
 	
-
 }
 
 /**

@@ -40,6 +40,7 @@ Piston trans_p('C', "trans_p", true, HIGH);
 Piston endgame_s_p('F', "endgame_s_p", false, LOW); // Single acting
 Piston endgame_d_p('G', "endgame_d_p", false, LOW); // Double acting
 
+Imu gyro(14);
 
 Optical roller_sensor(8);
 

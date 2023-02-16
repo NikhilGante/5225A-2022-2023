@@ -323,10 +323,10 @@ void autonLine(){ // No moving after start
   turnToTargetSync({83.0, 60.0}); // Drives through line
   setFlywheelVel(2300, 423);
   moveToTargetSync({83.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtBlue(12);
+  aimAtBlue(0);
   driveBrake();
-  shoot(2);
-  shooter.waitToReachState(ShooterIdleParams{});
+  // shoot(2);
+  // shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 
 

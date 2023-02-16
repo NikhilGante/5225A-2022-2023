@@ -45,6 +45,10 @@ void trackingUpdate(){
   Timer velocity_timer{"velocity_timer"};
   Timer tracking_timer{"timer"};
 
+  double last_gyro_angle = 0.0;
+
+	gyro.tare_rotation();
+
   while(true){
 
 
@@ -58,6 +62,7 @@ void trackingUpdate(){
     new_back = back_tracker.get_position()*TICKS_TO_INCHES;
     
     lcd::print(2, "l:%lf r:%lf", new_left, new_right);
+    lcd::print(4, "GYRO:%.2lf deg: %.2lf", gyro.get_rotation() * 1.011, radToDeg(tracking.g_pos.a));
 
     // updates how much each side of the robot travelled in inches since the last cycle (left, right and back)
     left = new_left - last_left;
@@ -90,6 +95,18 @@ void trackingUpdate(){
     last_back = new_back;
 
     theta = (left-right)/dist_lr; // change in robot's angle
+    
+    if(!gyro.is_calibrating()){
+      double gyro_angle = gyro.get_rotation() * 1.011;
+      theta = gyro_angle - last_gyro_angle;
+      printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
+      if(gyro.get_rotation() == EAGAIN) printf("CAL\n");
+      if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
+      theta = degToRad(theta);
+      last_gyro_angle = gyro_angle;
+    }
+    else theta = 0.0;
+
     if (theta != 0){  // if the robot has travelled in an arc
       radius_r = right/theta;
       radius_b = back/theta;
@@ -123,6 +140,7 @@ void trackingUpdate(){
     if(tracking_timer.getTime() > 50){
       // log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
       log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+    
       // log("%lf\n", radToDeg(tracking.g_vel.a));
 
       // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
