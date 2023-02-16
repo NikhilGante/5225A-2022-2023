@@ -71,25 +71,25 @@ void ShooterShootParams::handle(){
     else if(std::abs(flywheel_error) > 150)  cycle_check.reset();
   }
 
-  // shoot_log("cycle_check:%lld", cycle_check.getTime());
+  // shooter.log("cycle_check:%lld", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
   if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
-    shoot_log("%d STARTED SHOOTING", millis());
+    shooter.log("%d STARTED SHOOTING", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
     _Task::delay(100); // Waits for SHOOTER to extend
-    shoot_log("%d FINISHED SHOT", millis());
+    shooter.log("%d FINISHED SHOT", millis());
     indexer_p.setState(LOW);
-    shoot_log("%d FINISHED Retraction", millis());
+    shooter.log("%d FINISHED Retraction", millis());
     shots_left--;
-    shoot_log("shots left: %d", shots_left);
+    shooter.log("shots left: %d", shots_left);
     if (g_mag_disc_count > 0) g_mag_disc_count--;
     
 
-    shoot_log("condition %d", shots_left <= 0);
+    shooter.log("condition %d", shots_left <= 0);
     _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
-    shoot_log("condition2 %d", shots_left <= 0);
+    shooter.log("condition2 %d", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done
       g_mag_disc_count = 0;
@@ -111,7 +111,7 @@ void ShooterShootParams::handle(){
 }
 void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   // angler_p.setState(LOW);
-  shoot_log("INIT shots_left %d", shots_left);
+  shooter.log("INIT shots_left %d", shots_left);
   intakeIndex();  // Sets intake to index state
   flywheelVariant temp_flywheel_state = flywheel.getState();
   // if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;

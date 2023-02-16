@@ -23,20 +23,6 @@ void intakeHandleInput(){
     if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
     if(master.getNewDigital(intakeRevBtn)) intakeOff();
   }
-  /*
-  else if(std::get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
-    if(master.getNewDigital(rollerBtn)){
-      // Gives driver back control
-      trans_p.setState(HIGH);
-      drive.changeState(DriveOpControlParams{});
-      intakeOff();
-    }
-  }
-  */
-  
-  // Spin roller if btn is pressed and not already spinning
-  // if(master.getNewDigital(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
-
 }
 
 std::atomic<int> g_mag_disc_count = 0;
@@ -55,21 +41,21 @@ void IntakeOnParams::handle(){  // synchronous state
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
-    intake_log("INCR, count: %d", g_mag_disc_count.load());
+    intake.log("INCR, count: %d", g_mag_disc_count.load());
   }
   mag_disc_detected_last = mag_disc_detected;
 
   // If mag is full, don't let any more discs in
-  // intake_log("%d MAG| %d %d", millis(), mag_ds_val, g_mag_disc_count.load());  
+  // intake.log("%d MAG| %d %d", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
-    intake_log("COUNTED 3");
+    intake.log("COUNTED 3");
     master.rumble("-");
     _Task::delay(185);
     intakeOff();
   }
 
-  // intake_log("count:%d", g_mag_disc_count.load());
+  // intake.log("count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);
@@ -77,45 +63,31 @@ void IntakeOnParams::handleStateChange(intakeVariant prev_state){
 }
 
 // Wrapper function to turn intake on
-void intakeOn(int8_t speed){
-  intake.changeState(IntakeOnParams{speed});
-}
+void intakeOn(int8_t speed) {intake.changeState(IntakeOnParams{speed});}
 
 // Intake off state
 void IntakeOffParams::handle(){}
-void IntakeOffParams::handleStateChange(intakeVariant prev_state){
-  intake_m.move(0);
-}
+void IntakeOffParams::handleStateChange(intakeVariant prev_state) {intake_m.move(0);}
 
-void intakeOff(){  // Wrapper function to turn intake off
-  intake.changeState(IntakeOffParams{});
-}
+void intakeOff() {intake.changeState(IntakeOffParams{});} // Wrapper function to turn intake off
 
 // Intake reverse state
 
 IntakeRevParams::IntakeRevParams(int8_t speed) : speed(speed){}
 
 void IntakeRevParams::handle(){}
-void IntakeRevParams::handleStateChange(intakeVariant prev_state){
-  intake_m.move(speed);
-}
+void IntakeRevParams::handleStateChange(intakeVariant prev_state) {intake_m.move(speed);}
 
-void intakeRev(int8_t speed){  // Wrapper function to turn intake in reverse
-  intake.changeState(IntakeRevParams{speed});
-}
+void intakeRev(int8_t speed) {intake.changeState(IntakeRevParams{speed});} // Wrapper function to turn intake in reverse
 
 // Intake index state
 
 IntakeIndexParams::IntakeIndexParams(int8_t speed) : speed(speed){}
 
 void IntakeIndexParams::handle(){}
-void IntakeIndexParams::handleStateChange(intakeVariant prev_state){
-  intake_m.move(speed);
-}
+void IntakeIndexParams::handleStateChange(intakeVariant prev_state) {intake_m.move(speed);}
 
-void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
-  intake.changeState(IntakeIndexParams{speed});
-}
+void intakeIndex(int8_t speed) {intake.changeState(IntakeIndexParams{speed});} // Wrapper function to make intake index discs
 
 
 IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
@@ -123,7 +95,7 @@ IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
 void IntakeRollerParams::handle(){
   Timer led{"timer"};
   roller_sensor.set_led_pwm(100);
-  sensor_log("%d | flatten:%d\n", millis(), flatten);
+  device_log("%d | flatten:%d\n", millis(), flatten);
 
   if(flatten) flattenAgainstWallSync();
   trans_p.setState(LOW);
@@ -137,19 +109,19 @@ void IntakeRollerParams::handle(){
   /*
   const int thresh = 3000;
   double init_value = roller_sensor.get_rgb().red;
-  sensor_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
+  device_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
   // waits to see a value > 700  different than inital value (waits for a colour change)
   double cur_val;
   Timer timeout{"timeout"};
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
-    // sensor_log("r: %lf \n", cur_val);
-    sensor_log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
+    // device_log("r: %lf \n", cur_val);
+    device_log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
     _Task::delay(100);
   } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
   */
-  intake_log("**DONE ROLLER\n");
+  intake.log("**DONE ROLLER\n");
   // while(std::abs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
@@ -161,9 +133,6 @@ void IntakeRollerParams::handle(){
   intakeOff();
 
 }
-void IntakeRollerParams::handleStateChange(intakeVariant prev_state){
-}
+void IntakeRollerParams::handleStateChange(intakeVariant prev_state){}
 
-void spinRoller(bool flatten){  // Wrapper function to make intake index discs
-  intake.changeState(IntakeRollerParams{flatten});
-}
+void spinRoller(bool flatten) {intake.changeState(IntakeRollerParams{flatten});} // Wrapper function to make intake index discs

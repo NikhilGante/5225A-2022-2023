@@ -14,10 +14,8 @@ class Machine{
     variant state, target_state;
     Mutex state_mutex, target_state_mutex;
     std::string name;
-
     std::atomic<bool> state_change_requested = false;
-
-    _Task task{name};
+    _Task task;
 
     // Getters and setters for state and target state (since they need mutexes)
     void setState(variant state_param){
@@ -33,7 +31,9 @@ class Machine{
     }
 
   public:
-    Machine(std::string name, auto base_state): name(name), state(base_state), target_state(base_state){}
+    Logging log;
+
+    Machine(std::string name, auto base_state): name{name}, state{base_state}, target_state{base_state}, task{name}, log{name} {}
 
     void changeState(auto next_state){
       state_log("%s state change requested from %s to %s", name, getStateName(state), getStateName(next_state));

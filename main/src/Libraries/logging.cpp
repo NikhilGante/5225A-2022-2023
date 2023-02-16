@@ -15,16 +15,13 @@ Logging master_log    {"Master", false, term_colours::NONE, log_locations::sd};
 Logging tracking_log  {"Tracking"};
 Logging state_log     {"States"    , true};
 Logging auton_log     {"Auton"     , true};
-Logging shoot_log     {"Shooter"   , true};
-Logging intake_log    {"Intake"    , true};
-Logging flywheel_log  {"Flywheel"  , true};
 Logging controller_log{"Controller", true , term_colours::NONE, log_locations::sd};
 Logging task_log      {"Tasks"     , true , term_colours::ERROR};
 Logging error         {"Error"     , false, term_colours::ERROR};
 Logging misc          {"Misc"      , false, term_colours::NONE, log_locations::none};
 Logging driver_log    {"Driver"    , false, term_colours::NONE, log_locations::terminal};
 Logging term          {"Terminal"  , false, term_colours::NONE, log_locations::terminal};
-Logging sensor_log    {"Sensor"    , false, term_colours::NONE, log_locations::sd};
+Logging device_log    {"Sensor"    , false, term_colours::NONE, log_locations::sd};
 Logging log_d         {"Log"       , false, term_colours::NONE, log_locations::sd};
 
 Logging::Logging(std::string name, bool newline, term_colours print_colour, log_locations location):

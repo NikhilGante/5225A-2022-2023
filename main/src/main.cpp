@@ -81,6 +81,7 @@ Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
 //check that logging pause is good
+//ask nikhil is he wants individual logs for tasks
 void opcontrol() {
   DEBUG;
   

@@ -18,22 +18,18 @@ extern Logging master_log    ;
 extern Logging tracking_log  ;
 extern Logging state_log     ;
 extern Logging auton_log     ;
-extern Logging shoot_log     ;
-extern Logging intake_log    ;
-extern Logging flywheel_log    ;
 extern Logging controller_log;
 extern Logging task_log      ;
 extern Logging error         ;
 extern Logging misc          ;
 extern Logging driver_log    ;
 extern Logging term          ;
-extern Logging sensor_log    ;
+extern Logging device_log    ;
 extern Logging log_d         ;
 
 class Logging: public Counter<Logging>{
   private:
     Button print_btn;
-
     term_colours print_colour;
     bool newline;
     log_locations location;

@@ -45,20 +45,20 @@ int _Motor::velocityToVoltage(int velocity){
 }
 
 void _Motor::move(int voltage){
-  sensor_log("Motor %s moving from %d to %d speed", getName(), speed, voltage);
+  device_log("Motor %s moving from %d to %d speed", getName(), speed, voltage);
   Motor::move(voltage);
   speed = voltage;
 }
 
 void _Motor::moveRelative(int velocity){
   int new_speed = velocityToVoltage(velocity);
-  sensor_log("Motor %s relative moving from %d to %d speed", getName(), speed, new_speed);
+  device_log("Motor %s relative moving from %d to %d speed", getName(), speed, new_speed);
   Motor::move_relative(velocity, 200);
   speed = new_speed;
 }
 
 void _Motor::brake(){
-  sensor_log("Motor %s braking", getName());
+  device_log("Motor %s braking", getName());
   moveRelative(0);
 }
 

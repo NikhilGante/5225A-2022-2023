@@ -91,11 +91,9 @@ void FlywheelMoveVelParams::handle(){
   // flywheel_m.move(60);
 }
 
-void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state){
-    log_timer.reset();
-}
+void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {log_timer.reset();}
 
 void setFlywheelVel(int32_t vel, int line){
-  flywheel_log("Flywheel was changed on %d to velocity %d", line, vel);
+  flywheel.log("Flywheel was changed on %d to velocity %d", line, vel);
   flywheel.changeState(FlywheelMoveVelParams{vel});
 }
