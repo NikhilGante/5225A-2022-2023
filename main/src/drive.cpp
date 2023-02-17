@@ -70,7 +70,7 @@ bool last_backwards = false;
 
 void driveHandleInput(){
   double power_y = polynomial(master.getAnalog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.6 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = 0.7 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
  
   if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
  
@@ -132,13 +132,13 @@ void driveHandleInputProg(){
   moveDriveSide(l_power, r_power);
   l_power_last = l_power,  r_power_last = r_power;
 
-  for(_Motor* motor: _Motor::getList()){
-    if(motor->getTemperature() >= 50){
-      moveDrive(0, 0);
-      master.rumble("----------");
-      WAIT_UNTIL(false);
-    }
-  }
+  // for(_Motor* motor: _Motor::getList()){
+  //   if(motor->getTemperature() >= 50){
+  //     moveDrive(0, 0);
+  //     master.rumble("----------");
+  //     WAIT_UNTIL(false);
+  //   }
+  // }
 
 }
 
@@ -196,10 +196,10 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();
     }
-    if(master.getDigital(endgameBtnLeft) && master.getDigital(endgameBtnRight)){
-      endgame_d_p.setState(HIGH);
-      endgame_s_p.setState(HIGH);
-    }
+    // if(master.getDigital(endgameBtnLeft) && master.getDigital(endgameBtnRight)){
+    //   endgame_d_p.setState(HIGH);
+    //   endgame_s_p.setState(HIGH);
+    // }
 
 		// driveHandleInput();
 		shooterHandleInput();
@@ -220,13 +220,13 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 			else master.print(1, "Automatic");
 		}
 
-    for(_Motor* motor: _Motor::getList()){
-      if(motor->getTemperature() >= 50){
-        moveDrive(0, 0);
-        master.rumble("----------");
-        WAIT_UNTIL(false);
-      }
-    }
+    // for(_Motor* motor: _Motor::getList()){
+    //   if(motor->getTemperature() >= 50){
+    //     moveDrive(0, 0);
+    //     master.rumble("----------");
+    //     WAIT_UNTIL(false);
+    //   }
+    // }
 		delay(10);
 	}
 }

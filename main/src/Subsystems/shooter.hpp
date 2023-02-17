@@ -24,20 +24,21 @@ struct ShooterIdleParams{
   void handleStateChange(shooterVariant prev_state);
 };
 
-struct ShooterShootParams{  
-  ShooterShootParams(int shots = 3);
+struct ShooterShootParams{
+    ShooterShootParams(int shots = 3);
 
-  inline static const std::string name = "ShooterShoot";
-  void handle();
-  void handleStateChange(shooterVariant prev_state);
+    inline static const std::string name = "ShooterShoot";
+    void handle();
+    void handleStateChange(shooterVariant prev_state);
 
-  int shots_left;
+    int shots_left;
 
-  flywheelVariant flywheel_state;
+    flywheelVariant flywheel_state;
 
-  private: Timer shoot_timer{"shoot_timer"};
+  private:
+    static Timer shoot_timer;
 
-  Timer cycle_check{"cycle_check"};
+    Timer cycle_check{"cycle_check"};
 };
 
 void shoot(int shots = 3);  // Shoots x number of shots

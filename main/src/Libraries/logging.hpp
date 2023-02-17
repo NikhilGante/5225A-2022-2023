@@ -2,11 +2,13 @@
 #include "queue.hpp"
 #include "printing.hpp"
 #include "counter.hpp"
+#include "task.hpp"
 #include <fstream>
 
 enum class log_locations{
   terminal,
-  sd,
+  sd_main,
+  sd_only,
   both,
   none
 };
@@ -25,7 +27,6 @@ extern Logging misc          ;
 extern Logging driver_log    ;
 extern Logging term          ;
 extern Logging device_log    ;
-extern Logging log_d         ;
 
 class Logging: public Counter<Logging>{
   private:
@@ -39,10 +40,7 @@ class Logging: public Counter<Logging>{
     static constexpr size_t print_max_size{10000};
     static constexpr uint32_t print_max_time{500};
     static _Task task;
-    static std::vector<Logging*> logs;
-
-    static void pause();
-    static void restart();
+    static std::vector<Logging*> logs; //! Get rid of this after fixing Counter
 
   public:
     Logging(std::string name, bool newline = false, term_colours print_colour = term_colours::NONE, log_locations location = log_locations::both);
@@ -57,7 +55,7 @@ class Logging: public Counter<Logging>{
       switch(location){
         case log_locations::both:
           printf2(colour, str);
-        case log_locations::sd: //fallthrough intentional
+        case log_locations::sd_main: //fallthrough intentional
           master_log.queue.insert(name + ": ");
           master_log.queue.insert(str);
           if(this != &master_log) queue.insert(str);
@@ -65,7 +63,7 @@ class Logging: public Counter<Logging>{
         case log_locations::terminal:
           printf2(colour, str);
           break;
-        case log_locations::none:
+        default:
           break;
       }
     }
@@ -77,9 +75,9 @@ class Logging: public Counter<Logging>{
       public:
         T stream;
         Interrupter(std::string filename): stream{"/usd/" + filename + ".txt"} {
-          Logging::pause();
+          task.suspend();
           if(!stream.is_open()) alert::start("Unable to open %s file when Interrupting Logging", filename);
         }
-        ~Interrupter() {Logging::restart();}
+        ~Interrupter() {task.resume();}
     };
 };

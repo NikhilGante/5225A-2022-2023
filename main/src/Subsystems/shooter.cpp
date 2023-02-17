@@ -4,9 +4,12 @@
 #include "../Devices/controller.hpp"
 #include "../Devices/piston.hpp"
 
-static constexpr int toaster_rpm = 1400;
+static constexpr int toaster_rpm = 1450;
 
 bool goal_disturb = false;
+
+Timer ShooterShootParams::shoot_timer{"shoot_timer"};
+
 bool angleOverride = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
@@ -15,7 +18,7 @@ void shooterHandleInput(){
   shooterVariant cur_state = shooter.getState();
   if(std::get_if<ShooterIdleParams>(&cur_state)){
     if(master.getNewDigital(tripleShotBtn)) shoot(3);
-    if(master.getNewDigital(singleShotBtn)) shoot(1);
+    if(master.getNewDigital(singleShotBtn)) shoot(2);
   }
 
   if(master.getNewDigital(anglerToggleBtn)) {
@@ -31,7 +34,9 @@ void shooterHandleInput(){
 
   if (master.getNewDigital(angleOverrideBtn)) {
     angleOverride = !angleOverride; 
-    if(angleOverride) setFlywheelVel(toaster_rpm);
+    if(angleOverride) {
+      setFlywheelVel(toaster_rpm);
+    }
     else{
       if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
       else{
@@ -45,8 +50,6 @@ void shooterHandleInput(){
     goal_disturb = !goal_disturb;
     if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
   }
-  
-  
 }
 
 // Shooter idle state
@@ -59,6 +62,7 @@ void ShooterIdleParams::handleStateChange(shooterVariant prev_state){}
 ShooterShootParams::ShooterShootParams(int shots): shots_left(shots){}
 
 void ShooterShootParams::handle(){
+  // shooter.log("Shoot_time: %lld \n", shoot_timer.getTime());
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
   if(goal_disturb){
     if(std::abs(flywheel_error) > 1000) cycle_check.reset();
@@ -74,8 +78,20 @@ void ShooterShootParams::handle(){
   // shooter.log("cycle_check:%lld", cycle_check.getTime());
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
-  if(shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30){
-    shooter.log("%d STARTED SHOOTING", millis());
+
+  bool trigger = shoot_timer.getTime() > 350;
+
+  if (angler_p.getState() == HIGH){
+    trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
+    // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
+  }
+  else if(competition::is_autonomous()){
+    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
+  }
+
+  
+  if(trigger){ // && cycle_check.getTime() >= 30){
+    shooter.log("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
     _Task::delay(100); // Waits for SHOOTER to extend

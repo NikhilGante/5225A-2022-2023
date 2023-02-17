@@ -3,11 +3,14 @@
 #include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
 #include "Devices/controller.hpp"
+#include "Devices/vision.hpp"
+#include "Subsystems/flywheel.hpp"
+#include "Subsystems/intake.hpp"
+#include "Subsystems/shooter.hpp"
 #include "auton.hpp"
 #include "config.hpp"
 #include "menu.hpp"
 #include "tracking.hpp"
-#include "Devices/vision.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -23,6 +26,10 @@ void initialize() {
 
   misc_checks.select();
 	delay(500);
+	drive.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 }
 
 /**
@@ -82,6 +89,8 @@ Auton auton4("Skills", fullSkills);
 
 //check that logging pause is good
 //ask nikhil is he wants individual logs for tasks
+//No terminal dump for terminal logs
+//have terminal logs go through queue as well
 void opcontrol() {
   DEBUG;
   

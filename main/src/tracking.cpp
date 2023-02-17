@@ -29,7 +29,7 @@ void trackingUpdate(){
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 7.72, dist_b = 0.95;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 7.66, dist_b = 0.95;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = left_tracker.get_position()*TICKS_TO_INCHES_325;
@@ -121,10 +121,12 @@ void trackingUpdate(){
     // tracking_log("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     if(tracking_timer.getTime() > 50){
       // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.g_vel.x, tracking.g_vel.y);
-      // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+      tracking_log("POS | %lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // tracking_log("%lf\n", radToDeg(tracking.g_vel.a));
 
-      tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
+      // tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
+      // tracking_log("VEL| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
+
       tracking_timer.reset();
     }
     // tracking_log("a_vel: %lf\n", radToDeg(tracking.g_vel.a));
@@ -276,7 +278,7 @@ void DriveMttParams::handle(){
   line_error.rotate(tracking.getPos().a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
-  PID y_pid(4.5, 0.008, 400.0, 0.0, true, 0.0, 8.0);
+  PID y_pid(5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:
@@ -353,11 +355,11 @@ DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, double offset, b
   target(target), offset(offset), reverse(reverse), brake_mode(brake_mode), end_error(end_error), max_power(max_power){}
 
 void DriveTurnToTargetParams::handle(){
-  tracking_log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), (b_goal-tracking.getPos()).getAngle());
+  drive.log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), radToDeg(std::numbers::pi/2 - (b_goal-tracking.getPos()).getAngle()));
   turnToAngleInternal(std::function([&](){
     return std::numbers::pi/2 - (target - tracking.getPos()).getAngle() + degToRad(offset) + (reverse ? std::numbers::pi : 0);
   }), brake_mode, end_error, max_power);
-  tracking_log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), (b_goal-tracking.getPos()).getAngle());
+  drive.log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), radToDeg(std::numbers::pi/2 - (b_goal-tracking.getPos()).getAngle()));
 
 }
 void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}
@@ -375,7 +377,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 
   Timer timeout{"timeout"};
   while(timeout.getTime() < 250 && cycle_count < 10){
-    tracking_log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
+    drive.log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
     if(tracking.l_vel > -3.0 && tracking.r_vel > -3.0)  cycle_count++;
     else cycle_count = 0;
     _Task::delay(10);
@@ -385,8 +387,8 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   // Waits until velocity drops (to detect wall)
   cycle_count = 0;
   while(cycle_count < 10){
-    tracking_log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
-    tracking_log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
+    drive.log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
+    drive.log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
     l_slow = std::abs(tracking.l_vel) < 3.0, r_slow = std::abs(tracking.r_vel) < 3.0;
     if(l_slow){
       if(r_slow){
@@ -409,7 +411,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
     _Task::delay(10);
   }
   moveDrive(-10, 0); // Applies holding power
-  tracking_log("DRIVE FLATTEN DONE, took %lld ms\n", motion_timer.getTime());
+  drive.log("DRIVE FLATTEN DONE, took %lld ms\n", motion_timer.getTime());
   drive.changeState(DriveIdleParams{});
 }
 void DriveFlattenParams::handleStateChange(driveVariant prev_state){}

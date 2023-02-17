@@ -18,7 +18,7 @@ constexpr double CARTRIDGE_TO_RAW = 6;
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{2380});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{barrier_rpm});
 
 // Flywheel idle state
 
@@ -79,19 +79,20 @@ void FlywheelMoveVelParams::handle(){
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
   // output = 127;
   
-  // flywheel_log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
-
-  if (flywheel_m.getTemperature() >= 50){
-    master.rumble("-");
-    flywheel_m.move(0);
-    WAIT_UNTIL(false);
-
+  if(shooter_ds.get_value() < 2000){
+    // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+    flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
   }
+
+  // if (flywheel_m.getTemperature() >= 50){
+  //   master.rumble("-");
+  //   flywheel_m.move(0);
+  //   WAIT_UNTIL(false);
+  // }
   flywheel_m.move(output);
-  // flywheel_m.move(60);
 }
 
-void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {log_timer.reset();}
+void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {}
 
 void setFlywheelVel(int32_t vel, int line){
   flywheel.log("Flywheel was changed on %d to velocity %d", line, vel);

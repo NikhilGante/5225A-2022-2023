@@ -75,6 +75,7 @@ int _Motor::getRPM() const {
 bool _Motor::plugged() const {return static_cast<int>(get_temperature()) != std::numeric_limits<int>::max();}
 double _Motor::getPosition() const {return get_position();}
 double _Motor::getTargetPosition() const {return get_target_position();}
+double _Motor::getVel() const {return get_actual_velocity();}
 std::string _Motor::getName() const {return name;}
 std::string _Motor::getShortName() const {return short_name;}
 

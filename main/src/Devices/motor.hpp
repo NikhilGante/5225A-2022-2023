@@ -26,6 +26,7 @@ class _Motor: private Motor, public Counter<_Motor, 8>{
     bool plugged() const;
     double getPosition() const;
     double getTargetPosition() const;
+    double getVel() const;
     int getTemperature() const;
     int getRPM() const;
     std::string getName() const;

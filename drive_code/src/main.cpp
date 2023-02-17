@@ -77,12 +77,12 @@ Motor back_r(13, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
 Motor intake_m(5, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
 
 void moveDrive(double y, double a){
-  front_l.move(y+a);
-  centre_l.move(y+a);
-  back_l.move(y+a);
-  front_r.move(y-a);
-  centre_r.move(y-a);
-  back_r.move(y-a);
+  front_l.move(y-a);
+  centre_l.move(y-a);
+  back_l.move(y-a);
+  front_r.move(y+a);
+  centre_r.move(y+a);
+  back_r.move(y+a);
 }
 void opcontrol() {
     pros::Controller master (E_CONTROLLER_MASTER);
