@@ -115,8 +115,9 @@ void ShooterShootParams::handle(){
     _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
 
     if(shots_left <= 0){  // If shooting is done
+      master.rumble("-"); // Lets driver know shooting is done
       g_mag_disc_count = 0;
-      _Task::delay(100); // waits for last disc to shoot
+      _Task::delay(100); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{}, 102);
