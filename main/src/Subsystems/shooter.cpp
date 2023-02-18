@@ -21,7 +21,7 @@ void shooterHandleInput(){
   SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
-    if(master.get_digital_new_press(singleShotBtn)) shoot(2);
+    if(master.get_digital_new_press(singleShotBtn)) shoot(1);
   }
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
@@ -90,18 +90,14 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 350 && cycle_check.getTime() >= 30;
+  bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
-
   } else if(pros::competition::is_autonomous()){
     trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   }
-  // else if (check if shootig from far){
-  //   trigger = // ...
-  // }
   
   if(trigger){ // && cycle_check.getTime() >= 30){
     log("%d STARTED SHOOTING\n", millis());

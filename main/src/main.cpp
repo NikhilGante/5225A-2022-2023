@@ -38,8 +38,8 @@
 void initialize() {
 	lcd::initialize();
 
-	// tracking.g_pos = {0.0, 0.0, 0.0};
-	tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
+	tracking.g_pos = {0.0, 0.0, 0.0};
+	// tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
 	// tracking.g_pos = {128.5, 83.5, degToRad(0.0)};	// Line auton
 
 	log_init();
@@ -112,7 +112,9 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	Auton::runAuton();
+	// Auton::runAuton();
+	WAIT_UNTIL(!gyro.is_calibrating());
+	provSkills();
 }
 
 /**
@@ -180,8 +182,25 @@ Auton auton4("Skills", fullSkills);
 
 
 void opcontrol() {
-	tracking.reset();
+	// tracking.reset();
 	driverPractice();
+
+
+
+	// flattenAgainstWallSync();
+	// tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+	// moveDrive(0, 0);
+	// trans_p.setState(HIGH);
+	
+	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	
+	// drive.changeState(DriveIdleParams{});
+  	// drive.waitToReachState(DriveIdleParams{});
+	// moveDrive(0, -45);
+
+	// turnToAngleSync(14);
+	// driverPractice();
+	WAIT_UNTIL(false);
 
   // drive.changeState(DriveIdleParams{});
   // drive.waitToReachState(DriveIdleParams{});

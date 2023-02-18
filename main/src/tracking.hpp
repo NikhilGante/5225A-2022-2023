@@ -27,7 +27,7 @@ enum class E_Robot_Sides{
 class Tracking{
   
 public:
-  const double min_move_power_y = 30.0, min_move_power_a = 70.0;
+  const double min_move_power_y = 30.0, min_move_power_a = 60.0;
   // Odometry related variables
   double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
   Mutex pos_mutex; // locks g_pos
@@ -63,7 +63,7 @@ void flattenAgainstWallAsync();
 
 // Takes a function that returns an angle in radians
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
-void aimAtRed(double offset = 0.0);
+void aimAtRed(double offset = 0.0,  double max_power = 70.0, double end_error = TURNING_END_ERROR);
 void aimAtBlue(double offset = 0.0, double max_power = 70.0, double end_error = TURNING_END_ERROR);
 
 // State machine stuff

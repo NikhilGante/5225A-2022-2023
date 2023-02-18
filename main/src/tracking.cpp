@@ -99,7 +99,7 @@ void trackingUpdate(){
     if(!gyro.is_calibrating()){
       double gyro_angle = gyro.get_rotation() * 1.011;
       theta = gyro_angle - last_gyro_angle;
-      printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
+      // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
       if(gyro.get_rotation() == EAGAIN) printf("CAL\n");
       if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
@@ -227,8 +227,8 @@ void flattenAgainstWallAsync(){
 }
 
 // Wrapper functions to aim at high goals
-void aimAtRed(double offset){
-  turnToTargetSync(r_goal, offset);
+void aimAtRed(double offset, double max_power, double end_error){
+  turnToTargetSync(r_goal, offset, false, E_Brake_Modes::brake, end_error, max_power);
 }
 void aimAtBlue(double offset, double max_power, double end_error){
   turnToTargetSync(b_goal, offset, false, E_Brake_Modes::brake, end_error, max_power);
@@ -238,10 +238,12 @@ void aimAtBlue(double offset, double max_power, double end_error){
 // 127 400
 // 100 350
 
+
+
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
 
-  PID angle_pid(5.2, 0.00, 0.0, 0.0, true, 0.0, degToRad(5.0));
+  PID angle_pid(5.2, 0, 100, 0.0, true, 1.0, degToRad(9.0));
 
   double kB = 18.5; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
@@ -255,7 +257,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     
     // log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
-    // log("%d, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(target_velocity - tracking.g_vel.a));
+    log("%d, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, tracking.g_vel.a, radToDeg(target_velocity - tracking.g_vel.a));
 
     moveDrive(0.0, power);
     _Task::delay(10);
