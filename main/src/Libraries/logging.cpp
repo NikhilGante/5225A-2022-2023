@@ -1,6 +1,7 @@
 #include "logging.hpp"
 #include "timer.hpp"
 #include "gui.hpp"
+#include "task.hpp"
 #include "../config.hpp"
 
 #include <fstream>
@@ -65,3 +66,6 @@ void Logging::init(){
     }
   });
 }
+
+void Logging::pause() {task.suspend();}
+void Logging::resume() {task.resume();}

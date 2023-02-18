@@ -40,7 +40,6 @@
       Button auton_selector (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Select Autons");
       Button sensor_check (15, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Distance");
       Button misc_checks (130, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Misc");
-      // Button save_pos (245, 140, 100, 75, GUI::Style::SIZE, Button::SINGLE, checks, "Save Position");
 
     Page track ("Tracking"); //Display tracking vals and reset btns
       Text track_x(50, 45, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", std::function([](){return tracking.getPos().x;}));
@@ -183,7 +182,7 @@ void mainSetup(){
     });
 
     pneums.setFunc([](){
-      for(auto piston: Piston::getList()){
+      for(Piston* piston: Piston::getList()){
         if (GUI::prompt("Press to check " + piston->getName())){
           piston->toggleState();
           delay(500);
@@ -239,24 +238,22 @@ void mainSetup(){
       }
     });
 
-    // res_y.setFunc([](){tracking.reset(tracking.getPos().x, 0.0, tracking.getPos().a);});
-    // res_x.setFunc([](){tracking.reset(0.0, tracking.getPos().y, tracking.getPos().a);});
-    // res_a.setFunc([](){tracking.reset(tracking.getPos().x, tracking.getPos().y, 0.0);});
+    res_y.setFunc([](){tracking.reset(Position(tracking.getPos().x, 0.0, tracking.getPos().a));});
+    res_x.setFunc([](){tracking.reset(Position(0.0, tracking.getPos().y, tracking.getPos().a));});
+    res_a.setFunc([](){tracking.reset(Position(tracking.getPos().x, tracking.getPos().y, 0.0));});
 
     res_all.setFunc([](){
       right_tracker.reset();
       left_tracker.reset();
       back_tracker.reset();
-      DEPRECATE;
-      // tracking.reset();
+      tracking.reset();
     });
 
     res_target.setFunc([](){
       right_tracker.reset();
       left_tracker.reset();
       back_tracker.reset();
-      DEPRECATE;
-      // tracking.reset(Position(x_val.getValue(), y_val.getValue(), a_val.getValue()));
+      tracking.reset(Position(x_val.getValue(), y_val.getValue(), a_val.getValue()));
     });
 
   //Moving

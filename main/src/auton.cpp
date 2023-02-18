@@ -231,8 +231,6 @@ void autonStack(){
 }
 
 void autonAWP(){
-
-
   Timer timer1{"timer"};
   setFlywheelVel(2300);
 
@@ -242,7 +240,7 @@ void autonAWP(){
   // WAIT_UNTIL(false);
 	moveToTargetSync({tracking.getPos().x, 14.75}); // Moves away from wall
 
-// START of roller code
+  // START of roller code
 
   // intakeRev();
   // drive.changeState(DriveIdleParams{});
@@ -256,10 +254,10 @@ void autonAWP(){
   // moveInches(2.0);
 
 
-// END of roller code
+  // END of roller code
 
 
-// YOOOO
+  // YOOOO
   turnToTargetSync({73.0, 48.0}); // Faces stack
 	intakeOn();
 	moveToTargetSync({73.0, 48.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
@@ -274,7 +272,7 @@ void autonAWP(){
   intakeOn();
   setFlywheelVel(2420);
   
-// YOOOO
+  //YOOOO
 	turnToTargetSync({125.0, 105.0}); // Face corner
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);

@@ -89,13 +89,13 @@ void driveHandleInput(){
   if(std::abs(power_y) < 7) power_y = 0;
   if(std::abs(power_a) < 7) power_a = 0;
 
-  for(_Motor* motor: _Motor::getList()){
-    if(motor->getTemperature() >= 50){
-      moveDrive(0, 0);
-      master.rumble("----------");
-      WAIT_UNTIL(false);
-    }
-  }
+  // for(_Motor* motor: _Motor::getList()){
+  //   if(motor->getTemperature() >= 50){
+  //     moveDrive(0, 0);
+  //     master.rumble("----------");
+  //     WAIT_UNTIL(false);
+  //   }
+  // }
 
   if(master.getNewDigital(transToggleBtn)) trans_p.toggleState();
   moveDrive(power_y, power_a);

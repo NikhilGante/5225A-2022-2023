@@ -25,7 +25,7 @@ void initialize() {
   tracking.init({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
 
   misc_checks.select();
-	delay(500);
+	delay(300);
 	drive.runMachine();
 	intake.runMachine();
 	flywheel.runMachine();
@@ -87,10 +87,14 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
+//log to folders
 //check that logging pause is good
 //ask nikhil is he wants individual logs for tasks
 //No terminal dump for terminal logs
 //have terminal logs go through queue as well
+//allow slider increment to be double
+//buttons for clear logging
+
 void opcontrol() {
   DEBUG;
   

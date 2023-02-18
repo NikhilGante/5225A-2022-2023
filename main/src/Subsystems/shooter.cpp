@@ -34,21 +34,19 @@ void shooterHandleInput(){
 
   if (master.getNewDigital(angleOverrideBtn)) {
     angleOverride = !angleOverride; 
-    if(angleOverride) {
-      setFlywheelVel(toaster_rpm);
-    }
+    if(angleOverride) setFlywheelVel(toaster_rpm);
     else{
-      if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
+      if(angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
       else{
-        if(goal_disturb)  setFlywheelVel(3600);
-        else  setFlywheelVel(toaster_rpm);
+        if(goal_disturb) setFlywheelVel(3600);
+        else setFlywheelVel(toaster_rpm);
       }
     }
   }
 
   if(master.getNewDigital(goalDisturbBtn)){
     goal_disturb = !goal_disturb;
-    if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
+    if(goal_disturb && angler_p.getState() == 1) setFlywheelVel(3600);
   }
 }
 
@@ -93,7 +91,7 @@ void ShooterShootParams::handle(){
   if(trigger){ // && cycle_check.getTime() >= 30){
     shooter.log("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
-    indexer_p.setState(HIGH);	
+    indexer_p.setState(HIGH);
     _Task::delay(100); // Waits for SHOOTER to extend
     shooter.log("%d FINISHED SHOT", millis());
     indexer_p.setState(LOW);
@@ -104,7 +102,7 @@ void ShooterShootParams::handle(){
     
 
     shooter.log("condition %d", shots_left <= 0);
-    _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
+    _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE
     shooter.log("condition2 %d", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done

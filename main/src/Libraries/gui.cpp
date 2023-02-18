@@ -122,19 +122,19 @@ namespace alert{
 
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-      GUI::update_screen_status();
+      GUI::update_screen_status(); //? Should be able to get rid of this
       if (prompt_back_button.pressed()) interrupted = true;
     }
 
     //Wait for Press
     WAIT_UNTIL((prompt_button.pressed() || master.getDigital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-      GUI::update_screen_status();
+      GUI::update_screen_status(); //? Should be able to get rid of this
       if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
     }
     
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-      GUI::update_screen_status();
+      GUI::update_screen_status(); //? Should be able to get rid of this
       if (prompt_back_button.pressed()) interrupted = true;
     }
 
@@ -241,7 +241,7 @@ namespace alert{
 
     //Sees how much space is user-requested
     int y = USER_UP;
-    for (auto text_ptr: terminal.texts){
+    for (Text_* text_ptr: terminal.texts){
       if (text_ptr->txt_size != 4) y += get_height(text_ptr->txt_size) + 5;
       if(get_width(TEXT_SMALL) * text_ptr->label.length() + 5 > 480){
           throw std::length_error("Item too long to print\n");
@@ -260,7 +260,7 @@ namespace alert{
       return;
     }
 
-    for (auto text_ptr: terminal.texts){
+    for (Text_* text_ptr: terminal.texts){
       if (get_width(fmt) * text_ptr->label.length() + 5 > 480){
         if(fmt == TEXT_LARGE){
           if(get_width(TEXT_MEDIUM) * text_ptr->label.length() + 5 < 480) text_ptr->txt_size = TEXT_MEDIUM;
@@ -273,7 +273,7 @@ namespace alert{
 
     y = USER_UP;
     //Saves y-pos and txt_size
-    for (auto text_ptr: terminal.texts){
+    for (Text_* text_ptr: terminal.texts){
       text_ptr->y = y;
       if (text_ptr->txt_size == 4) text_ptr->txt_size = fmt;
       y += get_height(text_ptr->txt_size) + 5;
@@ -319,14 +319,14 @@ namespace alert{
   GUI::GUI(std::vector<Page*> pages, std::function<void()> setup, std::function<void()> background){
     //Saves pages to gui
     this->pages.push_back(&perm);
-    for (auto page_ptr: pages) this->pages.push_back(page_ptr);
+    for (Page* page_ptr: pages) this->pages.push_back(page_ptr);
     this->pages.push_back(&testing);
     this->pages.push_back(&terminal);
     this->pages.push_back(&prompt_sequence);
     this->pages.push_back(&screen_flash);
 
     //Saves gui to pages
-    for (auto page_ptr: this->pages) page_ptr->guis.push_back(this);
+    for (Page* page_ptr: this->pages) page_ptr->guis.push_back(this);
 
     this->setup = setup;
     this->background = background;
@@ -381,7 +381,7 @@ namespace alert{
     this->b_col = static_cast<std::uint32_t>(background_colour);
     this->title = title;
     if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
-      for (auto btn_ptr: perm.buttons) buttons.push_back(btn_ptr);
+      for (Button* btn_ptr: perm.buttons) buttons.push_back(btn_ptr);
     }
   }
 
@@ -444,15 +444,15 @@ namespace alert{
   void Button::create_options(std::vector<Button*> buttons){
     std::vector<Button*>::const_iterator it, it2; //For clarity
 
-    for (auto btn_ptr: buttons){
+    for (Button* btn_ptr: buttons){
       if (btn_ptr->form != LATCH && btn_ptr->form != TOGGLE){
         throw std::invalid_argument(sprintf2("Option Feature is only available for latch and toggle buttons! Failed on \"%s\" button.\n", btn_ptr->label));
         return;
       }
     }
 
-    for (auto btn1: buttons){ //For each button in the list
-      for (auto btn2: buttons){ //Go through the list and save each button
+    for (Button* btn1: buttons){ //For each button in the list
+      for (Button* btn2: buttons){ //Go through the list and save each button
         if (btn1 != btn2) btn1->options.push_back(btn2);
       }
     }
@@ -501,7 +501,7 @@ namespace alert{
       case Button::TOGGLE:
         on = true;
 
-        for (auto option: options) option->deselect();
+        for (Button* option: options) option->deselect();
 
       case Button::SINGLE:
       case Button::REPEAT:
@@ -606,9 +606,9 @@ namespace alert{
     screen::fill_rect(PAGE_LEFT, PAGE_UP, PAGE_RIGHT, 20);
     screen::set_pen(static_cast<std::uint32_t>(Color::white));
     screen::print(TEXT_SMALL, MID_X-(title.length() + 3 + std::to_string(page_num(this)).length()) * CHAR_WIDTH_SMALL / 2, 5, "%s - %d", title, page_num(this));
-    for (auto button: buttons) button->draw();
-    for (auto slider: sliders) slider->draw();
-    for (auto text:   texts  ) text->draw();
+    for (Button* button: buttons) button->draw();
+    for (Slider* slider: sliders) slider->draw();
+    for (Text_*  text  : texts  ) text  ->draw();
   }
 
   void Button::draw() const{
@@ -725,11 +725,11 @@ namespace alert{
     while(true){
       current_gui->background();
       update_screen_status();
-      const Page& cur_p = * current_page;
+      const Page& cur_p = *current_page;
       /*Page*/ cur_p.update();
-      /*Button*/ for (auto button: cur_p.buttons){button->update(); if(&cur_p != current_page) continue;}
-      /*Slider*/ for (auto slider: cur_p.sliders) slider->update();
-      /*Text*/   for (auto text:   cur_p.texts  ) text->update();
+      /*Button*/ for (Button* button: cur_p.buttons){button->update(); if(&cur_p != current_page) continue;}
+      /*Slider*/ for (Slider* slider: cur_p.sliders) slider->update();
+      /*Text*/   for (Text_*  text  : cur_p.texts  ) text  ->update();
       /*Flash*/ alert::update();
 
       _Task::delay(10);
@@ -749,7 +749,7 @@ namespace alert{
 
   bool Page::pressed() const{
     if (this == GUI::current_page || this == &perm){
-      for (auto gui: guis){
+      for (GUI* gui: guis){
         if (gui->pressed()) return true; //If any of it's owning gui's are pressed
       }
     }
