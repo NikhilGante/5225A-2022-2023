@@ -1,9 +1,9 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/gui.hpp"
-#include "../Libraries/counter.hpp"
+#include "../Libraries/tracker.hpp"
 
-class Piston: private ADIDigitalOut, public Counter<Piston, 12>{
+class Piston: private ADIDigitalOut, public ObjectTracker<Piston, 12>{
   private:
     Button toggle;
     std::string name;

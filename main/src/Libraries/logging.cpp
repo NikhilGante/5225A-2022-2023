@@ -26,7 +26,7 @@ Logging driver_log    {"Driver"    , false, term_colours::NONE, log_locations::s
 
 Logging::Logging(std::string name, bool newline, term_colours print_colour, log_locations location):
 name{name}, newline{newline}, print_colour{print_colour}, location{location} {
-  logs.push_back(this); //! Fix the issue with Counter
+  logs.push_back(this); //! Fix the issue with ObjectTracker
 
   //4x5
   //(20, 110, 200, 290, 380) x (15, 65, 115, 165)

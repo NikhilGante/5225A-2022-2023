@@ -1,9 +1,9 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/gui.hpp"
-#include "../Libraries/counter.hpp"
+#include "../Libraries/tracker.hpp"
 
-class _Motor: private Motor, public Counter<_Motor, 8>{
+class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
   private:
     Button on, off;
     Text<int> temperature, data;

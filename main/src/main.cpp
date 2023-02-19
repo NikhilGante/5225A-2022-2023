@@ -90,10 +90,13 @@ Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
 //check that logging pause and folders is good
-//check if Counter works
 //check that auton selector works
+//check if ObjectTracker works
 //ask nikhil is he wants individual logs for tasks
-//allow slider increment to be double
+//make sure all buttons have a function
+//organize subsystems page
+//Add object tracker to GUI classes once it works
+//GUI coordinate struct with 4 ints and a GUI::style in the constructor
 void opcontrol() {
   DEBUG;
 

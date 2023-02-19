@@ -1,11 +1,12 @@
 #include "intake.hpp"
 #include "../config.hpp"
 #include "../drive.hpp"
-#include "../Libraries/timer.hpp"
 #include "../tracking.hpp"
+#include "../Libraries/timer.hpp"
 #include "../Devices/controller.hpp"
 #include "../Devices/motor.hpp"
 #include "../Devices/piston.hpp"
+#include "shooter.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 

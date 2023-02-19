@@ -1,7 +1,7 @@
 #pragma once
 #include "queue.hpp"
 #include "printing.hpp"
-#include "counter.hpp"
+#include "tracker.hpp"
 #include <fstream>
 
 enum class log_locations{
@@ -25,7 +25,7 @@ extern Logging error_log     ;
 extern Logging driver_log    ;
 extern Logging device_log    ;
 
-class Logging: public Counter<Logging>{
+class Logging: public ObjectTracker<Logging>{
   private:
   public:
     Button print_btn;
@@ -39,7 +39,7 @@ class Logging: public Counter<Logging>{
     static constexpr uint32_t print_max_time{500};
     static std::string folder_name;
     static _Task task;
-    static std::vector<Logging*> logs; //! Get rid of this after fixing Counter
+    static std::vector<Logging*> logs; //! Get rid of this after fixing ObjectTracker
 
     std::string fullName();
     bool update(bool time_exceeded);

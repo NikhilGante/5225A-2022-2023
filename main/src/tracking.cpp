@@ -102,8 +102,8 @@ void trackingUpdate(){
     if(!gyro.is_calibrating()){
       double gyro_angle = gyro.get_rotation() * 1.011;
       theta = gyro_angle - last_gyro_angle;
-      // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
-      if(gyro.get_rotation() == EAGAIN) printf("CAL\n");
+      // tracking_log("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
+      if(gyro.get_rotation() == EAGAIN) tracking_log("CAL\n");
       if(std::abs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
       last_gyro_angle = gyro_angle;

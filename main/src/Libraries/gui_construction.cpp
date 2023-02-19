@@ -96,7 +96,7 @@
       //Remaining elements created upon instantiation of Piston objects
 
     Page logging ("Logging"); //Log printing page from file to terminal
-      Button clear_logs (20, 15, 80, 40, GUI::Style::SIZE, Button::SINGLE, logging, "Clear Logs");
+      Button clear_logs (20, 15, 80, 40, GUI::Style::SIZE, Button::SINGLE, logging, "Clear Logs", Color::red);
       //Remaining elements created upon instantiation of Logging objects
 
 
@@ -293,7 +293,7 @@ void mainSetup(){
     //Figure out how to do these with the other left / right, front / back or moving in the other direction
 
     encoder_direction.setFunc([](){ //Encoder Direction
-      if(manual.on){
+      if(manual.isOn()){
         if(GUI::prompt("Press, then move the robot forward and to the right", "")){
           tracking.reset();
 
@@ -320,7 +320,7 @@ void mainSetup(){
     });
 
     encoder_ticks.setFunc([](){ //Encoder missing ticks
-      if(manual.on){
+      if(manual.isOn()){
         if (GUI::prompt("Press, then spin the encoder", "Start the encoder in a known position. Press then button, then spin it wildly, and then stop it in that position again.")){
           tracking.reset();
 
@@ -355,7 +355,7 @@ void mainSetup(){
     });
 
     back_corkscrew.setFunc([](){ //Back Corkscrew
-      if(manual.on){
+      if(manual.isOn()){
         if(GUI::prompt("Press, then move along y", "Please slide the robot forward along a known surface in the y-direction")){
           tracking.reset();
 
@@ -382,7 +382,7 @@ void mainSetup(){
     });
 
     side_corkscrew.setFunc([](){ //Left-Right Corkscrew
-      if(manual.on){
+      if(manual.isOn()){
         if(GUI::prompt("Press, then move along x", "Please slide the robot along a known surface in the x-direction")){
           tracking.reset();
 
@@ -404,7 +404,7 @@ void mainSetup(){
     });
 
     wheel_size.setFunc([](){ //Left-Right wheel size
-      if(manual.on){
+      if(manual.isOn()){
         if(GUI::prompt("Press, then move the robot 30 inches", "Place the robot's side against a known surface. Press the button, then slide the robot forwards exactly 30 inches.")){
           tracking.reset();
 
@@ -430,7 +430,7 @@ void mainSetup(){
     });
 
     back_wheel_size.setFunc([](){ //Back wheel size
-      if(manual.on){
+      if(manual.isOn()){
         if(GUI::prompt("Press, then move the robot 30 inches", "Place the robot's front against a known surface. Press the button, then slide the robot sideways exactly 30 inches.")){
           tracking.reset();
 
@@ -445,7 +445,7 @@ void mainSetup(){
     });
 
     spin360.setFunc([](){ //Robot turn accuracy
-      if(manual.on){
+      if(manual.isOn()){
         if(GUI::prompt("Press, then spin the robot", "Place the robot's against a known surface. Press the button, then spin the robot. Return it to the starting point. (Half turns are ok)")){
           flattenAgainstWallSync();
           tracking.reset();
@@ -700,7 +700,7 @@ void utilBackground(){
       int cur = c::motor_get_actual_velocity(port), target = c::motor_get_target_velocity(port), temp = c::motor_get_temperature(port);
 
       std::get<5>(mot_tup) = sprintf2("%d: %d", port, cur);
-      if(mot_jam_detect.on){
+      if(mot_jam_detect.isOn()){
         if (std::abs(target-cur) > 5) stall_count++;
         else stall_count = 0;
         if (stall_count >= mapValues(std::abs(target), 0, 250, 40, 2)){

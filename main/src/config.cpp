@@ -34,5 +34,5 @@ Piston endgame_s_p{'F', "Endgame Single", false, LOW}; // Single acting
 Piston endgame_d_p{'G', "Endgame Double", false, LOW}; // Double acting
 
 Optical roller_sensor{8};
-
+Distance l_reset_dist{3}, r_reset_dist{7};
 Imu gyro{14};

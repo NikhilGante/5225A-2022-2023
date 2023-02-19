@@ -4,10 +4,10 @@
 
 //! Figure out why vector goes to 0 with logging. Replace total with vector.size()
 template <typename derived, std::size_t size = std::numeric_limits<std::size_t>::max()>
-class Counter{
+class ObjectTracker{
   private:
-    Counter(Counter const &) = delete;
-    Counter& operator=(Counter const &) = delete;
+    ObjectTracker(ObjectTracker const &) = delete;
+    ObjectTracker& operator=(ObjectTracker const &) = delete;
 
     static std::size_t total;
     static std::vector<derived*> objects;
@@ -15,12 +15,12 @@ class Counter{
     std::size_t count;
 
   protected:
-    Counter(){
+    ObjectTracker(){
       if(total < size){
         objects.push_back(static_cast<derived*>(this));
         count = total++;
       }
-      else throw std::length_error("Too many objects are being created in Counter subclass.");
+      else throw std::length_error("Too many objects are being created in ObjectTracker subclass.");
     }
 
   public:
@@ -31,5 +31,5 @@ class Counter{
     std::size_t getID() const {return count;}
 };
 
-template <typename derived, std::size_t size> std::size_t Counter<derived, size>::total;
-template <typename derived, std::size_t size> std::vector<derived*> Counter<derived, size>::objects;
+template <typename derived, std::size_t size> std::size_t ObjectTracker<derived, size>::total;
+template <typename derived, std::size_t size> std::vector<derived*> ObjectTracker<derived, size>::objects;

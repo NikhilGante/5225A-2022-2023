@@ -1,8 +1,8 @@
 #pragma once
 #include "main.h"
-#include "Libraries/counter.hpp"
+#include "Libraries/tracker.hpp"
 
-class Auton: public Counter<Auton, 10>{
+class Auton: public ObjectTracker<Auton, 10>{
   public:
 
     enum class E_Reset_Types{

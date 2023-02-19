@@ -336,7 +336,7 @@ namespace alert{
     construct(x1, y1, x2, y2, type, form, &page, text, background_colour, label_colour);
   }
 
-  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, int min, int max, Page& page, std::string label, int increment, Color background_colour, Color label_colour){
+  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour){
     //Saves params to class private vars
     this->dir = dir;
     this->min = min;
@@ -600,6 +600,7 @@ namespace alert{
 
 //Drawing
   void Page::draw() const{
+    // for (Button* button: buttons) {if (!button->func) button->b_col = 0x5f9ea0;}
     GUI::clearScreen(b_col);
     screen::set_pen(b_col);
     screen::set_eraser(b_col);
@@ -695,6 +696,7 @@ namespace alert{
   void Button::setOffFunc(std::function <void()> function){off_func = function;}
   void Button::runFunc() const {if (func) func();}
   void Button::runOffFunc() const {if (off_func) off_func();}
+  bool Button::isOn() const {return on;}
 
 
 //Data Updates
@@ -812,7 +814,6 @@ namespace alert{
       case Button::SINGLE:
         if (newPress()) select();
         else if (newRelease()) deselect();
-
         break;
 
       case Button::REPEAT:
@@ -820,7 +821,6 @@ namespace alert{
         else if (newRelease()) deselect();
 
         if (pressed()) runFunc();
-
         break;
     }
   }

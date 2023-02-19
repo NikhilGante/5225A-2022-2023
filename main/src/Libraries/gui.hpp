@@ -73,43 +73,40 @@ class GUI{
     };
 
   private:
-    //Vars
-      static constexpr bool
-        prompt_enabled = true,
-        testing_page_active = false;
-      static const Page* current_page;
-      constexpr static const GUI* current_gui = &main_obj;
-      static _Task task;
-      static bool touched;
-      static int x, y;
-      std::vector<Page*> pages;
-      std::function<void()> setup, background;
+    static constexpr bool
+      prompt_enabled = true,
+      testing_page_active = false;
+    static const Page* current_page;
+    constexpr static const GUI* current_gui = &main_obj;
+    static _Task task;
+    static bool touched;
+    static int x, y;
+    std::vector<Page*> pages;
+    std::function<void()> setup, background;
 
-    //Functions
-      static void
-        update(),
-        update_screen_status(),
-        goNext(), goPrev(),
-        screen_terminal_fix(),
-        clearScreen(Color=Color::black),
-        clearScreen(std::uint32_t),
-        drawOblong(int, int, int, int, double, double);
-      static int get_height(text_format_e_t), get_width(text_format_e_t);
-      static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
-      bool pressed() const;
+    static void
+      update(),
+      update_screen_status(),
+      goNext(), goPrev(),
+      screen_terminal_fix(),
+      clearScreen(Color=Color::black),
+      clearScreen(std::uint32_t),
+      drawOblong(int, int, int, int, double, double);
+    static int get_height(text_format_e_t), get_width(text_format_e_t);
+    static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
+    bool pressed() const;
 
   public:
     //Pages in the gui, init function, loop function
     GUI(const GUI&) = delete;
     GUI(std::vector<Page*>, std::function <void()>, std::function <void()>);
 
-    //Functions
-      static void
-        alignedCoords (int, int, int, int, int = 480, int = 220),
-        init(),
-        goTo(int);
-      static Color getColour(term_colours);
-      static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
+    static void
+      alignedCoords (int, int, int, int, int = 480, int = 220),
+      init(),
+      goTo(int);
+    static Color getColour(term_colours);
+    static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
 };
 
 class Page{
@@ -118,41 +115,36 @@ class Page{
   friend class Button;
   friend class Slider;
   friend class Text_;
-  friend void
-    mainSetup(),
-    mainBackground(),
-    utilSetup(),
-    utilBackground(),
-    alert::update();
+  friend void alert::update();
 
   private:
 
-    //Vars
-      std::function <void()> setup_func, loop_func;
-      std::uint32_t b_col;
-      std::string title;
-      bool active=true;
-      std::vector<GUI*> guis; //Parents
-      std::vector<Button*> buttons; //Children
-      std::vector<Slider*> sliders; //Children
-      std::vector<Text_*> texts; //Children
+    std::function <void()> setup_func, loop_func;
+    std::uint32_t b_col;
+    std::string title;
+    bool active=true;
+    std::vector<GUI*> guis; //Parents
+    std::vector<Button*> buttons; //Children
+    std::vector<Slider*> sliders; //Children
+    std::vector<Text_*> texts; //Children
 
-    //Functions
-      static Page* page_id(int);
-      static int page_num(const Page*);
-      bool pressed() const;
-      void
-        draw() const,
-        update() const,
-        setSetupFunc(std::function <void()>), setLoopFunc(std::function <void()>),
-        setActive(bool = true);
+    static Page* page_id(int);
+    static int page_num(const Page*);
+    bool pressed() const;
+    void
+      draw() const,
+      update() const;
 
   public:
     //Title, Bcolour
     Page(const Page&) = delete;
     explicit Page(std::string, Color = Color::black);
 
-    void goTo() const;
+    void
+      setSetupFunc(std::function <void()>),
+      setLoopFunc(std::function <void()>),
+      setActive(bool = true),
+      goTo() const;
 };
 
 //Text parent class
@@ -162,37 +154,32 @@ class Text_{
   friend class Page;
   friend class Button;
   friend class Slider;
-  friend void
-    mainSetup(),
-    mainBackground(),
-    utilSetup(),
-    utilBackground();
 
   private:
     int x1 = USER_RIGHT, y1 = USER_DOWN, x2 = USER_LEFT, y2 = USER_UP;
 
   protected:
-    //Vars
-      int x, y;
-      text_format_e_t txt_size;
-      std::string label, text;
-      std::uint32_t l_col, b_col = static_cast<std::uint32_t>(Color::black);
-      GUI::Style type;
-      Page* page;
-      bool active = true;
+    int x, y;
+    text_format_e_t txt_size;
+    std::string label, text;
+    std::uint32_t l_col, b_col = static_cast<std::uint32_t>(Color::black);
+    GUI::Style type;
+    Page* page;
+    bool active = true;
 
-    //Functions
-      virtual void
-        update() = 0,
-        updateVal() = 0;
-      void
-        draw(),
-        setBackground(int, int, Color), //Centre
-        setBackground(int, int), //Centre
-        setBackground(int, int, int, int, GUI::Style, Color),
-        setBackground(int, int, int, int, GUI::Style),
-        setBackground(Color),
-        setActive(bool = true);
+    virtual void
+      update() = 0,
+      updateVal() = 0;
+    void draw();
+
+  public:
+    void
+      setBackground(int, int, Color), //Centre
+      setBackground(int, int), //Centre
+      setBackground(int, int, int, int, GUI::Style, Color),
+      setBackground(int, int, int, int, GUI::Style),
+      setBackground(Color),
+      setActive(bool = true);
 };
 
 template <typename V>
@@ -204,42 +191,35 @@ class Text: public Text_{
   friend class Text_;
   friend class _Motor;
   friend class Piston;
-  friend void
-    mainSetup(),
-    mainBackground(),
-    utilSetup(),
-    utilBackground(),
-    alert::update();
+  friend void alert::update();
 
   private:
     Text(){};
 
-    //Vars
-      std::remove_const_t<V> prev_value;
-      std::function<V() > value;
+    std::remove_const_t<V> prev_value;
+    std::function<V() > value;
 
-    //Functions
-      void update() override {if (active && value && prev_value != value()) draw();}
-      void updateVal() override{
-        if(value){
-          prev_value = value();
-          text = sprintf2(label, prev_value);
-        }
-        else text = label;
+    void update() override {if (active && value && prev_value != value()) draw();}
+    void updateVal() override{
+      if(value){
+        prev_value = value();
+        text = sprintf2(label, prev_value);
       }
-      void construct (int x, int y, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V() > value, Color l_col){
-        //static_assert(!std::is_same_v<V, std::string>, "Text variable cannot be std::string, it causes unknown failures"); //Keep this for the painful memories
-        this->x = x;
-        this->y = y;
-        this->type = type;
-        this->txt_size = txt_size;
-        this->page = page;
-        this->label = label;
-        this->value = value;
-        this->l_col = static_cast<std::uint32_t>(l_col);
-        this->b_col = page->b_col;
-        page->texts.push_back(this);
-      } 
+      else text = label;
+    }
+    void construct (int x, int y, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V() > value, Color l_col){
+      //static_assert(!std::is_same_v<V, std::string>, "Text variable cannot be std::string, it causes unknown failures"); //Keep this for the painful memories
+      this->x = x;
+      this->y = y;
+      this->type = type;
+      this->txt_size = txt_size;
+      this->page = page;
+      this->label = label;
+      this->value = value;
+      this->l_col = static_cast<std::uint32_t>(l_col);
+      this->b_col = page->b_col;
+      page->texts.push_back(this);
+    } 
 
   public:
     V runFunc() {if(value) return value();}
@@ -299,12 +279,7 @@ class Button{
   friend class _Motor;
   friend class Piston;
   friend class Logging;
-  friend void
-    mainSetup(),
-    mainBackground(),
-    utilSetup(),
-    utilBackground(),
-    alert::update();
+  friend void alert::update();
 
   public: enum press_type{
     SINGLE,
@@ -316,46 +291,46 @@ class Button{
   private:
     Button (){};
 
-    //Vars
-      std::uint32_t l_col, b_col, b_col_dark;
-      std::string label, label1 = "";
-      int x1, y1, x2, y2, text_x, text_y, text_x1, text_y1;
-      bool last_pressed = 0;
-      press_type form; //What type of button
-      std::function<void()> func, off_func;
-      Text_* title = nullptr;
-      bool active=true;
-      Page* page;
+    std::uint32_t l_col, b_col, b_col_dark;
+    std::string label, label1 = "";
+    int x1, y1, x2, y2, text_x, text_y, text_x1, text_y1;
+    bool last_pressed = 0;
+    press_type form; //What type of button
+    std::function<void()> func, off_func;
+    Text_* title = nullptr;
+    bool active=true;
+    Page* page;
 
-      //For latch buttons
-      bool on = 0; //on is for toggle
-      std::vector<Button*> options;
+    //For latch buttons
+    bool on = 0; //on is for toggle
+    std::vector<Button*> options;
 
-    //Functions
-      static void create_options(std::vector<Button*>);
-      bool
-        pressed() const,
-        newPress(),
-        newRelease();
-      void
-        runFunc() const,
-        runOffFunc() const,
-        draw() const,
-        drawPressed()  const,
-        construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Color, Color),
-        update(),
-        addText (Text_&, bool = true),
-        setFunc(std::function <void()>), setOffFunc(std::function <void()>),
-        setActive(bool = true),
-        setBackground (Color);
+    static void create_options(std::vector<Button*>);
+    bool
+      pressed() const,
+      newPress(),
+      newRelease();
+    void
+      runFunc() const,
+      runOffFunc() const,
+      draw() const,
+      drawPressed()  const,
+      construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Color, Color),
+      update();
 
   public:
     //Points, Format, Page, Label, Bcolour, Lcolour
     Button (const Button&) = delete;
     Button (int, int, int, int, GUI::Style, press_type, Page&, std::string = "", Color = Color::dark_orange, Color = Color::black);
 
-    //Functions
-      void select(), deselect();
+    void
+      select(),
+      deselect(),
+      addText (Text_&, bool = true),
+      setFunc(std::function <void()>), setOffFunc(std::function <void()>),
+      setActive(bool = true),
+      setBackground (Color);
+    bool isOn() const;
 };
 
 class Slider{
@@ -364,11 +339,6 @@ class Slider{
   friend class Page;
   friend class Button;
   friend class Text_;
-  friend void
-    mainSetup(),
-    mainBackground(),
-    utilSetup(),
-    utilBackground();
 
   public: enum direction{
     VERTICAL,
@@ -376,33 +346,30 @@ class Slider{
   };
 
   private:
-    //Vars
-      int
-        x1, y1, x2, y2, text_x, text_y,
-        min, max,
-        val, prev_val;
-      std::uint32_t l_col, b_col;
-      direction dir;
-      bool active=true;
-      Page* page;
-      Button dec, inc;
-      Text<int> title, min_title, max_title;
+    int
+      x1, y1, x2, y2, text_x, text_y,
+      min, max,
+      val, prev_val;
+    std::uint32_t l_col, b_col;
+    direction dir;
+    bool active=true;
+    Page* page;
+    Button dec, inc;
+    Text<int> title, min_title, max_title;
 
-    //Functions
-      void
-        update(),
-        setActive(bool = true),
-        draw() const;
-      bool pressed() const;
+    void
+      update(),
+      setActive(bool = true),
+      draw() const;
+    bool pressed() const;
 
   public:
     //Points, Format, Min, Max, Page, Label, Bcolour, Lcolour
-    Slider (int, int, int, int, GUI::Style, direction, int, int, Page&, std::string = "Value", int = 1, Color = Color::white, Color = Color::dark_orange);
+    Slider (int, int, int, int, GUI::Style, direction, double, double, Page&, std::string = "Value", double = 1, Color = Color::white, Color = Color::dark_orange);
     Slider (const Slider&) = delete;
 
-    //Functions
-      int getValue() const;
-      void setValue(int);
+    int getValue() const;
+    void setValue(int);
 };
 
 //Screen Flash Definitions
