@@ -87,16 +87,20 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
-//log to folders
-//check that logging pause is good
+//check that logging pause and folders is good
+//check if Counter works
+//check that auton selector works
 //ask nikhil is he wants individual logs for tasks
-//No terminal dump for terminal logs
-//have terminal logs go through queue as well
 //allow slider increment to be double
-//buttons for clear logging
-
 void opcontrol() {
   DEBUG;
+
+  while(true){
+    for(auto log: Logging::getList()){
+      printf2("%d:%s\n", log->queue.size(), log->name);
+    }
+    delay(10);
+  }
   
   DEBUG;
   WAIT_UNTIL(false);

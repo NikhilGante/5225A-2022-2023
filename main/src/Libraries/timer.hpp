@@ -2,7 +2,6 @@
 #include "main.h"
 
 class Logging;
-extern Logging misc; //Just to avoid pulling in the logging header
 
 enum class timing_units{
   millis,
@@ -19,8 +18,11 @@ class Timer{
     Logging* log;
     uint64_t getTimeInTimingUnit(); // returns time in either millis micros
 
+    // Timer(Timer const &) = delete;
+    // Timer& operator=(Timer const &) = delete;
+
   public:
-    Timer(std::string name, Logging& log = misc, bool play = true, timing_units timing_unit = timing_units::millis);
+    Timer(std::string name, Logging& log, bool play = true, timing_units timing_unit = timing_units::millis);
     void reset(bool play = true);
     uint64_t getTime();
     void play();

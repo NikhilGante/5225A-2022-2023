@@ -24,7 +24,7 @@ constexpr int poly_min_pow(int x, double curvature){
 constexpr int CustomDrive::polynomial (int x) const {return ::polynomial(x, curvature);}
 constexpr int CustomDrive::exponential(int x) const {
   const double n = curvature;
-  return std::round(exp(0.002 * n * (std::abs(x) - 127)) * x);
+  return std::round(std::exp(0.002 * n * (std::abs(x) - 127)) * x);
 }
 
 // CustomDrive constructor
@@ -62,8 +62,7 @@ void driveBrake(){
   centre_r.brake();
 }
 
-Timer curve_print_timer{"Curve Print"};
-Timer backwards_timer{"Backwards"};
+Timer backwards_timer{"Backwards", driver_log};
 constexpr int slew = 5;
 bool backwards = false;
 bool last_backwards = false;
@@ -117,7 +116,7 @@ void driveHandleInputProg(){
   if(std::abs(power_a) < _Controller::deadzone) power_a = 0;
   // if(power_y < -30){
   //   power_y = -30;
-  //   // master.rumble("-");
+  //   // master.rumble();
   // }
   if(std::abs(power_a) > 65) power_a = sgn(power_a) * 65;
 
@@ -143,8 +142,8 @@ void driveHandleInputProg(){
 }
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop
-  Timer disc_count_print{"disc_count_print"};
-	Timer angle_override_print{"angle_override_print"};
+  Timer disc_count_print{"disc_count_print", driver_log};
+	Timer angle_override_print{"angle_override_print", driver_log};
 	master.clear();
 
   // Initialises states of subsystems
@@ -153,11 +152,11 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   intakeOn();
   angleOverride = false;
 
-  Timer endgame_click_timer_left{"endgame_timer"};
+  Timer endgame_click_timer_left{"endgame_timer", driver_log};
   endgame_click_timer_left.reset(false);
   bool endgame_dbl_click_left = false;
 
-  Timer endgame_click_timer_right{"endgame_timer"};
+  Timer endgame_click_timer_right{"endgame_timer", driver_log};
   endgame_click_timer_right.reset(false);
   bool endgame_dbl_click_right = false;
   // driveBrake();
@@ -169,7 +168,6 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       endgame_click_timer_left.reset(false);
       endgame_dbl_click_left = false;
       driver_log("SHOULD BE FALSE dbl_click: %d", endgame_dbl_click_left);
-
     }
     if(master.getNewDigital(endgameBtnLeft)){
       driver_log("PRESSED | timer reset: %lld", endgame_click_timer_left.getTime());
@@ -185,14 +183,11 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       endgame_click_timer_right.reset(false);
       endgame_dbl_click_right = false;
       driver_log("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_right);
-
     }
     if(master.getNewDigital(endgameBtnRight)){
       driver_log("PRESSED | timer reset: %lld\n", endgame_click_timer_right.getTime());
       driver_log("dbl_click: %d\n", endgame_dbl_click_right);
-      if(endgame_dbl_click_right) {
-        endgame_d_p.setState(HIGH);
-      }
+      if(endgame_dbl_click_right) endgame_d_p.setState(HIGH);
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();
     }

@@ -12,6 +12,7 @@
 #include "../Subsystems/shooter.hpp"
 
 #include "pros/misc.hpp"
+#include <filesystem>
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
 
@@ -95,6 +96,7 @@
       //Remaining elements created upon instantiation of Piston objects
 
     Page logging ("Logging"); //Log printing page from file to terminal
+      Button clear_logs (20, 15, 80, 40, GUI::Style::SIZE, Button::SINGLE, logging, "Clear Logs");
       //Remaining elements created upon instantiation of Logging objects
 
 
@@ -496,6 +498,8 @@ void mainSetup(){
         }
       }
     });
+
+    clear_logs.setFunc([](){std::filesystem::remove_all("/usd/Logging");});
 }
 
 void mainBackground(){

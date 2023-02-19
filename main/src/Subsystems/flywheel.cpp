@@ -45,7 +45,7 @@ double FlywheelMoveVelParams::manual_vel;  // Pre-smoothed velocity
 FlywheelMoveVelParams::FlywheelMoveVelParams(int target_vel): target_vel(target_vel){}
 
 void FlywheelMoveVelParams::handle(){
-  rot_vel = -60.0/360.0*flywheel_rot_sensor.get_velocity();	// Actual velocity of flywheel
+  rot_vel = -flywheel_rot_sensor.get_velocity()/60.0;	// Actual velocity of flywheel
   // flywheel_log("vel:%d\n", rot_vel);
   // error = target_vel - rot_vel;
   // output = kB * target_vel + kP * error;
@@ -80,12 +80,12 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   if(shooter_ds.get_value() < 2000){
-    // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
+    //this is printing way way too much
     flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
   }
 
   // if (flywheel_m.getTemperature() >= 50){
-  //   master.rumble("-");
+  //   master.rumble();
   //   flywheel_m.move(0);
   //   WAIT_UNTIL(false);
   // }
@@ -94,7 +94,7 @@ void FlywheelMoveVelParams::handle(){
 
 void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {}
 
-void setFlywheelVel(int32_t vel, int line){
-  flywheel.log("Flywheel was changed on %d to velocity %d", line, vel);
+void setFlywheelVel(int32_t vel){
+  flywheel.log("Flywheel was to velocity %d", vel);
   flywheel.changeState(FlywheelMoveVelParams{vel});
 }

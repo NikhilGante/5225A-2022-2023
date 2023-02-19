@@ -68,7 +68,7 @@ void _Controller::rumble(std::string rumble_pattern){
 }
 
 controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
-  Timer timer{"Controller Button Timeout"};
+  Timer timer{"Controller Button Timeout", controller_log};
   controller_log("Waiting for button press on %s controller with a timeout of %d", name, timeout);
   
   WAIT_UNTIL(timer.getTime() > timeout){

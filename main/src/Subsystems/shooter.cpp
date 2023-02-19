@@ -8,7 +8,7 @@ static constexpr int toaster_rpm = 1450;
 
 bool goal_disturb = false;
 
-Timer ShooterShootParams::shoot_timer{"shoot_timer"};
+Timer ShooterShootParams::shoot_timer{"shoot_timer", shooter.log};
 
 bool angleOverride = false;
 
@@ -86,7 +86,6 @@ void ShooterShootParams::handle(){
   else if(competition::is_autonomous()){
     trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   }
-
   
   if(trigger){ // && cycle_check.getTime() >= 30){
     shooter.log("%d STARTED SHOOTING\n", millis());
@@ -117,12 +116,10 @@ void ShooterShootParams::handle(){
         if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
         else setFlywheelVel(toaster_rpm);
       }
-
     }
-
   }
-
 }
+
 void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   // angler_p.setState(LOW);
   shooter.log("INIT shots_left %d", shots_left);
@@ -130,7 +127,6 @@ void ShooterShootParams::handleStateChange(shooterVariant prev_state){
   flywheelVariant temp_flywheel_state = flywheel.getState();
   // if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;
   // else std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.5;
-
 }
 
 void shoot(int shots){

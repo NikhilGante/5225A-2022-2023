@@ -45,8 +45,8 @@ void trackingUpdate(){
   double sin_alpha, cos_alpha, sin_beta; // locals to avoid duplicate computations
 
   Position last_position; // last position of robot
-  Timer velocity_timer{"velocity_timer"};
-  Timer tracking_timer{"timer"};
+  Timer velocity_timer{"velocity_timer", tracking_log};
+  Timer tracking_timer{"timer", tracking_log};
 
   while(true){
 
@@ -230,10 +230,10 @@ void aimAtBlue(double offset, double max_power, double end_error){
 void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
 
-  PID angle_pid(5.2, 0.00, 0.0, 0.0, true, 0.0, degToRad(5.0));
+  PID angle_pid(tracking_log, 5.2, 0.00, 0.0, 0.0, true, 0.0, degToRad(5.0));
 
   constexpr double kB = 18.5; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
-  Timer motion_timer{"motion_timer"};
+  Timer motion_timer{"motion_timer", tracking_log};
   constexpr double kP_vel = 10.0;
   do{
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.getPos().a);
@@ -270,15 +270,15 @@ void DriveOpControlParams::handleStateChange(driveVariant prev_state){}
 
 // Drive move to target state
 DriveMttParams::DriveMttParams(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side) :
- target(target), brake_mode(brake_mode), max_power(max_power), end_error_x(end_error_x), robot_side(robot_side){}
+target(target), brake_mode(brake_mode), max_power(max_power), end_error_x(end_error_x), robot_side(robot_side){}
 
 void DriveMttParams::handle(){
   Vector line_error = target - tracking.getPos();  // Displacement from robot's position to target
   double line_angle = std::numbers::pi/2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
   line_error.rotate(tracking.getPos().a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
-  Timer motion_timer{"motion_timer"};
-  PID y_pid(5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
+  Timer motion_timer{"motion_timer", tracking_log};
+  PID y_pid(tracking_log, 5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:
@@ -315,10 +315,10 @@ void DriveMttParams::handle(){
         left_power = power_y, right_power = power_y;
         break;
       case 1:
-        left_power = power_y, right_power = power_y * exp(-correction);
+        left_power = power_y, right_power = power_y * std::exp(-correction);
         break;
       case -1:
-        left_power = power_y * exp(correction), right_power = power_y;
+        left_power = power_y * std::exp(correction), right_power = power_y;
         break;
     }
     // x, y, a, l, r, errA
@@ -367,7 +367,7 @@ void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}
 // Drive Flatten state
 
 void DriveFlattenParams::handle(){  // Flattens against wall
-  Timer motion_timer{"motion_timer"};
+  Timer motion_timer{"motion_timer", tracking_log};
   moveDrive(0, 0);
 	trans_p.setState(LOW);
   delay(100); // waits for Transmission to shift
@@ -375,7 +375,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
 
-  Timer timeout{"timeout"};
+  Timer timeout{"timeout", tracking_log};
   while(timeout.getTime() < 250 && cycle_count < 10){
     drive.log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
     if(tracking.l_vel > -3.0 && tracking.r_vel > -3.0)  cycle_count++;

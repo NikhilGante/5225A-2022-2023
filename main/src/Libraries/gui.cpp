@@ -14,7 +14,7 @@
 //Text Vars
   std::string prompt_string;
   namespace alert{
-    Timer timer("Flash Timer", error, false);
+    Timer timer("Flash Timer", error_log, false);
     std::uint32_t end_time;
   }
 
@@ -67,7 +67,7 @@ namespace alert{
 
       master.rumble("-.");
 
-      error(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
+      error_log(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
 
       if(end_time) printf2(term_colours::NOTIF, "Showing for %dms.\n\n", end_time);
       timer.reset(); //Starts counting down

@@ -50,7 +50,7 @@ void IntakeOnParams::handle(){  // synchronous state
   
   if(g_mag_disc_count >= 3) {
     intake.log("COUNTED 3");
-    master.rumble("-");
+    master.rumble();
     _Task::delay(185);
     intakeOff();
   }
@@ -93,7 +93,7 @@ void intakeIndex(int8_t speed) {intake.changeState(IntakeIndexParams{speed});} /
 IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
 
 void IntakeRollerParams::handle(){
-  Timer led{"timer"};
+  Timer led{"timer", intake.log};
   roller_sensor.set_led_pwm(100);
   device_log("%d | flatten:%d\n", millis(), flatten);
 
@@ -101,7 +101,7 @@ void IntakeRollerParams::handle(){
   trans_p.setState(LOW);
   WAIT_UNTIL(led.getTime() > 200 && roller_sensor.get_rgb().red != 0);  // Waits for LED to turn on and robot to touch roller
 	intake_m.move(-127);
-	Timer roller_timer{"roller_timer"};
+	Timer roller_timer{"roller_timer", intake.log};
   // Switches to opposite colour it saw
 
   intake_m.moveRelative(-450);  // should be 450
@@ -112,7 +112,7 @@ void IntakeRollerParams::handle(){
   device_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
   // waits to see a value > 700  different than inital value (waits for a colour change)
   double cur_val;
-  Timer timeout{"timeout"};
+  Timer timeout{"timeout", intake.log};
   do{
 		roller_sensor.set_led_pwm(100);
     cur_val = roller_sensor.get_rgb().red;
@@ -125,7 +125,7 @@ void IntakeRollerParams::handle(){
   // while(std::abs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
-  master.rumble("-"); // Notifies driver spinning roller has finished
+  master.rumble(); // Notifies driver spinning roller has finished
 	moveDrive(0, 0);
   delay(100);
 

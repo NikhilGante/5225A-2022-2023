@@ -46,7 +46,7 @@ class _Controller: private Controller{
     
     void clearLine (std::uint8_t line);
     void clear();
-    void rumble(std::string rumble_pattern);
+    void rumble(std::string rumble_pattern = "-");
     int getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
     bool getDigital(controller_digital_e_t);
     bool getNewDigital(controller_digital_e_t);

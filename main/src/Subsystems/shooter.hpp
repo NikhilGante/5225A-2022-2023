@@ -37,8 +37,7 @@ struct ShooterShootParams{
 
   private:
     static Timer shoot_timer;
-
-    Timer cycle_check{"cycle_check"};
+    Timer cycle_check{"cycle_check", shooter.log};
 };
 
 void shoot(int shots = 3);  // Shoots x number of shots

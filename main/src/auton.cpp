@@ -21,7 +21,7 @@ double getDistL() {return l_reset_dist.get()*MM_TO_IN - LEFT_DIST_OFFSET  + HALF
 double getDistR() {return r_reset_dist.get()*MM_TO_IN - RIGHT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
 
 void moveInches(double target){
-	Timer move_timer{"move_timer"};
+	Timer move_timer{"move_timer", auton_log};
 	double start = left_tracker.get_position()*TICKS_TO_INCHES_275;
 	double error;
 	do{
@@ -35,11 +35,10 @@ void moveInches(double target){
 	} while(std::abs(error) > 0.5);
 	master.print(2, "time: %ld", move_timer.getTime());
 	driveBrake();
-	master.rumble("-");
+	master.rumble();
 }
 
 void fullSkills(){
-
   autonAWP();
   aimAtBlue(11.0);
   shoot(3);
@@ -58,12 +57,12 @@ void fullSkills(){
 // tracking.getPos() = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
   tracking.reset({getDistL(), 7.5, 0.0});
-  Timer total{"total_timer"};
+  Timer total{"total_timer", auton_log};
   setFlywheelVel(2175);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({31.0, 7.5, degToRad(0.0)});
-  master.rumble("-");
+  master.rumble();
   // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   intakeOn();
   moveToTargetSync({37.0, 43.0}, E_Brake_Modes::brake, 50); // picks up stack
@@ -91,7 +90,7 @@ void skills1(){
 
 // tracking.getPos() = {110.5, 133.75, degToRad(180.0)}
 void skills2(){
-  Timer total{"total_timer"};
+  Timer total{"total_timer", auton_log};
 
   setFlywheelVel(2340);
   spinRoller();
@@ -142,7 +141,7 @@ void skills2(){
 }
 // tracking.getPos() = {72.0, 11.25, 0.0};
 void skills3(){
-  Timer total{"total_timer"};
+  Timer total{"total_timer", auton_log};
   setFlywheelVel(2150);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -189,7 +188,7 @@ void autonStack(){
   // tracking.reset({30.75, 9.0, degToRad(0.0)});
   auton_log("STARTED AUTON\n");
 
-  Timer timer1{"timer"};
+  Timer timer1{"timer", auton_log};
   setFlywheelVel(2440);
 	angler_p.setState(LOW);
 
@@ -231,7 +230,7 @@ void autonStack(){
 }
 
 void autonAWP(){
-  Timer timer1{"timer"};
+  Timer timer1{"timer", auton_log};
   setFlywheelVel(2300);
 
   spinRoller();
@@ -300,8 +299,8 @@ void autonLine(){ // No moving after start
 
   tracking.reset({128.75, 83.25, degToRad(0.0)});
 
-  Timer timer1{"timer"};
-  setFlywheelVel(2300, 415);
+  Timer timer1{"timer", auton_log};
+  setFlywheelVel(2300);
   moveToTargetSync({tracking.getPos().x, 104}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
   moveInches(-3.0);
@@ -319,7 +318,7 @@ void autonLine(){ // No moving after start
   shooter.waitToReachState(ShooterIdleParams{});
 
   turnToTargetSync({83.0, 60.0}); // Drives through line
-  setFlywheelVel(2300, 423);
+  setFlywheelVel(2300);
   moveToTargetSync({83.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
   aimAtBlue(12);
   driveBrake();
@@ -328,7 +327,7 @@ void autonLine(){ // No moving after start
   master.print(2,0, "total:%ld", timer1.getTime());
 
 
-/*  Timer timer1{"timer"};
+/*  Timer timer1{"timer", auton_log};
   angler_p.setState(LOW);
 
   flattenAgainstWallSync();
