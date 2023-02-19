@@ -20,7 +20,7 @@ static constexpr double RIGHT_DIST_OFFSET = 2.125;  // How far in the right sens
 double getDistL() {return l_reset_dist.get()*MM_TO_IN - LEFT_DIST_OFFSET  + HALF_DRIVEBASE_WIDTH;}
 double getDistR() {return r_reset_dist.get()*MM_TO_IN - RIGHT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
 
-void moveInches(double target){
+void moveInches(double target, double max_power){
 	Timer move_timer{"move_timer", auton_log};
 	double start = left_tracker.get_position()*TICKS_TO_INCHES_275;
 	double error;
@@ -29,6 +29,8 @@ void moveInches(double target){
 		error = target - cur_y;
 		double power = 5.0*error;
 		if(std::abs(power) < 30) power = sgn(error) * 30;
+		if(std::abs(power) > max_power) power = sgn(error) * max_power;
+
 		// if(std::abs(power) > 100) power = sgn(error) * 100;
 		moveDrive(power, 0.0);
 
@@ -320,10 +322,10 @@ void autonLine(){ // No moving after start
   turnToTargetSync({83.0, 60.0}); // Drives through line
   setFlywheelVel(2300);
   moveToTargetSync({83.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtBlue(12);
+  aimAtBlue(0);
   driveBrake();
-  shoot(2);
-  shooter.waitToReachState(ShooterIdleParams{});
+  // shoot(2);
+  // shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 
 
@@ -366,7 +368,7 @@ void autonLine(){ // No moving after start
   double intake_pos = intake_m.get_position();
 
   moveDrive(-40, 0);
-  WAIT_UNTIL(fabs(intake_pos- intake_m.get_position()) > 450);
+  WAIT_UNTIL(std::abs(intake_pos- intake_m.get_position()) > 450);
   intakeOff();
   moveInches(2.0);
 
@@ -378,3 +380,93 @@ void autonLine(){ // No moving after start
 */
 }
 
+
+
+void provSkills(){
+  Timer timer1{"Skills", auton_log};
+
+  /*
+  spinRoller();
+  setFlywheelVel(2150);
+  intake.waitToReachState(IntakeOffParams{});
+  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+
+  moveToTargetAsync({35, 45}, E_Brake_Modes::brake, 55);
+  tracking.waitForDistance(10);
+  intakeOn();
+  tracking.waitForComplete();
+  aimAtBlue(12);
+  intake.waitToReachState(IntakeOffParams{});
+  shoot(3);
+  shooter.waitToReachState(ShooterIdleParams{});
+  
+  intakeOn();
+  setFlywheelVel(2000);
+  moveInches(8);
+  turnToTargetSync({57, 83});
+  moveToTargetSync({57, 83}, E_Brake_Modes::brake, 85); // picks up line of discs
+  aimAtBlue(10.5);
+  driveBrake();
+  shoot(3); // Shoot shots from barrier corner
+  shooter.waitToReachState(ShooterIdleParams{});
+
+  setFlywheelVel(1900);
+  turnToAngleSync(-12.0);
+  moveInches(45, 50);
+  // moveToTargetSync({51, 141-12});
+
+  aimAtBlue(13.5);
+  driveBrake();
+  shoot(3); // Shoots shots from inside barrier
+  shooter.waitToReachState(ShooterIdleParams{});
+
+  turnToTargetSync({102, 129}, 0.0, true);
+  intakeOff();
+  moveToTargetSync({102, 129});
+  turnToAngleSync(-180);
+  
+  */
+  spinRoller();
+  setFlywheelVel(2150);
+  intake.waitToReachState(IntakeOffParams{});
+  // tracking.reset({getDistL(), 9.75, tracking.g_pos.a+M_PI});
+  tracking.reset({getDistL(), 9.75, tracking.getPos().a});
+  // intakeOn();
+  
+  // REPEATED STUFF
+
+  moveToTargetAsync({35, 45}, E_Brake_Modes::brake, 55);
+  delay(750);
+  intakeOn();
+  tracking.waitForComplete();
+
+  aimAtBlue(11.5);
+  intake.waitToReachState(IntakeOffParams{});
+  shoot(3);
+  shooter.waitToReachState(ShooterIdleParams{});
+  
+  intakeOn();
+  setFlywheelVel(2000);
+  moveInches(8);
+  turnToTargetSync({57, 83});
+  moveToTargetSync({57, 83}, E_Brake_Modes::brake, 85); // picks up line of discs
+  aimAtBlue(10);
+  driveBrake();
+  shoot(3); // Shoot shots from barrier corner
+  shooter.waitToReachState(ShooterIdleParams{});
+
+  moveInches(-15);
+  turnToAngleSync(45);
+  moveToTargetSync({120, 120});
+  turnToAngleSync(-90);
+  moveInches(-10);
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+  tracking.reset({141-9.75, 141-getDistR(), degToRad(-90)});
+  moveToTargetSync({100, 116});
+
+  
+
+  master.print(2,0, "total:%ld", timer1.getTime());
+	auton_log("total:%ld\n", timer1.getTime());
+}

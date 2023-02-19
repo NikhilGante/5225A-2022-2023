@@ -48,6 +48,10 @@ void trackingUpdate(){
   Timer velocity_timer{"velocity_timer", tracking_log};
   Timer tracking_timer{"timer", tracking_log};
 
+  double last_gyro_angle = 0.0;
+
+	gyro.tare_rotation();
+
   while(true){
 
 
@@ -60,7 +64,8 @@ void trackingUpdate(){
     new_right = -right_tracker.get_position()*TICKS_TO_INCHES_325;
     new_back = back_tracker.get_position()*TICKS_TO_INCHES_325;
     
-    tracking_log("l:%lf r:%lf", new_left, new_right);
+    tracking_log("l:%lf r:%lf\n", new_left, new_right);
+    tracking_log("GYRO:%.2lf deg: %.2lf\n", gyro.get_rotation() * 1.011, radToDeg(tracking.getPos().a));
 
     // updates how much each side of the robot travelled in inches since the last cycle (left, right and back)
     left = new_left - last_left;
@@ -93,6 +98,18 @@ void trackingUpdate(){
     last_back = new_back;
 
     theta = (left-right)/dist_lr; // change in robot's angle
+    
+    if(!gyro.is_calibrating()){
+      double gyro_angle = gyro.get_rotation() * 1.011;
+      theta = gyro_angle - last_gyro_angle;
+      // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
+      if(gyro.get_rotation() == EAGAIN) printf("CAL\n");
+      if(std::abs(theta) < 0.006) theta = 0.0;  // drift reducer
+      theta = degToRad(theta);
+      last_gyro_angle = gyro_angle;
+    }
+    else theta = 0.0;
+
     if (theta != 0){  // if the robot has travelled in an arc
       radius_r = right/theta;
       radius_b = back/theta;
@@ -216,8 +233,8 @@ void flattenAgainstWallAsync(){
 }
 
 // Wrapper functions to aim at high goals
-void aimAtRed(double offset){
-  turnToTargetSync(r_goal, offset);
+void aimAtRed(double offset, double max_power, double end_error){
+  turnToTargetSync(r_goal, offset, false, E_Brake_Modes::brake, end_error, max_power);
 }
 void aimAtBlue(double offset, double max_power, double end_error){
   turnToTargetSync(b_goal, offset, false, E_Brake_Modes::brake, end_error, max_power);
@@ -230,7 +247,7 @@ void aimAtBlue(double offset, double max_power, double end_error){
 void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
 
-  PID angle_pid(tracking_log, 5.2, 0.00, 0.0, 0.0, true, 0.0, degToRad(5.0));
+  PID angle_pid(tracking_log, 5.2, 0, 100, 0.0, true, 1.0, degToRad(9.0));
 
   constexpr double kB = 18.5; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer", tracking_log};
@@ -244,7 +261,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     // tracking_log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     
     // tracking_log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
-    // tracking_log("%d, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(target_velocity - tracking.g_vel.a));
+    tracking_log("%d, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(target_velocity - tracking.g_vel.a));
 
     moveDrive(0.0, power);
     _Task::delay(10);

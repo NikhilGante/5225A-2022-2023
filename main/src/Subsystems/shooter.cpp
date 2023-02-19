@@ -18,7 +18,7 @@ void shooterHandleInput(){
   shooterVariant cur_state = shooter.getState();
   if(std::get_if<ShooterIdleParams>(&cur_state)){
     if(master.getNewDigital(tripleShotBtn)) shoot(3);
-    if(master.getNewDigital(singleShotBtn)) shoot(2);
+    if(master.getNewDigital(singleShotBtn)) shoot(1);
   }
 
   if(master.getNewDigital(anglerToggleBtn)) {
@@ -77,7 +77,7 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 350;
+  bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
@@ -105,14 +105,15 @@ void ShooterShootParams::handle(){
     shooter.log("condition2 %d", shots_left <= 0);
 
     if(shots_left <= 0){  // If shooting is done
+      master.rumble("-"); // Lets driver know shooting is done
       g_mag_disc_count = 0;
-      _Task::delay(100); // waits for last disc to shoot
+      _Task::delay(100); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
       _Task::delay(50);
 
-      if (!angleOverride){
+      if (!angleOverride && !pros::competition::is_autonomous()){
         if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
         else setFlywheelVel(toaster_rpm);
       }

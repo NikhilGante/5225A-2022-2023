@@ -63,6 +63,8 @@ void competition_initialize() {}
  */
 void autonomous() {
 	Auton::run();
+	WAIT_UNTIL(!gyro.is_calibrating());
+	provSkills();
 }
 
 /**

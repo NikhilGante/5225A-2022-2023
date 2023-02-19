@@ -53,6 +53,7 @@ void IntakeOnParams::handle(){  // synchronous state
     master.rumble();
     _Task::delay(185);
     intakeOff();
+    if(angleOverride)  angler_p.setState(HIGH);
   }
 
   // intake.log("count:%d", g_mag_disc_count.load());
@@ -104,7 +105,7 @@ void IntakeRollerParams::handle(){
 	Timer roller_timer{"roller_timer", intake.log};
   // Switches to opposite colour it saw
 
-  intake_m.moveRelative(-450);  // should be 450
+  intake_m.moveRelative(-650);  //should be 450, For skills, should be 650
   WAIT_UNTIL(std::abs(intake_m.getTargetPosition() - intake_m.getPosition()) < 10); // wait for intake to reach poisiton 
   /*
   const int thresh = 3000;
