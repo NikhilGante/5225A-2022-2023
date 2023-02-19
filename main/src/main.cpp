@@ -75,7 +75,7 @@ void initialize() {
 	delay(300);
 	// lift.runMachine();
 
-	// drive.runMachine();
+	drive.runMachine();
 	intake.runMachine();
 	flywheel.runMachine();
 	// shooter.runMachine();
@@ -189,7 +189,10 @@ void opcontrol() {
 
 	// tracking.reset();
 
-	driverPractice();
+	// driverPractice();
+	spinRoller();
+	intake.setTimeout(5000);
+	master.rumble("-");
 
 
 

@@ -150,7 +150,7 @@ void IntakeRollerParams::handle(){
 	Timer roller_timer{"roller_timer"};
   // Switches to opposite colour it saw
 
-  intake_m.move_relative(-650, 200);  // should be 450, For skills, should be 650
+  intake_m.move_relative(-700, 200);  // should be 450, For skills, should be 700
   WAIT_UNTIL(fabs(intake_m.get_target_position() - intake_m.get_position()) < 10); // wait for intake to reach poisiton 
   /*
   const int thresh = 3000;
