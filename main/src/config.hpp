@@ -26,4 +26,6 @@ extern Imu gyro;
 extern Distance l_reset_dist;
 extern Distance r_reset_dist;
 
+// extern Link radio;
+
 extern Motor b_lift_m;

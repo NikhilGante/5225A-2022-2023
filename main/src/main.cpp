@@ -77,7 +77,7 @@ void initialize() {
 
 	// drive.runMachine();
 	intake.runMachine();
-	// flywheel.runMachine();
+	flywheel.runMachine();
 	// shooter.runMachine();
 	
 }
@@ -183,8 +183,12 @@ Auton auton4("Skills", fullSkills);
 
 void opcontrol() {
 	// flywheel.runMachine();
+	// flywheel_m.move(0);
+	// delay(100);
+	// flywheel_m.move(50);
 
 	// tracking.reset();
+
 	driverPractice();
 
 

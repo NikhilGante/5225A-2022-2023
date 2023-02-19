@@ -45,5 +45,6 @@ Imu gyro(14);
 Optical roller_sensor(8);
 
 Distance l_reset_dist(3), r_reset_dist(7);
+// Link radio(4, "Robot1", pros::E_LINK_RECIEVER);
 
 Motor b_lift_m(16);

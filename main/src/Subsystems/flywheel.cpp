@@ -17,6 +17,9 @@
 // 56 degrees up close
 Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelOffParams{});
 
+bool flywheelOn = true;
+
+
 // Flywheel idle state
 
 const char* FlywheelIdleParams::getName(){
@@ -104,7 +107,23 @@ void FlywheelMoveVelParams::handle(){
   //   WAIT_UNTIL(false);
 
   // }
-  flywheel_m.move(output);
+
+  // printf("%d\n", master.is_connected());
+
+  if(!master.is_connected()){
+    WAIT_UNTIL(master.is_connected());
+    flywheel_m.move(0);
+    delay(100);
+    
+  }
+
+  if(master.get_digital_new_press(goalDisturbBtn)){
+    flywheelOn = !flywheelOn;
+  }
+
+  if(flywheelOn) flywheel_m.move(output);
+  else flywheel_m.move(0);
+  
 }
 void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){
   log_timer.reset();

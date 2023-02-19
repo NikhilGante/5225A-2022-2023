@@ -106,6 +106,11 @@ void trackingUpdate(){
     }
     else theta = 0.0;
 
+
+    // 40 inches per second (3 seconds to cross field - 300 cycles): right = 0.4
+    // Assumptions - 3 degs travelled (0.0523599 rads), 1 inch radius, 
+    // sin(beta) = 0.02617690954
+    // radius_R = 0.4/0.0523599 = 7.63943399434
     if (theta != 0){  // if the robot has travelled in an arc
       radius_r = right/theta;
       radius_b = back/theta;
@@ -138,7 +143,7 @@ void trackingUpdate(){
     // printf("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     if(tracking_timer.getTime() > 50){
       // log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
-      log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+      // log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
     
       // log("%lf\n", radToDeg(tracking.g_vel.a));
 

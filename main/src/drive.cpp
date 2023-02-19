@@ -217,16 +217,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   // driveBrake();
   // drive.changeState(DriveIdleParams{});
 
-  bool flywheelOn = false;
 	while(true){
-
-    if(master.get_digital_new_press(goalDisturbBtn)){
-      flywheelOn = !flywheelOn;
-    }
-
-    if(flywheelOn) flywheel_m.move(50);
-    else flywheel_m.move(0);
-
 
     if(endgame_click_timer_left.getTime() > 300){
       printf("timer reset: %lld\n", endgame_click_timer_left.getTime());
