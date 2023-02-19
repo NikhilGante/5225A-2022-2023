@@ -100,7 +100,6 @@ void trackingUpdate(){
       double gyro_angle = gyro.get_rotation() * 1.011;
       theta = gyro_angle - last_gyro_angle;
       // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
-      if(gyro.get_rotation() == EAGAIN) printf("CAL\n");
       if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
       last_gyro_angle = gyro_angle;
@@ -270,7 +269,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
 
 // STATE MACHINE STUFF 
 
-Machine<DRIVE_STATE_TYPES> drive("Drive", DriveOpControlParams{});
+Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
 
 // Drive idle state
 const char* DriveIdleParams::getName(){

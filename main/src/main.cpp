@@ -75,10 +75,10 @@ void initialize() {
 	delay(300);
 	// lift.runMachine();
 
-	drive.runMachine();
+	// drive.runMachine();
 	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 }
 
@@ -182,6 +182,8 @@ Auton auton4("Skills", fullSkills);
 
 
 void opcontrol() {
+	// flywheel.runMachine();
+
 	// tracking.reset();
 	driverPractice();
 

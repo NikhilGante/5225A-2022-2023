@@ -216,7 +216,17 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   bool endgame_dbl_click_right = false;
   // driveBrake();
   // drive.changeState(DriveIdleParams{});
+
+  bool flywheelOn = false;
 	while(true){
+
+    if(master.get_digital_new_press(goalDisturbBtn)){
+      flywheelOn = !flywheelOn;
+    }
+
+    if(flywheelOn) flywheel_m.move(50);
+    else flywheel_m.move(0);
+
 
     if(endgame_click_timer_left.getTime() > 300){
       printf("timer reset: %lld\n", endgame_click_timer_left.getTime());
@@ -276,7 +286,12 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     // if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() > 50 || flywheel_m.get_temperature() >= 50){
     //   moveDrive(0, 0);
+    //   intake.changeState(IntakeOffParams{});
+    //   drive.changeState(DriveIdleParams{});
+    //   shooter.changeState(ShooterIdleParams{});
+    //   flywheel.changeState(FlywheelOffParams{});
     //   master.rumble("----------");
+
     //   WAIT_UNTIL(false);
     // } 
 		delay(10);

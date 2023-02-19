@@ -15,7 +15,7 @@
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{barrier_rpm});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelOffParams{});
 
 // Flywheel idle state
 
@@ -89,7 +89,8 @@ void FlywheelMoveVelParams::handle(){
   
   #ifdef LOGS
   // log_timer.getTime() > 100 ||
-  if(shooter_ds.get_value() < 2000){// || log_timer.getTime() > 25) {
+  // if(shooter_ds.get_value() < 2000){// || log_timer.getTime() > 25) {
+  if(log_timer.getTime() > 100){
     // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
     log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();

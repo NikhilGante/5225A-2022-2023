@@ -46,7 +46,8 @@ using namespace pros;
 
 template <typename... StateTypes>
 class Machine{
-  variant<StateTypes...> state, target_state;
+  // The Base state is what the machine returns to after any operation, and the first state it enters
+  variant<StateTypes...> state, target_state, base_state;
   pros::Mutex state_mutex, target_state_mutex;
   const char* name;
 
@@ -69,7 +70,7 @@ class Machine{
 
 public:
   template <typename base_state_type>
-  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state){}
+  Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state), base_state(base_state){}
 
   template <typename next_state_type>
   void changeState(next_state_type next_state, int line = -1){
@@ -129,6 +130,19 @@ public:
   void waitToReachState(variant<StateTypes...> state_param){  // Blocks until desired state is reached
     size_t index = state_param.index();
     WAIT_UNTIL(getTargetState().index() == index && getState().index() == index);
+  }
+
+  void setTimeout(int time){
+    Timer timeout{"timeout"};
+    
+    while(getTargetState().index() != base_state.index() || getState().index() != base_state.index()){
+      if(timeout.getTime() > time){
+        log("%s | Timeout reached, %s state took longer than %d ms\n", name, getStateName(state), time);
+        changeState(base_state);
+        break;
+      }
+      _Task::delay(10);
+    } 
   }
 
 };

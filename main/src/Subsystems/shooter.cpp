@@ -49,10 +49,10 @@ void shooterHandleInput(){
     }
   }
 
-  if(master.get_digital_new_press(goalDisturbBtn)){
-    goal_disturb = !goal_disturb;
-    if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
-  }
+  // if(master.get_digital_new_press(goalDisturbBtn)){
+  //   goal_disturb = !goal_disturb;
+  //   if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
+  // }
   
   
 }
