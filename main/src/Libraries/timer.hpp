@@ -2,6 +2,7 @@
 #include "main.h"
 
 class Logging;
+extern Logging none_log;
 
 enum class timing_units{
   millis,
@@ -22,7 +23,7 @@ class Timer{
     // Timer& operator=(Timer const &) = delete;
 
   public:
-    Timer(std::string name, Logging& log, bool play = true, timing_units timing_unit = timing_units::millis);
+    Timer(std::string name, Logging& log = none_log, bool play = true, timing_units timing_unit = timing_units::millis);
     void reset(bool play = true);
     uint64_t getTime();
     void play();

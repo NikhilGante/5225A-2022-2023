@@ -93,7 +93,6 @@ class GUI{
       clearScreen(std::uint32_t),
       drawOblong(int, int, int, int, double, double);
     static int get_height(text_format_e_t), get_width(text_format_e_t);
-    static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
     bool pressed() const;
 
   public:
@@ -107,6 +106,7 @@ class GUI{
       goTo(int);
     static Color getColour(term_colours);
     static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
+    static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
 };
 
 class Page{
@@ -288,7 +288,7 @@ class Button{
     TOGGLE
   };
 
-  private:
+  // private:
     Button (){};
 
     std::uint32_t l_col, b_col, b_col_dark;
@@ -372,19 +372,19 @@ class Slider{
     void setValue(int);
 };
 
+#define DEBUG1 printf("Time:%07d - Function:%s | Line:%d\n", millis(), __PRETTY_FUNCTION__, __LINE__);
+
 //Screen Flash Definitions
+namespace alert{
+  extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue;
 
-  namespace alert{
-    extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue;
+  void start   (                                         std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)}); DEBUG1} //Defaults colour and time
+  void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)}); DEBUG1} //Defaults colour
+  void start   (term_colours colour,                     std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)}); DEBUG1} //Defaults time
+  void start   (term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)}); DEBUG1} //Doesn't default
 
-    void start   (                                         std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-    void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-    void start   (term_colours colour,                     std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-    void start   (term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
-
-    void priority(                                         std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-    void priority(                     std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-    void priority(term_colours colour,                     std::string fmt, auto... args) {queue.priority_push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-    void priority(term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
-  }
-
+  void priority(                                         std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
+  void priority(                     std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
+  void priority(term_colours colour,                     std::string fmt, auto... args) {queue.priority_push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
+  void priority(term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
+}

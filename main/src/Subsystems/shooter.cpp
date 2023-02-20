@@ -12,7 +12,7 @@ Timer ShooterShootParams::shoot_timer{"shoot_timer", shooter.log};
 
 bool angleOverride = false;
 
-Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
+Machine<SHOOTER_STATE_TYPES> shooter("Shooter", ShooterIdleParams{});
 
 void shooterHandleInput(){
   shooterVariant cur_state = shooter.getState();

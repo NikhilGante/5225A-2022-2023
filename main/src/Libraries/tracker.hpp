@@ -12,13 +12,13 @@ class ObjectTracker{
     static std::size_t total;
     static std::vector<derived*> objects;
 
-    std::size_t count;
+    std::size_t id;
 
   protected:
     ObjectTracker(){
       if(total < size){
         objects.push_back(static_cast<derived*>(this));
-        count = total++;
+        id = total++;
       }
       else throw std::length_error("Too many objects are being created in ObjectTracker subclass.");
     }
@@ -28,7 +28,7 @@ class ObjectTracker{
     static std::size_t getCount() {return total;}
     static std::vector<derived*> const & getList() {return objects;}
 
-    std::size_t getID() const {return count;}
+    std::size_t getID() const {return id;}
 };
 
 template <typename derived, std::size_t size> std::size_t ObjectTracker<derived, size>::total;

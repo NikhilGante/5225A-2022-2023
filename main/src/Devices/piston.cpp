@@ -11,12 +11,12 @@ void Piston::construct(std::string name, bool reversed, ext_adi_port_pair_t port
   toggle.construct(155*(getID()%3) + 10, 50*std::floor(getID()/3) + 30, 145, 40, GUI::Style::SIZE, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port.first) + "," + static_cast<char>(port.second) + '}', Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){
-    device_log("Piston %s switching from %d to %d", getName(), getState(), HIGH != this->reversed);
+    device_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), HIGH != this->reversed);
     this->state = HIGH != this->reversed;
     set_value(getState());
   });
   toggle.setOffFunc([this](){
-    device_log("Piston %s switching from %d to %d", getName(), getState(), LOW != this->reversed);
+    device_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), LOW != this->reversed);
     this->state = LOW != this->reversed;
     set_value(getState());
   });

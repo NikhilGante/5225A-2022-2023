@@ -150,19 +150,8 @@ class Queue{
     constexpr void pop() {if(!empty()) front_iter++;}
     constexpr void clear() {front_iter = end();}
     constexpr void output(std::ostream& out) requires std::same_as<T, char>{
-      auto cur_end = end();
       auto in = full_contiguous_iterators();
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
-      front_iter = cur_end;
-    }
-    constexpr void output(std::ostream& out1, std::ostream& out2) requires std::same_as<T, char>{
-      auto cur_end = end();
-      auto in = full_contiguous_iterators();
-      out1.write(in.first .first, std::distance(in.first .first, in.first .second));
-      out1.write(in.second.first, std::distance(in.second.first, in.second.second));
-      out2.write(in.first .first, std::distance(in.first .first, in.first .second));
-      out2.write(in.second.first, std::distance(in.second.first, in.second.second));
-      front_iter = cur_end;
     }
 };

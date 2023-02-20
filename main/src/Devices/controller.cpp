@@ -86,7 +86,7 @@ controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digita
 void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
 
 bool _Controller::getDigital(controller_digital_e_t button) {return get_digital(button);}
-bool _Controller::getNewDigital(controller_digital_e_t button) {return getNewDigital(button);}
+bool _Controller::getNewDigital(controller_digital_e_t button) {return get_digital_new_press(button);}
 
 int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone){
   int value = get_analog(joystick);

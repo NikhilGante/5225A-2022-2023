@@ -24,6 +24,7 @@ extern Logging task_log      ;
 extern Logging error_log     ;
 extern Logging driver_log    ;
 extern Logging device_log    ;
+extern Logging none_log      ;
 
 class Logging: public ObjectTracker<Logging>{
   private:
@@ -34,15 +35,16 @@ class Logging: public ObjectTracker<Logging>{
     log_locations location;
     std::string name;
     Queue<char, 15000> queue;
+    Mutex queue_mutex;
 
     static constexpr size_t print_max_size{10000};
-    static constexpr uint32_t print_max_time{500};
-    static std::string folder_name;
+    static constexpr uint32_t print_max_time{1000};
+    inline static const std::string folder_name = "/usd/Logging/";
     static _Task task;
     static std::vector<Logging*> logs; //! Get rid of this after fixing ObjectTracker
 
     std::string fullName();
-    bool update(bool time_exceeded);
+    void update(uint64_t time, bool force);
 
   public:
     Logging(std::string name, bool newline = false, term_colours print_colour = term_colours::NONE, log_locations location = log_locations::both);
@@ -58,8 +60,12 @@ class Logging: public ObjectTracker<Logging>{
       std::string str{sprintf2(format, args...)};
       if(newline) str += '\n';
 
-      master_log.queue.insert(name + ": " + str);
-      if(this != &master_log) queue.insert(str);
+      if(location == log_locations::terminal || location == log_locations::both) printf2(colour, str);
+      else if(location == log_locations::sd_main || location == log_locations::sd_only){
+        queue_mutex.take();
+        queue.insert(str);
+        queue_mutex.give();
+      }
     }
 
     void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}
@@ -73,6 +79,6 @@ class Logging: public ObjectTracker<Logging>{
           stream.open(filename);
           if(!stream.is_open()) alert::start("Unable to open %s file when Interrupting Logging", filename);
         }
-        ~Interrupter() {resume();}
+        ~Interrupter() {stream.close(); resume();}
     };
 };

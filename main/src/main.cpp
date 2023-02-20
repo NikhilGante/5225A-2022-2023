@@ -89,24 +89,18 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
-//check that logging pause and folders is good
-//check that auton selector works
 //check if ObjectTracker works
+//check that log folders is good
+//check that auton selector works
 //ask nikhil is he wants individual logs for tasks
 //make sure all buttons have a function
 //organize subsystems page
 //Add object tracker to GUI classes once it works
 //GUI coordinate struct with 4 ints and a GUI::style in the constructor
+
 void opcontrol() {
   DEBUG;
 
-  while(true){
-    for(auto log: Logging::getList()){
-      printf2("%d:%s\n", log->queue.size(), log->name);
-    }
-    delay(10);
-  }
-  
+
   DEBUG;
-  WAIT_UNTIL(false);
 }

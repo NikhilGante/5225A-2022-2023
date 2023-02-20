@@ -62,7 +62,7 @@ void driveBrake(){
   centre_r.brake();
 }
 
-Timer backwards_timer{"Backwards", driver_log};
+Timer backwards_timer{"Backwards"};
 constexpr int slew = 5;
 bool backwards = false;
 bool last_backwards = false;

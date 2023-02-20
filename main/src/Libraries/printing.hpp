@@ -254,11 +254,15 @@ void newline(int count = 1);
   std::string sprintf2_colour(term_colours colour, std::string fmt, Params... args){
     std::string str = sprintf2(fmt, args...);
 
-    int white_count = str.find_first_not_of(" \n");
-    std::string whitespace = std::string(str.begin(), str.begin() + white_count);
-    str.erase(str.begin(), str.begin() + white_count);
+    int white_front_count = str.find_first_not_of(" \n");
+    std::string white_front_space = std::string(str.begin(), str.begin() + white_front_count);
+    str.erase(str.begin(), str.begin() + white_front_count);
 
-    return whitespace + get_term_colour(colour) + str + get_term_colour(term_colours::NONE);
+    int white_end_count = str.find_last_not_of(" \n");
+    std::string white_end_space = std::string(str.begin() + white_end_count + 1, str.end());
+    str.erase(str.begin() + white_end_count + 1, str.end());
+
+    return white_front_space + get_term_colour(colour) + str + get_term_colour(term_colours::NONE) + white_end_space;
   }
   template <typename... Params>
   int printf2(term_colours colour, std::string fmt, Params... args){

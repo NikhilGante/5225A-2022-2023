@@ -18,7 +18,7 @@ constexpr double CARTRIDGE_TO_RAW = 6;
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("flywheel", FlywheelMoveVelParams{barrier_rpm});
+Machine<FLYWHEEL_STATE_TYPES> flywheel("Flywheel", FlywheelMoveVelParams{barrier_rpm});
 
 // Flywheel idle state
 
@@ -80,7 +80,6 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   if(shooter_ds.get_value() < 2000){
-    //this is printing way way too much
     flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
   }
 

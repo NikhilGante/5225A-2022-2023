@@ -23,6 +23,14 @@ inline constexpr double rad_to_rot = 1/rot_to_rad;
     _Task::delay(delayTime);\
   }\
 }
+
+#ifndef __FILENAME__
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
+#define DEBUG printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
+#define STRINGIFY(...) #__VA_ARGS__
+#define PRINT(...)  std::cout __VA_OPT__(<< '\'' << STRINGIFY(__VA_ARGS__) << "\' = \'" << (__VA_ARGS__) << '\'' )<< '\n';
+
 constexpr bool inRange(double value, double minimum, double maximum) {return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);}
 constexpr bool inRangeExcl(double value, double minimum, double maximum) {return (minimum < value && value < maximum) || (maximum < value && value < minimum);}
 

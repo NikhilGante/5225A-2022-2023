@@ -96,7 +96,7 @@
       //Remaining elements created upon instantiation of Piston objects
 
     Page logging ("Logging"); //Log printing page from file to terminal
-      Button clear_logs (20, 15, 80, 40, GUI::Style::SIZE, Button::SINGLE, logging, "Clear Logs", Color::red);
+      Button clear_logs (20, 40, 80, 40, GUI::Style::SIZE, Button::SINGLE, logging, "Clear Logs", Color::red);
       //Remaining elements created upon instantiation of Logging objects
 
 
@@ -209,8 +209,6 @@ void mainSetup(){
       if (!usd::is_installed()) alert::start("No SD Card!");
       else if (battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
       else if(battery::get_voltage() < 12200) alert::start("Battery is at %dV",  battery::get_voltage() );
-
-      else(alert::start("No Errors Found", term_colours::GREEN));
     });
 
     auton_selector.setFunc(Auton::select);
@@ -499,7 +497,7 @@ void mainSetup(){
       }
     });
 
-    clear_logs.setFunc([](){std::filesystem::remove_all("/usd/Logging");});
+    clear_logs.setFunc([](){alert::start("PROS is stupid and won't let me do this");});
 }
 
 void mainBackground(){
