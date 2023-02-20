@@ -2,6 +2,11 @@
 #include "main.h"
 #include "printing.hpp"
 
+#ifndef __FILENAME__
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
+#define DEBUG1 printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
+
 //Forward Declare
 namespace alert {void priority(term_colours colour, std::string fmt, auto... args);}
 
@@ -84,7 +89,6 @@ class Queue{
 
   private:
     //front_iter points to element about to be popped, back_iter points to location where element will be inserted
-    std::string name;
     array arr;
     iterator front_iter, back_iter;
 
@@ -102,6 +106,8 @@ class Queue{
     constexpr iterator construct_iterator(pointer pointer) {return {pointer, arr.begin(), arr.end()};}
 
   public:
+    std::string name;
+    
   //Constructors
     constexpr Queue(): name{}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
     Queue(std::string name): name{name}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
@@ -119,8 +125,6 @@ class Queue{
     constexpr reference       front(){return *begin();}
     constexpr reference       back() {return *(end()-1);}
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
-
-    void changeName(std::string name) {this->name = name;}
     
     //Insert Modifiers
     constexpr void priority_push(const_reference value){
@@ -150,8 +154,11 @@ class Queue{
     constexpr void pop() {if(!empty()) front_iter++;}
     constexpr void clear() {front_iter = end();}
     constexpr void output(std::ostream& out) requires std::same_as<T, char>{
+      DEBUG1;
       auto in = full_contiguous_iterators();
+      DEBUG1;
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
+      DEBUG1;
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
     }
 };

@@ -51,8 +51,8 @@ class _Controller: private Controller{
     bool getDigital(controller_digital_e_t);
     bool getNewDigital(controller_digital_e_t);
     bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
-    void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
-    controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
+    void waitForPress(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
+    controller_digital_e_t waitForPress(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
     std::string getText(int line) const;
 
     void print(std::uint8_t line, std::string fmt, auto... args){
@@ -69,8 +69,17 @@ class _Controller: private Controller{
 
     void printScroll(std::string fmt, auto... args){
       std::string str = sprintf2(fmt, args...);
-      print(0, getText(1));
-      print(1, getText(2));
-      print(2, str);
+      if (getText(2) == ""){
+        print(2, str);
+      }
+      else if (getText(1) == ""){
+        print(1, getText(2));
+        print(2, str);
+      }
+      else{
+        print(0, getText(1));
+        print(1, getText(2));
+        print(2, str);
+      }
     }
 };

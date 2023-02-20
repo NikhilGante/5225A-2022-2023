@@ -34,7 +34,7 @@ class Machine{
     Logging log;
 
     Machine(std::string name, auto base_state):
-    name{name}, state{base_state}, target_state{base_state}, task{name}, log{name, true, term_colours::NONE, log_locations::sd_main} {}
+    name{name}, state{base_state}, target_state{base_state}, task{name}, log{name, true, log_locations::sd_main} {}
 
     void changeState(auto next_state){
       state_log("%s state change requested from %s to %s", name, getStateName(state), getStateName(next_state));

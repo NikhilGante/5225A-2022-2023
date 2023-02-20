@@ -10,6 +10,7 @@
 #include "auton.hpp"
 #include "config.hpp"
 #include "menu.hpp"
+#include "pros/misc.h"
 #include "tracking.hpp"
 
 /**
@@ -89,18 +90,27 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
-//check if ObjectTracker works
-//check that log folders is good
+//!check that log folders is good
 //check that auton selector works
 //ask nikhil is he wants individual logs for tasks
-//make sure all buttons have a function
-//organize subsystems page
 //Add object tracker to GUI classes once it works
-//GUI coordinate struct with 4 ints and a GUI::style in the constructor
+//Logging different sizes
+//Remove unnecessary headers
+
+Text tas("Log Task: %d", [](){return Logging::task.isAlive();});
+Text trac("Tracking: %d", [](){return tracking_log.queue.size();});
+Text fly("Flywheel: %d", [](){return flywheel.log.queue.size();});
 
 void opcontrol() {
   DEBUG;
 
+  WAIT_UNTIL(false){
+    if(master.getNewDigital(DIGITAL_A)){
+      printf2("Logging: %d\n", Logging::task.isAlive());
+      printf2("Tracking: %d\n", tracking_log.queue.size());
+      printf2("Flywheel: %d\n", flywheel.log.queue.size());
+    }
+  }
 
   DEBUG;
 }

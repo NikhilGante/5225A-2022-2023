@@ -7,7 +7,7 @@ using namespace c;
 _Task::_Task(std::string name): name{name} {}
 
 // private method
-bool _Task::isAlive() {return task_handle && task_get_state(task_handle) != TASK_STATE_DELETED;}
+bool _Task::isAlive() const {return task_handle && task_get_state(task_handle) != TASK_STATE_DELETED;}
 
 void _Task::killUnsafe(){
   if(isAlive()){

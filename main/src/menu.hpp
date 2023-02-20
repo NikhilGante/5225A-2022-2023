@@ -13,7 +13,6 @@ class Auton: public ObjectTracker<Auton>{
     E_Reset_Types reset_type;
     std::string name;
     std::function<void()> program;
-    static std::vector<Auton*> logs; //! Get rid of this after fixing ObjectTracker
     
     void runFunction() const;
 
@@ -22,7 +21,7 @@ class Auton: public ObjectTracker<Auton>{
     static void select();
     static void run();	// Reads auton from SD card and runs it
     static int get();	// Returns selected Auton as an int
-    static std::vector<Auton*> const & getList() {return logs;}
-    static Auton* getNth(std::size_t n) {return getList()[n];}
+    // static std::vector<Auton*> const & getList() {return logs;}
+    // static Auton* getNth(std::size_t n) {return getList()[n];}
 	  E_Reset_Types getResetType() const;	// Returns selected Auton as an int
 };

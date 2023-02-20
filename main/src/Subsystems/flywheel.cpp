@@ -80,7 +80,7 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   if(shooter_ds.get_value() < 2000){
-    flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
+    flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
   }
 
   // if (flywheel_m.getTemperature() >= 50){

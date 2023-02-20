@@ -20,26 +20,26 @@
 
 //Default pages
   Page perm ("PERM BTNS", Color::pink); //Common page objects
-    Button prev_page(PAGE_LEFT, PAGE_UP, 75, 20, GUI::Style::SIZE, Button::SINGLE, perm, "<-");
-    Button next_page(PAGE_RIGHT, 0, -75, 20, GUI::Style::SIZE, Button::SINGLE, perm, "->");
-    Button home(100, 10, 18, 6, GUI::Style::CENTRE, Button::SINGLE, perm, "Home");
+    Button prev_page({PAGE_LEFT, PAGE_UP, 75, 20, GUI::Style::SIZE}, Button::SINGLE, perm, "<-");
+    Button next_page({PAGE_RIGHT, 0, -75, 20, GUI::Style::SIZE}, Button::SINGLE, perm, "->");
+    Button home({100, 10, 18, 6, GUI::Style::CENTRE}, Button::SINGLE, perm, "Home");
 
   Page testing ("Testing"); //Blank page made so it already exists when quick tests are created
-    Text<> testing_text_1 (125, 50, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 1");
-    Text<> testing_text_2 (350, 50, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 2");
-    Button testing_button_1 (25, 70, 200, 80, GUI::Style::SIZE, Button::SINGLE, testing, "BLANK BUTTON 1");
-    Button testing_button_2 (250, 70, 200, 80, GUI::Style::SIZE, Button::SINGLE, testing, "BLANK BUTTON 2");
-    Slider testing_slider (MID_X, 200, 200, 20, GUI::Style::CENTRE, Slider::HORIZONTAL, -100, 100, testing, "BLANK SLIDER");
+    Text<> testing_text_1 ({125, 50}, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 1");
+    Text<> testing_text_2 ({350, 50}, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 2");
+    Button testing_button_1 ({25, 70, 200, 80, GUI::Style::SIZE}, Button::SINGLE, testing, "BLANK BUTTON 1");
+    Button testing_button_2 ({250, 70, 200, 80, GUI::Style::SIZE}, Button::SINGLE, testing, "BLANK BUTTON 2");
+    Slider testing_slider ({MID_X, 200, 200, 20, GUI::Style::CENTRE}, Slider::HORIZONTAL, -100, 100, testing, "BLANK SLIDER");
 
   Page prompt_sequence ("Prompt");
-    Button prompt_button (300, MID_Y, 160, 90, GUI::Style::CENTRE, Button::SINGLE, prompt_sequence);
-    Button prompt_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, prompt_sequence, "BACK");
-    Text prompt_button_text (0, 0, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string);
+    Button prompt_button ({300, MID_Y, 160, 90, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence);
+    Button prompt_back_button ({20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, prompt_sequence, "BACK");
+    Text prompt_button_text ({0, 0}, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string);
 
   Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word alert
-    Button screen_flash_back_button (20, USER_UP, 100, 50, GUI::Style::SIZE, Button::SINGLE, screen_flash, "BACK");
-    Text screen_flash_text (MID_X, MID_Y, GUI::Style::CENTRE, TEXT_MEDIUM, screen_flash, "");
-    Text screen_flash_time (70, 85, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", std::function([](){return alert::end_time-alert::timer.getTime();}));
+    Button screen_flash_back_button ({20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, screen_flash, "BACK");
+    Text screen_flash_text ({MID_X, MID_Y}, GUI::Style::CENTRE, TEXT_MEDIUM, screen_flash, "");
+    Text screen_flash_time ({70, 85}, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", [](){return alert::end_time-alert::timer.getTime();});
 
   Page terminal ("Screen Printing");
 
@@ -67,7 +67,7 @@ namespace alert{
 
       // master.rumble("-.");
 
-      error_log(std::get<term_colours>(queue.front()), "\n\n%s\n", std::get<std::string>(queue.front()));
+      error_log(std::get<term_colours>(queue.front()), "%s\n", std::get<std::string>(queue.front()));
       timer.reset(); //Starts counting down
     }
 
@@ -82,6 +82,45 @@ namespace alert{
 }
 
 //GUI Helpers
+  GUI::Box::Box(int x1, int y1, int x2, int y2, GUI::Style type){
+    switch(type){
+      case GUI::Style::CENTRE:
+        x1 -= x2;
+        y1 -= y2;
+        x2 += x1+x2;
+        y2 += y1+y2;
+        break;
+
+      case GUI::Style::SIZE:
+        x2 += x1;
+        y2 += y1;
+        break;
+      case GUI::Style::CORNER:
+        break;
+    }
+    
+    //Arranging coordinates in a left-right up-down order.
+    int temp;
+    temp = std::max(x1, x2);
+    x1 = std::min(x1, x2);
+    x2 = temp;
+
+    temp = std::max(y1, y2);
+    y1 = std::min(y1, y2);
+    y2 = temp;
+
+    this->x1 = x1;
+    this->y1 = y1;
+    this->x2 = x2;
+    this->y2 = y2;
+  }
+  GUI::Box::Box(Coordinate coord1, int x2, int y2, GUI::Style type): Box{coord1.x, coord1.y, x2, y2, type} {}
+  GUI::Box::Box(int x1, int y1, Coordinate coord2, GUI::Style type): Box{x1, y1, coord2.x, coord2.y, type} {}
+  GUI::Box::Box(Coordinate coord1, Coordinate coord2, GUI::Style type): Box{coord1.x, coord1.y, coord2.x, coord2.y, type} {}
+
+  GUI::Coordinate::Coordinate(int x, int y): x{x}, y{y} {}
+
+
   //To get coordinates for aligned objects, (buttons, sliders...) of same size
   //Put in how many of buttons / sliders you want, and get properly spaced coords
   void GUI::alignedCoords (int x_objects, int y_objects, int x_size, int y_size, int x_range, int y_range){
@@ -109,14 +148,12 @@ namespace alert{
     if(!prompt_enabled) return true;
     prompt_string = screen;
     if(term == "") term = screen;
-    printf2(term_colours::BLUE, "\n\n%s\nPress the screen big button or the controller OK button when ready.", term);
+    printf2(term_colours::BLUE, "\n\n%s\nPress the screen big button or the controller OK button when ready.\n", term);
     master.clear();
     master.print(0, "Press OK btn");
     bool interrupted = false;
     const Page* page = GUI::current_page;
     prompt_sequence.goTo();
-
-    //! Had to comment this out because our controller subclass has changed
 
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
@@ -162,36 +199,6 @@ namespace alert{
     screen::fill_circle(x2-s-r, y1+s+r, r);
     screen::fill_circle(x1+s+r, y2-s-r, r);
     screen::fill_circle(x2-s-r, y2-s-r, r);
-  }
-
-  //Formats coordinates based on a GUI::Style (always in x1, y1, x2, y2)
-  std::tuple<int, int, int, int> GUI::fix_points (int x1, int y1, int x2, int y2, Style type){
-    switch(type){
-      case GUI::Style::CENTRE:
-        x1 -= x2;
-        y1 -= y2;
-        x2 += x1+ x2;
-        y2 += y1+ y2;
-        break;
-
-      case GUI::Style::SIZE:
-        x2 += x1;
-        y2 += y1;
-        break;
-      case GUI::Style::CORNER:
-        break;
-    }
-    
-    //Arranging coordinates in a left-right up-down order.
-    int temp;
-    temp = std::max(x1, x2);
-    x1 = std::min(x1, x2);
-    x2 = temp;
-
-    temp = std::max(y1, y2);
-    y1 = std::min(y1, y2);
-    y2 = temp;
-    return {x1, y1, x2, y2}; //Gives back the fixed points as a tuple
   }
 
   int GUI::get_height(text_format_e_t size){
@@ -272,7 +279,7 @@ namespace alert{
     y = USER_UP;
     //Saves y-pos and txt_size
     for (Text_* text_ptr: terminal.texts){
-      text_ptr->y = y;
+      text_ptr->coord.y = y;
       if (text_ptr->txt_size == 4) text_ptr->txt_size = fmt;
       y += get_height(text_ptr->txt_size) + 5;
     }
@@ -280,9 +287,9 @@ namespace alert{
 
 
 //Constructors
-  void Button::construct(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page* page, std::string text, Color b_col, Color l_col){
-
+  void Button::construct(GUI::Box coord, press_type form, Page* page, std::string text, Color b_col, Color l_col){
     //Saves params to class private vars
+    this->coord = coord;
     this->b_col = static_cast<std::uint32_t>(b_col);
     this->b_col_dark = RGB2COLOR(static_cast<int>(COLOR2R(this->b_col) * 0.8), static_cast<int>(COLOR2G(this->b_col) * 0.8), static_cast<int>(COLOR2B(this->b_col) * 0.8));
     this->l_col = static_cast<std::uint32_t>(l_col);
@@ -290,26 +297,32 @@ namespace alert{
 
     //Saves the buttons owning page
     this->page = page;
-    (this->page->buttons).push_back(this);
-    std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
+    this->page->buttons.push_back(this);
 
 
     std::size_t next_space = text.find(' ', text.length() / 2);
     std::size_t prev_space = text.find_last_of(' ', text.length() / 2);
     std::size_t space = (next_space-text.length() / 2 < text.length() / 2-prev_space) ? next_space : prev_space;
 
-    if (space != std::string::npos && 8*text.length() + 5 > this->x2-this->x1){ //Spaces it if it's too long for one line
+    if (space != std::string::npos && 8*text.length() + 5 > coord.x2-coord.x1){ //Spaces it if it's too long for one line
       this->label = text.substr(0, space);
       this->label1 = text.substr(space+1);
+      
+      text_coord = GUI::Coordinate{
+        static_cast<int>(coord.x1 + coord.x2-(this->label.length() * CHAR_WIDTH_SMALL)) / 2,
+        (coord.y1 + coord.y2-CHAR_HEIGHT_SMALL) / 2 - CHAR_HEIGHT_SMALL
+      };
 
-      this->text_x = (this->x1+ this->x2-(this->label.length() * CHAR_WIDTH_SMALL)) / 2;
-      this->text_x1 = (this->x1+ this->x2-(this->label1.length() * CHAR_WIDTH_SMALL)) / 2;
-      this->text_y = (this->y1+ this->y2-CHAR_HEIGHT_SMALL) / 2 - CHAR_HEIGHT_SMALL;
-      this->text_y1 = (this->y1+ this->y2-CHAR_HEIGHT_SMALL) / 2 + CHAR_HEIGHT_SMALL;
+      text_coord1 = GUI::Coordinate{
+        static_cast<int>(coord.x1 + coord.x2-(this->label1.length() * CHAR_WIDTH_SMALL)) / 2,
+        (coord.y1 + coord.y2-CHAR_HEIGHT_SMALL) / 2 + CHAR_HEIGHT_SMALL
+      };
     }
     else{
-      this->text_x = (this->x1+ this->x2-(text.length() * CHAR_WIDTH_SMALL)) / 2;
-      this->text_y = (this->y1+ this->y2-CHAR_HEIGHT_SMALL) / 2;
+      text_coord = GUI::Coordinate(
+        (coord.x1 + coord.x2-(text.length() * CHAR_WIDTH_SMALL)) / 2,
+        (coord.y1 + coord.y2-CHAR_HEIGHT_SMALL) / 2
+      );
       this->label = text;
     }
   }
@@ -330,12 +343,13 @@ namespace alert{
     this->background = background;
   }
 
-  Button::Button(int x1, int y1, int x2, int y2, GUI::Style type, press_type form, Page& page, std::string text, Color background_colour, Color label_colour){
-    construct(x1, y1, x2, y2, type, form, &page, text, background_colour, label_colour);
+  Button::Button(GUI::Box coord, press_type form, Page& page, std::string text, Color background_colour, Color label_colour){
+    construct(coord, form, &page, text, background_colour, label_colour);
   }
 
-  Slider::Slider (int x1, int y1, int x2, int y2, GUI::Style type, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour){
+  Slider::Slider (GUI::Box coord, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour){
     //Saves params to class private vars
+    this->coord = coord;
     this->dir = dir;
     this->min = min;
     this->max = max;
@@ -345,27 +359,23 @@ namespace alert{
     this->l_col = static_cast<std::uint32_t>(label_colour);
     this->page->sliders.push_back(this);
 
-    std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
-
     switch(this->dir){
       case HORIZONTAL:
-        text_x = (this->x1+ this->x2) / 2;
-        text_y = this->y1-CHAR_HEIGHT_SMALL / 2-2;
-        inc.construct(this->x2 + 5, this->y1, this->x2 + 25, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, ">", label_colour, background_colour);
-        dec.construct(this->x1-25, this->y1, this->x1-5, this->y2, GUI::Style::CORNER, Button::SINGLE, this->page, "<", label_colour, background_colour);
-        title.construct(text_x, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, label_colour); //why not pass val by reference
-        min_title.construct(this->x1, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, label_colour);
-        max_title.construct(this->x2, text_y, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, label_colour);
+        text_coord = {(coord.x1+ coord.x2) / 2, coord.y1-CHAR_HEIGHT_SMALL / 2-2};
+        inc.construct({coord.x2+ 5, coord.y1, coord.x2+25, coord.y2, GUI::Style::CORNER}, Button::SINGLE, this->page, ">", label_colour, background_colour);
+        dec.construct({coord.x1-25, coord.y1, coord.x1- 5, coord.y2, GUI::Style::CORNER}, Button::SINGLE, this->page, "<", label_colour, background_colour);
+        title.construct(text_coord, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, label_colour); //why not pass val by reference
+        min_title.construct({coord.x1, text_coord.y}, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, label_colour);
+        max_title.construct({coord.x2, text_coord.y}, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, label_colour);
         break;
 
       case VERTICAL:
-        text_x = (this->x1+ this->x2) / 2;
-        text_y = (this->y1+ this->y2) / 2;
-        inc.construct(this->x1, this->y1-17, this->x2-this->x1, -20, GUI::Style::SIZE, Button::SINGLE, this->page, "^", label_colour, background_colour);
-        dec.construct(this->x1, this->y2+17, this->x2-this->x1, 20, GUI::Style::SIZE, Button::SINGLE, this->page, "v", label_colour, background_colour);
-        title.construct(text_x, this->y1-17-22-CHAR_HEIGHT_SMALL, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, label_colour);
-        min_title.construct(text_x, this->y2 + (CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, label_colour);
-        max_title.construct(text_x, this->y1-(CHAR_HEIGHT_SMALL + 3) / 2, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, label_colour);
+        text_coord = {(coord.x1+ coord.x2) / 2, (coord.y1+ coord.y2) / 2};
+        inc.construct({coord.x1, coord.y1-17, coord.x2-coord.x1, -20, GUI::Style::SIZE}, Button::SINGLE, this->page, "^", label_colour, background_colour);
+        dec.construct({coord.x1, coord.y2+17, coord.x2-coord.x1, 20, GUI::Style::SIZE}, Button::SINGLE, this->page, "v", label_colour, background_colour);
+        title.construct({text_coord.x, coord.y1-17-22-CHAR_HEIGHT_SMALL}, GUI::Style::CENTRE, TEXT_SMALL, this->page, label + ":%d", [&](){return val;}, label_colour);
+        min_title.construct({text_coord.x, coord.y2 + (CHAR_HEIGHT_SMALL + 3) / 2}, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->min;}, label_colour);
+        max_title.construct({text_coord.x, coord.y1-(CHAR_HEIGHT_SMALL + 3) / 2}, GUI::Style::CENTRE, TEXT_SMALL, this->page, "%d", [&](){return this->max;}, label_colour);
         break;
     }
 
@@ -476,20 +486,17 @@ namespace alert{
     text_ref.b_col = b_col;
     text_ref.active = active;
     text_ref.type = GUI::Style::CENTRE;
-    text_ref.y = (y1+ y2) / 2;
-    text_ref.x = (x1+ x2) / 2;
-    text_ref.x1 = USER_RIGHT;
-    text_ref.y1 = USER_DOWN;
-    text_ref.x2 = USER_LEFT;
-    text_ref.y2 = USER_UP;
+    text_ref.coord.y = (coord.y1 + coord.y2) / 2;
+    text_ref.coord.x = (coord.x1 + coord.x2) / 2;
+    text_ref.box = {USER_RIGHT, USER_DOWN, USER_LEFT, USER_UP};
 
     if (overwrite){
       label = "";
       label1 = "";
     }
     else{
-      text_ref.y += GUI::get_height(text_ref.txt_size);
-      text_y -= GUI::get_height(text_ref.txt_size);
+      text_ref.coord.y += GUI::get_height(text_ref.txt_size);
+      text_coord.y -= GUI::get_height(text_ref.txt_size);
     }
   }
 
@@ -532,21 +539,21 @@ namespace alert{
   }
 
   void Text_::setBackground (int x1, int y1, Color color){ //Centre
-    std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(this->x, this->y, x1, y1, GUI::Style::CENTRE);
+    box = {coord.x, coord.y, x1, y1, GUI::Style::CENTRE};
     setBackground(color);
   }
 
   void Text_::setBackground (int x1, int y1, int x2, int y2, GUI::Style type, Color color){
-    std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
+    box = {x1, y1, x2, y2, type};
     setBackground(color);
   }
 
   void Text_::setBackground (int x1, int y1){ //Centre
-    std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(this->x, this->y, x1, y1, GUI::Style::CENTRE);
+    box = {coord.x, coord.y, x1, y1, GUI::Style::CENTRE};
   }
 
   void Text_::setBackground (int x1, int y1, int x2, int y2, GUI::Style type){
-    std::tie(this->x1, this->y1, this->x2, this->y2) = GUI::fix_points(x1, y1, x2, y2, type);
+    box = {x1, y1, x2, y2, type};
   }
 
   void Text_::setBackground (Color color){
@@ -568,7 +575,7 @@ namespace alert{
       if (active) draw();
       else{
         screen::set_pen(page->b_col);
-        screen::fill_rect(x1, y1, x2, y2);
+        screen::fill_rect(coord.x1, coord.y1, coord.x2, coord.y2);
       }
     }
   }
@@ -579,7 +586,7 @@ namespace alert{
       if (active) draw();
       else{
         screen::set_pen(page->b_col);
-        screen::fill_rect(x1, y1, x2, y2);
+        screen::fill_rect(box.x1, box.y1, box.x2, box.y2);
       }
     }
   }
@@ -590,7 +597,7 @@ namespace alert{
       if (active) draw();
       else{
         screen::set_pen(page->b_col);
-        screen::fill_rect(x1, y1, x2, y2);
+        screen::fill_rect(coord.x1, coord.y1, coord.x2, coord.y2);
       }
     }
   }
@@ -598,7 +605,6 @@ namespace alert{
 
 //Drawing
   void Page::draw() const{
-    // for (Button* button: buttons) {if (!button->func) button->b_col = 0x5f9ea0;}
     GUI::clearScreen(b_col);
     screen::set_pen(b_col);
     screen::set_eraser(b_col);
@@ -618,12 +624,12 @@ namespace alert{
     }
     screen::set_pen(b_col);
     screen::set_eraser(GUI::current_page->b_col); //It's current_page not just page because perm has a different colour
-    screen::fill_rect(x1, y1, x2, y2);
-    GUI::drawOblong(x1, y1, x2, y2, 0, 0.15);
+    screen::fill_rect(coord.x1, coord.y1, coord.x2, coord.y2);
+    GUI::drawOblong(coord.x1, coord.y1, coord.x2, coord.y2, 0, 0.15);
     screen::set_pen(l_col);
     screen::set_eraser(b_col);
-    screen::print(TEXT_SMALL, text_x, text_y, "%s", label);
-    screen::print(TEXT_SMALL, text_x1, text_y1, "%s", label1);
+    screen::print(TEXT_SMALL, text_coord.x, text_coord.y, "%s", label);
+    screen::print(TEXT_SMALL, text_coord1.x, text_coord1.y, "%s", label1);
     if(title){
       title->b_col = b_col;
       title->draw();
@@ -633,15 +639,15 @@ namespace alert{
   void Button::drawPressed() const{
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     screen::set_eraser(page->b_col); //Erases button
-    screen::erase_rect(x1, y1, x2, y2);
+    screen::erase_rect(coord.x1, coord.y1, coord.x2, coord.y2);
 
     screen::set_pen(b_col_dark);
     screen::set_eraser(GUI::current_page->b_col);
-    GUI::drawOblong(x1, y1, x2, y2, 0.04, 0.2);
+    GUI::drawOblong(coord.x1, coord.y1, coord.x2, coord.y2, 0.04, 0.2);
     screen::set_pen(l_col);
     screen::set_eraser(b_col_dark);
-    screen::print(TEXT_SMALL, text_x, text_y, "%s", label);
-    screen::print(TEXT_SMALL, text_x1, text_y1, "%s", label1);
+    screen::print(TEXT_SMALL, text_coord.x, text_coord.y, "%s", label);
+    screen::print(TEXT_SMALL, text_coord1.x, text_coord1.y, "%s", label1);
     if(title){
       title->b_col = b_col_dark;
       title->draw();
@@ -651,47 +657,47 @@ namespace alert{
   void Slider::draw() const{
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     screen::set_pen(b_col);
-    screen::fill_rect(x1, y1, x2, y2);
+    screen::fill_rect(coord.x1, coord.y1, coord.x2, coord.y2);
     screen::set_pen(l_col);
-    if(dir == HORIZONTAL) screen::fill_rect(x1+1, y1+1, mapValues(std::clamp(val, min, max), min, max, x1, x2), y2-1);
-    else screen::fill_rect(x1+1, mapValues(std::clamp(val, min, max), min, max, y2, y1), x2-1, y2-1);
+    if(dir == HORIZONTAL) screen::fill_rect(coord.x1+1, coord.y1+1, mapValues(std::clamp(val, min, max), min, max, coord.x1, coord.x2), coord.y2-1);
+    else screen::fill_rect(coord.x1+1, mapValues(std::clamp(val, min, max), min, max, coord.y2, coord.y1), coord.x2-1, coord.y2-1);
   }
 
   void Text_::draw(){
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     updateVal();
 
-    if (x2 != 0 && y2 != 0){ //If background box exists. Should be able to get rid of this as now it always exists
+    if (box.x2 != 0 && box.y2 != 0){ //If background box exists. Should be able to get rid of this as now it always exists
       screen::set_eraser(page->b_col);
-      screen::erase_rect(x1, y1, x2, y2);
+      screen::erase_rect(box.x1, box.y1, box.x2, box.y2);
 
       screen::set_pen(b_col);
-      GUI::drawOblong(x1, y1, x2, y2, 0, 0.15);
+      GUI::drawOblong(box.x1, box.y1, box.x2, box.y2, 0, 0.15);
     }
     screen::set_pen(l_col);
     screen::set_eraser(b_col);
 
-    int x_coord = x, y_coord = y;
+    int x_coord = coord.x, y_coord = coord.y;
     if (type == GUI::Style::CENTRE){
       x_coord -= GUI::get_width(txt_size) / 2.0*text.length();
       y_coord -= GUI::get_height(txt_size) / 2.0;
     }
     
     //Resizes the background so it won't have overwriting issues
-    x1 = std::min(x1, x_coord);
-    x2 = std::max(x2, x_coord + (GUI::get_width(txt_size)+1) *static_cast<int>(text.length()));
-    y1 = std::min(y1, y_coord);
-    y2 = std::max(y2, y_coord + GUI::get_height(txt_size));
+    box.x1 = std::min(box.x1, x_coord);
+    box.x2 = std::max(box.x2, x_coord + (GUI::get_width(txt_size)+1) *static_cast<int>(text.length()));
+    box.y1 = std::min(box.y1, y_coord);
+    box.y2 = std::max(box.y2, y_coord + GUI::get_height(txt_size));
 
     screen::print(txt_size, x_coord, y_coord, "%s", text);
   }
 
 
 //Function Handling
-  void Page::setSetupFunc(std::function <void()> function){setup_func = function;}
-  void Page::setLoopFunc(std::function <void()> function){loop_func = function;}
-  void Button::setFunc(std::function <void()> function){func = function;}
-  void Button::setOffFunc(std::function <void()> function){off_func = function;}
+  void Page::setSetupFunc(std::function<void()> function){setup_func = function;}
+  void Page::setLoopFunc(std::function<void()> function){loop_func = function;}
+  void Button::setFunc(std::function<void()> function){func = function;}
+  void Button::setOffFunc(std::function<void()> function){off_func = function;}
   void Button::runFunc() const {if (func) func();}
   void Button::runOffFunc() const {if (off_func) off_func();}
   bool Button::isOn() const {return on;}
@@ -757,11 +763,11 @@ namespace alert{
   }
 
   bool Slider::pressed() const{
-    return (page->pressed() && active && inRange(GUI::x, x1, x2) && inRange(GUI::y, y1, y2));
+    return (page->pressed() && active && inRange(GUI::x, coord.x1, coord.x2) && inRange(GUI::y, coord.y1, coord.y2));
   }
 
   bool Button::pressed() const{
-    return (page->pressed() && active && inRange(GUI::x, x1, x2) && inRange(GUI::y, y1, y2));
+    return (page->pressed() && active && inRange(GUI::x, coord.x1, coord.x2) && inRange(GUI::y, coord.y1, coord.y2));
   }
 
   bool Button::newPress(){
@@ -828,11 +834,11 @@ namespace alert{
     if (pressed()){
       switch (dir){
         case HORIZONTAL:
-          val = mapValues(GUI::x, x1, x2, min, max); //Gets val based on press location
+          val = mapValues(GUI::x, coord.x1, coord.x2, min, max); //Gets val based on press location
           break;
 
         case VERTICAL:
-          val = mapValues(GUI::y, y2, y1, min, max);
+          val = mapValues(GUI::y, coord.y2, coord.y1, min, max);
           break;
       }
     }

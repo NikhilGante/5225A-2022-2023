@@ -6,9 +6,9 @@
 _Task _Controller::controller_task{"Controller"};
 _Controller* _Controller::master_ptr{nullptr};
 _Controller* _Controller::partner_ptr{nullptr};
-std::string _Controller::line_0{"Line 0 Empty"};
-std::string _Controller::line_1{"Line 1 Empty"};
-std::string _Controller::line_2{"Line 2 Empty"};
+std::string _Controller::line_0{};
+std::string _Controller::line_1{};
+std::string _Controller::line_2{};
 
 _Controller::_Controller(controller_id_e_t id): Controller{id}{
   switch(id){
@@ -21,12 +21,12 @@ _Controller::_Controller(controller_id_e_t id): Controller{id}{
       name = "Partner";
     break;
   }
-  queue.changeName("Controller" + name);
+  queue.name = name + " Controller";
 }
 
 void _Controller::handle(){
   if(!queue.empty()){
-    controller_log("Running function on %s controller\n", name);
+    controller_log("%d: Running function on %s controller\n", millis(), name);
     queue.front()();
     queue.pop();
     _Task::delay(50);
@@ -46,44 +46,46 @@ void _Controller::init(){
 void _Controller::clearLine (std::uint8_t line){
   queue.push([=, this](){
     Controller::clear_line(line);
-    controller_log("clearing line %d on %s controller", line, name);
+    controller_log("%d: clearing line %d on %s controller", line, millis(), name);
   });
-  controller_log("Adding clearLine for %s controller", name);
+  getText(line) = "";
+  controller_log("%d: Adding clearLine for %s controller", millis(), name);
 }
 
 void _Controller::clear(){
   queue.push([=, this](){
     Controller::clear();
-    controller_log("Clearing screen on %s controller", name);
+    controller_log("%d: Clearing screen on %s controller", millis(), name);
   });
-  controller_log("Adding clear to %s controller queue", name);
+  getText(0) = getText(1) = getText(2) = "";
+  controller_log("%d: Adding clear to %s controller queue", millis(), name);
 }
 
 void _Controller::rumble(std::string rumble_pattern){
   queue.push([=, this](){
     Controller::rumble(rumble_pattern.c_str());
-    controller_log("Rumbling %s controller", name);
+    controller_log("%d: Rumbling %s controller", millis(), name);
   });
-  controller_log("Adding rumble to %s controller queue", name);
+  controller_log("%d: Adding rumble to %s controller queue", millis(), name);
 }
 
-controller_digital_e_t _Controller::wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout){
+controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_e_t> buttons, int timeout){
   Timer timer{"Controller Button Timeout", controller_log};
-  controller_log("Waiting for button press on %s controller with a timeout of %d", name, timeout);
+  controller_log("%d: Waiting for button press on %s controller with a timeout of %d", millis(), name, timeout);
   
   WAIT_UNTIL(timer.getTime() > timeout){
     for(controller_digital_e_t btn: buttons){
       if(getNewDigital(btn)){
-        controller_log("Button %d pressed on %s controller", btn, name);
+        controller_log("%d: Button %d pressed on %s controller", millis(), btn, name);
         return btn;
       }
     }
   }
-  controller_log("Timed out on waiting for button press from controller %s", name);
+  controller_log("%d: Timed out on waiting for button press from controller %s", millis(), name);
   return static_cast<controller_digital_e_t>(0);
 }
 
-void _Controller::wait_for_press(controller_digital_e_t button, int timeout) {wait_for_press(std::vector{button}, timeout);}
+void _Controller::waitForPress(controller_digital_e_t button, int timeout) {waitForPress(std::vector{button}, timeout);}
 
 bool _Controller::getDigital(controller_digital_e_t button) {return get_digital(button);}
 bool _Controller::getNewDigital(controller_digital_e_t button) {return get_digital_new_press(button);}

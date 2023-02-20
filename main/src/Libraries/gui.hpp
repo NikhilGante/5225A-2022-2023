@@ -72,6 +72,21 @@ class GUI{
       CENTER=CENTRE
     };
 
+    struct Coordinate{
+      int x, y;
+      Coordinate(int, int);
+      Coordinate(){}
+    };
+
+    struct Box{
+      int x1, y1, x2, y2;
+      Box(int, int, int, int, GUI::Style = GUI::Style::CORNER);
+      Box(Coordinate, int, int, GUI::Style = GUI::Style::CORNER);
+      Box(int, int, Coordinate, GUI::Style = GUI::Style::CORNER);
+      Box(Coordinate, Coordinate, GUI::Style = GUI::Style::CORNER);
+      Box(){}
+    };
+
   private:
     static constexpr bool
       prompt_enabled = true,
@@ -106,7 +121,6 @@ class GUI{
       goTo(int);
     static Color getColour(term_colours);
     static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
-    static std::tuple<int, int, int, int> fix_points(int, int, int, int, Style);
 };
 
 class Page{
@@ -156,10 +170,10 @@ class Text_{
   friend class Slider;
 
   private:
-    int x1 = USER_RIGHT, y1 = USER_DOWN, x2 = USER_LEFT, y2 = USER_UP;
+    GUI::Box box{USER_RIGHT, USER_DOWN, USER_LEFT, USER_UP};
 
   protected:
-    int x, y;
+    GUI::Coordinate coord;
     text_format_e_t txt_size;
     std::string label, text;
     std::uint32_t l_col, b_col = static_cast<std::uint32_t>(Color::black);
@@ -207,10 +221,9 @@ class Text: public Text_{
       }
       else text = label;
     }
-    void construct (int x, int y, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V() > value, Color l_col){
+    void construct (GUI::Coordinate coord, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V()> value, Color l_col){
       //static_assert(!std::is_same_v<V, std::string>, "Text variable cannot be std::string, it causes unknown failures"); //Keep this for the painful memories
-      this->x = x;
-      this->y = y;
+      this->coord = coord;
       this->type = type;
       this->txt_size = txt_size;
       this->page = page;
@@ -228,47 +241,55 @@ class Text: public Text_{
 
       Text(const Text&) = delete;
       
-      Text(std::string text, V& value_obj, Color label_colour = Color::white){ //Terminal (var - no format)
-        construct (5, 0, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [&](){return value_obj;}, label_colour);
+      //Terminal - no format      
+      Text(std::string text, V& value_obj, Color label_colour = Color::white){ //Var
+        construct ({5, 0}, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [&](){return value_obj;}, label_colour);
       }
 
-      Text(std::string text, V& value_obj, text_format_e_t size, Color label_colour = Color::white){ //Terminal (var - format)
-        construct (5, 0, GUI::Style::CORNER, size, &terminal, text, [&](){return value_obj;}, label_colour);
+      Text(std::string text, V* value_arr, auto& index, Color label_colour = Color::white){ //Array
+        construct ({5, 0}, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
       }
 
-      Text(std::string text, V* value_arr, auto& index, Color label_colour = Color::white){ //Terminal (array - no format)
-        construct (5, 0, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
+      Text(std::string text, std::invocable auto&& func, Color label_colour = Color::white){ //Function
+        construct ({5, 0}, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, func, label_colour);
       }
 
-      Text(std::string text, V* value_arr, auto& index, text_format_e_t size, Color label_colour = Color::white){ //Terminal (array - format)
-        construct (5, 0, GUI::Style::CORNER, size, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
+      //Terminal - format
+      Text(std::string text, V& value_obj, text_format_e_t size, Color label_colour = Color::white){ //Var
+        construct ({5, 0}, GUI::Style::CORNER, size, &terminal, text, [&](){return value_obj;}, label_colour);
       }
 
-      Text(std::string text, const std::function<V()>& func, Color label_colour = Color::white){ //Terminal (function - no format)
-        construct (5, 0, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, func, label_colour);
+      Text(std::string text, V* value_arr, auto& index, text_format_e_t size, Color label_colour = Color::white){ //Array
+        construct ({5, 0}, GUI::Style::CORNER, size, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
       }
 
-      Text(std::string text, const std::function<V()>& func, text_format_e_t size, Color label_colour = Color::white){ //Terminal (function - format)
-        construct (5, 0, GUI::Style::CORNER, size, &terminal, text, func, label_colour);
+      Text(std::string text, std::invocable auto&& func, text_format_e_t size, Color label_colour = Color::white){ //Function
+        construct ({5, 0}, GUI::Style::CORNER, size, &terminal, text, func, label_colour);
       }
 
-
-      Text(int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, Color label_colour = Color::white){ //No var
-        construct (x, y, rect_type, size, &page, text, nullptr, label_colour);
+      //GUI Objects
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, Color label_colour = Color::white){ //No var
+        construct (coord, rect_type, size, &page, text, nullptr, label_colour);
       }
 
-      Text(int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V& value_obj, Color label_colour = Color::white){ //Variable
-        construct (x, y, rect_type, size, &page, text, [&](){return value_obj;}, label_colour);
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V& value_obj, Color label_colour = Color::white){ //Variable
+        construct (coord, rect_type, size, &page, text, [&](){return value_obj;}, label_colour);
       }
 
-      Text(int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V* value_arr, auto& index, Color label_colour = Color::white){ //Array
-        construct (x, y, rect_type, size, &page, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V* value_arr, auto& index, Color label_colour = Color::white){ //Array
+        construct (coord, rect_type, size, &page, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
       }
 
-      Text(int x, int y, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, const std::function<V()>& func, Color label_colour = Color::white){ //Function
-        construct (x, y, rect_type, size, &page, text, func, label_colour);
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, std::invocable auto&& func, Color label_colour = Color::white){ //Function
+        construct (coord, rect_type, size, &page, text, func, label_colour);
       }
 };
+
+//Deduction Guides
+Text(std::string, std::invocable auto&& func,                  Color = Color::white) -> Text<decltype(func())>;
+Text(std::string, std::invocable auto&& func, text_format_e_t, Color = Color::white) -> Text<decltype(func())>;
+Text(GUI::Coordinate, GUI::Style, text_format_e_t, Page&, std::string, std::invocable auto&& func, Color = Color::white) -> Text<decltype(func())>;
+
 
 class Button{
   template <typename V> friend class Text;
@@ -293,7 +314,8 @@ class Button{
 
     std::uint32_t l_col, b_col, b_col_dark;
     std::string label, label1 = "";
-    int x1, y1, x2, y2, text_x, text_y, text_x1, text_y1;
+    GUI::Box coord;
+    GUI::Coordinate text_coord, text_coord1;
     bool last_pressed = 0;
     press_type form; //What type of button
     std::function<void()> func, off_func;
@@ -315,13 +337,13 @@ class Button{
       runOffFunc() const,
       draw() const,
       drawPressed()  const,
-      construct (int, int, int, int, GUI::Style, press_type, Page*, std::string, Color, Color),
+      construct (GUI::Box, press_type, Page*, std::string, Color, Color),
       update();
 
   public:
     //Points, Format, Page, Label, Bcolour, Lcolour
     Button (const Button&) = delete;
-    Button (int, int, int, int, GUI::Style, press_type, Page&, std::string = "", Color = Color::dark_orange, Color = Color::black);
+    Button (GUI::Box, press_type, Page&, std::string = "", Color = Color::dark_orange, Color = Color::black);
 
     void
       select(),
@@ -346,8 +368,9 @@ class Slider{
   };
 
   private:
+    GUI::Box coord;
+    GUI::Coordinate text_coord;
     int
-      x1, y1, x2, y2, text_x, text_y,
       min, max,
       val, prev_val;
     std::uint32_t l_col, b_col;
@@ -365,23 +388,21 @@ class Slider{
 
   public:
     //Points, Format, Min, Max, Page, Label, Bcolour, Lcolour
-    Slider (int, int, int, int, GUI::Style, direction, double, double, Page&, std::string = "Value", double = 1, Color = Color::white, Color = Color::dark_orange);
+    Slider (GUI::Box, direction, double, double, Page&, std::string = "Value", double = 1, Color = Color::white, Color = Color::dark_orange);
     Slider (const Slider&) = delete;
 
     int getValue() const;
     void setValue(int);
 };
 
-#define DEBUG1 printf("Time:%07d - Function:%s | Line:%d\n", millis(), __PRETTY_FUNCTION__, __LINE__);
-
 //Screen Flash Definitions
 namespace alert{
   extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue;
 
-  void start   (                                         std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)}); DEBUG1} //Defaults colour and time
-  void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)}); DEBUG1} //Defaults colour
-  void start   (term_colours colour,                     std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)}); DEBUG1} //Defaults time
-  void start   (term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)}); DEBUG1} //Doesn't default
+  void start   (                                         std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
+  void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
+  void start   (term_colours colour,                     std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
+  void start   (term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
 
   void priority(                                         std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
   void priority(                     std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
