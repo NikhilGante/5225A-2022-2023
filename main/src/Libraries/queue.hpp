@@ -21,7 +21,7 @@ constexpr auto copy_pair(std::pair<I, I> in, std::pair<O, O> out){
   return amount;
 }
 
-template <typename T,  std::size_t N> requires std::same_as<std::remove_cvref_t<T>, T>
+template <typename T,  std::size_t N>
 class Queue{
   public:
     using size_type              = std::size_t;

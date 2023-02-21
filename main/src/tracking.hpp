@@ -2,9 +2,7 @@
 #include "main.h"
 #include "Libraries/geometry.hpp"
 #include "Libraries/state.hpp"
-
-#include <atomic>
-#include <variant>
+#include "Libraries/task.hpp"
 
 static constexpr double MAX_TURNING_POWER = 127;
 static constexpr double TURNING_END_ERROR = 1.5;

@@ -8,11 +8,9 @@
 #include "../util.hpp"
 #include "../menu.hpp"
 #include "../Subsystems/intake.hpp"
-#include "../Subsystems/flywheel.hpp"
 #include "../Subsystems/shooter.hpp"
 
-#include "pros/misc.hpp"
-#include <filesystem>
+#include <bitset>
 
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "main.h"
-#include "gui.hpp"
 
 template <typename derived, std::size_t size = std::numeric_limits<std::size_t>::max()>
 class ObjectTracker{

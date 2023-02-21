@@ -1,7 +1,5 @@
 #pragma once
-#include "queue.hpp"
-#include "printing.hpp"
-#include "tracker.hpp"
+#include "gui.hpp"
 
 enum class log_locations{
   none,
@@ -27,7 +25,6 @@ extern Logging none_log;
 
 class Logging: public ObjectTracker<Logging>{
   private:
-  public:
     Button print_btn;
     term_colours print_colour;
     bool newline;
@@ -38,18 +35,19 @@ class Logging: public ObjectTracker<Logging>{
 
     static constexpr size_t print_max_size{12000};
     static constexpr uint32_t print_max_time{800};
-    static std::string folder_name = "/usd/Logging/";
+    static std::string folder_name;
     static _Task task;
 
     std::string fullName();
     void update(uint64_t time, bool force = false);
-    static void init();
     static void pause();
     static void resume();
 
   public:
     Logging(std::string name, bool newline = false, log_locations location = log_locations::both, term_colours print_colour = term_colours::NONE);
 
+    static void init();
+    
     void operator() (term_colours colour, std::string format, auto... args){
       if (location == log_locations::none) return;
 

@@ -1,8 +1,8 @@
 #include "gui.hpp"
-#include "../config.hpp"
 #include "task.hpp"
-#include "../Devices/controller.hpp"
 #include "timer.hpp"
+#include "../config.hpp"
+#include "../Devices/controller.hpp"
 #include "../util.hpp"
 
 //GUI:: Static Variable Declarations
@@ -42,6 +42,7 @@
     Text screen_flash_time ({70, 85}, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", [](){return alert::end_time-alert::timer.getTime();});
 
   Page terminal ("Screen Printing");
+
 
 namespace alert{
   const Page* page;
@@ -152,24 +153,24 @@ namespace alert{
     master.clear();
     master.print(0, "Press OK btn");
     bool interrupted = false;
-    const Page* page = GUI::current_page;
+    Page const * page = GUI::current_page;
     prompt_sequence.goTo();
 
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-      GUI::update_screen_status(); //? Should be able to get rid of this
+      // GUI::update_screen_status(); //? Should be able to get rid of this
       if (prompt_back_button.pressed()) interrupted = true;
     }
 
     //Wait for Press
     WAIT_UNTIL((prompt_button.pressed() || master.getDigital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-      GUI::update_screen_status(); //? Should be able to get rid of this
+      // GUI::update_screen_status(); //? Should be able to get rid of this
       if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
     }
     
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-      GUI::update_screen_status(); //? Should be able to get rid of this
+      // GUI::update_screen_status(); //? Should be able to get rid of this
       if (prompt_back_button.pressed()) interrupted = true;
     }
 

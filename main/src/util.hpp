@@ -1,6 +1,5 @@
 #pragma once
-#include "Libraries/logging.hpp"
-#include <cmath>
+#include "main.h"
 #include <numbers>
 
 inline constexpr double rot_to_deg = 360;
@@ -51,7 +50,7 @@ auto mapValues(auto x, auto in_min, auto in_max, auto out_min, auto out_max) {re
 auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range, auto val){
   if (input <= range) return map(input, in_min, range, out_min, val);
   else {
-    alert::start("INVALID INPUT IN MAP FUNCTION");
+    throw std::domain_error("INVALID INPUT IN MAP FUNCTION");
     return 0;
   }
 }

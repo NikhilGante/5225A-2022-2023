@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
 #include "pros/vision.h"
-#include "../Libraries/logging.hpp"
 
 class _Vision: private Vision{
   public:

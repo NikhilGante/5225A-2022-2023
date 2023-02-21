@@ -1,7 +1,6 @@
 #include "tracking.hpp"
 #include "config.hpp"
 #include "drive.hpp"
-#include "util.hpp"
 #include "Libraries/pid.hpp"
 #include "Libraries/timer.hpp"
 #include "Devices/piston.hpp"

@@ -1,5 +1,4 @@
 #pragma once
-#include "../Libraries/state.hpp"
 #include "flywheel.hpp"
 
 static constexpr int barrier_rpm = 1820;

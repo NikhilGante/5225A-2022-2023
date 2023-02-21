@@ -1,8 +1,8 @@
 #pragma once
 #include "main.h"
 #include "pros/colors.hpp"
-#include "printing.hpp"
 #include "queue.hpp"
+#include "tracker.hpp"
 
 using pros::text_format_e_t;
 using pros::Color;
@@ -51,7 +51,7 @@ namespace alert{
 
 //All constructor args are in the format points, format, page, Text, Color
 
-class GUI{
+class GUI: public ObjectTracker<GUI>{
   template <typename V> friend class Text;
   friend class Page;
   friend class Button;
@@ -112,8 +112,7 @@ class GUI{
 
   public:
     //Pages in the gui, init function, loop function
-    GUI(const GUI&) = delete;
-    GUI(std::vector<Page*>, std::function <void()>, std::function <void()>);
+    GUI(std::vector<Page*>, std::function<void()>, std::function<void()>);
 
     static void
       alignedCoords (int, int, int, int, int = 480, int = 220),
@@ -123,7 +122,7 @@ class GUI{
     static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
 };
 
-class Page{
+class Page: public ObjectTracker<Page>{
   template <typename V> friend class Text;
   friend class GUI;
   friend class Button;
@@ -151,7 +150,6 @@ class Page{
 
   public:
     //Title, Bcolour
-    Page(const Page&) = delete;
     explicit Page(std::string, Color = Color::black);
 
     void
@@ -162,7 +160,7 @@ class Page{
 };
 
 //Text parent class
-class Text_{
+class Text_: public ObjectTracker<Text_>{
   template <typename V> friend class Text;
   friend class GUI;
   friend class Page;
@@ -244,7 +242,6 @@ class Text: public Text_{
 
     //Constructors (Points, Format, Page, Label, [var info], Lcolour)
 
-      Text(const Text&) = delete;
       
       //Terminal - no format      
       Text(std::string text, V& value_obj, Color label_colour = Color::white){ //Var
@@ -296,7 +293,7 @@ Text(std::string, std::invocable auto&& func, text_format_e_t, Color = Color::wh
 Text(GUI::Coordinate, GUI::Style, text_format_e_t, Page&, std::string, std::invocable auto&& func, Color = Color::white) -> Text<decltype(func())>;
 
 
-class Button{
+class Button: public ObjectTracker<Button>{
   template <typename V> friend class Text;
   friend class GUI;
   friend class Page;
@@ -347,7 +344,6 @@ class Button{
 
   public:
     //Points, Format, Page, Label, Bcolour, Lcolour
-    Button (const Button&) = delete;
     Button (GUI::Box, press_type, Page&, std::string = "", Color = Color::dark_orange, Color = Color::black);
 
     void
@@ -360,7 +356,7 @@ class Button{
     bool isOn() const;
 };
 
-class Slider{
+class Slider: public ObjectTracker<Slider>{
   template <typename V> friend class Text;
   friend class GUI;
   friend class Page;
@@ -394,7 +390,6 @@ class Slider{
   public:
     //Points, Format, Min, Max, Page, Label, Bcolour, Lcolour
     Slider (GUI::Box, direction, double, double, Page&, std::string = "Value", double = 1, Color = Color::white, Color = Color::dark_orange);
-    Slider (const Slider&) = delete;
 
     int getValue() const;
     void setValue(int);

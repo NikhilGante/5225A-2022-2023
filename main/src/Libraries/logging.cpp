@@ -1,18 +1,13 @@
 #include "logging.hpp"
-#include "printing.hpp"
 #include "timer.hpp"
-#include "gui.hpp"
 #include "task.hpp"
-#include "../config.hpp"
-#include "../util.hpp"
-#include "../Devices/controller.hpp"
 
 #include <fstream>
-#include <string>
 
 extern Page logging;
 extern Button clear_logs;
 
+std::string Logging::folder_name = "/usd/Logging/";
 _Task Logging::task{"Logging"};
 
 // Logging master_log    {"Master"    , false, term_colours::NONE, log_locations::none};

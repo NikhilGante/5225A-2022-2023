@@ -1,6 +1,5 @@
 #pragma once
 #include "main.h"
-#include <bitset>
 
 struct Position;
 struct Vector;
@@ -44,9 +43,6 @@ void newline(int count = 1);
   /*Vectors (C++)*/ template <typename _Tp> std::string convert_all_args(const std::string& fmt, const std::vector<_Tp>& arg);
   /*Arrays (C++)*/ template <typename _Tp, std::size_t _Nm> std::string convert_all_args(const std::string& fmt, const std::array<_Tp, _Nm>& arg);
   /*Arrays (C)*/ template <typename _Tp, std::size_t _Nm> std::string convert_all_args(const std::string& fmt, const _Tp (&arg) [_Nm]);
-  /*Initializer lists*/ template <typename _Tp> std::string convert_all_args(const std::string& fmt, const std::initializer_list<_Tp>& arg);
-  /*Bitsets*/ template <size_t _Nb> std::string convert_all_args(const std::string& fmt, const std::bitset<_Nb>& arg);
-  /*Tuples*/ template <typename... Args> std::string convert_all_args(const std::string& fmt, const std::tuple<Args...>& arg);
   /*Strings*/ std::string convert_all_args(const std::string& fmt, const std::string& arg);
   /*Positions*/ std::string convert_all_args(const std::string& fmt, const Position& arg);
   /*Vectors (Geometry)*/ std::string convert_all_args(const std::string& fmt, const Vector& arg);
@@ -56,44 +52,15 @@ void newline(int count = 1);
   //Template Recursion Base case
   const std::string& sprintf2(const std::string& fmt);
 
-  /**
-  * @brief Formats a printf-style function call into an std::string with more safety.
-  * Calls itself recursively to handle all the arguments to the function.
-  * @param fmt Format string
-  * @param arg 1st argument
-  * @param args Rest of the arguments
-  * @return std::string
-  */
-  //No support for %n format
   template <typename Param, typename... Params>
   std::string sprintf2(std::string fmt, const Param& arg, const Params&... args);
 
-  /**
-  * @brief printf that handles strings and automatically newlines
-  * 
-  * @param colour The colour to print in 
-  * @param fmt printf format string
-  * @param args printf args
-  */
   template <typename... Params>
   std::string sprintf2_colour(term_colours colour, std::string fmt, Params... args);
 
-  /**
-  * @brief printf that handles all datatypes and automatically newlines. Can print coloured
-  *
-  * @param colour The colour to print in 
-  * @param fmt printf format string
-  * @param args printf args
-  */
   template <typename... Params>
   int printf2(term_colours colour, std::string fmt, Params... args);
 
-  /**
-  * @brief printf that handles all datatypes and automatically newlines.
-  * 
-  * @param fmt printf format string
-  * @param args printf args
-  */
   template <typename... Params>
   int printf2(std::string fmt, Params... args);
 
@@ -177,42 +144,6 @@ void newline(int count = 1);
     str += '}';
     return str;
   }
-  template <typename _Tp>
-  std::string convert_all_args(const std::string& fmt, const std::initializer_list<_Tp>& arg){
-    std::string str;
-    str += '{';
-    for (typename std::initializer_list<_Tp>::const_iterator it = arg.begin(); it != arg.end(); it++){
-      str += convert_all_args(fmt, *it);
-      if (it+1 != arg.end()) str += ", ";
-    }
-    str += '}';
-    return str;
-  }
-  template <size_t _Nb>
-  std::string convert_all_args(const std::string& fmt, const std::bitset<_Nb>& arg){
-    std::string str;
-    str += '{';
-    if(fmt.back() == 's') str += arg.to_string();
-    else{
-      for(int i = 0; i < arg.size(); i++){
-        str += convert_all_args(fmt, arg[i]);
-        if (i+1 != arg.size()) str += ", ";
-      }
-    }
-    str += '}';
-    return str;
-  }
-  template <typename... Args>
-  std::string convert_all_args(const std::string& fmt, const std::tuple<Args...>& arg){
-    std::string str;
-    str += '{';
-    for(int i = 0; i < std::tuple_size<std::tuple<Args...>>(); i++){
-      str += convert_all_args(fmt, std::get<i>(arg));
-    }
-    str += '}';
-    return str;
-  }
-
 
 //Print Definitions
   template <typename Param, typename... Params>

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <array>
 
 constexpr int polynomial(int x, double curvature);

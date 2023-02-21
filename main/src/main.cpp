@@ -1,17 +1,14 @@
 #include "main.h"
 #include "Libraries/gui.hpp"
-#include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
 #include "Devices/controller.hpp"
-#include "Devices/vision.hpp"
-#include "Subsystems/flywheel.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
 #include "auton.hpp"
 #include "config.hpp"
 #include "menu.hpp"
-#include "pros/misc.h"
 #include "tracking.hpp"
+#include "util.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -91,13 +88,8 @@ Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
 //!check that log folders is good
-//Add object tracker to GUI classes once it works
+//!fix logging issue
 //Logging different sizes
-//Remove unnecessary headers
-
-Text tas("Log Task: %d", [](){return Logging::task.isAlive();});
-Text trac("Tracking: %d", [](){return tracking_log.queue.size();});
-Text fly("Flywheel: %d", [](){return flywheel.log.queue.size();});
 
 void opcontrol() {
   DEBUG;

@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/gui.hpp"
-#include "../Libraries/tracker.hpp"
 
 class Piston: private ADIDigitalOut, public ObjectTracker<Piston, 12>{
   private:

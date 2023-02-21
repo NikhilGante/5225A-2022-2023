@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/logging.hpp"
-#include "../Libraries/queue.hpp"
 
 // Buttons
   static constexpr controller_digital_e_t okBtn = DIGITAL_A;

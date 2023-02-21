@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/gui.hpp"
-#include "../Libraries/tracker.hpp"
 
 class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
   private:

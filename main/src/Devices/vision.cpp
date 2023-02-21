@@ -1,4 +1,5 @@
 #include "vision.hpp"
+#include "../Libraries/logging.hpp"
 
 _Vision::signature _Vision::blue_sig = Vision::signature_from_utility(1, -2835, -983, -1909, 6951, 9185, 8068, 3.0, 0);
 _Vision::signature _Vision::red_sig  = Vision::signature_from_utility(2, 10795, 13423, 12109, -399, 809, 205, 3.0, 0);
