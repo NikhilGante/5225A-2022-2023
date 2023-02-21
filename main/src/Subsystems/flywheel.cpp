@@ -18,7 +18,10 @@ constexpr double CARTRIDGE_TO_RAW = 6;
 // 1700 from barrier
 // RPM is 1400 for toaster shot
 // 56 degrees up close
-Machine<FLYWHEEL_STATE_TYPES> flywheel("Flywheel", FlywheelMoveVelParams{barrier_rpm});
+Machine<FLYWHEEL_STATE_TYPES> flywheel{"Flywheel", FlywheelOffParams{}};
+
+bool flywheelOn = true;
+
 
 // Flywheel idle state
 
@@ -46,17 +49,6 @@ FlywheelMoveVelParams::FlywheelMoveVelParams(int target_vel): target_vel(target_
 
 void FlywheelMoveVelParams::handle(){
   rot_vel = -flywheel_rot_sensor.get_velocity()/60.0;	// Actual velocity of flywheel
-  // flywheel_log("vel:%d\n", rot_vel);
-  // error = target_vel - rot_vel;
-  // output = kB * target_vel + kP * error;
-  // output = std::clamp(output, -1.0, 127.0);	// Decelerates at -1.0 at the most
-  // flywheel_m.move(output);
-  // flywheel_log("%d, %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), flywheel_ds.get_value(), target_vel, rot_vel, error.load(), output, target_vel * kB, kP*error);
-
-  // ***********************
-
-  // if(master.getNewDigital(DIGITAL_UP))  target_vel += 25;
-  // if(master.getNewDigital(DIGITAL_DOWN))  target_vel -= 25;
 
   // Calculating filtered velocity
   if(motor_vel_read.getTime() >= 40){
@@ -72,26 +64,29 @@ void FlywheelMoveVelParams::handle(){
 
   // Velocity control
   flywheel_error = target_vel - rot_vel;
-  // double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
   const double correction = flywheel_error*kP;
-  // if(std::abs(correction) > 2500) correction = 2500;
   output = kB * target_vel + correction;
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
-  // output = 127;
-  
-  if(shooter_ds.get_value() < 2000){
+
+  if(log_timer.getTime() > 100){
     flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
+    log_timer.reset();
   }
 
-  // if (flywheel_m.getTemperature() >= 50){
-  //   master.rumble();
-  //   flywheel_m.move(0);
-  //   WAIT_UNTIL(false);
-  // }
-  flywheel_m.move(output);
+  if(!master.connected()){
+    WAIT_UNTIL(master.connected());
+    flywheel_m.move(0);
+    delay(100);
+  }
+
+  if(master.getNewDigital(goalDisturbBtn)){
+    flywheelOn = !flywheelOn;
+  }
+
+  flywheel_m.move(flywheelOn ? output : 0);
 }
 
-void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {}
+void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {log_timer.reset();}
 
 void setFlywheelVel(int32_t vel){
   flywheel.log("Flywheel was to velocity %d", vel);

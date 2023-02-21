@@ -100,7 +100,7 @@ void newline(int count = 1);
       if(end[1] == 'l') snprintf(buffer, n_printf_max, format, static_cast<wint_t>(arg));
       else snprintf(buffer, n_printf_max, format, static_cast<int>(arg));
     }
-    else if(end[1] == 'z') snprintf(buffer, n_printf_max, format, static_cast<size_t>(arg));
+    else if(end[1] == 'z') snprintf(buffer, n_printf_max, format, static_cast<std::size_t>(arg));
     else if(end[1] == 't') snprintf(buffer, n_printf_max, format, static_cast<ptrdiff_t>(arg));
 
     else snprintf(buffer, n_printf_max, format, arg);

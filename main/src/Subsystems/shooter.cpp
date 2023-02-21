@@ -44,10 +44,10 @@ void shooterHandleInput(){
     }
   }
 
-  if(master.getNewDigital(goalDisturbBtn)){
-    goal_disturb = !goal_disturb;
-    if(goal_disturb && angler_p.getState() == 1) setFlywheelVel(3600);
-  }
+  // if(master.getNewDigital(goalDisturbBtn)){
+  //   goal_disturb = !goal_disturb;
+  //   if(goal_disturb && angler_p.getState() == 1) setFlywheelVel(3600);
+  // }
 }
 
 // Shooter idle state
@@ -98,7 +98,6 @@ void ShooterShootParams::handle(){
     shots_left--;
     shooter.log("shots left: %d", shots_left);
     if (g_mag_disc_count > 0) g_mag_disc_count--;
-    
 
     shooter.log("condition %d", shots_left <= 0);
     _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE
@@ -122,12 +121,9 @@ void ShooterShootParams::handle(){
 }
 
 void ShooterShootParams::handleStateChange(shooterVariant prev_state){
-  // angler_p.setState(LOW);
   shooter.log("INIT shots_left %d", shots_left);
   intakeIndex();  // Sets intake to index state
   flywheelVariant temp_flywheel_state = flywheel.getState();
-  // if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;
-  // else std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.5;
 }
 
 void shoot(int shots){

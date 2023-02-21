@@ -21,7 +21,6 @@ constexpr int poly_min_pow(int x, double curvature){
   if(std::abs(x) < _Controller::deadzone) return 0;
   return round(sgn(x) * ((127 - tracking.min_move_power_a)/pow(127 - _Controller::deadzone, n) * pow(abs(x) - _Controller::deadzone, n) + tracking.min_move_power_a));
 }
-// private methods
 constexpr int CustomDrive::polynomial (int x) const {return ::polynomial(x, curvature);}
 constexpr int CustomDrive::exponential(int x) const {
   const double n = curvature;
@@ -162,6 +161,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   bool endgame_dbl_click_right = false;
   // driveBrake();
   // drive.changeState(DriveIdleParams{});
+
 	while(true){
 
     if(endgame_click_timer_left.getTime() > 300){

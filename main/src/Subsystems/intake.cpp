@@ -8,7 +8,7 @@
 #include "../Devices/piston.hpp"
 #include "shooter.hpp"
 
-Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
+Machine<INTAKE_STATE_TYPES> intake{"Intake", IntakeOffParams{}};
 
 void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
@@ -106,7 +106,7 @@ void IntakeRollerParams::handle(){
 	Timer roller_timer{"roller_timer", intake.log};
   // Switches to opposite colour it saw
 
-  intake_m.moveRelative(-650);  //should be 450, For skills, should be 650
+  intake_m.moveRelative(-700);  //should be 450, For skills, should be 650
   WAIT_UNTIL(std::abs(intake_m.getTargetPosition() - intake_m.getPosition()) < 10); // wait for intake to reach poisiton 
   /*
   const int thresh = 3000;

@@ -49,6 +49,7 @@ class _Controller: private Controller{
     int getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
     bool getDigital(controller_digital_e_t);
     bool getNewDigital(controller_digital_e_t);
+    bool connected();
     bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
     void waitForPress(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
     controller_digital_e_t waitForPress(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());

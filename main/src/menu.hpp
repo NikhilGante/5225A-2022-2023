@@ -9,7 +9,7 @@ class Auton: public ObjectTracker<Auton>{
       far
     };
 
-  // private:
+  private:
     E_Reset_Types reset_type;
     std::string name;
     std::function<void()> program;

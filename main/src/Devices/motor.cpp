@@ -96,7 +96,7 @@ void _Motor::updateTemperatureText(){
     default: temperature.setBackground(static_cast<Color>((std::uint32_t)rand())); break;
   }
 
-  if (getTemperature() > 55){
+  if (getTemperature() > 50){
     temps.goTo();
     alert::start(5000, "%s motor is at %dC\n", getName(), getTemperature());
   }

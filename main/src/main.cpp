@@ -89,13 +89,15 @@ Auton auton4("Skills", fullSkills);
 
 //!check that log folders is good
 //!fix logging issue
+//remove timer from subsystems
+//add rumble back to alert
 //Logging different sizes
 
 void opcontrol() {
   DEBUG;
 
   WAIT_UNTIL(false){
-
+    
   }
 
   DEBUG;

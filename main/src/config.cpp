@@ -36,3 +36,4 @@ Piston endgame_d_p{'G', "Endgame Double", false, LOW}; // Double acting
 Optical roller_sensor{8};
 Distance l_reset_dist{3}, r_reset_dist{7};
 Imu gyro{14};
+// Link radio{4, "Radio", pros::E_LINK_RECIEVER};

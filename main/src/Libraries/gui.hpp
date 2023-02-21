@@ -87,7 +87,7 @@ class GUI: public ObjectTracker<GUI>{
       Box(){}
     };
 
-  // private:
+  private:
     static constexpr bool
       prompt_enabled = true,
       testing_page_active = false;
@@ -171,7 +171,6 @@ class Text_: public ObjectTracker<Text_>{
     GUI::Box box;
 
   protected:
-    public:
     GUI::Coordinate coord;
     text_format_e_t txt_size;
     std::string label, text;
@@ -311,7 +310,7 @@ class Button: public ObjectTracker<Button>{
     TOGGLE
   };
 
-  // private:
+  private:
     Button (){};
 
     std::uint32_t l_col, b_col, b_col_dark;

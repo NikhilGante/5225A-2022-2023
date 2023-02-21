@@ -28,7 +28,9 @@ class Timer{
     uint64_t getTime() const;
     void play();
     void pause();
-    void print(std::string str = "") const; // prints to the terminal with custom message
     bool playing() const;
     std::string get_name() const;
+    void print(std::string str = "", auto... args) const{
+      (*log)("%s Timer's current time is: %lld | %s\n", get_name(), getTime(), sprintf2(str, args...));
+    }
 };

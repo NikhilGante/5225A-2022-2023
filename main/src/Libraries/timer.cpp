@@ -35,10 +35,6 @@ void Timer::pause(){
   else (*log)(get_name() + " Timer is already paused.\n");
 }
 
-void Timer::print(std::string str) const{
-  (*log)(get_name() + " Timer's current time is: %lld | %s\n", getTime(), str);
-}
-
 bool Timer::playing() const {return !paused;}
 
 uint64_t Timer::getTimeInTimingUnit() const { // returns time in either millis or micros

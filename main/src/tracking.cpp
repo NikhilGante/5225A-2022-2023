@@ -101,14 +101,18 @@ void trackingUpdate(){
     if(!gyro.is_calibrating()){
       double gyro_angle = gyro.get_rotation() * 1.011;
       theta = gyro_angle - last_gyro_angle;
-      // tracking_log("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
-      if(gyro.get_rotation() == EAGAIN) tracking_log("CAL\n");
+      // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
       if(std::abs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
       last_gyro_angle = gyro_angle;
     }
     else theta = 0.0;
 
+
+    // 40 inches per second (3 seconds to cross field - 300 cycles): right = 0.4
+    // Assumptions - 3 degs travelled (0.0523599 rads), 1 inch radius, 
+    // sin(beta) = 0.02617690954
+    // radius_R = 0.4/0.0523599 = 7.63943399434
     if (theta != 0){  // if the robot has travelled in an arc
       radius_r = right/theta;
       radius_b = back/theta;
@@ -137,7 +141,7 @@ void trackingUpdate(){
     // tracking_log("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
     if(tracking_timer.getTime() > 50){
       // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.g_vel.x, tracking.g_vel.y);
-      tracking_log("POS | %lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+      // tracking_log("POS | %lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // tracking_log("%lf\n", radToDeg(tracking.g_vel.a));
 
       // tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
@@ -273,7 +277,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
 
 // STATE MACHINE STUFF 
 
-Machine<DRIVE_STATE_TYPES> drive("Drive", DriveOpControlParams{});
+Machine<DRIVE_STATE_TYPES> drive("Drive", DriveIdleParams{});
 
 // Drive idle state
 void DriveIdleParams::handle(){}
