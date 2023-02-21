@@ -9,7 +9,7 @@ void Piston::construct(std::string name, bool reversed, ext_adi_port_pair_t port
 
   //3x3
   //!Fix int cast here
-  toggle.construct({155*(getID()%3) + 10, 50*(int)std::floor(getID()/3) + 30, 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port.first) + "," + static_cast<char>(port.second) + '}', Color::dark_orange, Color::black);
+  toggle.construct({155*((getID()-1)%3) + 10, 50*(int)std::floor((getID()-1)/3) + 30, 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port.first) + "," + static_cast<char>(port.second) + '}', Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){
     device_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), HIGH != this->reversed);

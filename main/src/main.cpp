@@ -91,8 +91,6 @@ Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
 //!check that log folders is good
-//check that auton selector works
-//ask nikhil is he wants individual logs for tasks
 //Add object tracker to GUI classes once it works
 //Logging different sizes
 //Remove unnecessary headers
@@ -105,11 +103,7 @@ void opcontrol() {
   DEBUG;
 
   WAIT_UNTIL(false){
-    if(master.getNewDigital(DIGITAL_A)){
-      printf2("Logging: %d\n", Logging::task.isAlive());
-      printf2("Tracking: %d\n", tracking_log.queue.size());
-      printf2("Flywheel: %d\n", flywheel.log.queue.size());
-    }
+
   }
 
   DEBUG;

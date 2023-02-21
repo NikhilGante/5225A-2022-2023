@@ -247,7 +247,7 @@ void aimAtBlue(double offset, double max_power, double end_error){
 void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
 
-  PID angle_pid(tracking_log, 5.2, 0, 100, 0.0, true, 1.0, degToRad(9.0));
+  PID angle_pid("Turn to Angle", tracking_log, 5.2, 0, 100, 0.0, true, 1.0, degToRad(9.0));
 
   constexpr double kB = 18.5; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer", tracking_log};
@@ -295,7 +295,7 @@ void DriveMttParams::handle(){
   line_error.rotate(tracking.getPos().a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer", tracking_log};
-  PID y_pid(tracking_log, 5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
+  PID y_pid("Move to Target", tracking_log, 5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:

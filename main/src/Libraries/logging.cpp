@@ -8,7 +8,7 @@
 #include "../Devices/controller.hpp"
 
 #include <fstream>
-#include <filesystem>
+#include <string>
 
 extern Page logging;
 extern Button clear_logs;
@@ -23,21 +23,23 @@ Logging driver_log    {"Driver"    , false, log_locations::sd_main};
 Logging controller_log{"Controller", true , log_locations::sd_only};
 Logging device_log    {"Device"    , true , log_locations::sd_only};
 Logging task_log      {"Tasks"     , true , log_locations::sd_main, term_colours::ERROR};
-Logging error_log     {"Error"     , false, log_locations::none   , term_colours::ERROR};
+Logging error_log     {"Error"     , false, log_locations::both   , term_colours::ERROR};
 Logging log_log       {"Log"       , true};
 Logging none_log      {"None"      , false, log_locations::none};
 
 Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
 name{name}, newline{newline}, location{location}, print_colour{print_colour}, queue{name} {
-  static int x = 110, y = 40;
-  print_btn.construct({x, y, 80, 40, GUI::Style::SIZE}, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
-  x = x != 380 ? x+90 : 20;
-  if ((getID()+2) % 5 == 0) y += 50;
+  static int x = 130, y = 40;
+  print_btn.construct({x, y, 100, 40, GUI::Style::SIZE}, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
+  x = x != 360 ? x+115 : 15;
+  if ((getID()+1) % 4 == 0) y += 50;
 
   print_btn.setFunc([this](){
     printf2(term_colours::GREEN, "\n\nStart %s Log Terminal Dump\n", this->name);
     std::cout << get_term_colour(term_colours::BLUE);
-    std::cout << Interrupter<std::ifstream>(fullName()).stream.rdbuf() << std::endl;
+    auto file = Interrupter<std::ifstream>(fullName());
+    if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
+    else std::cout << fullName() << " unopenable" << std::endl;
     printf2(term_colours::RED, "\nEnd %s Log Terminal Dump\n\n", this->name);
   });
 }
@@ -58,12 +60,29 @@ void Logging::init(){
       }
     }
   }
+  else{
+    int count;
+    {
+      std::ifstream log_count{"log_count.txt"};
+      if (log_count.is_open()) log_count >> count;
+      else count = -1;
+    }
+    log_log("Log Version %d", count);
+    folder_name += std::to_string(count) + ' ';
+    {
+      std::ofstream log_count{"log_count.txt"};
+      log_count << count + 1;
+    }
+
+    for(Logging* log: getList()){
+      log_log("%d: Opening %s log file on SD", millis(), log->name);
+      std::ofstream file_init{log->fullName(), std::ofstream::trunc};
+      file_init << "Start of " + log->name + " log file\n\n";
+    }
+  }
 
   for(Logging* log: getList()){
     if(log->location == log_locations::terminal || log->location == log_locations::none) log->print_btn.setActive(false);
-    log_log("%d: Opening %s log file ", millis(), log->name);
-    std::ofstream file_init{log->fullName(), std::ofstream::trunc};
-    file_init << "Start of " + log->name + " log file\n\n";
   }
 
   task.start([](){ //Logging is good to go
@@ -85,12 +104,8 @@ void Logging::update(uint64_t time, bool force){
   if(!queue.empty() && (force || queue.size() > print_max_size)){
     if(location == log_locations::sd_main || location == log_locations::sd_only || location == log_locations::both){
       queue_mutex.take(TIMEOUT_MAX);
-      // printf2("%s: T:%d | S:%d\n", name, force, queue.size() > print_max_size);
-      // printf2("%s: A:%d | TE%d SE%d T%d S%d\n", name, task.isAlive(), force, queue.size() > print_max_size, time, queue.size());
       std::ofstream data{fullName(), std::ofstream::app};
-      DEBUG;
       queue.output(data);
-      DEBUG;
       queue.clear();
       queue_mutex.give();
     }

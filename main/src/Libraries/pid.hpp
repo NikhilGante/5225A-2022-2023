@@ -12,7 +12,7 @@ class PID{
     double error, last_error, kP, kI, kD, proportional, integral, integral_lower_bound, integral_upper_bound, derivative, bias, output;
 
   public:
-    PID(Logging& log, double kP, double kI, double kD, double bias, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = std::numeric_limits<double>::max());
+    PID(std::string name, Logging& log, double kP, double kI, double kD, double bias, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = std::numeric_limits<double>::max());
     double getError() const;
     double getOutput() const;
     double getProportional() const;

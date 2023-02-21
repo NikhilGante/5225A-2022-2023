@@ -87,7 +87,7 @@ class GUI{
       Box(){}
     };
 
-  private:
+  // private:
     static constexpr bool
       prompt_enabled = true,
       testing_page_active = false;
@@ -132,7 +132,7 @@ class Page{
   friend void alert::update();
 
   private:
-
+  public:
     std::function <void()> setup_func, loop_func;
     std::uint32_t b_col;
     std::string title;
@@ -170,9 +170,10 @@ class Text_{
   friend class Slider;
 
   private:
-    GUI::Box box{USER_RIGHT, USER_DOWN, USER_LEFT, USER_UP};
+    GUI::Box box;
 
   protected:
+    public:
     GUI::Coordinate coord;
     text_format_e_t txt_size;
     std::string label, text;
@@ -223,6 +224,10 @@ class Text: public Text_{
     }
     void construct (GUI::Coordinate coord, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V()> value, Color l_col){
       //static_assert(!std::is_same_v<V, std::string>, "Text variable cannot be std::string, it causes unknown failures"); //Keep this for the painful memories
+      box.x1 = USER_RIGHT;
+      box.y1 = USER_DOWN;
+      box.x2 = USER_LEFT;
+      box.y2 = USER_UP;
       this->coord = coord;
       this->type = type;
       this->txt_size = txt_size;
@@ -397,7 +402,7 @@ class Slider{
 
 //Screen Flash Definitions
 namespace alert{
-  extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue;
+  extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 25> queue;
 
   void start   (                                         std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
   void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour

@@ -39,7 +39,7 @@
       Button drive_motors ({15, 45, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Drive Motors");
       Button pneums ({130, 45, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Pneumatics");
       Button auton_selector ({245, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Select Autons");
-      Button sensor_check ({15, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Distance");
+      Button sensor_check ({15, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Devices");
       Button misc_checks ({130, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Misc");
 
     Page track ("Tracking"); //Display tracking vals and reset btns
@@ -72,8 +72,8 @@
       Button intake_on ({200 , 50 , 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "On");
       Button intake_rev({200, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Off");
       Button intake_off({200, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Reverse");
-      Slider flywheel_vel({40, 60, 20, 120, GUI::Style::SIZE}, Slider::VERTICAL, 0, 127, systems, "Fly Vel");
-      Button flywheel_set({150, MID_Y, 40, 25, GUI::Style::CENTRE}, Button::SINGLE, systems, "Flywheel Set");
+      Slider flywheel_vel({40, 80, 20, 120, GUI::Style::SIZE}, Slider::VERTICAL, 0, 127, systems, "Fly Vel");
+      Button flywheel_set({60, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Flywheel Set");
 
     Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
       Text tuning_instructions_1({MID_X, 35}, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow");
@@ -95,7 +95,7 @@
       //Remaining elements created upon instantiation of Piston objects
 
     Page logging ("Logging"); //Log printing page from file to terminal
-      Button clear_logs ({20, 40, 80, 40, GUI::Style::SIZE}, Button::SINGLE, logging, "Clear Logs", Color::red);
+      Button clear_logs ({15, 40, 100, 40, GUI::Style::SIZE}, Button::SINGLE, logging, "Clear Logs", Color::red);
       //Remaining elements created upon instantiation of Logging objects
 
 

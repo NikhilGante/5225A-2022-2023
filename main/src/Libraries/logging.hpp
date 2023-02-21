@@ -2,7 +2,6 @@
 #include "queue.hpp"
 #include "printing.hpp"
 #include "tracker.hpp"
-#include <fstream>
 
 enum class log_locations{
   none,
@@ -39,7 +38,7 @@ class Logging: public ObjectTracker<Logging>{
 
     static constexpr size_t print_max_size{12000};
     static constexpr uint32_t print_max_time{800};
-    inline static const std::string folder_name = "/usd/Logging/";
+    static std::string folder_name = "/usd/Logging/";
     static _Task task;
 
     std::string fullName();

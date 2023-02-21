@@ -14,11 +14,11 @@ Motor{port, gearset, reversed, encoder_units}, name{name}{
   }
 
   //2x4
-  on         .construct({115*(getID()%4) + 15, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
-  off        .construct({115*(getID()%4) + 70, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
-  text       .construct({115*(getID()%4) + 65, getID() < 4 ? 95  : 180},        GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName()                    , nullptr                                           , Color::white);
-  data       .construct({115*(getID()%4) + 65, getID() < 4 ? 110 : 195},        GUI::Style::CENTRE, TEXT_SMALL    , &motors, std::to_string(port) + ": %d", std::function([this](){return getRPM();})         , Color::white);
-  temperature.construct({115*(getID()%4) + 65, getID() < 4 ? 125 : 190},        GUI::Style::CENTRE, TEXT_SMALL    , &temps , getShortName() + ": %dC"     , std::function([this](){return get_temperature();}), Color::black);
+  on         .construct({115*((getID()-1)%4) + 15, getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
+  off        .construct({115*((getID()-1)%4) + 70, getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
+  text       .construct({115*((getID()-1)%4) + 65, getID() <= 4 ? 95  : 180},        GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName()                    , nullptr                                           , Color::white);
+  data       .construct({115*((getID()-1)%4) + 65, getID() <= 4 ? 110 : 195},        GUI::Style::CENTRE, TEXT_SMALL    , &motors, std::to_string(port) + ": %d", std::function([this](){return getRPM();})         , Color::white);
+  temperature.construct({115*((getID()-1)%4) + 65, getID() <= 4 ? 125 : 190},        GUI::Style::CENTRE, TEXT_SMALL    , &temps , getShortName() + ": %dC"     , std::function([this](){return get_temperature();}), Color::black);
 
   on .setFunc([this](){move(mot_speed_set.getValue());});
   off.setFunc([this](){move(0                       );});

@@ -231,6 +231,7 @@ void newline(int count = 1);
 
     //convert to switch
     if(format_specifier.back() == '%'){
+      format_specifier.pop_back();
       converted = "%";
       rest = sprintf2(rest, arg, args...);
     }

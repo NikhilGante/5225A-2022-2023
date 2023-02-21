@@ -5,14 +5,18 @@
 #include "Devices/controller.hpp"
 #include "Libraries/logging.hpp"
 
-// std::vector<Auton*> Auton::logs{};
+#include <fstream>
 
 Auton::E_Reset_Types Auton::getResetType() const {return reset_type;} // Getter
 
 void Auton::select(){
-	int cur_auton = 0;
+	int cur_auton = get();
+  if(cur_auton == -1){
+    alert::start(3000, "Cannot Run Auton Selector without SD");
+    return;
+  }
 	master.clear();
-	master.print(0, getNth(cur_auton) ? getNth(cur_auton)->name : "Null Auton*");
+	master.print(0, getNth(cur_auton) ? getNth(cur_auton)->name : "No Auton " + std::to_string(cur_auton));
 	master.print(1, "Up/dn change auton");
 	master.print(2, "Press A to save");
 	auton_log("Constructed %d Autons", Auton::getList().size()); //? Why is this line needed
@@ -31,10 +35,8 @@ void Auton::select(){
 
       case DIGITAL_A:
         master.clear();
-        DEBUG;
         Logging::Interrupter<std::ofstream>("/usd/auton.txt").stream << cur_auton << std::endl;
-        DEBUG;
-        master.print(0, "Saved" + getNth(cur_auton)->name);
+        master.print(0, "Saved " + getNth(cur_auton)->name);
         return;
         break;
 
@@ -55,7 +57,9 @@ void Auton::select(){
 // Returns selected Auton as an int
 int Auton::get(){
 	int auton_num;
-  Logging::Interrupter<std::ifstream>("/usd/auton.txt").stream >> auton_num;
+  auto file = Logging::Interrupter<std::ifstream>("/usd/auton.txt");
+  if(file.stream.is_open()) file.stream >> auton_num;
+  else auton_num = -1;
   return auton_num;
 }
 

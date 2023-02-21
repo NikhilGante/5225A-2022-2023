@@ -2,11 +2,6 @@
 #include "main.h"
 #include "printing.hpp"
 
-#ifndef __FILENAME__
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#endif
-#define DEBUG1 printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
-
 //Forward Declare
 namespace alert {void priority(term_colours colour, std::string fmt, auto... args);}
 
@@ -112,7 +107,7 @@ class Queue{
     constexpr Queue(): name{}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
     Queue(std::string name): name{name}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
 
-    //Getters
+  //Getters
     constexpr size_type size() const {return end()-begin();}
     constexpr size_type capacity() const {return N;}
     constexpr bool full() const {return size() == capacity();}
@@ -126,7 +121,7 @@ class Queue{
     constexpr reference       back() {return *(end()-1);}
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
     
-    //Insert Modifiers
+  //Insert Modifiers
     constexpr void priority_push(const_reference value){
       if(full()) back_iter--;
       *end() = value;
@@ -150,15 +145,14 @@ class Queue{
     }
     constexpr iterator insert(auto const & range) {return insert(std::cbegin(range), std::cend(range));}
 
-    //Remove Modifiers
+  //Remove Modifiers
     constexpr void pop() {if(!empty()) front_iter++;}
     constexpr void clear() {front_iter = end();}
     constexpr void output(std::ostream& out) requires std::same_as<T, char>{
-      DEBUG1;
       auto in = full_contiguous_iterators();
-      DEBUG1;
+      std::cout << std::to_string(millis()) << "  FAILED: {"  << (void*)in.first.first << ", "  << (void*)in.first.second << "}  " << std::distance(in.first .first, in.first .second) <<std::endl;
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
-      DEBUG1;
+      std::cout << std::to_string(millis()) << "  SUCCESS" << std::endl;
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
     }
 };

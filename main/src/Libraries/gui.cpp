@@ -45,7 +45,7 @@
 
 namespace alert{
   const Page* page;
-  Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 10> queue{"alert"};
+  Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 25> queue{"Alert"};
 
   //rest are templates, so defined in header
 
@@ -539,7 +539,7 @@ namespace alert{
   }
 
   void Text_::setBackground (int x1, int y1, Color color){ //Centre
-    box = {coord.x, coord.y, x1, y1, GUI::Style::CENTRE};
+    box = {coord, x1, y1, GUI::Style::CENTRE};
     setBackground(color);
   }
 
@@ -549,7 +549,7 @@ namespace alert{
   }
 
   void Text_::setBackground (int x1, int y1){ //Centre
-    box = {coord.x, coord.y, x1, y1, GUI::Style::CENTRE};
+    box = {coord, x1, y1, GUI::Style::CENTRE};
   }
 
   void Text_::setBackground (int x1, int y1, int x2, int y2, GUI::Style type){
