@@ -56,7 +56,7 @@ const char* FlywheelMoveVelParams::getName(){
   return "FlywheelMoveVel";
 }
 void FlywheelMoveVelParams::handle(){
-  rot_vel = -60*(double)flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
+  rot_vel = 60*(double)flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
   // printf("vel:%d\n", rot_vel);
   // error = target_vel - rot_vel;
   // output = kB * target_vel + kP * error;
@@ -87,15 +87,16 @@ void FlywheelMoveVelParams::handle(){
   double correction = flywheel_error*kP;
   // if(fabs(correction) > 2500) correction = 2500;
   output = kB * target_vel + correction;
-  output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
+  output = std::clamp(output, -1.0, 127.0);
   // output = 127;
   
   #ifdef LOGS
   // log_timer.getTime() > 100 ||
   // if(shooter_ds.get_value() < 2000){// || log_timer.getTime() > 25) {
-  if(log_timer.getTime() > 100){
+  if(log_timer.getTime() > 10 || shooter_ds.get_value() < 800){
+    if (shooter_ds.get_value() < 800) log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
-    log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
+    log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }
   
@@ -109,7 +110,6 @@ void FlywheelMoveVelParams::handle(){
   // }
 
   // printf("%d\n", master.is_connected());
-
   if(!master.is_connected()){
     WAIT_UNTIL(master.is_connected());
     flywheel_m.move(0);
@@ -123,6 +123,8 @@ void FlywheelMoveVelParams::handle(){
 
   if(flywheelOn) flywheel_m.move(output);
   else flywheel_m.move(0);
+  
+  _Task::delay(30);
   
 }
 void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){

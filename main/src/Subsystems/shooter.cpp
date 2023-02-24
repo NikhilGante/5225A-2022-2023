@@ -4,8 +4,8 @@
 #include "../Libraries/logging.hpp"
 #include "pros/misc.hpp"
 
-const int toaster_rpm = 1450;
-const int barrier_rpm = 1875;
+const int toaster_rpm = 1425;
+const int barrier_rpm = 2125;// 2330 For long shots, 1775 for short shots, 2125 for middle shots
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -81,7 +81,7 @@ void ShooterShootParams::handle(){
   else{
     FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
     if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
-      if(fabs(flywheel_error) > 150) cycle_check.reset();
+      if(fabs(flywheel_error) > 30) cycle_check.reset();
     }
     else if(fabs(flywheel_error) > 150)  cycle_check.reset();
   }
@@ -90,7 +90,8 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
+  bool trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
+  // bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
@@ -117,7 +118,7 @@ void ShooterShootParams::handle(){
     if(shots_left <= 0){  // If shooting is done
       master.rumble("-"); // Lets driver know shooting is done
       g_mag_disc_count = 0;
-      _Task::delay(100); // Waits for last disc to shoot
+      _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{}, 102);
@@ -143,5 +144,6 @@ void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_stat
 }
 
 void shoot(int shots){
+  log("Shot requested for %d shots at %d\n", millis(), shots);
   shooter.changeState(ShooterShootParams{shots});
 }

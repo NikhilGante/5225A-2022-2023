@@ -43,9 +43,9 @@ void initialize() {
 	// tracking.g_pos = {128.5, 83.5, degToRad(0.0)};	// Line auton
 
 	log_init();
-	gyro.reset(true);
+	// gyro.reset(true);
 	_Task tracking_task("tracking_update_task");
-	tracking_task.start(trackingUpdate);
+	// tracking_task.start(trackingUpdate);
 
 	/*
 	_Task battery_check("Battery_Checker");
@@ -78,7 +78,7 @@ void initialize() {
 	drive.runMachine();
 	intake.runMachine();
 	flywheel.runMachine();
-	// shooter.runMachine();
+	shooter.runMachine();
 	
 }
 
@@ -181,7 +181,63 @@ Auton auton4("Skills", fullSkills);
 // at: (133.75 , 112.25, -90.0)
 
 
+/*
+Things to get done:
+	- Test Flywheel Angle(Has to be good for close shots, skills, matchLoads, and autons)
+	- Test flywheel drop after shot - Test for compression
+	- Test toaster shots
+	- Test flywheel Overheat
+	- Test flywheel curve and calculate against old curve(10-12 degrees was old curve)
+	- Test how fast we can shoot triple shot with flywheel
+	- Test at what angles we can intake at and the range
+	- 
+Programmer Things:
+	- Tune motions(Angle and drive to target)
+	- Test tracking wheels with imu
+		* Test for resets
+		* Test for accuracy
+		* Test for corkscrew and how much it affects along with movement of 1-3mm of the wheels
+	- 
+*/
+
+/*
+IMU THINGS:
+	* A:
+		- 
+	* B:
+		- 
+	* C:
+		- Multiply by 1.0108
+		- Original Sensor
+		- Doesn't drift much
+*/
+
+// 4.58, 4.53, 4.5, 4.57
+
+
 void opcontrol() {
+
+	driverPractice();
+	WAIT_UNTIL(false);
+	Imu gyro_1(1);
+	Imu gyro_2(2);
+	Imu gyro_3(3);
+
+
+	
+	delay(3000);
+	while (true){
+
+		lcd::print(0, "Gyro_1: %.3f", gyro_1.get_rotation()*1.0108); // C
+		lcd::print(1, "Gyro_2: %.3f, To360: %.3f      ", gyro_2.get_rotation()*1.0027); // B
+		lcd::print(2, "Gyro_3: %.3f", gyro_3.get_rotation()*1.0125); // A - *1.0125
+		delay(50);
+	}
+
+
+	// driverPractice();
+
+	WAIT_UNTIL(false);
 	// flywheel.runMachine();
 	// flywheel_m.move(0);
 	// delay(100);
@@ -190,9 +246,9 @@ void opcontrol() {
 	// tracking.reset();
 
 	// driverPractice();
-	spinRoller();
-	intake.setTimeout(5000);
-	master.rumble("-");
+	// spinRoller();
+	// intake.setTimeout(5000);
+	// master.rumble("-");
 
 
 

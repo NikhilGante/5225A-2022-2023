@@ -9,42 +9,42 @@ static constexpr int e_port = 20;
 // ADIEncoder LeftEncoder(1, 2, false), RightEncoder(5, 6, true), BackEncoder(3, 4, false);
 
 // tank-drive motor config
-Rotation left_tracker(6), right_tracker(1), back_tracker(10);
+Rotation left_tracker(3), right_tracker(4), back_tracker(5);
 
 
 
 
-Motor front_l(20, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
-Motor centre_l(19, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
-Motor back_l(17, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
+Motor front_l(11, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
+Motor centre_l(12, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
+Motor back_l(13, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 
-Motor front_r(11, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
-Motor centre_r(12, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
-Motor back_r(13, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
-
-
+Motor front_r(18, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
+Motor centre_r(19, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
+Motor back_r(17, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
 
 
-Motor intake_m(5, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
-Motor flywheel_m(9, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 
-Piston indexer_p('D', "indexer_p", false, LOW);
 
-ADIAnalogIn mag_ds('A');
-ADIAnalogIn shooter_ds('B');
+Motor intake_m(1, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+Motor flywheel_m(2, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 
-Rotation flywheel_rot_sensor(2);	// Configures rotation sensor in port 1
+Piston indexer_p('B', "indexer_p", false, LOW);
 
-Piston angler_p('E', "angler_p", false, LOW);
-Piston trans_p('C', "trans_p", true, HIGH);
+ADIAnalogIn mag_ds('E');
+ADIAnalogIn shooter_ds('C');
+
+Rotation flywheel_rot_sensor(14);	// Configures rotation sensor in port 1
+
+Piston angler_p('D', "angler_p", true, LOW);
+Piston trans_p('A', "trans_p", true, HIGH);
 Piston endgame_s_p('F', "endgame_s_p", false, LOW); // Single acting
 Piston endgame_d_p('G', "endgame_d_p", false, LOW); // Double acting
 
-Imu gyro(14);
+Imu gyro(1);
 
-Optical roller_sensor(8);
+Optical roller_sensor(9);
 
-Distance l_reset_dist(3), r_reset_dist(7);
+Distance l_reset_dist(7), r_reset_dist(8);
 // Link radio(4, "Robot1", pros::E_LINK_RECIEVER);
 
 Motor b_lift_m(16);
