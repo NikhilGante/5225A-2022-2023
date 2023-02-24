@@ -4,17 +4,15 @@
 #include "../Devices/controller.hpp"
 #include "../Devices/piston.hpp"
 
-static constexpr int toaster_rpm = 1450;
-
-bool goal_disturb = false;
-
 Timer ShooterShootParams::shoot_timer{"shoot_timer", shooter.log};
 
-bool angleOverride = false;
-
 Machine<SHOOTER_STATE_TYPES> shooter("Shooter", ShooterIdleParams{});
+static constexpr int toaster_rpm = 1450;
+bool angleOverride = false;
+bool goal_disturb = false;
 
 void shooterHandleInput(){
+
   shooterVariant cur_state = shooter.getState();
   if(std::get_if<ShooterIdleParams>(&cur_state)){
     if(master.getNewDigital(tripleShotBtn)) shoot(3);

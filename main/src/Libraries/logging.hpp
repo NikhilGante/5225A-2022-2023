@@ -30,18 +30,18 @@ class Logging: public ObjectTracker<Logging>{
     bool newline;
     log_locations location;
     std::string name;
+    std::string fullName, pastFullName;
     Queue<char, 20000> queue;
     Mutex queue_mutex;
 
     static constexpr std::size_t print_max_size{12000};
     static constexpr uint32_t print_max_time{800};
-    static std::string folder_name;
     static _Task task;
-
-    std::string fullName();
-    void update(uint64_t time, bool force = false);
+    static Button past_logs;
     static void pause();
     static void resume();
+
+    void update(bool force = false);
 
   public:
     Logging(std::string name, bool newline = false, log_locations location = log_locations::both, term_colours print_colour = term_colours::NONE);

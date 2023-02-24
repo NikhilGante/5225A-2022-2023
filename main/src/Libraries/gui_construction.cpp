@@ -15,7 +15,6 @@
 //DO NOT MESS WITH INDENTATION IN THIS FILE //Actually maybe you can if you want. VS Code is mean :(
 
 /*Field array*/ static std::vector<std::bitset<200>> field (200, std::bitset<200>{}); //Initializes to 200 blank bitsets
-/*Temperature Alert Flag*/ static bool temp_flashed = false;
 
 //Var init for text monitoring
   int enc_val;
@@ -30,137 +29,136 @@
 
 //Constructors
   //Main GUI
-    Page temps ("Temperature"); //Motor temps
+    Page temps {"Temperature"}; //Motor temps
       //Remaining elements created upon instantiation of _Motor objects
 
-    Page checks("Competition");
-      Button drive_motors ({15, 45, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Drive Motors");
-      Button pneums ({130, 45, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Pneumatics");
-      Button auton_selector ({245, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Select Autons");
-      Button sensor_check ({15, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Devices");
-      Button misc_checks ({130, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Misc");
+    Page checks{"Competition"};
+      Button drive_motors {{15, 45, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Drive Motors"};
+      Button pneums {{130, 45, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Pneumatics"};
+      Button auton_selector {{245, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Select Autons"};
+      Button sensor_check {{15, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Devices"};
+      Button misc_checks {{130, 140, 100, 75, GUI::Style::SIZE}, Button::SINGLE, checks, "Misc"};
 
-    Page track ("Tracking"); //Display tracking vals and reset btns
-      Text track_x({50, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", [](){return tracking.getPos().x;});
-      Text track_y({135, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "Y:%.1f", [](){return tracking.getPos().y;});
-      Text track_a({220, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", [](){return std::fmod(tracking.getPos().a, 360);});
-      Text enc_l({50, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "L:%d", [](){return left_tracker.get_position() != std::numeric_limits<int32_t>::max() ? left_tracker.get_position() : 0;});
-      Text enc_r({135, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "R:%d", [](){return right_tracker.get_position() != std::numeric_limits<int32_t>::max() ? right_tracker.get_position() : 0;});
-      Text enc_b({220, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "B:%d", [](){return back_tracker.get_position() != std::numeric_limits<int32_t>::max() ? back_tracker.get_position() : 0;});
-      Button res_x({15, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset X");
-      Button res_y({100, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset Y");
-      Button res_a({185, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset A");
-      Button res_all({15, 160, 110, 60, GUI::Style::SIZE}, Button::SINGLE, track, "Reset All");
-      Button res_target({135, 160, 110, 60, GUI::Style::SIZE}, Button::SINGLE, track, "Reset to Target");
+    Page track {"Tracking"}; //Display tracking vals and reset btns
+      Text track_x{{50, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", [](){return tracking.getPos().x;}};
+      Text track_y{{135, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "Y:%.1f", [](){return tracking.getPos().y;}};
+      Text track_a{{220, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", [](){return std::fmod(tracking.getPos().a, 360);}};
+      Text enc_l{{50, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "L:%d", [](){return left_tracker.get_position() != std::numeric_limits<int32_t>::max() ? left_tracker.get_position() : 0;}};
+      Text enc_r{{135, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "R:%d", [](){return right_tracker.get_position() != std::numeric_limits<int32_t>::max() ? right_tracker.get_position() : 0;}};
+      Text enc_b{{220, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "B:%d", [](){return back_tracker.get_position() != std::numeric_limits<int32_t>::max() ? back_tracker.get_position() : 0;}};
+      Button res_x{{15, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset X"};
+      Button res_y{{100, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset Y"};
+      Button res_a{{185, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset A"};
+      Button res_all{{15, 160, 110, 60, GUI::Style::SIZE}, Button::SINGLE, track, "Reset All"};
+      Button res_target{{135, 160, 110, 60, GUI::Style::SIZE}, Button::SINGLE, track, "Reset to Target"};
 
-    Page moving ("Moving"); //Moves to target, home, or centre
-      Slider x_val({35, 45, 250, 40, GUI::Style::SIZE}, Slider::HORIZONTAL, 0, 144, moving, "X");
-      Slider y_val({35, 110, 250, 40, GUI::Style::SIZE}, Slider::HORIZONTAL, 0, 144, moving, "Y");
-      Slider a_val({35, 175, 250, 40, GUI::Style::SIZE}, Slider::HORIZONTAL, 0, 360, moving, "A");
-      Button go_to_xya({320, 45, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Target");
-      Button go_home({320, 110, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Home");
-      Button go_centre({320, 175, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Centre");
+    Page moving {"Moving"}; //Moves to target, home, or centre
+      Slider x_val{{35, 45, 250, 40, GUI::Style::SIZE}, Slider::HORIZONTAL, 0, 144, moving, "X"};
+      Slider y_val{{35, 110, 250, 40, GUI::Style::SIZE}, Slider::HORIZONTAL, 0, 144, moving, "Y"};
+      Slider a_val{{35, 175, 250, 40, GUI::Style::SIZE}, Slider::HORIZONTAL, 0, 360, moving, "A"};
+      Button go_to_xya{{320, 45, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Target"};
+      Button go_home{{320, 110, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Home"};
+      Button go_centre{{320, 175, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Centre"};
 
-    Page systems ("Subsystems"); //Activates Subsystems
-      Text shoot_text({380, 40}, GUI::Style::CENTRE, TEXT_SMALL, systems, "Shooter");
-      Button shoot1({340 , 50 , 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "1");
-      Button shoot2({340, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "2");
-      Button shoot3({340, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "3");
-      Text intake_text({240, 40}, GUI::Style::CENTRE, TEXT_SMALL, systems, "Intake");
-      Button intake_on ({200 , 50 , 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "On");
-      Button intake_rev({200, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Off");
-      Button intake_off({200, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Reverse");
-      Slider flywheel_vel({40, 80, 20, 120, GUI::Style::SIZE}, Slider::VERTICAL, 0, 127, systems, "Fly Vel");
-      Button flywheel_set({60, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Flywheel Set");
+    Page systems {"Subsystems"}; //Activates Subsystems
+      Text shoot_text{{380, 40}, GUI::Style::CENTRE, TEXT_SMALL, systems, "Shooter"};
+      Button shoot1{{340 , 50 , 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "1"};
+      Button shoot2{{340, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "2"};
+      Button shoot3{{340, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "3"};
+      Text intake_text{{240, 40}, GUI::Style::CENTRE, TEXT_SMALL, systems, "Intake"};
+      Button intake_on {{200 , 50 , 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "On"};
+      Button intake_rev{{200, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Off"};
+      Button intake_off{{200, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Reverse"};
+      Slider flywheel_vel{{40, 80, 20, 120, GUI::Style::SIZE}, Slider::VERTICAL, 0, 127, systems, "Fly Vel"};
+      Button flywheel_set{{60, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Flywheel Set"};
 
-    Page tuning ("Tuning Tracking"); //Tests to tune tracking when on new base
-      Text tuning_instructions_1({MID_X, 35}, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow");
-      Text tuning_instructions_2({MID_X, 50}, GUI::Style::CENTRE, TEXT_SMALL, tuning, "the terminal for instructions and results");
-      Button encoder_direction ({15, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Encoder Direction");
-      Button side_corkscrew ({130, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Side Corkscrew");
-      Button back_corkscrew ({245, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Back Corkscrew");
-      Button spin360 ({360, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Spins");
-      Button wheel_size ({15, 155, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Wheel Size");
-      Button back_wheel_size ({130, 155, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Back Wheel Size");
-      Button encoder_ticks ({245, 155, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Encoder Ticks");
-      Button manual ({410, 190, 35, 20, GUI::Style::CENTRE}, Button::TOGGLE, tuning, "Manual");
+    Page tuning {"Tuning Tracking"}; //Tests to tune tracking when on new base
+      Text tuning_instructions_1{{MID_X, 35}, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow"};
+      Text tuning_instructions_2{{MID_X, 50}, GUI::Style::CENTRE, TEXT_SMALL, tuning, "the terminal for instructions and results"};
+      Button encoder_direction {{15, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Encoder Direction"};
+      Button side_corkscrew {{130, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Side Corkscrew"};
+      Button back_corkscrew {{245, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Back Corkscrew"};
+      Button spin360 {{360, 70, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Spins"};
+      Button wheel_size {{15, 155, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Wheel Size"};
+      Button back_wheel_size {{130, 155, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Back Wheel Size"};
+      Button encoder_ticks {{245, 155, 100, 70, GUI::Style::SIZE}, Button::SINGLE, tuning, "Encoder Ticks"};
+      Button manual {{410, 190, 35, 20, GUI::Style::CENTRE}, Button::TOGGLE, tuning, "Manual"};
 
-    Page motors ("Motor Control"); //Motor Control for known ports
-      Slider mot_speed_set ({MID_X, 60, 180 , 15, GUI::Style::CENTRE}, Slider::HORIZONTAL, -127, 127, motors, "Speed");
+    Page motors {"Motor Control"}; //Motor Control for known ports
+      Slider mot_speed_set {{MID_X, 60, 180 , 15, GUI::Style::CENTRE}, Slider::HORIZONTAL, -127, 127, motors, "Speed"};
       //Remaining elements created upon instantiation of _Motor objects
 
-    Page pneumatics ("Pneumatics"); //Pneumatic testing page for known ports
+    Page pneumatics {"Pneumatics"}; //Pneumatic testing page for known ports
       //Remaining elements created upon instantiation of Piston objects
 
-    Page logging ("Logging"); //Log printing page from file to terminal
-      Button clear_logs ({15, 40, 100, 40, GUI::Style::SIZE}, Button::SINGLE, logging, "Clear Logs", Color::red);
+    Page logging {"Logging"}; //Log printing page from file to terminal
       //Remaining elements created upon instantiation of Logging objects
 
 
   //Utility
 
-    Page ports ("Ports"); //Shows what ports to use on builder util
-      Text mot ({10, 50}, GUI::Style::CORNER, TEXT_MEDIUM, ports, "Motors: %s", motor_port_nums);
-      Text expanders ({10, 100}, GUI::Style::CORNER, TEXT_MEDIUM, ports, "Expanders: %s", expander_port_nums);
-      Text no_pneumatic ({10, 150}, GUI::Style::CORNER, TEXT_MEDIUM, ports, "No Pneumatics (Ignore): %s", no_pneumatic_port_nums);
+    Page ports {"Ports"}; //Shows what ports to use on builder util
+      Text mot {{10, 50}, GUI::Style::CORNER, TEXT_MEDIUM, ports, "Motors: %s", motor_port_nums};
+      Text expanders {{10, 100}, GUI::Style::CORNER, TEXT_MEDIUM, ports, "Expanders: %s", expander_port_nums};
+      Text no_pneumatic {{10, 150}, GUI::Style::CORNER, TEXT_MEDIUM, ports, "No Pneumatics (Ignore): %s", no_pneumatic_port_nums};
 
-    Page encoders ("Encoders"); //Display tracking vals and reset btns
-      Slider expander_1 ({30, 90, 30, 100, GUI::Style::SIZE}, Slider::VERTICAL, 0, 21, encoders, "E1");
-      Slider port_1 ({115, 90, 30, 100, GUI::Style::SIZE}, Slider::VERTICAL, 1, 8, encoders, "P1");
-      Slider port_2 ({200, 90, 30, 100, GUI::Style::SIZE}, Slider::VERTICAL, 1, 8, encoders, "P2");
-      Button enc_set ({350, 60, 50, 20, GUI::Style::CENTRE}, Button::SINGLE, encoders, "Set");
-      Text enc ({350, 100}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "%s", [](){return sprintf2("%d:%c%c", expander_1.getValue(), port_1.getValue() + 64, port_2.getValue() + 64);});
-      Text enc_degs ({350, 120}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Degs: %d", enc_val);
-      Text enc_rots ({350, 140}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Rots: %d", [](){return int(enc_val / 360);});
-      Text enc_remain ({350, 160}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Remaining: %d", [](){return std::abs(enc_val-360*int(std::round((enc_val + sgn(enc_val) * 180) / 360)));}); //replace with near_angle
-      Button enc_res ({350, 200, 50, 20, GUI::Style::CENTRE}, Button::SINGLE, encoders, "Reset");
+    Page encoders {"Encoders"}; //Display tracking vals and reset btns
+      Slider expander_1 {{30, 90, 30, 100, GUI::Style::SIZE}, Slider::VERTICAL, 0, 21, encoders, "E1"};
+      Slider port_1 {{115, 90, 30, 100, GUI::Style::SIZE}, Slider::VERTICAL, 1, 8, encoders, "P1"};
+      Slider port_2 {{200, 90, 30, 100, GUI::Style::SIZE}, Slider::VERTICAL, 1, 8, encoders, "P2"};
+      Button enc_set {{350, 60, 50, 20, GUI::Style::CENTRE}, Button::SINGLE, encoders, "Set"};
+      Text enc {{350, 100}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "%s", [](){return sprintf2("%d:%c%c", expander_1.getValue(), port_1.getValue() + 64, port_2.getValue() + 64);}};
+      Text enc_degs {{350, 120}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Degs: %d", enc_val};
+      Text enc_rots {{350, 140}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Rots: %d", [](){return int(enc_val / 360);}};
+      Text enc_remain {{350, 160}, GUI::Style::CENTRE, TEXT_SMALL, encoders, "Remaining: %d", [](){return std::abs(enc_val-360*int(std::round((enc_val + sgn(enc_val) * 180) / 360)));}}; //replace with near_angle
+      Button enc_res {{350, 200, 50, 20, GUI::Style::CENTRE}, Button::SINGLE, encoders, "Reset"};
 
-    Page motor ("Motor Control");
-      Slider mot_speed ({60, 45, 300 , 30, GUI::Style::SIZE}, Slider::HORIZONTAL, -127, 127, motor, "Speed");
-      Button mot_jam_detect ({400, 45, 60, 30, GUI::Style::SIZE}, Button::TOGGLE, motor, "Jam");
-      Text mot_text_1 ({65, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[0]));
-      Text mot_text_2 ({180, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[1]));
-      Text mot_text_3 ({295, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[2]));
-      Text mot_text_4 ({410, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[3]));
-      Text mot_text_5 ({65, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[4]));
-      Text mot_text_6 ({180, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[5]));
-      Text mot_text_7 ({295, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[6]));
-      Text mot_text_8 ({410, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[7]));
-      Button mot_update_1 ({15, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_2 ({130, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_3 ({245, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_4 ({360, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_5 ({15, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_6 ({130, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_7 ({245, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_update_8 ({360, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run");
-      Button mot_stop_1 ({70, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_2 ({185, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_3 ({300, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_4 ({415, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_5 ({70, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_6 ({185, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_7 ({300, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
-      Button mot_stop_8 ({415, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop");
+    Page motor {"Motor Control"};
+      Slider mot_speed {{60, 45, 300 , 30, GUI::Style::SIZE}, Slider::HORIZONTAL, -127, 127, motor, "Speed"};
+      Button mot_jam_detect {{400, 45, 60, 30, GUI::Style::SIZE}, Button::TOGGLE, motor, "Jam"};
+      Text mot_text_1 {{65, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[0])};
+      Text mot_text_2 {{180, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[1])};
+      Text mot_text_3 {{295, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[2])};
+      Text mot_text_4 {{410, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[3])};
+      Text mot_text_5 {{65, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[4])};
+      Text mot_text_6 {{180, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[5])};
+      Text mot_text_7 {{295, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[6])};
+      Text mot_text_8 {{410, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[7])};
+      Button mot_update_1 {{15, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_2 {{130, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_3 {{245, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_4 {{360, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_5 {{15, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_6 {{130, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_7 {{245, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_update_8 {{360, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
+      Button mot_stop_1 {{70, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_2 {{185, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_3 {{300, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_4 {{415, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_5 {{70, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_6 {{185, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_7 {{300, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
+      Button mot_stop_8 {{415, 190, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Stop"};
 
-    Page pneumatic ("Pneumatics"); //Pneumatic testing page for random ports
-      Slider expander ({MID_X, 60, 180 , 15, GUI::Style::CENTRE}, Slider::HORIZONTAL, 0, 21, pneumatic, "Expander");
-      Text ADI_a_text ({65, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "A");
-      Text ADI_b_text ({180, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "B");
-      Text ADI_c_text ({295, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "C");
-      Text ADI_d_text ({410, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "D");
-      Text ADI_e_text ({65, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "E");
-      Text ADI_f_text ({180, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "F");
-      Text ADI_g_text ({295, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "G");
-      Text ADI_h_text ({410, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "H");
-      Button ADI_a ({15, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_b ({130, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_c ({245, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_d ({360, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_e ({15, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_f ({130, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_g ({245, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
-      Button ADI_h ({360, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off");
+    Page pneumatic {"Pneumatics"}; //Pneumatic testing page for random ports
+      Slider expander {{MID_X, 60, 180 , 15, GUI::Style::CENTRE}, Slider::HORIZONTAL, 0, 21, pneumatic, "Expander"};
+      Text ADI_a_text {{65, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "A"};
+      Text ADI_b_text {{180, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "B"};
+      Text ADI_c_text {{295, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "C"};
+      Text ADI_d_text {{410, 115}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "D"};
+      Text ADI_e_text {{65, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "E"};
+      Text ADI_f_text {{180, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "F"};
+      Text ADI_g_text {{295, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "G"};
+      Text ADI_h_text {{410, 180}, GUI::Style::CENTRE, TEXT_SMALL, pneumatic, "H"};
+      Button ADI_a {{15, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_b {{130, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_c {{245, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_d {{360, 125, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_e {{15, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_f {{130, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_g {{245, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
+      Button ADI_h {{360, 190, 100, 30, GUI::Style::SIZE}, Button::TOGGLE, pneumatic, "On/Off"};
 
 
 void mainSetup(){
@@ -262,15 +260,15 @@ void mainSetup(){
     });
 
     go_to_xya.setFunc([&](){
-      Position target (x_val.getValue(), y_val.getValue(), a_val.getValue());
+      Position target {x_val.getValue(), y_val.getValue(), a_val.getValue()};
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
     go_home.setFunc([](){
-      Position target (0, 0, tracking.getPos().a);
+      Position target {0, 0, tracking.getPos().a};
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
     go_centre.setFunc([](){
-      Position target (72, 72, tracking.getPos().a);
+      Position target {72, 72, tracking.getPos().a};
       if (GUI::prompt("Press to go to " + sprintf2("%d", target), "", 1000)) moveToTargetAsync(target);
     });
 
@@ -493,8 +491,6 @@ void mainSetup(){
         }
       }
     });
-
-    clear_logs.setFunc([](){alert::start("PROS is stupid and won't let me do this");});
 }
 
 void mainBackground(){
@@ -509,7 +505,7 @@ void utilSetup(){
   //Encoders
     enc_set.setFunc([](){
       int port = expander_1.getValue();
-      if(std::abs(port_1.getValue() - port_2.getValue()) != 1 || std::min(port_1.getValue(), port_2.getValue()) % 2 == 0){
+      if(std::abs(port_1.getValue() - port_2.getValue()) != 1 || std::min<int>(port_1.getValue(), port_2.getValue()) % 2 == 0){
         alert::start(term_colours::ERROR, "Invalid Ports %c%c", port_1.getValue() + 64, port_2.getValue() + 64);
         return;
       }
@@ -540,7 +536,6 @@ void utilSetup(){
 
 
   //Motor Control
-    // mot_jam_detect.select();
     
     motor_ports = {
       std::make_tuple(std::numeric_limits<int>::max(), &mot_update_1, &mot_stop_1, &mot_text_1, 0, ""),
@@ -560,72 +555,42 @@ void utilSetup(){
       }
     }
 
-    for (const auto& mot_arr: motor_ports){
-
-      if (std::get<0>(mot_arr) != std::numeric_limits<int>::max()) motor_port_nums.append(std::to_string(std::get<0>(mot_arr)) + ", ");
+    for (auto const & mot_tup: motor_ports){
+      int port = std::get<0>(mot_tup);
+      if (port != std::numeric_limits<int>::max()) motor_port_nums.append(std::to_string(port) + ", ");
       else{
-        std::get<1>(mot_arr)->setActive(false);
-        std::get<2>(mot_arr)->setActive(false);
-        std::get<3>(mot_arr)->setActive(false);
+        std::get<1>(mot_tup)->setActive(false);
+        std::get<2>(mot_tup)->setActive(false);
+        std::get<3>(mot_tup)->setActive(false);
       }
-      std::get<1>(mot_arr)->setFunc([&](){c::motor_move(std::get<0>(mot_arr), mot_speed.getValue());});
-      std::get<2>(mot_arr)->setFunc([&](){c::motor_move(std::get<0>(mot_arr), 0);});
+      std::get<1>(mot_tup)->setFunc([port](){c::motor_move(port, mot_speed.getValue());});
+      std::get<2>(mot_tup)->setFunc([port](){c::motor_move(port, 0);});
     }
 
     if (motor_port_nums.back() == ',') motor_port_nums.pop_back();
 
 
     motor.setLoopFunc([](){
-      for (auto& tup: motor_ports){
-        int port = std::get<0>(tup);
-        Button* run_btn = std::get<1>(tup);
-        Button* stop_btn = std::get<2>(tup);
+      for (auto const & mot_tup: motor_ports){
+        int port = std::get<0>(mot_tup);
+        Button* run_btn = std::get<1>(mot_tup);
+        Button* stop_btn = std::get<2>(mot_tup);
 
         if (port != std::numeric_limits<int>::max()){ //? Works without this safety check
           switch(static_cast<int>(c::motor_get_temperature(port))){
             case 0:
-            case 5:
-              run_btn->setBackground(Color::white);
-              stop_btn->setBackground(Color::white);
-              break;
+            case 5: run_btn->setBackground(Color::white); stop_btn->setBackground(Color::white); break;
             case 10:
-            case 15:
-              run_btn->setBackground(Color::blue);
-              stop_btn->setBackground(Color::blue);
-              break;
-            case 20:
-              run_btn->setBackground(Color::dodger_blue);
-              stop_btn->setBackground(Color::dodger_blue);
-              break;
-            case 25:
-              run_btn->setBackground(Color::turquoise);
-              stop_btn->setBackground(Color::turquoise);
-            case 30:
-              run_btn->setBackground(Color::medium_sea_green);
-              stop_btn->setBackground(Color::medium_sea_green);
-            case 35:
-              run_btn->setBackground(Color::lawn_green);
-              stop_btn->setBackground(Color::lawn_green);
-              break;
-            case 40:
-              run_btn->setBackground(Color::lime_green);
-              stop_btn->setBackground(Color::lime_green);
-            case 45:
-              run_btn->setBackground(Color::yellow);
-              stop_btn->setBackground(Color::yellow);
-              break;
-            case 50:
-              run_btn->setBackground(Color::orange_red);
-              stop_btn->setBackground(Color::orange_red);
-              break;
-            case 55:
-              run_btn->setBackground(Color::red);
-              stop_btn->setBackground(Color::red);
-              break;
-            default:
-              run_btn->setBackground(Color(rand()));
-              stop_btn->setBackground(Color(rand()));
-              break;
+            case 15: run_btn->setBackground(Color::blue); stop_btn->setBackground(Color::blue); break;
+            case 20: run_btn->setBackground(Color::dodger_blue); stop_btn->setBackground(Color::dodger_blue); break;
+            case 25: run_btn->setBackground(Color::turquoise); stop_btn->setBackground(Color::turquoise); break;
+            case 30: run_btn->setBackground(Color::medium_sea_green); stop_btn->setBackground(Color::medium_sea_green); break;
+            case 35: run_btn->setBackground(Color::lawn_green); stop_btn->setBackground(Color::lawn_green); break;
+            case 40: run_btn->setBackground(Color::lime_green); stop_btn->setBackground(Color::lime_green); break;
+            case 45: run_btn->setBackground(Color::yellow); stop_btn->setBackground(Color::yellow); break;
+            case 50: run_btn->setBackground(Color::orange_red); stop_btn->setBackground(Color::orange_red); break;
+            case 55: run_btn->setBackground(Color::red); stop_btn->setBackground(Color::red); break;
+            default: run_btn->setBackground(Color(rand())); stop_btn->setBackground(Color(rand())); break;
           }
         }
       }
@@ -713,6 +678,6 @@ void utilBackground(){
   }
 }
 
-GUI main_obj ({&temps, &checks, &track, &moving, &tuning, &systems, &motors, &pneumatics, &logging}, &mainSetup, &mainBackground);
+GUI main_obj {{&temps, &checks, &track, &moving, &tuning, &systems, &motors, &pneumatics, &logging}, &mainSetup, &mainBackground};
 
-GUI util_obj ({&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground);
+GUI util_obj {{&ports, &encoders, &motor, &pneumatic}, &utilSetup, &utilBackground};

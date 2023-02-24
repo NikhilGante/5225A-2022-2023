@@ -8,7 +8,6 @@ static constexpr double MAX_TURNING_POWER = 127;
 static constexpr double TURNING_END_ERROR = 1.5;
 static constexpr int MAX_DRIVE_POWER = 127;
 
-
 enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
   coast,  // drivebase motors will turn off
@@ -45,8 +44,6 @@ class Tracking{
     Position getPos(); // Getter for g_pos. Should probably wrap in a mutex
 };
 extern Tracking tracking;
-
-extern Vector r_goal, b_goal;
 
 void trackingUpdate();
 void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in

@@ -10,7 +10,7 @@ name{name}, timing_unit{timing_unit}, log{&log} {
 void Timer::reset(bool play){
   time = 0;
   paused = true;
-  (*log)("Resetting" + get_name() + " Timer\n");
+  (*log)("Resetting " + get_name() + " Timer\n");
   if(play) this->play();
 }
 

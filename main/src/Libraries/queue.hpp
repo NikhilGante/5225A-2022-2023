@@ -150,9 +150,9 @@ class Queue{
     constexpr void clear() {front_iter = end();}
     constexpr void output(std::ostream& out) requires std::same_as<T, char>{
       auto in = full_contiguous_iterators();
-      std::cout << std::to_string(millis()) << "  FAILED: {"  << (void*)in.first.first << ", "  << (void*)in.first.second << "}  " << std::distance(in.first .first, in.first .second) <<std::endl;
+      std::cout << std::to_string(millis()) << "  FAILED: " << std::distance(in.first .first, in.first .second) << std::endl;
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
-      std::cout << std::to_string(millis()) << "  SUCCESS" << std::endl;
+      std::cout << std::to_string(millis()) << "  SUCCESS: " << std::distance(in.second .first, in.second .second) << std::endl;
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
     }
 };

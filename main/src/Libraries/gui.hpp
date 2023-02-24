@@ -378,7 +378,7 @@ class Slider: public ObjectTracker<Slider>{
     bool active=true;
     Page* page;
     Button dec, inc;
-    Text<int> title, min_title, max_title;
+    Text<double> title, min_title, max_title;
 
     void
       update(),
@@ -390,8 +390,8 @@ class Slider: public ObjectTracker<Slider>{
     //Points, Format, Min, Max, Page, Label, Bcolour, Lcolour
     Slider (GUI::Box, direction, double, double, Page&, std::string = "Value", double = 1, Color = Color::white, Color = Color::dark_orange);
 
-    int getValue() const;
-    void setValue(int);
+    double getValue() const;
+    void setValue(double);
 };
 
 //Screen Flash Definitions

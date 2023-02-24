@@ -9,6 +9,7 @@
 #include "shooter.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake{"Intake", IntakeOffParams{}};
+std::atomic<int> g_mag_disc_count = 0;
 
 void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
@@ -26,7 +27,6 @@ void intakeHandleInput(){
   }
 }
 
-std::atomic<int> g_mag_disc_count = 0;
 
 // Intake idle state
 void IntakeIdleParams::handle(){}

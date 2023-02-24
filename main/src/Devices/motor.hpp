@@ -8,8 +8,9 @@ class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
     Text<int> temperature, data;
     Text<> text;
     std::string name, short_name;
-
     int speed; //Represents the target speed
+
+    static Slider mot_speed_set;
 
     int velocityToVoltage(int velocity);
 

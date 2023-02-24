@@ -10,10 +10,10 @@
 #include "tracking.hpp"
 #include "util.hpp"
 
-#include<numbers>
+#include <numbers>
 
 static constexpr double TICKS_TO_INCHES_275 = 2.75*std::numbers::pi/36000;
-static constexpr double MM_TO_IN = 1/2.54/10;
+static constexpr double MM_TO_IN = 1/2.54 / 10;
 static constexpr double HALF_DRIVEBASE_WIDTH = 14.5/2;
 static constexpr double LEFT_DIST_OFFSET = 1.75;  // How far in the left sensor is from left edge
 static constexpr double RIGHT_DIST_OFFSET = 2.125;  // How far in the right sensor is from right edge

@@ -18,8 +18,8 @@
  */
 void initialize() {
 	Logging::init();
-  GUI::init();
 	_Controller::init();
+  GUI::init();
   tracking.init({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
 
   misc_checks.select();
@@ -92,12 +92,13 @@ Auton auton4("Skills", fullSkills);
 //remove timer from subsystems
 //add rumble back to alert
 //Logging different sizes
+//Eliminate the idea of multiple guis
 
 void opcontrol() {
   DEBUG;
 
   WAIT_UNTIL(false){
-    
+    if(master.getNewDigital(DIGITAL_A)) alert::start(term_colours::MAGENTA, "Hey There!");
   }
 
   DEBUG;

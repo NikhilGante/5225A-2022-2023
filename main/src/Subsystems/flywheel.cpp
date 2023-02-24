@@ -20,9 +20,6 @@ constexpr double CARTRIDGE_TO_RAW = 6;
 // 56 degrees up close
 Machine<FLYWHEEL_STATE_TYPES> flywheel{"Flywheel", FlywheelOffParams{}};
 
-bool flywheelOn = true;
-
-
 // Flywheel idle state
 
 void FlywheelIdleParams::handle(){}
@@ -79,6 +76,7 @@ void FlywheelMoveVelParams::handle(){
     delay(100);
   }
 
+  static bool flywheelOn = true;
   if(master.getNewDigital(goalDisturbBtn)){
     flywheelOn = !flywheelOn;
   }

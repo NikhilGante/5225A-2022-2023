@@ -7,7 +7,7 @@
 
 
 // Coords of high goal
-Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0};
+static Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
 /* Tests:
@@ -44,8 +44,8 @@ void trackingUpdate(){
   double sin_alpha, cos_alpha, sin_beta; // locals to avoid duplicate computations
 
   Position last_position; // last position of robot
-  Timer velocity_timer{"velocity_timer", tracking_log};
-  Timer tracking_timer{"timer", tracking_log};
+  Timer velocity_timer{"Velocity", tracking_log};
+  Timer tracking_timer{"Tracking", tracking_log};
 
   double last_gyro_angle = 0.0;
 

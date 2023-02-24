@@ -4,6 +4,7 @@
 
 extern Page temps, motors;
 extern Slider mot_speed_set;
+Slider _Motor::mot_speed_set {{MID_X, 60, 180 , 15, GUI::Style::CENTRE}, Slider::HORIZONTAL, -127, 127, motors, "Speed"};
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
 Motor{port, gearset, reversed, encoder_units}, name{name}{

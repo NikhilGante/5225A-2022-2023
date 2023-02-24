@@ -4,7 +4,29 @@
 
 #include <fstream>
 
+Auton::Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type):
+name{name}, program{program}, reset_type{reset_type} {}
+
+// Runs selected auton
+void Auton::run() {getNth(get())->runFunction();}
 Auton::E_Reset_Types Auton::getResetType() const {return reset_type;} // Getter
+
+// Returns selected Auton as an int
+int Auton::get(){
+	int auton_num;
+  auto file = Logging::Interrupter<std::ifstream>("/usd/auton.txt");
+  if(file.stream.is_open()) file.stream >> auton_num;
+  else auton_num = -1;
+  return auton_num;
+}
+
+void Auton::runFunction() const {
+  if(program){
+    auton_log("Running auton %s\n", name);
+    program();
+  }
+  else alert::start("No Auton function for" + name);
+}
 
 void Auton::select(){
 	int cur_auton = get();
@@ -49,27 +71,4 @@ void Auton::select(){
 
     delay(10);
   }
-}
-
-// Returns selected Auton as an int
-int Auton::get(){
-	int auton_num;
-  auto file = Logging::Interrupter<std::ifstream>("/usd/auton.txt");
-  if(file.stream.is_open()) file.stream >> auton_num;
-  else auton_num = -1;
-  return auton_num;
-}
-
-// Runs selected auton
-void Auton::run() {getNth(get())->runFunction();}
-
-Auton::Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type):
-name{name}, program{program}, reset_type{reset_type} {}
-
-void Auton::runFunction() const {
-  if(program){
-    auton_log("Running auton %s\n", name);
-    program();
-  }
-  else alert::start("No Auton function for" + name);
 }

@@ -9,39 +9,39 @@
   const Page* GUI::current_page = nullptr;
   bool GUI::touched = false;
   int GUI::x = 0, GUI::y = 0; //try making a point again
-  _Task GUI::task("GUI");
+  _Task GUI::task{"GUI"};
 
 //Text Vars
   std::string prompt_string;
   namespace alert{
-    Timer timer("Flash Timer", error_log, false);
+    Timer timer{"GUI Alert", none_log, false};
     std::uint32_t end_time;
   }
 
 //Default pages
-  Page perm ("PERM BTNS", Color::pink); //Common page objects
-    Button prev_page({PAGE_LEFT, PAGE_UP, 75, 20, GUI::Style::SIZE}, Button::SINGLE, perm, "<-");
-    Button next_page({PAGE_RIGHT, 0, -75, 20, GUI::Style::SIZE}, Button::SINGLE, perm, "->");
-    Button home({100, 10, 18, 6, GUI::Style::CENTRE}, Button::SINGLE, perm, "Home");
+  Page perm {"PERM BTNS", Color::pink}; //Common page objects
+    Button prev_page{{PAGE_LEFT, PAGE_UP, 75, 20, GUI::Style::SIZE}, Button::SINGLE, perm, "<-"};
+    Button next_page{{PAGE_RIGHT, 0, -75, 20, GUI::Style::SIZE}, Button::SINGLE, perm, "->"};
+    Button home{{100, 10, 18, 6, GUI::Style::CENTRE}, Button::SINGLE, perm, "Home"};
 
-  Page testing ("Testing"); //Blank page made so it already exists when quick tests are created
-    Text<> testing_text_1 ({125, 50}, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 1");
-    Text<> testing_text_2 ({350, 50}, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 2");
-    Button testing_button_1 ({25, 70, 200, 80, GUI::Style::SIZE}, Button::SINGLE, testing, "BLANK BUTTON 1");
-    Button testing_button_2 ({250, 70, 200, 80, GUI::Style::SIZE}, Button::SINGLE, testing, "BLANK BUTTON 2");
-    Slider testing_slider ({MID_X, 200, 200, 20, GUI::Style::CENTRE}, Slider::HORIZONTAL, -100, 100, testing, "BLANK SLIDER");
+  Page testing {"Testing"}; //Blank page made so it already exists when quick tests are created
+    Text<> testing_text_1 {{125, 50}, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 1"};
+    Text<> testing_text_2 {{350, 50}, GUI::Style::CENTRE, TEXT_SMALL, testing, "BLANK TEXT 2"};
+    Button testing_button_1 {{25, 70, 200, 80, GUI::Style::SIZE}, Button::SINGLE, testing, "BLANK BUTTON 1"};
+    Button testing_button_2 {{250, 70, 200, 80, GUI::Style::SIZE}, Button::SINGLE, testing, "BLANK BUTTON 2"};
+    Slider testing_slider {{MID_X, 200, 200, 20, GUI::Style::CENTRE}, Slider::HORIZONTAL, -100, 100, testing, "BLANK SLIDER"};
 
-  Page prompt_sequence ("Prompt");
-    Button prompt_button ({300, MID_Y, 160, 90, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence);
-    Button prompt_back_button ({20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, prompt_sequence, "BACK");
-    Text prompt_button_text ({0, 0}, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string);
+  Page prompt_sequence {"Prompt"};
+    Button prompt_button {{300, MID_Y, 160, 90, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence};
+    Button prompt_back_button {{20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, prompt_sequence, "BACK"};
+    Text prompt_button_text {{0, 0}, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string};
 
-  Page screen_flash ("Alert"); //Called screen_flash because there are a lot of things with the word alert
-    Button screen_flash_back_button ({20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, screen_flash, "BACK");
-    Text screen_flash_text ({MID_X, MID_Y}, GUI::Style::CENTRE, TEXT_MEDIUM, screen_flash, "");
-    Text screen_flash_time ({70, 85}, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", [](){return alert::end_time-alert::timer.getTime();});
+  Page screen_flash {"Alert"}; //Called screen_flash because there are a lot of things with the word alert
+    Button screen_flash_back_button {{20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, screen_flash, "BACK"};
+    Text screen_flash_text {{MID_X, MID_Y}, GUI::Style::CENTRE, TEXT_MEDIUM, screen_flash, ""};
+    Text screen_flash_time {{70, 85}, GUI::Style::CENTRE, TEXT_SMALL, screen_flash, "Time Left: %d", [](){return alert::end_time-alert::timer.getTime();}};
 
-  Page terminal ("Screen Printing");
+  Page terminal {"Screen Printing"};
 
 
 namespace alert{
@@ -467,13 +467,13 @@ namespace alert{
     }
   }
 
-  int Slider::getValue() const{
+  double Slider::getValue() const{
     return val;
   }
 
-  void Slider::setValue(int val){
-    int old_val = this->val;
-    this->val = std::clamp(val, min, max);
+  void Slider::setValue(double val){
+    double old_val = this->val;
+    this->val = std::clamp<double>(val, min, max);
     if(this->val != old_val) draw();
   }
 

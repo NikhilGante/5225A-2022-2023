@@ -42,5 +42,4 @@ class Vector{
     // arithmetic operator overloads
     Vector operator +(const Vector& p2) const;
     Vector operator -(const Vector& p2) const;
-
 };
