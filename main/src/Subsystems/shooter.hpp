@@ -49,3 +49,5 @@ private:
 
 
 void shoot(int shots = 3);  // Shoots x number of shots
+
+void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)

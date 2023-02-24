@@ -73,7 +73,6 @@ void initialize() {
 	// Data::init();
 	_Controller::init();
 	delay(300);
-	// lift.runMachine();
 
 	drive.runMachine();
 	intake.runMachine();
@@ -217,8 +216,8 @@ IMU THINGS:
 
 void opcontrol() {
 
-	driverPractice();
-	WAIT_UNTIL(false);
+	// driverPractice();
+	// WAIT_UNTIL(false);
 	Imu gyro_1(1);
 	Imu gyro_2(2);
 	Imu gyro_3(3);
@@ -228,8 +227,8 @@ void opcontrol() {
 	delay(3000);
 	while (true){
 
-		lcd::print(0, "Gyro_1: %.3f", gyro_1.get_rotation()*1.0108); // C
-		lcd::print(1, "Gyro_2: %.3f, To360: %.3f      ", gyro_2.get_rotation()*1.0027); // B
+		lcd::print(0, "Gyro_1: %.3f", gyro_1.get_rotation()*1.0108); // C - *1.0108
+		lcd::print(1, "Gyro_2: %.3f", gyro_2.get_rotation()*1.0027); // B - *1.0027
 		lcd::print(2, "Gyro_3: %.3f", gyro_3.get_rotation()*1.0125); // A - *1.0125
 		delay(50);
 	}

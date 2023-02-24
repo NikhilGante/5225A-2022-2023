@@ -5,7 +5,7 @@
 #include "pros/misc.hpp"
 
 const int toaster_rpm = 1425;
-const int barrier_rpm = 2125;// 2330 For long shots, 1775 for short shots, 2125 for middle shots
+const int barrier_rpm = 1775;// 2330 For long shots, 1775 for short shots, 2125 for middle shots
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -26,27 +26,12 @@ void shooterHandleInput(){
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
     angler_p.toggleState();
-    if (!angleOverride){
-      if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
-      else{
-        if(goal_disturb)  setFlywheelVel(3600);
-        else  setFlywheelVel(toaster_rpm);
-      }
-    }
+    handleRpm();
   } 
 
   if (master.get_digital_new_press(angleOverrideBtn)) {
     angleOverride = !angleOverride; 
-    if(angleOverride) {
-      setFlywheelVel(toaster_rpm);
-    }
-    else{
-      if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
-      else{
-        if(goal_disturb)  setFlywheelVel(3600);
-        else  setFlywheelVel(toaster_rpm);
-      }
-    }
+    handleRpm();
   }
 
   // if(master.get_digital_new_press(goalDisturbBtn)){
@@ -90,14 +75,14 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
+  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
   // bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   } else if(pros::competition::is_autonomous()){
-    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
+    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
   }
   
   if(trigger){ // && cycle_check.getTime() >= 30){
@@ -121,12 +106,9 @@ void ShooterShootParams::handle(){
       _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
-      shooter.changeState(ShooterIdleParams{}, 102);
+      shooter.changeState(ShooterIdleParams{}, 109);
 
-      if (!angleOverride && !pros::competition::is_autonomous()){
-        if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
-        else setFlywheelVel(toaster_rpm);
-      }
+      handleRpm();
 
     }
 
@@ -146,4 +128,13 @@ void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_stat
 void shoot(int shots){
   log("Shot requested for %d shots at %d\n", millis(), shots);
   shooter.changeState(ShooterShootParams{shots});
+}
+
+void handleRpm() {
+  if (angleOverride) setFlywheelVel(toaster_rpm); // Override
+  else if (goal_disturb) setFlywheelVel(3600); // Goal_disturb
+  else if (!pros::competition::is_autonomous()) { // Automatic
+    if (angler_p.getState() == LOW) setFlywheelVel(barrier_rpm);
+    else setFlywheelVel(toaster_rpm);
+  }
 }
