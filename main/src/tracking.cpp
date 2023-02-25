@@ -416,7 +416,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   Timer timeout{"timeout"};
   while(timeout.getTime() < 250 && cycle_count < 10){
     log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
-    if(centre_l.get_actual_velocity() > -3.0 && centre_r.get_actual_velocity() > -3.0)  cycle_count++;
+    if(centre_l.get_actual_velocity() > -26.0 && centre_r.get_actual_velocity() > -26.0)  cycle_count++;
     else cycle_count = 0;
     _Task::delay(10);
   }
@@ -429,7 +429,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   cycle_count = 0;
   while(cycle_count < 10){
     log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
-    l_slow = fabs(centre_l.get_actual_velocity()) < 3.0, r_slow = fabs(centre_r.get_actual_velocity()) < 3.0;
+    l_slow = fabs(centre_l.get_actual_velocity()) < 26.0, r_slow = fabs(centre_r.get_actual_velocity()) < 26.0;
     if(l_slow){
       if(r_slow){
         moveDrive(-20, 0); // Presses into roller 

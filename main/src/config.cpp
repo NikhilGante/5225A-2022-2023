@@ -36,7 +36,7 @@ ADIAnalogIn shooter_ds('C');
 Rotation flywheel_rot_sensor(14);	// Configures rotation sensor in port 1
 
 Piston angler_p('D', "angler_p", true, LOW);
-Piston trans_p('A', "trans_p", true, HIGH);
+Piston trans_p('A', "trans_p", true, LOW);
 Piston endgame_s_p('F', "endgame_s_p", false, LOW); // Single acting
 Piston endgame_d_p('G', "endgame_d_p", false, LOW); // Double acting
 
