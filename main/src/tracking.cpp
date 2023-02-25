@@ -401,22 +401,26 @@ void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_s
 
 // Drive Flatten state
 
+double rpmToInches(double rpm){
+  return (rpm / 60) * 3.25 * M_PI * 2/3;
+}
+
 const char* DriveFlattenParams::getName(){
   return "DriveFlatten";
 }
 void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
   moveDrive(0, 0);
-	trans_p.setState(LOW);
-  delay(100); // waits for Transmission to shift
-  moveDrive(-70, 0);  // moves backwards
+	// trans_p.setState(LOW);
+  // delay(100); // waits for Transmission to shift
+  moveDrive(-25, 0);  // moves backwards
   // Waits until velocity rises or takes > 10 cycles (10ms)
   int cycle_count = 0;
 
   Timer timeout{"timeout"};
   while(timeout.getTime() < 250 && cycle_count < 10){
     log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
-    if(centre_l.get_actual_velocity() > -26.0 && centre_r.get_actual_velocity() > -26.0)  cycle_count++;
+    if(rpmToInches(centre_l.get_actual_velocity()) > -5.0 && rpmToInches(centre_r.get_actual_velocity()) > -5.0)  cycle_count++;
     else cycle_count = 0;
     _Task::delay(10);
   }
@@ -427,12 +431,14 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   bool l_slow = false, r_slow = false; //
   // Waits until velocity drops (to detect wall)
   cycle_count = 0;
-  while(cycle_count < 10){
-    log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
-    l_slow = fabs(centre_l.get_actual_velocity()) < 26.0, r_slow = fabs(centre_r.get_actual_velocity()) < 26.0;
+  while(cycle_count < 5){
+    // log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
+    log("FLATTEN 2| l:%lf, r:%lf\n", rpmToInches(centre_l.get_actual_velocity()), rpmToInches(centre_r.get_actual_velocity()));
+
+    l_slow = fabs(rpmToInches(centre_l.get_actual_velocity())) < 5.0, r_slow = fabs(rpmToInches(centre_r.get_actual_velocity())) < 5.0;
     if(l_slow){
       if(r_slow){
-        moveDrive(-20, 0); // Presses into roller 
+        moveDrive(-10, 0); // Presses into roller 
         cycle_count++;
       }
       else{
@@ -445,7 +451,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
       cycle_count = 0;  // Reset count
     }
     else{
-      moveDrive(-70, 0);
+      moveDrive(-25, 0);
       cycle_count = 0;  // reset count
     }
     _Task::delay(10);

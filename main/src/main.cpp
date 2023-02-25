@@ -44,7 +44,7 @@ void initialize() {
 
 	log_init();
 	// gyro.reset(true);
-	_Task tracking_task("tracking_update_task");
+	// _Task tracking_task("tracking_update_task");
 	// tracking_task.start(trackingUpdate);
 
 	/*
@@ -221,22 +221,31 @@ IMU THINGS:
 // };
 
 void opcontrol() {
-	// pros::ADIUltrasonic ultra_left('C', 'D');
-	// pros::ADIUltrasonic ultra_right('A', 'B');
-	// double error = 5;
+	// trans_p.setState(HIGH);
+	// WAIT_UNTIL(false);
+	ADIUltrasonic ultra_left('E', 'F');
+	ADIUltrasonic ultra_right('G', 'H');
+	delay(300);
+	double error;
+	trans_p.setState(LOW);
+	do {
+		error  = ultra_right.get_value()-ultra_left.get_value();
+		pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
+		pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
+		pros::lcd::print(2, "error: %lf   ", error);
 
-	// while (error > 2) {
-	// 	error  = ultra_left.get_value()-ultra_right.get_value();
-	// 	pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
-	// 	pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
-	// 	pros::lcd::print(2, "error: %d   ", error);
+		// if(fabs(error) < tracking.min_move_power_a) error = sgn(error) * tracking.min_move_power_a;
+		moveDrive(0, error*1.3);
+		// if(fabs(error) > 2) moveDrive(0, error);
+		// else moveDrive(0, 0);
 
+		delay(10);
 
-	// 	moveDrive(0, error*5);
+	}	while (fabs(error) > 2);
+	master.rumble("-");
 
-	// 	delay(50);
-
-	// }
+	// trans_p.setState(HIGH);
+	// WAIT_UNTIL(false);
 
 
 
@@ -259,9 +268,24 @@ void opcontrol() {
 
 
 	flattenAgainstWallSync();
+
+	do {
+		error  = ultra_right.get_value()-ultra_left.get_value();
+		pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
+		pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
+		pros::lcd::print(2, "error: %lf   ", error);
+
+		moveDrive(0, 2*error);
+		// if(fabs(error) > 2) moveDrive(0, error);
+		// else moveDrive(0, 0);
+
+		delay(10);
+
+	}	while (fabs(error) > 2);
+	master.rumble("-");
 	WAIT_UNTIL(false);
 	// driverPractice();
-	trans_p.setState(HIGH);
+	// trans_p.setState(HIGH);
 	delay(100);
 	moveDrive(-40, 0);
 	delay(500);
