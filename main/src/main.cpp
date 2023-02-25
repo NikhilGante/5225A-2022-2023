@@ -75,9 +75,9 @@ void initialize() {
 	delay(300);
 
 	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 }
 
@@ -213,11 +213,60 @@ IMU THINGS:
 
 // 4.58, 4.53, 4.5, 4.57
 
+// struct driveVar {
+// 	std::string name;
+// 	double value;
+
+// 	driveVar(std::string n, double v): name(n), value(v){};
+// };
 
 void opcontrol() {
+	// pros::ADIUltrasonic ultra_left('C', 'D');
+	// pros::ADIUltrasonic ultra_right('A', 'B');
+	// double error = 5;
 
-	// driverPractice();
+	// while (error > 2) {
+	// 	error  = ultra_left.get_value()-ultra_right.get_value();
+	// 	pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
+	// 	pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
+	// 	pros::lcd::print(2, "error: %d   ", error);
+
+
+	// 	moveDrive(0, error*5);
+
+	// 	delay(50);
+
+	// }
+
+
+
 	// WAIT_UNTIL(false);
+
+	// int index = 0;
+	// driveVar vars = [driveVar{"Turn%", 0.6}];
+	
+
+	// while (true){
+	// 	lcd::set_text_color(255, 0, 0);
+	// 	if (index == vars.length){
+	// 		lcd::print(2, "%s", vars[index].name.c_str());
+	// 	} else if (index == 0) {
+	// 		lcd::print(0, "");
+	// 	} else {
+	// 		lcd::print(1, "");
+	// 	}
+	// }
+
+
+	flattenAgainstWallSync();
+	WAIT_UNTIL(false);
+	// driverPractice();
+	trans_p.setState(HIGH);
+	delay(100);
+	moveDrive(-40, 0);
+	delay(500);
+	moveDrive(-10, 0);
+	WAIT_UNTIL(false);
 	Imu gyro_1(1);
 	Imu gyro_2(2);
 	Imu gyro_3(3);
