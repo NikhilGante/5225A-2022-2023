@@ -4,6 +4,25 @@
 #include "Libraries/timer.hpp"
 #include "util.hpp"
 
+constexpr double DRIVEBASE_WIDTH = 13.5;
+constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
+constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
+// constexpr double BACK_EDGE_DIST = 9.0;  // How far back edge is from tracking centre
+
+
+double getDistL(){
+  return (l_reset_dist.get()/25.4) - LEFT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
+}
+
+double getDistR(){
+  return (r_reset_dist.get()/25.4) - RIGHT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
+}
+
+double getDistBack(){
+  return ((double)(ultra_left.get_value() + ultra_right.get_value())/2/25.4) + BACK_DIST_OFFSET;
+}
+
 // Coords of high goal
 Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
 
@@ -26,12 +45,12 @@ void trackingUpdate(){
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 7.66, dist_b = 0.95;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 9.25, dist_b = 6.4;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES;
-  double last_back = back_tracker.get_position()*TICKS_TO_INCHES;
+  double last_right = right_tracker.get_position()*TICKS_TO_INCHES;
+  double last_back = -back_tracker.get_position()*TICKS_TO_INCHES;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0;
   double radius_r, radius_b, h_y, h_x;
@@ -58,8 +77,8 @@ void trackingUpdate(){
     // lcd::print(3, "dist_lr: %lf", dist_lr);
 
     new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
-    new_back = back_tracker.get_position()*TICKS_TO_INCHES;
+    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
+    new_back = -back_tracker.get_position()*TICKS_TO_INCHES;
     
     lcd::print(2, "l:%lf r:%lf", new_left, new_right);
     lcd::print(4, "GYRO:%.2lf deg: %.2lf", gyro.get_rotation() * 1.011, radToDeg(tracking.g_pos.a));
@@ -97,7 +116,7 @@ void trackingUpdate(){
     theta = (left-right)/dist_lr; // change in robot's angle
     
     if(!gyro.is_calibrating()){
-      double gyro_angle = gyro.get_rotation() * 1.011;
+      double gyro_angle = gyro.get_rotation() * 1.0027;
       theta = gyro_angle - last_gyro_angle;
       // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
       if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
@@ -147,8 +166,8 @@ void trackingUpdate(){
     
       // log("%lf\n", radToDeg(tracking.g_vel.a));
 
-      // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
-      // log("VEL| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
+      log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+      // log("VELS| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
 
       tracking_timer.reset();
     }
@@ -157,7 +176,7 @@ void trackingUpdate(){
 		
     // pros::lcd::print(2, "h_x:%lf, h_y: %lf", h_x, h_y);
     // pros::lcd::print(0, "L:%d R:%d B:%d", new_left, new_right, new_back);
-    pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), -right_tracker.get_position(), back_tracker.get_position());
+    pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), right_tracker.get_position(), -back_tracker.get_position());
 		pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), fmod(radToDeg(tracking.g_pos.a), 360));
 
     delay(10);
@@ -248,11 +267,11 @@ void aimAtBlue(double offset, double max_power, double end_error){
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
 
-  PID angle_pid(5.2, 0, 100, 0.0, true, 1.0, degToRad(9.0));
+  PID angle_pid(4.5, 0, 100, 0.0, true, 1.0, degToRad(9.0));
 
-  double kB = 18.5; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  double kB = 15; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
-  double kP_vel = 10.0;
+  double kP_vel = 5.0;
   do{
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
@@ -307,7 +326,7 @@ void DriveMttParams::handle(){
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
   Timer motion_timer{"motion_timer"};
-  PID y_pid(5.0, 0.008, 400.0, 0.0, true, 0.0, 8.0);
+  PID y_pid(4.5, 0.00, 00.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
     case E_Robot_Sides::front:
@@ -362,7 +381,7 @@ void DriveMttParams::handle(){
     moveDriveSide(left_power, right_power);
     _Task::delay(10);
   }  
-  while(line_error.getY() > 1.0);
+  while(line_error.getY() > 0.5);
   handleBrake(brake_mode);
   delay(50);  // Waits for brake to be applied
   log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
@@ -410,54 +429,38 @@ const char* DriveFlattenParams::getName(){
 }
 void DriveFlattenParams::handle(){  // Flattens against wall
   Timer motion_timer{"motion_timer"};
-  moveDrive(0, 0);
-	// trans_p.setState(LOW);
-  // delay(100); // waits for Transmission to shift
-  moveDrive(-25, 0);  // moves backwards
-  // Waits until velocity rises or takes > 10 cycles (10ms)
-  int cycle_count = 0;
+  double error;
+	trans_p.setState(LOW);
+	delay(100); // wait for tranmission to shift
+	Timer flatten_timeout{"flatten_timeout"};
+	double power;
+	double error_rate, last_error;
+	do {
+		error  = ultra_right.get_value()-ultra_left.get_value();
+		error_rate = error - last_error;
+		last_error = error;
 
-  Timer timeout{"timeout"};
-  while(timeout.getTime() < 250 && cycle_count < 10){
-    log("FLATTEN 1| l:%lf r:%lf\n", tracking.l_vel, tracking.r_vel);
-    if(rpmToInches(centre_l.get_actual_velocity()) > -5.0 && rpmToInches(centre_r.get_actual_velocity()) > -5.0)  cycle_count++;
-    else cycle_count = 0;
-    _Task::delay(10);
-  }
+		pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
+		pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
+		pros::lcd::print(2, "error: %lf   ", error);
 
-  // 3.25 inches diameter
-  // (rpm / 60) * 3.25 * pi * 2/3 = vel
-  // rpm = 3/2*vel/pi/3.25*60
-  bool l_slow = false, r_slow = false; //
-  // Waits until velocity drops (to detect wall)
-  cycle_count = 0;
-  while(cycle_count < 5){
-    // log("FLATTEN 2| l:%lf, r:%lf\n", tracking.l_vel, tracking.r_vel);
-    log("FLATTEN 2| l:%lf, r:%lf\n", rpmToInches(centre_l.get_actual_velocity()), rpmToInches(centre_r.get_actual_velocity()));
+		power = error*0.8;
+		if(fabs(error) <= 2) power = 0;
+		else if(fabs(power) < 20 && error_rate < 5) power = sgn(error) * 20;
+		printf("Err: %lf pow: %lf\n", error, power);
 
-    l_slow = fabs(rpmToInches(centre_l.get_actual_velocity())) < 5.0, r_slow = fabs(rpmToInches(centre_r.get_actual_velocity())) < 5.0;
-    if(l_slow){
-      if(r_slow){
-        moveDrive(-10, 0); // Presses into roller 
-        cycle_count++;
-      }
-      else{
-        moveDriveSide(-5, -50); // Turns right
-        cycle_count = 0;  // Reset count
-      }
-    }
-    else if(r_slow){
-      moveDriveSide(-50, -5); // Turns left
-      cycle_count = 0;  // Reset count
-    }
-    else{
-      moveDrive(-25, 0);
-      cycle_count = 0;  // reset count
-    }
-    _Task::delay(10);
-  }
-  moveDrive(-10, 0); // Applies holding power
-  log("DRIVE FLATTEN DONE, took %lld ms\n", motion_timer.getTime());
+		moveDrive(0, power);
+		delay(10);
+
+	}
+	while (fabs(error) > 2 || flatten_timeout.getTime() < 1000);
+  moveDrive(0, 0); // Applies holding power
+	master.rumble("-");
+  log("\n\n%d DONE ALIGN\n", millis());
+
+
+  moveDrive(0, 0); // frees drive
+  log("DRIVE ALIGN DONE, took %lld ms\n", motion_timer.getTime());
   drive.changeState(DriveIdleParams{});
 }
 void DriveFlattenParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}

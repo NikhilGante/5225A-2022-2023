@@ -24,10 +24,16 @@ enum class E_Robot_Sides{
   automatic // automatically deduce which side
 };
 
+
+double getDistL();  // Gets tracking centre's position from wall on left
+double getDistR();  // Gets tracking centre's position from wall on right
+double getDistBack(); // Gets tracking centre's position from back wall
+
+
 class Tracking{
   
 public:
-  const double min_move_power_y = 30.0, min_move_power_a = 60.0;
+  const double min_move_power_y = 25.0, min_move_power_a = 35.0;
   // Odometry related variables
   double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
   Mutex pos_mutex; // locks g_pos

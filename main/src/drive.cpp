@@ -82,7 +82,7 @@ bool last_backwards = false;
 
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
   if(fabs(power_y) < deadzone) power_y = 0;
  

@@ -29,10 +29,10 @@ void shooterHandleInput(){
     handleRpm();
   } 
 
-  if (master.get_digital_new_press(angleOverrideBtn)) {
-    angleOverride = !angleOverride; 
-    handleRpm();
-  }
+  // if (master.get_digital_new_press(angleOverrideBtn)) {
+  //   angleOverride = !angleOverride; 
+  //   handleRpm();
+  // }
 
   // if(master.get_digital_new_press(goalDisturbBtn)){
   //   goal_disturb = !goal_disturb;

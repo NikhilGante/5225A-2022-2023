@@ -44,8 +44,8 @@ void initialize() {
 
 	log_init();
 	// gyro.reset(true);
-	// _Task tracking_task("tracking_update_task");
-	// tracking_task.start(trackingUpdate);
+	_Task tracking_task("tracking_update_task");
+	tracking_task.start(trackingUpdate);
 
 	/*
 	_Task battery_check("Battery_Checker");
@@ -75,9 +75,9 @@ void initialize() {
 	delay(300);
 
 	drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 }
 
@@ -111,9 +111,10 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	// Auton::runAuton();
 	WAIT_UNTIL(!gyro.is_calibrating());
-	provSkills();
+	autonLine();
+	// Auton::runAuton();
+	// provSkills();
 }
 
 /**
@@ -221,68 +222,18 @@ IMU THINGS:
 // };
 
 void opcontrol() {
-	// trans_p.setState(HIGH);
-	// WAIT_UNTIL(false);
-	ADIUltrasonic ultra_left('E', 'F');
-	ADIUltrasonic ultra_right('G', 'H');
-	delay(300);
-	double error;
-	trans_p.setState(LOW);
-	do {
-		error  = ultra_right.get_value()-ultra_left.get_value();
-		pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
-		pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
-		pros::lcd::print(2, "error: %lf   ", error);
 
-		// if(fabs(error) < tracking.min_move_power_a) error = sgn(error) * tracking.min_move_power_a;
-		moveDrive(0, error*1.3);
-		// if(fabs(error) > 2) moveDrive(0, error);
-		// else moveDrive(0, 0);
-
-		delay(10);
-
-	}	while (fabs(error) > 2);
-	master.rumble("-");
-
-	// trans_p.setState(HIGH);
-	// WAIT_UNTIL(false);
+	driverPractice();
 
 
+	WAIT_UNTIL(!gyro.is_calibrating());
+	autonLine();
+	// flattenAgainstWallSync();
+  // tracking.reset({getDistR(), getDistBack(), degToRad(0.0)});
+	// spinRoller();
+	// drive.changeState(DriveIdleParams{});
+  // drive.waitToReachState(DriveIdleParams{});
 
-	// WAIT_UNTIL(false);
-
-	// int index = 0;
-	// driveVar vars = [driveVar{"Turn%", 0.6}];
-	
-
-	// while (true){
-	// 	lcd::set_text_color(255, 0, 0);
-	// 	if (index == vars.length){
-	// 		lcd::print(2, "%s", vars[index].name.c_str());
-	// 	} else if (index == 0) {
-	// 		lcd::print(0, "");
-	// 	} else {
-	// 		lcd::print(1, "");
-	// 	}
-	// }
-
-
-	flattenAgainstWallSync();
-
-	do {
-		error  = ultra_right.get_value()-ultra_left.get_value();
-		pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
-		pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
-		pros::lcd::print(2, "error: %lf   ", error);
-
-		moveDrive(0, 2*error);
-		// if(fabs(error) > 2) moveDrive(0, error);
-		// else moveDrive(0, 0);
-
-		delay(10);
-
-	}	while (fabs(error) > 2);
-	master.rumble("-");
 	WAIT_UNTIL(false);
 	// driverPractice();
 	// trans_p.setState(HIGH);
@@ -295,246 +246,16 @@ void opcontrol() {
 	Imu gyro_2(2);
 	Imu gyro_3(3);
 
-
+// */
 	
-	delay(3000);
-	while (true){
+	// delay(3000);
+	// while (true){
 
-		lcd::print(0, "Gyro_1: %.3f", gyro_1.get_rotation()*1.0108); // C - *1.0108
-		lcd::print(1, "Gyro_2: %.3f", gyro_2.get_rotation()*1.0027); // B - *1.0027
-		lcd::print(2, "Gyro_3: %.3f", gyro_3.get_rotation()*1.0125); // A - *1.0125
-		delay(50);
-	}
-
-
-	// driverPractice();
-
-	WAIT_UNTIL(false);
-	// flywheel.runMachine();
-	// flywheel_m.move(0);
-	// delay(100);
-	// flywheel_m.move(50);
-
-	// tracking.reset();
-
-	// driverPractice();
-	// spinRoller();
-	// intake.setTimeout(5000);
-	// master.rumble("-");
-
-
-
-	// flattenAgainstWallSync();
-	// tracking.reset({getDistL(), 9.75, degToRad(0.0)});
-	// moveDrive(0, 0);
-	// trans_p.setState(HIGH);
-	
-	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	
-	// drive.changeState(DriveIdleParams{});
-  	// drive.waitToReachState(DriveIdleParams{});
-	// moveDrive(0, -45);
-
-	// turnToAngleSync(14);
-	// driverPractice();
-	WAIT_UNTIL(false);
-
-  // drive.changeState(DriveIdleParams{});
-  // drive.waitToReachState(DriveIdleParams{});
-  // moveDrive(-50, 0);
-	// while(true){
-  //   log("%d l:%lf, r:%lf\n", millis(), tracking.l_vel, tracking.r_vel);
-	// 	delay(10);
-	// }
-  // moveDrive(-10, 0);
-
-	Auton::selectAuton();
-	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	Auton::runAuton();
-
-	WAIT_UNTIL(false);
-	// turnToAngleSync(45);
-
-
-	driverPractice();
-
-	// intake_m.move(-127);
-	//  do{
-	// 	roller_sensor.set_led_pwm(100);
-  //   double cur_val = roller_sensor.get_rgb().red;
-  //   log("%lf \n", roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
-  //   _Task::delay(100);
-  // }while(true);
-
-
-	// skills1();
-	// skills2();
-	// skills3();
-	// WAIT_UNTIL(false);
-	// THIS BY ITSELF
-	// /*
-		// Auton::selectAuton();
-	// */
-	WAIT_UNTIL(false);
-	// spinRoller();
-	// intake.waitToReachState(IntakeOffParams{});
-	// tracking.reset({getDistL(), 7.5, 0.0});
-	// while(true){
-	// 	printf("dist:%lf | %lf\n", 141 - getDistL(), getDistR());
-	// 	delay(10);
+	// 	lcd::print(0, "Gyro_1: %.3f", gyro_1.get_rotation()*1.0108); // C - *1.0108
+	// 	lcd::print(1, "Gyro_2: %.3f", gyro_2.get_rotation()*1.0027); // B - *1.0027
+	// 	lcd::print(2, "Gyro_3: %.3f", gyro_3.get_rotation()*1.0125); // A - *1.0125
+	// 	delay(50);
 	// }
 
-
-	// autonLine();
-
-	// skills3();
-
-
-	// E - angler_p is single
-	// C - transmission is double
-
-	/* 
-	To fill:
-		single: HIGH, double: LOW
-	To Hold:
-		single: LOW, double: LOW
-	To Release:
-		single: LOW, double: HIGH
-	*/
-
-
-
-
-	
-	master.clear();
-	// master.print(0,0, "press a to shoot");
-	// endgame_s_p.setState(HIGH);
-	// while(true){
-	// 	// if(master.get_digital_new_press(DIGITAL_A))	endgame_s_p.toggleState();
-	// 	if(master.get_digital_new_press(DIGITAL_A))	endgame_d_p.toggleState();
-	// 	printf("%d %d\n", endgame_s_p.getState(), endgame_d_p.getState());
-	// 	delay(10);
-	// }
-
-
-	driverPractice();
-	
-	// Auton::selectAuton();
-	
-	// Auton::runAuton();
-	// spinRoller();
-	// do{
-	// 	roller_sensor.set_led_pwm(100);
-  //   double cur_val = roller_sensor.get_rgb().red;
-  //   printf("r: %lf \n", cur_val);
-  //   _Task::delay(100);
-  // }while(true);
-	// autonLine();
-
-
-	// autonStack();
-	// driverPractice();
-
-	WAIT_UNTIL(false);
-	// indexer_p.setState(HIGH);
-	// skills1();
-/*
-	while(true) {
-		// printf("dist: %d \n", roller_sensor.get_proximity());
-		if(master.get_digital_new_press(DIGITAL_A)){
-			spinRoller();
-			intake.waitToReachState(IntakeOffParams{});
-		}
-		// printf("r: %lf \n", roller_sensor.get_rgb().red);
-
-		delay(10);
-	}
-*/
-	// auton::program1();
-	// cout << auton::arr[3]->name << endl;
-	// cout << "size " << auton::arr.size() << endl;
-
-	// cout << auton::GetCurAuton() << endl;
-
-
-	// WAIT_UNTIL(false);
-
-
-	// setFlywheelVel(2320);
-
-	Timer disc_count_print{"disc_count_print"};
-	Timer angle_override_print{"angle_override_print"};
-	master.clear();
-	drive.changeState(DriveOpControlParams{});
-	while(true){
-
-		// driveHandleInput();
-		shooterHandleInput();
-		intakeHandleInput();
-		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
-		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
-
-
-		if(disc_count_print.getTime() > 100){
-			master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
-			// partner.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
-			disc_count_print.reset();
-		}
-
-		if(angle_override_print.getTime() > 100){
-			angle_override_print.reset();
-			if (angleOverride) master.print(1, 0, "Override");
-			else master.print(1, 0, "Automatic");
-		}
-
-		// if(centre_l.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
-		// 	break;
-		// }
-		delay(10);
-	}
-
-
-	// while(true){
-	// 	if(master.get_digital_new_press(DIGITAL_A)) indexer_p.toggleState();
-	// 	delay(10);
-	// }
-
-	// moveInches(20.0);
-	Timer timer1{"timer"};
-	angler_p.setState(LOW);
-	moveToTargetSync({30.75, 12.5});
-	aimAtBlue(10.0);
-	delay(2000);
-	Timer shoot_timer{"timer"};
-	shoot(2);
-	shooter.waitToReachState(ShooterIdleParams{});
-	lcd::print(5, "shoot_time:%ld", shoot_timer.getTime());
-	setFlywheelVel(2320);
-	turnToTargetSync({69.0, 45.0});
-	tracking.waitForDistance(15.0);
-	intakeOn();
-	moveToTargetSync({69.0, 45.0}, E_Brake_Modes::brake, 55);
-	aimAtBlue(10.5);
-	shoot(3);
-	turnToTargetSync({126.0, 111.0});
-	moveToTargetSync({126.0, 111.0});
-
-	turnToAngleSync(-90.0);
-	lcd::print(6, "total:%ld", timer1.getTime());
-
-	// turnToAngleSync(179.0);
-	// moveInches(120.0);
-	// turnToAngleSync(180.0);
-	// flattenAgainstWallSync(true);
-	// while(true){
-	// 	// if(master.get_digital_new_press(DIGITAL_Y))	moveInches(10.0);
-	// 	driveHandleInput();
-	// 	intakeHandleInput();
-	// 	delay(10);
-	// }
-	// WAIT_UNTIL(false);
-	// Timer disc_count_print{"g_mag_disc_count_print"};
-	// moveDrive(0, 127);
-	
 
 }

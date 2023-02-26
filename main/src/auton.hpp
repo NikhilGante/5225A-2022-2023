@@ -3,8 +3,6 @@
 #include "tracking.hpp"
 using namespace pros;
 
-double getDistL();  // Gets tracking centre's position from wall on left
-double getDistR();  // Gets tracking centre's position from wall on right
 
 void moveInches(double target, double max_power = 127);
 

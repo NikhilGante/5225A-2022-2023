@@ -133,42 +133,38 @@ void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
 }
 
 
-IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
+IntakeRollerParams::IntakeRollerParams(double degrees): degrees(degrees){}
 
 const char* IntakeRollerParams::getName(){
   return "IntakeRoller";
 }
 void IntakeRollerParams::handle(){
-  Timer led{"timer"};
-  roller_sensor.set_led_pwm(100);
-  log("%d | flatten:%d\n", millis(), flatten);
+  Timer roller_timer{"roller_timer"};
+  drive.changeState(DriveIdleParams{});
+  drive.waitToReachState(DriveIdleParams{});
 
-  if(flatten) flattenAgainstWallSync();
-  trans_p.setState(LOW);
-  WAIT_UNTIL(led.getTime() > 200 && roller_sensor.get_rgb().red != 0);  // Waits for LED to turn on and robot to touch roller
-	intake_m.move(-127);
-	Timer roller_timer{"roller_timer"};
-  // Switches to opposite colour it saw
+  moveDrive(0, 0);
+  trans_p.setState(HIGH);
+  delay(100);
+	// FLATTEN CODE
+	pros::lcd::print(4, "dist: %lf   ", error);
+	moveDrive(-40, 0);
+ 
+	delay(300); // Waits for velocity to rise
 
-  intake_m.move_relative(-700, 200);  // should be 450, For skills, should be 700
+  WAIT_UNTIL(tracking.r_vel > -3);
+
+	master.rumble("-");
+
+	moveDrive(-10, 0);
+  log("Turning roller\n");
+  intake_m.move_relative(degrees, 200);  // should be 500 for skills, should be 300 for auton
   WAIT_UNTIL(fabs(intake_m.get_target_position() - intake_m.get_position()) < 10); // wait for intake to reach poisiton 
-  /*
-  const int thresh = 3000;
-  double init_value = roller_sensor.get_rgb().red;
-  log("init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
-  // waits to see a value > 700  different than inital value (waits for a colour change)
-  double cur_val;
-  Timer timeout{"timeout"};
-  do{
-		roller_sensor.set_led_pwm(100);
-    cur_val = roller_sensor.get_rgb().red;
-    // log("r: %lf \n", cur_val);
-    log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
-    _Task::delay(100);
-  } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
-  */
+  log("Finished spinning roller\n");
+
+	master.rumble("-");
+	moveDrive(0, 0);
   printf("**DONE ROLLER\n");
-  // while(fabs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble("-"); // Notifies driver spinning roller has finished
@@ -182,6 +178,6 @@ void IntakeRollerParams::handle(){
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
 }
 
-void spinRoller(bool flatten){  // Wrapper function to make intake index discs
-  intake.changeState(IntakeRollerParams{flatten});
+void spinRoller(double degrees){  // Wrapper function to make intake index discs
+  intake.changeState(IntakeRollerParams{degrees});
 }

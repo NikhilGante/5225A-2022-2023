@@ -15,14 +15,13 @@ extern Piston indexer_p;
 extern ADIAnalogIn mag_ds;
 extern ADIAnalogIn shooter_ds;
 
-// extern ADIUltrasonic ultra_left;
-// extern ADIUltrasonic ultra_right;
+extern ADIUltrasonic ultra_left;
+extern ADIUltrasonic ultra_right;
 
 extern Rotation flywheel_rot_sensor;
 
 extern Piston angler_p, trans_p, endgame_s_p, endgame_d_p;
 
-extern Optical roller_sensor;
 
 extern Imu gyro;
 

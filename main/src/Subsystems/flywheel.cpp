@@ -87,16 +87,16 @@ void FlywheelMoveVelParams::handle(){
   double correction = flywheel_error*kP;
   // if(fabs(correction) > 2500) correction = 2500;
   output = kB * target_vel + correction;
-  output = std::clamp(output, -1.0, 127.0);
+  output = std::clamp(output, -5.0, 127.0);
   // output = 127;
   
   #ifdef LOGS
   // log_timer.getTime() > 100 ||
   // if(shooter_ds.get_value() < 2000){// || log_timer.getTime() > 25) {
   if(log_timer.getTime() > 10 || shooter_ds.get_value() < 800){
-    if (shooter_ds.get_value() < 800) log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
+    if (shooter_ds.get_value() < 800) log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
     // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
-    log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
+    // log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }
   
