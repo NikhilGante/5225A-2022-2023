@@ -453,9 +453,10 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 		delay(10);
 
 	}
-	while (fabs(error) > 2 || flatten_timeout.getTime() < 1000);
+	while (fabs(error) > 15 && flatten_timeout.getTime() < 1000);
   moveDrive(0, 0); // Applies holding power
 	master.rumble("-");
+  log("CONTROLLER RUMBLING FROM LINE 458 in file tracking.cpp");
   log("\n\n%d DONE ALIGN\n", millis());
 
 

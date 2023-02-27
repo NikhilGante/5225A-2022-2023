@@ -192,6 +192,7 @@ void driveHandleInputProg(){
   if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50){
     moveDrive(0, 0);
     master.rumble("----------");
+    log("CONTROLLER RUMBLING FROM LINE 194 in file drive.cpp");
     WAIT_UNTIL(false);
   } 
 }
@@ -277,6 +278,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
       master.rumble("-");
+      log("CONTROLLER RUMBLING FROM LINE 280 in file drive.cpp");
       delay(50);
       // moveDrive(0, 0);
       // intake.changeState(IntakeOffParams{});

@@ -29,6 +29,7 @@ void moveInches(double target, double max_power){
 	master.print(2, 0, "time: %ld", move_timer.getTime());
 	driveBrake();
 	master.rumble("-");
+  log("CONTROLLER RUMBLING FROM LINE 31 in file auton.cpp");
 }
 
 void fullSkills(){
@@ -57,6 +58,7 @@ void skills1(){
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({31.0, 7.5, degToRad(0.0)});
   master.rumble("-");
+  log("CONTROLLER RUMBLING FROM LINE 60 in file auton.cpp");
   // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   intakeOn();
   moveToTargetSync({37.0, 43.0}, E_Brake_Modes::brake, 50); // picks up stack
@@ -230,11 +232,18 @@ void autonAWP(){
 
 
   Timer timer1{"timer"};
-  setFlywheelVel(2300);
+  setFlywheelVel(2200);
+
+  double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
+	tracking.reset({cos(degToRad(angle))*getDistL(), cos(degToRad(angle))*getDistBack(), angle});
+
+
+  // tracking.reset({getDistL(), 9.75, degToRad(0.0)});
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+
+
   // WAIT_UNTIL(false);
 	moveToTargetSync({tracking.g_pos.x, 14.75}); // Moves away from wall
 
@@ -260,7 +269,7 @@ void autonAWP(){
 	intakeOn();
 	moveToTargetSync({73.0, 48.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
 
-	aimAtBlue(11.5);
+	aimAtBlue(0);
 
   driveBrake();
 	shoot(3);
@@ -271,10 +280,10 @@ void autonAWP(){
   setFlywheelVel(2420);
   
 // YOOOO
-	turnToTargetSync({125.0, 105.0}); // Face corner
+	turnToTargetSync({125.0, 115.0}); // Face corner
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
-	moveToTargetSync({125.0, 105.0}); // Move to corner
+	moveToTargetSync({125.0, 115.0}); // Move to corner
   log("TURNED INTAKE OFF\n");
   intakeOff();
 
@@ -286,9 +295,10 @@ void autonAWP(){
 
   moveInches(4.0);
 
-  // aimAtBlue(11.0);
+  // aimAtBlue(0.0);
   // shoot(3);
-  WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
+  // WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
+  log("CONTROLLER RUMBLING FROM LINE 293 in file auton.cpp");
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());
@@ -299,12 +309,14 @@ void autonLine(){ // No moving after start
   tracking.reset({128.75, 83.25, degToRad(0.0)});
 
   Timer timer1{"timer"};
-  setFlywheelVel(2200, 415);
+  setFlywheelVel(2255, 415);
   moveToTargetSync({tracking.g_pos.x, 108}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
 
   flattenAgainstWallSync();
-  tracking.reset({141-getDistBack(), 141-getDistR(), degToRad(-90.0)});
+	double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
+	tracking.reset({141-cos(degToRad(angle))*getDistBack(), 141-cos(degToRad(angle))*getDistR(), angle-degToRad(90)});
+
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
 
@@ -312,15 +324,15 @@ void autonLine(){ // No moving after start
   intakeOn();
   turnToTargetSync({103.0, 79.0}); // Drives through line
   moveToTargetSync({105.0, 81.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtBlue(4);
+  aimAtBlue(3);
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
   turnToTargetSync({83.0, 60.0}); // Drives through line
-  setFlywheelVel(2200, 423);
+  setFlywheelVel(2185, 423);
   moveToTargetSync({83.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtBlue(4);
+  aimAtBlue(3);
   driveBrake();
   shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});

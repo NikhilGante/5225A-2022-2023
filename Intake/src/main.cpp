@@ -95,6 +95,7 @@ void opcontrol() {
 		if(intk_temp >= 45.0){
 			intk.move(0);
 			master.rumble("---");
+			
 
 			break;
 		}

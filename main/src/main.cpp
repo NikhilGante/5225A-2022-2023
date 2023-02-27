@@ -112,7 +112,7 @@ void competition_initialize() {}
  */
 void autonomous() {
 	WAIT_UNTIL(!gyro.is_calibrating());
-	autonLine();
+	autonAWP();
 	// Auton::runAuton();
 	// provSkills();
 }
@@ -223,11 +223,25 @@ IMU THINGS:
 
 void opcontrol() {
 
-	driverPractice();
+	// driverPractice();
 
 
 	WAIT_UNTIL(!gyro.is_calibrating());
-	autonLine();
+
+	double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
+	tracking.reset({cos(degToRad(angle))*getDistL(), cos(degToRad(angle))*getDistBack(), angle});
+	// double angle;
+	// while (true) {
+	// 	angle = radToDeg(atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4)));
+	// 	cout << "ANGLE OF ROBOT: " << angle << endl;
+	// 	cout << "X: " << cos(degToRad(angle))*getDistR() << endl;
+	// 	cout << "Y: " << cos(degToRad(angle))*getDistBack() << endl;
+
+
+	// 	delay(10);
+	// }
+	
+	// autonLine();
 	// flattenAgainstWallSync();
   // tracking.reset({getDistR(), getDistBack(), degToRad(0.0)});
 	// spinRoller();

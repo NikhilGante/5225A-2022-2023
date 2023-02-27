@@ -5,7 +5,7 @@
 #include "pros/misc.hpp"
 
 const int toaster_rpm = 1425;
-const int barrier_rpm = 1775;// 2330 For long shots, 1775 for short shots, 2125 for middle shots
+const int barrier_rpm = 2125;// 2330 For long shots, 1775 for short shots, 2125 for middle shots
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -102,6 +102,7 @@ void ShooterShootParams::handle(){
 
     if(shots_left <= 0){  // If shooting is done
       master.rumble("-"); // Lets driver know shooting is done
+      log("CONTROLLER RUMBLING FROM LINE 104 in file shooter.cpp");
       g_mag_disc_count = 0;
       _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
