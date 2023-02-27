@@ -3,6 +3,7 @@
 #include "../config.hpp"
 #include "../Devices/controller.hpp"
 #include "../Devices/motor.hpp"
+#include "../Devices/piston.hpp"
 #include "../util.hpp"
 #include "../Libraries/logging.hpp"
 
@@ -45,7 +46,7 @@ double FlywheelMoveVelParams::manual_vel;  // Pre-smoothed velocity
 FlywheelMoveVelParams::FlywheelMoveVelParams(int target_vel): target_vel(target_vel){}
 
 void FlywheelMoveVelParams::handle(){
-  rot_vel = -flywheel_rot_sensor.get_velocity()/60.0;	// Actual velocity of flywheel
+  rot_vel = flywheel_rot_sensor.get_velocity()/60.0;	// Actual velocity of flywheel
 
   // Calculating filtered velocity
   if(motor_vel_read.getTime() >= 40){
@@ -63,12 +64,17 @@ void FlywheelMoveVelParams::handle(){
   flywheel_error = target_vel - rot_vel;
   const double correction = flywheel_error*kP;
   output = kB * target_vel + correction;
-  output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
-
-  if(log_timer.getTime() > 100){
-    flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM());
+  output = std::clamp(output, -5.0, 127.0);
+  
+  if(log_timer.getTime() > 10){
+    //flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM());
     log_timer.reset();
   }
+  if (shooter_ds.get_value() < 800){
+    flywheel.log("DISC CONTACTED FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM(), angler_p.getState());
+    log_timer.reset();
+  }
+    
 
   if(!master.connected()){
     WAIT_UNTIL(master.connected());
@@ -77,16 +83,16 @@ void FlywheelMoveVelParams::handle(){
   }
 
   static bool flywheelOn = true;
-  if(master.getNewDigital(goalDisturbBtn)){
-    flywheelOn = !flywheelOn;
-  }
+  if(master.getNewDigital(goalDisturbBtn)) flywheelOn = !flywheelOn;
 
   flywheel_m.move(flywheelOn ? output : 0);
+  
+  _Task::delay(30);
 }
 
 void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {log_timer.reset();}
 
 void setFlywheelVel(int32_t vel){
-  flywheel.log("Flywheel was to velocity %d", vel);
+  flywheel.log("Flywheel was changed to velocity %d", vel);
   flywheel.changeState(FlywheelMoveVelParams{vel});
 }

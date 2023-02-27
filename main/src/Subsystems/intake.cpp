@@ -52,6 +52,7 @@ void IntakeOnParams::handle(){  // synchronous state
   if(g_mag_disc_count >= 3) {
     intake.log("COUNTED 3");
     master.rumble();
+    intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
     _Task::delay(185);
     intakeOff();
     if(angleOverride)  angler_p.setState(HIGH);
@@ -92,42 +93,41 @@ void IntakeIndexParams::handleStateChange(intakeVariant prev_state) {intake_m.mo
 void intakeIndex(int8_t speed) {intake.changeState(IntakeIndexParams{speed});} // Wrapper function to make intake index discs
 
 
-IntakeRollerParams::IntakeRollerParams(bool flatten): flatten(flatten){}
+IntakeRollerParams::IntakeRollerParams(double degrees): degrees(degrees){}
 
 void IntakeRollerParams::handle(){
-  Timer led{"timer", intake.log};
-  roller_sensor.set_led_pwm(100);
-  device_log("%d | flatten:%d\n", millis(), flatten);
+  Timer roller_timer{"Roller", intake.log};
+  drive.changeState(DriveIdleParams{});
+  drive.waitToReachState(DriveIdleParams{});
 
-  if(flatten) flattenAgainstWallSync();
-  trans_p.setState(LOW);
-  WAIT_UNTIL(led.getTime() > 200 && roller_sensor.get_rgb().red != 0);  // Waits for LED to turn on and robot to touch roller
-	intake_m.move(-127);
-	Timer roller_timer{"roller_timer", intake.log};
-  // Switches to opposite colour it saw
+  moveDrive(0, 0);
+  trans_p.setState(HIGH);
+  delay(100);
+	// FLATTEN CODE
+	intake.log("dist: %lf", error);
+	moveDrive(-40, 0);
+ 
+	delay(300); // Waits for velocity to rise
 
-  intake_m.moveRelative(-700);  //should be 450, For skills, should be 650
+  WAIT_UNTIL(tracking.r_vel > -3);
+
+	master.rumble();
+  intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+
+	moveDrive(-10, 0);
+  intake.log("Turning roller");
+  intake_m.moveRelative(degrees);  // should be 500 for skills, should be 300 for auton
   WAIT_UNTIL(std::abs(intake_m.getTargetPosition() - intake_m.getPosition()) < 10); // wait for intake to reach poisiton 
-  /*
-  const int thresh = 3000;
-  double init_value = roller_sensor.get_rgb().red;
-  device_log("roller init_value: %lf, %lf\n", init_value, roller_sensor.get_rgb().blue);
-  // waits to see a value > 700  different than inital value (waits for a colour change)
-  double cur_val;
-  Timer timeout{"timeout", intake.log};
-  do{
-		roller_sensor.set_led_pwm(100);
-    cur_val = roller_sensor.get_rgb().red;
-    // device_log("r: %lf \n", cur_val);
-    device_log("%d, %lf, %lf \n", millis(), roller_sensor.get_rgb().red, roller_sensor.get_rgb().blue);
-    _Task::delay(100);
-  } while(cur_val < init_value*2 && cur_val > init_value / 2  && timeout.getTime() < 1500);
-  */
+  intake.log("Finished spinning roller");
+
+	master.rumble();
+  intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+	moveDrive(0, 0);
   intake.log("**DONE ROLLER\n");
-  // while(std::abs(cur_val - init_value) < 800 && timeout.getTime() < 1500);
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble(); // Notifies driver spinning roller has finished
+  intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 	moveDrive(0, 0);
   delay(100);
 
@@ -137,4 +137,4 @@ void IntakeRollerParams::handle(){
 }
 void IntakeRollerParams::handleStateChange(intakeVariant prev_state){}
 
-void spinRoller(bool flatten) {intake.changeState(IntakeRollerParams{flatten});} // Wrapper function to make intake index discs
+void spinRoller(double degrees) {intake.changeState(IntakeRollerParams{degrees});} // Wrapper function to make intake index discs

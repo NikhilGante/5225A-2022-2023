@@ -191,13 +191,13 @@ void mainSetup(){
 
     sensor_check.setFunc([](){
       for (_Motor* motor: _Motor::getList()) if (!motor->plugged()) alert::start("Motor %s unplugged", motor->getName());
-      if(c::registry_get_plugged_type(roller_sensor.get_port()-1) != c::E_DEVICE_OPTICAL) alert::start("Roller sensor not plugged in port %d", roller_sensor.get_port());
-      else if(c::registry_get_plugged_type(rotation_port-1) != c::E_DEVICE_ROTATION) alert::start("Roller sensor not plugged in port %d", rotation_port);
+      // if(c::registry_get_plugged_type(roller_sensor.get_port()-1) != c::E_DEVICE_OPTICAL) alert::start("Roller sensor not plugged in port %d", roller_sensor.get_port());
+      // else if(c::registry_get_plugged_type(rotation_port-1) != c::E_DEVICE_ROTATION) alert::start("Roller sensor not plugged in port %d", rotation_port);
 
-      else if(!inRangeIncl(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
-      else if(!inRangeIncl(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
+      // else if(!inRangeIncl(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
+      // else if(!inRangeIncl(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
 
-      else(alert::start("All Sensors Good", term_colours::GREEN));
+      // else(alert::start("All Sensors Good", term_colours::GREEN));
     });
 
     misc_checks.setFunc([](){

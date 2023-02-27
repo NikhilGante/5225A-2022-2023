@@ -76,12 +76,12 @@ struct IntakeIndexParams{
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs
 
 struct IntakeRollerParams{
-  bool flatten; // Whether to flatten against wall or not
-  IntakeRollerParams(bool flatten = true);
+  double degrees; // How many degrees to spin the roller
+  IntakeRollerParams(double degrees = 300); // 300 for auto, 500 for skills
 
   inline static const std::string name = "IntakeRoller";
   void handle();
   void handleStateChange(intakeVariant prev_state);
 };
 
-void spinRoller(bool flatten = true);  // Wrapper function to make intake index discs
+void spinRoller(double degrees = 300);  // Wrapper function to make intake index discs

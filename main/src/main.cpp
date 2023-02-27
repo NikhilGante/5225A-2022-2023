@@ -73,7 +73,9 @@ void autonomous() {
   DEBUG;
 	Auton::run();
 	WAIT_UNTIL(!gyro.is_calibrating());
-	provSkills();
+	autonAWP();
+	// Auton::runAuton();
+	// provSkills();
   DEBUG;
 }
 

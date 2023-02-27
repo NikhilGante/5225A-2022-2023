@@ -2,7 +2,7 @@
 #include "main.h"
 #include <map>
 
-static constexpr uint8_t rotation_port = 2;
+static constexpr uint8_t rotation_port = 7;
 
 class _Controller;
 class _Motor;
@@ -18,11 +18,13 @@ extern Piston indexer_p;
 extern ADIAnalogIn mag_ds;
 extern ADIAnalogIn shooter_ds;
 
+extern ADIUltrasonic ultra_left;
+extern ADIUltrasonic ultra_right;
+
 extern Rotation flywheel_rot_sensor;
 
 extern Piston angler_p, trans_p, endgame_s_p, endgame_d_p;
 
-extern Optical roller_sensor;
 
 extern Imu gyro;
 

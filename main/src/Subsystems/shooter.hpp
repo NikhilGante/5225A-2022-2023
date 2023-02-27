@@ -1,7 +1,7 @@
 #pragma once
 #include "flywheel.hpp"
 
-static constexpr int barrier_rpm = 1820;
+static constexpr int barrier_rpm = 2125;
 
 void shooterHandleInput();
 
@@ -40,3 +40,5 @@ struct ShooterShootParams{
 };
 
 void shoot(int shots = 3);  // Shoots x number of shots
+
+void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)

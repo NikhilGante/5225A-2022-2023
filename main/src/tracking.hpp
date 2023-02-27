@@ -7,6 +7,14 @@
 static constexpr double MAX_TURNING_POWER = 127;
 static constexpr double TURNING_END_ERROR = 1.5;
 static constexpr int MAX_DRIVE_POWER = 127;
+static constexpr double TICKS_TO_INCHES = 2.75*std::numbers::pi/36000;
+static constexpr double MM_TO_IN = okapi::mmToInch;
+static constexpr double HALF_DRIVEBASE_WIDTH = 13.5/2;
+constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
+constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
+// constexpr double BACK_EDGE_DIST = 9.0;  // How far back edge is from tracking centre
+
 
 enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
@@ -20,6 +28,12 @@ enum class E_Robot_Sides{
   automatic // automatically deduce which side
 };
 
+
+double getDistL();  // Gets tracking centre's position from wall on left
+double getDistR();  // Gets tracking centre's position from wall on right
+double getDistBack(); // Gets tracking centre's position from back wall
+
+
 class Tracking{
   private:
     _Task task{"Tracking Update"};
@@ -30,7 +44,7 @@ class Tracking{
     Position power; // power to apply to the drive motors
   
   public:
-    static constexpr double min_move_power_y = 30.0, min_move_power_a = 60.0;
+    static constexpr double min_move_power_y = 25, min_move_power_a = 35;
 
     // Odometry related variables
     double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec

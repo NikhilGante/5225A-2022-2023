@@ -1,4 +1,5 @@
 #include "drive.hpp"
+#include "Libraries/logging.hpp"
 #include "config.hpp"
 #include "util.hpp"
 #include "tracking.hpp"
@@ -69,8 +70,8 @@ bool last_backwards = false;
 
 void driveHandleInput(){
   double power_y = polynomial(master.getAnalog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.7 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
- 
+  double power_a = 0.6 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
+
   _Controller::deadband(power_y);
  
   backwards = power_y < 0;
@@ -131,14 +132,14 @@ void driveHandleInputProg(){
   moveDriveSide(l_power, r_power);
   l_power_last = l_power,  r_power_last = r_power;
 
-  // for(_Motor* motor: _Motor::getList()){
-  //   if(motor->getTemperature() >= 50){
-  //     moveDrive(0, 0);
-  //     master.rumble("----------");
-  //     WAIT_UNTIL(false);
-  //   }
-  // }
-
+  for(_Motor* motor: _Motor::getList()){
+    if(motor->getTemperature() >= 50){
+      moveDrive(0, 0);
+      master.rumble("----------");
+      device_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+      WAIT_UNTIL(false);
+    }
+  }
 }
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop
@@ -216,13 +217,15 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 			else master.print(1, "Automatic");
 		}
 
-    // for(_Motor* motor: _Motor::getList()){
-    //   if(motor->getTemperature() >= 50){
-    //     moveDrive(0, 0);
-    //     master.rumble("----------");
-    //     WAIT_UNTIL(false);
-    //   }
-    // }
+    for(_Motor* motor: _Motor::getList()){
+      if(motor->getTemperature() >= 50){
+        // moveDrive(0, 0);
+        master.rumble();
+        device_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+        delay(50);
+        // WAIT_UNTIL(false);
+      }
+    }
 		delay(10);
 	}
 }

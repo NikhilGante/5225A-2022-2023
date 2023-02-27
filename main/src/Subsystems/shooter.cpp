@@ -4,10 +4,10 @@
 #include "../Devices/controller.hpp"
 #include "../Devices/piston.hpp"
 
-Timer ShooterShootParams::shoot_timer{"shoot_timer", shooter.log};
+Timer ShooterShootParams::shoot_timer{"Shoot", shooter.log};
 
 Machine<SHOOTER_STATE_TYPES> shooter("Shooter", ShooterIdleParams{});
-static constexpr int toaster_rpm = 1450;
+static constexpr int toaster_rpm = 1425;
 bool angleOverride = false;
 bool goal_disturb = false;
 
@@ -21,26 +21,13 @@ void shooterHandleInput(){
 
   if(master.getNewDigital(anglerToggleBtn)) {
     angler_p.toggleState();
-    if (!angleOverride){
-      if (angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
-      else{
-        if(goal_disturb)  setFlywheelVel(3600);
-        else  setFlywheelVel(toaster_rpm);
-      }
-    }
+    handleRpm();
   } 
 
-  if (master.getNewDigital(angleOverrideBtn)) {
-    angleOverride = !angleOverride; 
-    if(angleOverride) setFlywheelVel(toaster_rpm);
-    else{
-      if(angler_p.getState() == 0) setFlywheelVel(barrier_rpm);
-      else{
-        if(goal_disturb) setFlywheelVel(3600);
-        else setFlywheelVel(toaster_rpm);
-      }
-    }
-  }
+  // if (master.get_digital_new_press(angleOverrideBtn)) {
+  //   angleOverride = !angleOverride; 
+  //   handleRpm();
+  // }
 
   // if(master.getNewDigital(goalDisturbBtn)){
   //   goal_disturb = !goal_disturb;
@@ -66,7 +53,7 @@ void ShooterShootParams::handle(){
   else{
     flywheelVariant temp_flywheel_state = flywheel.getState();
     if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
-      if(std::abs(flywheel_error) > 150) cycle_check.reset();
+      if(std::abs(flywheel_error) > 30) cycle_check.reset();
     }
     else if(std::abs(flywheel_error) > 150)  cycle_check.reset();
   }
@@ -75,14 +62,15 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
+  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
+  // bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   }
   else if(competition::is_autonomous()){
-    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
+    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
   }
   
   if(trigger){ // && cycle_check.getTime() >= 30){
@@ -103,17 +91,15 @@ void ShooterShootParams::handle(){
 
     if(shots_left <= 0){  // If shooting is done
       master.rumble("-"); // Lets driver know shooting is done
+      log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
       g_mag_disc_count = 0;
-      _Task::delay(100); // Waits for last disc to shoot
+      _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
-      _Task::delay(50);
 
-      if (!angleOverride && !pros::competition::is_autonomous()){
-        if (angler_p.getState()==0) setFlywheelVel(barrier_rpm);
-        else setFlywheelVel(toaster_rpm);
-      }
+      handleRpm();
+
     }
   }
 }
@@ -125,5 +111,15 @@ void ShooterShootParams::handleStateChange(shooterVariant prev_state){
 }
 
 void shoot(int shots){
+  shooter.log("Shot requested for %d shots at %d", millis(), shots);
   shooter.changeState(ShooterShootParams{shots});
+}
+
+void handleRpm() {
+  if (angleOverride) setFlywheelVel(toaster_rpm); // Override
+  else if (goal_disturb) setFlywheelVel(3600); // Goal_disturb
+  else if (!pros::competition::is_autonomous()) { // Automatic
+    if (angler_p.getState() == LOW) setFlywheelVel(barrier_rpm);
+    else setFlywheelVel(toaster_rpm);
+  }
 }
