@@ -1,6 +1,7 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/logging.hpp"
+#include "../util.hpp"
 
 // Buttons
   static constexpr controller_digital_e_t okBtn = DIGITAL_A;
@@ -36,17 +37,22 @@ class _Controller: private Controller{
     void handle();
     std::string& getText(int line);
 
+    _Controller(_Controller const &) = delete;
+    _Controller& operator=(_Controller const &) = delete;
     
   public:
     _Controller(controller_id_e_t id);
     static void init();
 
     static constexpr int deadzone = 7;
+
+    static void deadband(auto& value) {value = okapi::deadband(value, -deadzone, deadzone);}
+    static auto deadband(auto&& value) {return okapi::deadband(value, -deadzone, deadzone);}
     
     void clearLine (std::uint8_t line);
     void clear();
     void rumble(std::string rumble_pattern = "-");
-    int getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
+    int  getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
     bool getDigital(controller_digital_e_t);
     bool getNewDigital(controller_digital_e_t);
     bool connected();

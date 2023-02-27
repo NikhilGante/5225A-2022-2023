@@ -61,7 +61,7 @@
       Button go_centre{{320, 175, 150, 40, GUI::Style::SIZE}, Button::SINGLE, moving, "Centre"};
 
     Page systems {"Subsystems"}; //Activates Subsystems
-      Text shoot_text{{380, 40}, GUI::Style::CENTRE, TEXT_SMALL, systems, "Shooter"};
+      Text shoot_text{{380, 40}, GUI::Style::CENTRE, TEXT_SMALL, systems, "Shoot"};
       Button shoot1{{340 , 50 , 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "1"};
       Button shoot2{{340, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "2"};
       Button shoot3{{340, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "3"};
@@ -70,7 +70,7 @@
       Button intake_rev{{200, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Off"};
       Button intake_off{{200, 180, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Reverse"};
       Slider flywheel_vel{{40, 80, 20, 120, GUI::Style::SIZE}, Slider::VERTICAL, 0, 127, systems, "Fly Vel"};
-      Button flywheel_set{{60, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Flywheel Set"};
+      Button flywheel_set{{80, 115, 80, 50, GUI::Style::SIZE}, Button::SINGLE, systems, "Flywheel Set"};
 
     Page tuning {"Tuning Tracking"}; //Tests to tune tracking when on new base
       Text tuning_instructions_1{{MID_X, 35}, GUI::Style::CENTRE, TEXT_SMALL, tuning, "Press your desired tracking test and follow"};
@@ -116,14 +116,14 @@
     Page motor {"Motor Control"};
       Slider mot_speed {{60, 45, 300 , 30, GUI::Style::SIZE}, Slider::HORIZONTAL, -127, 127, motor, "Speed"};
       Button mot_jam_detect {{400, 45, 60, 30, GUI::Style::SIZE}, Button::TOGGLE, motor, "Jam"};
-      Text mot_text_1 {{65, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[0])};
-      Text mot_text_2 {{180, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[1])};
-      Text mot_text_3 {{295, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[2])};
-      Text mot_text_4 {{410, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[3])};
-      Text mot_text_5 {{65, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[4])};
-      Text mot_text_6 {{180, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[5])};
-      Text mot_text_7 {{295, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[6])};
-      Text mot_text_8 {{410, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports[7])};
+      Text mot_text_1 {{65, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(0))};
+      Text mot_text_2 {{180, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(1))};
+      Text mot_text_3 {{295, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(2))};
+      Text mot_text_4 {{410, 115}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(3))};
+      Text mot_text_5 {{65, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(4))};
+      Text mot_text_6 {{180, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(5))};
+      Text mot_text_7 {{295, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(6))};
+      Text mot_text_8 {{410, 180}, GUI::Style::CENTRE, TEXT_SMALL, motor, "Port %s", std::get<5>(motor_ports.at(7))};
       Button mot_update_1 {{15, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
       Button mot_update_2 {{130, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
       Button mot_update_3 {{245, 125, 45, 30, GUI::Style::SIZE}, Button::SINGLE, motor, "Run"};
@@ -194,8 +194,8 @@ void mainSetup(){
       if(c::registry_get_plugged_type(roller_sensor.get_port()-1) != c::E_DEVICE_OPTICAL) alert::start("Roller sensor not plugged in port %d", roller_sensor.get_port());
       else if(c::registry_get_plugged_type(rotation_port-1) != c::E_DEVICE_ROTATION) alert::start("Roller sensor not plugged in port %d", rotation_port);
 
-      else if(!inRange(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
-      else if(!inRange(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
+      else if(!inRangeIncl(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
+      else if(!inRangeIncl(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
 
       else(alert::start("All Sensors Good", term_colours::GREEN));
     });
@@ -217,7 +217,7 @@ void mainSetup(){
       screen::draw_line(370, 30, 370, 230);
       screen::draw_line(270, 130, 470, 130);
       for (int x = 0; x < 200; x++){
-        for (int y = 0; y < 200; y++) if(field[x].test(y)) screen::draw_pixel(270 + x, 230-y); //Draws saved tracking values
+        for (int y = 0; y < 200; y++) if(field.at(x).test(y)) screen::draw_pixel(270 + x, 230-y); //Draws saved tracking values
       }
     });
     track.setLoopFunc([](){
@@ -226,7 +226,7 @@ void mainSetup(){
 
       if(main_obj.pressed()){
         int x = GUI::x-270, y = 230-GUI::y;
-        if(inRange(x, 0, 200) && inRange(y, 0, 200)){
+        if(inRangeIncl(x, 0, 200) && inRangeIncl(y, 0, 200)){
           x_val.setValue(x * 144.0 / 200.0);
           y_val.setValue(y * 144.0 / 200.0);
         }
@@ -496,7 +496,7 @@ void mainSetup(){
 void mainBackground(){
   //Saving Field coords
   int x = 200*tracking.getPos().x / 144, y = 200*tracking.getPos().y / 144;
-  if(inRange(x, 0, 199) && inRange(y, 0, 199)) field[x].set(y); //Saves position (x, y) to as tracked
+  if(inRangeIncl(x, 0, 199) && inRangeIncl(y, 0, 199)) field.at(x).set(y); //Saves position (x, y) to as tracked
 
   for (_Motor* motor: _Motor::getList()) motor->updateTemperatureText();
 }
@@ -550,7 +550,7 @@ void utilSetup(){
 
     for (int port=0, i = 0; port<21; port++){
       if (c::registry_get_plugged_type(port) == c::E_DEVICE_MOTOR && i < 8){
-        std::get<0>(motor_ports[i]) = port+1;
+        std::get<0>(motor_ports.at(i)) = port+1;
         i++;
       }
     }
@@ -601,8 +601,8 @@ void utilSetup(){
     exp_pneum_btns = {&ADI_a, &ADI_b, &ADI_c, &ADI_d, &ADI_e, &ADI_f, &ADI_g, &ADI_h};
 
     for (int port=0; port<21; port++){
-      if (c::registry_get_plugged_type(port) == c::E_DEVICE_ADI) expander_ports[port] = port+1;
-      else expander_ports[port] = std::numeric_limits<int>::max();
+      if (c::registry_get_plugged_type(port) == c::E_DEVICE_ADI) expander_ports.at(port) = port+1;
+      else expander_ports.at(port) = std::numeric_limits<int>::max();
     }
 
     for (int port: expander_ports){
@@ -616,7 +616,7 @@ void utilSetup(){
         no_pneumatic_port_nums.push_back(char(i + 64));
         no_pneumatic_port_nums.push_back(',');
       }
-      exp_pneum_btns[i-1]->setFunc([i](){
+      exp_pneum_btns.at(i-1)->setFunc([i](){
         int port = expander.getValue();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
@@ -631,7 +631,7 @@ void utilSetup(){
           c::adi_port_set_value(i, HIGH);
         }
       });
-      exp_pneum_btns[i-1]->setOffFunc([i](){
+      exp_pneum_btns.at(i-1)->setOffFunc([i](){
         int port = expander.getValue();
         if (port){
           if(c::registry_get_plugged_type(port-1) != c::E_DEVICE_ADI){
@@ -663,7 +663,7 @@ void utilBackground(){
       if(mot_jam_detect.isOn()){
         if (std::abs(target-cur) > 5) stall_count++;
         else stall_count = 0;
-        if (stall_count >= mapValues(std::abs(target), 0, 250, 40, 2)){
+        if (stall_count >= okapi::remapRange(std::abs(target), 0, 250, 40, 2)){
           stall_count = 0;
           alert::start(5000, "Motor %d Jammed\n", port);
           c::motor_move(port, 0);

@@ -10,8 +10,6 @@ class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
     std::string name, short_name;
     int speed; //Represents the target speed
 
-    static Slider mot_speed_set;
-
     int velocityToVoltage(int velocity);
 
   public:
@@ -26,7 +24,6 @@ class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
     bool plugged() const;
     double getPosition() const;
     double getTargetPosition() const;
-    double getVel() const;
     int getTemperature() const;
     int getRPM() const;
     std::string getName() const;

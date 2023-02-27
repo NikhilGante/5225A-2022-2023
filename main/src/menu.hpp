@@ -21,7 +21,5 @@ class Auton: public ObjectTracker<Auton>{
     static void select();
     static void run();	// Reads auton from SD card and runs it
     static int get();	// Returns selected Auton as an int
-    // static std::vector<Auton*> const & getList() {return logs;}
-    // static Auton* getNth(std::size_t n) {return getList()[n];}
 	  E_Reset_Types getResetType() const;	// Returns selected Auton as an int
 };

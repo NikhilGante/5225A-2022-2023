@@ -55,11 +55,11 @@ class Logging: public ObjectTracker<Logging>{
       if(newline) str += '\n';
 
       if(location == log_locations::terminal || location == log_locations::both) printf2(colour, str);
-      else if(location == log_locations::sd_main || location == log_locations::sd_only){
-        queue_mutex.take(TIMEOUT_MAX);
-        queue.insert(str);
-        queue_mutex.give();
-      }
+      // else if(location == log_locations::sd_main || location == log_locations::sd_only){
+      //   queue_mutex.take(TIMEOUT_MAX);
+      //   queue.insert(str);
+      //   queue_mutex.give();
+      // }
     }
 
     void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}

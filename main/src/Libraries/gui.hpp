@@ -132,7 +132,7 @@ class Page: public ObjectTracker<Page>{
 
   private:
   public:
-    std::function <void()> setup_func, loop_func;
+    std::function<void()> setup_func, loop_func;
     std::uint32_t b_col;
     std::string title;
     bool active=true;
@@ -153,8 +153,8 @@ class Page: public ObjectTracker<Page>{
     explicit Page(std::string, Color = Color::black);
 
     void
-      setSetupFunc(std::function <void()>),
-      setLoopFunc(std::function <void()>),
+      setSetupFunc(std::function<void()>),
+      setLoopFunc(std::function<void()>),
       setActive(bool = true),
       goTo() const;
 };
@@ -349,7 +349,7 @@ class Button: public ObjectTracker<Button>{
       select(),
       deselect(),
       addText (Text_&, bool = true),
-      setFunc(std::function <void()>), setOffFunc(std::function <void()>),
+      setFunc(std::function<void()>), setOffFunc(std::function<void()>),
       setActive(bool = true),
       setBackground (Color);
     bool isOn() const;

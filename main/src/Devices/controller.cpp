@@ -91,10 +91,7 @@ bool _Controller::getDigital(controller_digital_e_t button) {return get_digital(
 bool _Controller::getNewDigital(controller_digital_e_t button) {return get_digital_new_press(button);}
 bool _Controller::connected() {return is_connected();}
 
-int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone){
-  int value = get_analog(joystick);
-  return std::abs(value) > deadzone ? value : 0;
-}
+int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone) {return deadband(get_analog(joystick));}
 
 bool _Controller::interrupt(bool analog, bool digital, bool OK_except){
   if (analog){

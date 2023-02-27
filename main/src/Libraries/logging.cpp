@@ -3,6 +3,7 @@
 #include "task.hpp"
 
 #include <fstream>
+#include <ostream>
 
 extern Page logging;
 
@@ -22,7 +23,7 @@ Logging log_log       {"Log"       , true};
 Logging none_log      {"None"      , false, log_locations::none};
 
 Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
-name{name}, newline{newline}, location{location}, print_colour{print_colour}, queue{name} {
+ObjectTracker{"Logging", name}, queue{name}, name{name}, newline{newline}, location{location}, print_colour{print_colour} {
   static int x = 130, y = 40;
   print_btn.construct({x, y, 100, 40, GUI::Style::SIZE}, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
   x = x != 360 ? x+115 : 15;
@@ -37,9 +38,6 @@ name{name}, newline{newline}, location{location}, print_colour{print_colour}, qu
     printf2(term_colours::RED, "\nEnd %s Log Terminal Dump\n\n", this->name);
   });
 }
-#ifndef PRINT
-#define PRINT(...)  std::cout __VA_OPT__(<< '\'' << #__VA_ARGS__ << "\' = \'" << (__VA_ARGS__) << '\'' )<< '\n';
-#endif
 
 void Logging::init(){
   log_log(term_colours::GREEN, "%d: Initializing Logging", millis());
@@ -75,7 +73,7 @@ void Logging::init(){
       log->pastFullName = "/usd/Logging/" + std::to_string(count-1) + ' ' + log->name + ".txt";
       log_log("%d: Opening %s log file on SD", millis(), log->fullName);
       std::ofstream file_init{log->fullName, std::ofstream::trunc};
-      file_init << "Start of " + log->name + + " - " + std::to_string(count) + " log file\n\n";
+      file_init << "Start of " + log->name + " - " + std::to_string(count) + " log file\n\n";
     }
   }
 

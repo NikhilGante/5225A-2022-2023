@@ -10,8 +10,6 @@ class Piston: private ADIDigitalOut, public ObjectTracker<Piston, 12>{
     bool state;  // the state of the SUBSYSTEM (e.g. 1 if the claw is closed, 0 if open)
     bool reversed;  // if the state of the subsytem is opposite the state of the piston
 
-    void construct(std::string name, bool reversed, ext_adi_port_pair_t port_pair);
-
   public:
 
     Piston(std::uint8_t port, std::string name, bool reversed = false, bool init_state = LOW);

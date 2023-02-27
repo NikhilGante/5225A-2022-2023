@@ -66,7 +66,7 @@ void FlywheelMoveVelParams::handle(){
   output = std::clamp(output, -1.0, 127.0);	// decelerates at -1.0 at the most
 
   if(log_timer.getTime() > 100){
-    flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getVel());
+    flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM());
     log_timer.reset();
   }
 

@@ -10,6 +10,8 @@
 #include "tracking.hpp"
 #include "util.hpp"
 
+#include <fstream>
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -17,7 +19,9 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	Logging::init();
+  DEBUG;
+
+  // Logging::init();
 	_Controller::init();
   GUI::init();
   tracking.init({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
@@ -28,6 +32,8 @@ void initialize() {
 	intake.runMachine();
 	flywheel.runMachine();
 	shooter.runMachine();
+
+  DEBUG;
 }
 
 /**
@@ -35,7 +41,9 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void disabled() {
+  DEBUG;
+}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -46,7 +54,9 @@ void disabled() {}
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+  DEBUG;
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -60,9 +70,11 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+  DEBUG;
 	Auton::run();
 	WAIT_UNTIL(!gyro.is_calibrating());
 	provSkills();
+  DEBUG;
 }
 
 /**
@@ -89,14 +101,24 @@ Auton auton4("Skills", fullSkills);
 
 //!check that log folders is good
 //!fix logging issue
+//Subclass all sensors. Add the ObjectTracker, and throw if invalid port config
 //remove timer from subsystems
 //add rumble back to alert
 //Logging different sizes
 //Eliminate the idea of multiple guis
+//log an initialize statement for all objects
+//Make all buttons use a Text
+
+//doc for sensor port detection
+//debugging
 
 void opcontrol() {
   DEBUG;
-
+  std::ofstream file_init{"/usd/testfile1.txt", std::ofstream::trunc};
+  file_init << "Hello";
+  file_init.close();
+  
+  DEBUG;
   WAIT_UNTIL(false){
     if(master.getNewDigital(DIGITAL_A)) alert::start(term_colours::MAGENTA, "Hey There!");
   }

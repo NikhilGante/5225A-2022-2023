@@ -344,18 +344,18 @@ namespace alert{
     this->background = background;
   }
 
-  Button::Button(GUI::Box coord, press_type form, Page& page, std::string text, Color background_colour, Color label_colour){
+  Button::Button(GUI::Box coord, press_type form, Page& page, std::string text, Color background_colour, Color label_colour): ObjectTracker{"Button", text} {
     construct(coord, form, &page, text, background_colour, label_colour);
   }
 
-  Slider::Slider (GUI::Box coord, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour){
+  Slider::Slider (GUI::Box coord, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour): ObjectTracker{"Slider", label}{
     //Saves params to class private vars
     this->coord = coord;
     this->dir = dir;
     this->min = min;
     this->max = max;
     this->page = &page;
-    this->val = inRange(0, min, max) ? 0 : (inRange(1, min, max) ? 1 : (min + max) / 2); //0 if that's the min, otherwise the average
+    this->val = inRangeIncl(0, min, max) ? 0 : (inRangeIncl(1, min, max) ? 1 : (min + max) / 2); //0 if that's the min, otherwise the average
     this->b_col = static_cast<std::uint32_t>(background_colour);
     this->l_col = static_cast<std::uint32_t>(label_colour);
     this->page->sliders.push_back(this);
@@ -382,11 +382,11 @@ namespace alert{
 
     //Buttons
     if(min > max) increment = -increment;
-    dec.setFunc([&, increment](){this->val-=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->min;});
-    inc.setFunc([&, increment](){this->val+=increment; if(!inRange(this->val, this->min, this->max)) this->val = this->max;});
+    dec.setFunc([&, increment](){this->val-=increment; if(!inRangeIncl(this->val, this->min, this->max)) this->val = this->min;});
+    inc.setFunc([&, increment](){this->val+=increment; if(!inRangeIncl(this->val, this->min, this->max)) this->val = this->max;});
   }
 
-  Page::Page(std::string title, Color background_colour){
+  Page::Page(std::string title, Color background_colour): ObjectTracker{"Page", title}{
     this->b_col = static_cast<std::uint32_t>(background_colour);
     this->title = title;
     if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
@@ -396,9 +396,7 @@ namespace alert{
 
 
 //Methods
-  Page* Page::page_id(int page_num){
-    return GUI::current_gui->pages.at(page_num);
-  }
+  Page* Page::page_id(int page_num) {return GUI::current_gui->pages.at(page_num);}
 
   int Page::page_num(const Page* page_id){
     const std::vector<Page*>::const_iterator it = std::find(GUI::current_gui->pages.begin(), GUI::current_gui->pages.end(), page_id);
@@ -429,9 +427,7 @@ namespace alert{
     (*it)->goTo();
   }
 
-  void GUI::goTo(int page_num){
-    Page::page_id(page_num)->goTo();
-  }
+  void GUI::goTo(int page_num) {Page::page_id(page_num)->goTo();}
 
   void Page::goTo() const{
     if(page_num(this) == -1) return;
@@ -441,9 +437,7 @@ namespace alert{
     WAIT_UNTIL(!GUI::touched) GUI::update_screen_status();
   }
 
-  void GUI::clearScreen(Color color){
-    clearScreen(static_cast<std::uint32_t>(color));
-  }
+  void GUI::clearScreen(Color color) {clearScreen(static_cast<std::uint32_t>(color));} 
 
   void GUI::clearScreen(std::uint32_t colour){
     screen::set_pen(colour);
@@ -467,14 +461,18 @@ namespace alert{
     }
   }
 
-  double Slider::getValue() const{
-    return val;
-  }
+  double Slider::getValue() const {return val;}
 
   void Slider::setValue(double val){
-    double old_val = this->val;
-    this->val = std::clamp<double>(val, min, max);
-    if(this->val != old_val) draw();
+    // double old_val = this->val;
+    // this->val = std::clamp<double>(val, min, max);
+    // if(this->val != old_val) draw();
+
+    val = std::clamp<double>(val, min, max);
+    if(this->val != val){
+      this->val = val;
+      draw();
+    }
   }
 
   void Button::addText(Text_& text_ref, bool overwrite){
@@ -660,8 +658,8 @@ namespace alert{
     screen::set_pen(b_col);
     screen::fill_rect(coord.x1, coord.y1, coord.x2, coord.y2);
     screen::set_pen(l_col);
-    if(dir == HORIZONTAL) screen::fill_rect(coord.x1+1, coord.y1+1, mapValues(std::clamp(val, min, max), min, max, coord.x1, coord.x2), coord.y2-1);
-    else screen::fill_rect(coord.x1+1, mapValues(std::clamp(val, min, max), min, max, coord.y2, coord.y1), coord.x2-1, coord.y2-1);
+    if(dir == HORIZONTAL) screen::fill_rect(coord.x1+1, coord.y1+1, okapi::remapRange(std::clamp(val, min, max), min, max, coord.x1, coord.x2), coord.y2-1);
+    else screen::fill_rect(coord.x1+1, okapi::remapRange(std::clamp(val, min, max), min, max, coord.y2, coord.y1), coord.x2-1, coord.y2-1);
   }
 
   void Text_::draw(){
@@ -764,11 +762,11 @@ namespace alert{
   }
 
   bool Slider::pressed() const{
-    return (page->pressed() && active && inRange(GUI::x, coord.x1, coord.x2) && inRange(GUI::y, coord.y1, coord.y2));
+    return (page->pressed() && active && inRangeIncl(GUI::x, coord.x1, coord.x2) && inRangeIncl(GUI::y, coord.y1, coord.y2));
   }
 
   bool Button::pressed() const{
-    return (page->pressed() && active && inRange(GUI::x, coord.x1, coord.x2) && inRange(GUI::y, coord.y1, coord.y2));
+    return (page->pressed() && active && inRangeIncl(GUI::x, coord.x1, coord.x2) && inRangeIncl(GUI::y, coord.y1, coord.y2));
   }
 
   bool Button::newPress(){
@@ -835,11 +833,11 @@ namespace alert{
     if (pressed()){
       switch (dir){
         case HORIZONTAL:
-          val = mapValues(GUI::x, coord.x1, coord.x2, min, max); //Gets val based on press location
+          val = okapi::remapRange(GUI::x, coord.x1, coord.x2, min, max); //Gets val based on press location
           break;
 
         case VERTICAL:
-          val = mapValues(GUI::y, coord.y2, coord.y1, min, max);
+          val = okapi::remapRange(GUI::y, coord.y2, coord.y1, min, max);
           break;
       }
     }

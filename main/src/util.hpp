@@ -1,5 +1,7 @@
 #pragma once
 #include "main.h"
+
+#include "okapi/api/util/mathUtil.hpp"
 #include <numbers>
 
 inline constexpr double rot_to_deg = 360;
@@ -19,7 +21,7 @@ inline constexpr double rad_to_rot = 1/rot_to_rad;
 #define STRINGIFY(...) #__VA_ARGS__
 #define PRINT(...)  std::cout __VA_OPT__(<< '\'' << STRINGIFY(__VA_ARGS__) << "\' = \'" << (__VA_ARGS__) << '\'' )<< '\n';
 
-constexpr bool inRange(double value, double minimum, double maximum) {return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);}
+constexpr bool inRangeIncl(double value, double minimum, double maximum) {return (minimum <= value && value <= maximum) || (maximum <= value && value <= minimum);}
 constexpr bool inRangeExcl(double value, double minimum, double maximum) {return (minimum < value && value < maximum) || (maximum < value && value < minimum);}
 
 constexpr double degToRad(double deg) {return deg * deg_to_rad;}
@@ -33,8 +35,6 @@ constexpr double nearAngle(double angle, double reference) {return std::round((r
 
 constexpr int sgn(double x) {return x == 0 ? 0 : x > 0 ? 1 : -1;}
 
-// maps a value to a range
-auto mapValues(auto x, auto in_min, auto in_max, auto out_min, auto out_max) {return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
 // base case for recursive function mapSet
 auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range, auto val){
   if (input <= range) return map(input, in_min, range, out_min, val);

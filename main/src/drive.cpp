@@ -39,8 +39,8 @@ void CustomDrive::fillLookupTable(){
   }
 }
 
-constexpr int& CustomDrive::lookup(unsigned char x)       {return lookup_table[x];}
-constexpr int  CustomDrive::lookup(unsigned char x) const {return lookup_table[x];}
+constexpr int& CustomDrive::lookup(unsigned char x)       {return lookup_table.at(x);}
+constexpr int  CustomDrive::lookup(unsigned char x) const {return lookup_table.at(x);}
 
 void moveDrive(double y, double a) {moveDriveSide(y+a, y-a);}
 
@@ -71,7 +71,7 @@ void driveHandleInput(){
   double power_y = polynomial(master.getAnalog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.7 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
  
-  if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
+  _Controller::deadband(power_y);
  
   backwards = power_y < 0;
   // if(backwards && !last_backwards){
@@ -85,8 +85,8 @@ void driveHandleInput(){
   //   power_y = 0;
   // }
 
-  if(std::abs(power_y) < 7) power_y = 0;
-  if(std::abs(power_a) < 7) power_a = 0;
+    _Controller::deadband(power_y);
+  _Controller::deadband(power_a);
 
   // for(_Motor* motor: _Motor::getList()){
   //   if(motor->getTemperature() >= 50){
@@ -112,8 +112,8 @@ void driveHandleInputProg(){
   power_y = master.getAnalog(ANALOG_LEFT_Y);
   power_a = 0.7 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
-  if(std::abs(power_a) < _Controller::deadzone) power_a = 0;
+  _Controller::deadband(power_y);
+  _Controller::deadband(power_a);
   // if(power_y < -30){
   //   power_y = -30;
   //   // master.rumble();
