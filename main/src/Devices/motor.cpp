@@ -10,8 +10,8 @@ extern Page temps, motors;
 extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
-ObjectTracker{"Motor", name}, Motor{port, gearset, reversed, encoder_units}, name{name}{
-  port_list[valid_smart_port("Motor", name, port)] = name;
+ObjectTracker{class_name, name}, Motor{port, gearset, reversed, encoder_units}, name{name}{
+  valid_smart_port(class_name, name, port);
 
   {
     std::stringstream ss{getName()};
@@ -75,6 +75,7 @@ int _Motor::getRPM() const {return plugged() ? get_actual_velocity() : -1;}
 bool _Motor::plugged() const {return static_cast<int>(get_temperature()) != std::numeric_limits<int>::max();}
 double _Motor::getPosition() const {return get_position();}
 double _Motor::getTargetPosition() const {return get_target_position();}
+Port _Motor::getPort() const {return get_port();}
 std::string _Motor::getName() const {return name;}
 std::string _Motor::getShortName() const {return short_name;}
 

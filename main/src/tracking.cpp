@@ -5,24 +5,24 @@
 #include "Libraries/timer.hpp"
 #include "Devices/controller.hpp"
 #include "Devices/piston.hpp"
+#include "Devices/others.hpp"
 
 static Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0}; //Coords of high goal
 Tracking tracking;
 
 double getDistL() {return (l_reset_dist.get()*MM_TO_IN) - LEFT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
 double getDistR() {return (r_reset_dist.get()*MM_TO_IN) - RIGHT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
-double getDistBack() {return (ultra_left.get_value() + ultra_right.get_value()) * MM_TO_IN / 2.0 + BACK_DIST_OFFSET;}
+double getDistBack() {return (ultra_left.getVal() + ultra_right.getVal()) * MM_TO_IN / 2.0 + BACK_DIST_OFFSET;}
 
 void trackingUpdate(){
-  left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
-  left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
+  left_tracker.resetPos(); right_tracker.resetPos(); back_tracker.resetPos();
   // -1.43
   double dist_lr = 9.25, dist_b = 6.4;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
-  double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = right_tracker.get_position()*TICKS_TO_INCHES;
-  double last_back = -back_tracker.get_position()*TICKS_TO_INCHES;
+  double last_left = left_tracker.getPos()*TICKS_TO_INCHES;
+  double last_right = right_tracker.getPos()*TICKS_TO_INCHES;
+  double last_back = -back_tracker.getPos()*TICKS_TO_INCHES;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0;
   double radius_r, radius_b, h_y, h_x;
@@ -38,7 +38,7 @@ void trackingUpdate(){
 
   double last_gyro_angle = 0.0;
 
-	gyro.tare_rotation();
+	gyro.tare();
 
   while(true){
 
@@ -48,12 +48,12 @@ void trackingUpdate(){
     // else if(master.getNewDigital(DIGITAL_DOWN)) dist_lr -= 0.001;
     // tracking_log("dist_lr: %lf", dist_lr);
 
-    new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
-    new_back = -back_tracker.get_position()*TICKS_TO_INCHES;
+    new_left = left_tracker.getPos()*TICKS_TO_INCHES;
+    new_right = right_tracker.getPos()*TICKS_TO_INCHES;
+    new_back = -back_tracker.getPos()*TICKS_TO_INCHES;
     
     tracking_log("l:%lf r:%lf\n", new_left, new_right);
-    tracking_log("GYRO:%.2lf deg: %.2lf\n", gyro.get_rotation() * 1.011, radToDeg(tracking.getPos().a));
+    tracking_log("GYRO:%.2lf deg: %.2lf\n", gyro.getRot() * 1.011, radToDeg(tracking.getPos().a));
 
     // updates how much each side of the robot travelled in inches since the last cycle (left, right and back)
     left = new_left - last_left;
@@ -87,8 +87,8 @@ void trackingUpdate(){
 
     theta = (left-right)/dist_lr; // change in robot's angle
     
-    if(!gyro.is_calibrating()){
-      double gyro_angle = gyro.get_rotation() * 1.0027;
+    if(!gyro.isCalibrating()){
+      double gyro_angle = gyro.getRot() * 1.0027;
       theta = gyro_angle - last_gyro_angle;
       // printf("theta:%.2lf  gyro: %.2lf | %.2lf again:%d \n", theta, gyro_angle, last_gyro_angle, EAGAIN);
       if(std::abs(theta) < 0.006) theta = 0.0;  // drift reducer
@@ -127,7 +127,7 @@ void trackingUpdate(){
     tracking.reset(tracking.getPos() + Position{x_x + y_x, y_y + x_y, theta});
 
 
-    // tracking_log("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), back_tracker.get_position());
+    // tracking_log("L:%d R:%d B:%d\n", left_tracker.getPos(), right_tracker.getPos(), back_tracker.getPos());
     if(tracking_timer.getTime() > 50){
       // tracking_log("%lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.g_vel.x, tracking.g_vel.y);
       // tracking_log("POS | %lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
@@ -143,7 +143,7 @@ void trackingUpdate(){
 		
     // tracking_log("h_x:%lf, h_y: %lf", h_x, h_y);
     // tracking_log("L:%d R:%d B:%d", new_left, new_right, new_back);
-    tracking_log("L:%d R:%d B:%d\n", left_tracker.get_position(), right_tracker.get_position(), -back_tracker.get_position());
+    tracking_log("L:%d R:%d B:%d\n", left_tracker.getPos(), right_tracker.getPos(), -back_tracker.getPos());
 		tracking_log("x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), fmod(radToDeg(tracking.getPos().a), 360));
 
     _Task::delay(10);
@@ -387,12 +387,12 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 	double power;
 	double error_rate, last_error;
 	do {
-		error  = ultra_right.get_value()-ultra_left.get_value();
+		error  = ultra_right.getVal()-ultra_left.getVal();
 		error_rate = error - last_error;
 		last_error = error;
 
-		tracking_log("Left: %d ", ultra_left.get_value());
-		tracking_log("Right: %d ", ultra_right.get_value());
+		tracking_log("Left: %d ", ultra_left.getVal());
+		tracking_log("Right: %d ", ultra_right.getVal());
 		tracking_log("error: %lf\n", error);
 
 		power = error*0.8;

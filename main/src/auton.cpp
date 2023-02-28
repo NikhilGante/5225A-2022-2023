@@ -1,6 +1,7 @@
 #include "auton.hpp"
 #include "Devices/controller.hpp"
 #include "Devices/piston.hpp"
+#include "Devices/others.hpp"
 #include "Libraries/timer.hpp"
 #include "Libraries/logging.hpp"
 #include "Subsystems/intake.hpp"
@@ -14,10 +15,10 @@
 
 void moveInches(double target, double max_power){
 	Timer move_timer{"Move Inches", auton_log};
-	double start = right_tracker.get_position()*TICKS_TO_INCHES;
+	double start = right_tracker.getPos()*TICKS_TO_INCHES;
 	double error;
 	do{
-		double cur_y = right_tracker.get_position()*TICKS_TO_INCHES - start;
+		double cur_y = right_tracker.getPos()*TICKS_TO_INCHES - start;
 		error = target - cur_y;
 		double power = 5.0*error;
 		if(std::abs(power) < 30) power = sgn(error) * 30;
@@ -229,7 +230,7 @@ void autonAWP(){
   Timer timer1{"timer", auton_log};
   setFlywheelVel(2200);
 
-  double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
+  double angle = atan((ultra_left.getVal()-ultra_right.getVal())/(12*25.4));
 	tracking.reset({cos(degToRad(angle))*getDistL(), cos(degToRad(angle))*getDistBack(), angle});
 
 
@@ -308,7 +309,7 @@ void autonLine(){ // No moving after start
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
 
   flattenAgainstWallSync();
-	double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
+	double angle = atan((ultra_left.getVal()-ultra_right.getVal())/(12*25.4));
 	tracking.reset({141-cos(degToRad(angle))*getDistBack(), 141-cos(degToRad(angle))*getDistR(), angle-degToRad(90)});
 
   spinRoller();

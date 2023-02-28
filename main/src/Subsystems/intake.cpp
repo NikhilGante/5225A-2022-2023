@@ -6,6 +6,7 @@
 #include "../Devices/controller.hpp"
 #include "../Devices/motor.hpp"
 #include "../Devices/piston.hpp"
+#include "../Devices/others.hpp"
 #include "shooter.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake{"Intake", IntakeOffParams{}};
@@ -37,7 +38,7 @@ void IntakeIdleParams::handleStateChange(intakeVariant prev_state){}
 IntakeOnParams::IntakeOnParams(int8_t speed) : speed(speed){}
 
 void IntakeOnParams::handle(){  // synchronous state
-  mag_ds_val = mag_ds.get_value();
+  mag_ds_val = mag_ds.getVal();
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
@@ -104,7 +105,6 @@ void IntakeRollerParams::handle(){
   trans_p.setState(HIGH);
   delay(100);
 	// FLATTEN CODE
-	intake.log("dist: %lf", error);
 	moveDrive(-40, 0);
  
 	delay(300); // Waits for velocity to rise

@@ -2,6 +2,7 @@
 #include "Libraries/gui.hpp"
 #include "Libraries/logging.hpp"
 #include "Devices/controller.hpp"
+#include "Devices/others.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
 #include "auton.hpp"
@@ -72,7 +73,7 @@ void competition_initialize() {
 void autonomous() {
   DEBUG;
 	Auton::run();
-	WAIT_UNTIL(!gyro.is_calibrating());
+	WAIT_UNTIL(!gyro.isCalibrating());
 	autonAWP();
 	// Auton::runAuton();
 	// provSkills();
@@ -103,7 +104,6 @@ Auton auton4("Skills", fullSkills);
 
 //!check that log folders is good
 //!fix logging issue
-//Subclass all sensors. Add the ObjectTracker, and throw if invalid port config
 //remove timer from subsystems
 //add rumble back to alert
 //Logging different sizes

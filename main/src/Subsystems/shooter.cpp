@@ -91,7 +91,7 @@ void ShooterShootParams::handle(){
 
     if(shots_left <= 0){  // If shooting is done
       master.rumble("-"); // Lets driver know shooting is done
-      log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+      shooter.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
       g_mag_disc_count = 0;
       _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting

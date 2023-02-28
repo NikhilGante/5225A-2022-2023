@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
 #include "../Libraries/logging.hpp"
-#include "../util.hpp"
+#include "okapi/api/util/mathUtil.hpp"
 
 // Buttons
   static constexpr controller_digital_e_t okBtn = DIGITAL_A;
@@ -48,7 +48,7 @@ class _Controller: private Controller{
 
     static void deadband(auto& value) {value = okapi::deadband(value, -deadzone, deadzone);}
     static auto deadband(auto&& value) {return okapi::deadband(value, -deadzone, deadzone);}
-    
+
     void clearLine (std::uint8_t line);
     void clear();
     void rumble(std::string rumble_pattern = "-");
@@ -60,6 +60,8 @@ class _Controller: private Controller{
     void waitForPress(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
     controller_digital_e_t waitForPress(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
     std::string getText(int line) const;
+
+    static _Controller* id_to_ptr(controller_id_e_t id);
 
     void print(std::uint8_t line, std::string fmt, auto... args){
       clearLine(line);

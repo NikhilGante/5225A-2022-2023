@@ -86,12 +86,18 @@ controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_
 }
 
 void _Controller::waitForPress(controller_digital_e_t button, int timeout) {waitForPress(std::vector{button}, timeout);}
-
 bool _Controller::getDigital(controller_digital_e_t button) {return get_digital(button);}
 bool _Controller::getNewDigital(controller_digital_e_t button) {return get_digital_new_press(button);}
 bool _Controller::connected() {return is_connected();}
-
 int _Controller::getAnalog(controller_analog_e_t joystick, int deadzone) {return deadband(get_analog(joystick));}
+
+_Controller* _Controller::id_to_ptr(controller_id_e_t id){
+  switch(id){
+    case CONTROLLER_MASTER: return master_ptr; break;
+    case CONTROLLER_PARTNER: return partner_ptr; break;
+  }
+  return nullptr;
+}
 
 bool _Controller::interrupt(bool analog, bool digital, bool OK_except){
   if (analog){

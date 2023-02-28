@@ -1,18 +1,16 @@
 #include "piston.hpp"
 #include "../config.hpp"
 #include "../Libraries/logging.hpp"
+#include "okapi/api/util/mathUtil.hpp"
 
 extern Page pneumatics;
 
-Piston::Piston(std::uint8_t port, std::string name, bool reversed, bool init_state):
-ObjectTracker{"Piston", name}, ADIDigitalOut{port, init_state} {
-  port = valid_adi_port("Piston", name, port);
-  port_list[port] = name;
+Piston::Piston(Port port, std::string name, bool reversed, bool init_state):
+ObjectTracker{"Piston", name}, ADIDigitalOut{port, init_state}, name{name}, reversed{reversed}  {
+  valid_adi_port("Piston", name, port);
 
-  toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": " + static_cast<char>(port + 43), Color::dark_orange, Color::black);
-  
-  this->name = name;
-  this->reversed = reversed;
+  char port_char = okapi::transformADIPort(port) + 'A' - 1;
+  toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": " + port_char, Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){
     device_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), HIGH != this->reversed);
@@ -27,14 +25,11 @@ ObjectTracker{"Piston", name}, ADIDigitalOut{port, init_state} {
 }
 
 Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state):
-ObjectTracker{"Piston", name}, ADIDigitalOut{port_pair, init_state} {
-  std::uint8_t port = valid_ext_adi_port("Piston", name, port_pair);
-  port_list[port] = name;
+ObjectTracker{"Piston", name}, ADIDigitalOut{port_pair, init_state}, name{name}, reversed{reversed} {
+  valid_ext_adi_port("Piston", name, port_pair);
 
-  toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port_pair.first) + ", " + static_cast<char>(port + 35) + '}', Color::dark_orange, Color::black);
-  
-  this->name = name;
-  this->reversed = reversed;
+  char port_char = okapi::transformADIPort(port_pair.second) + 'A' - 1;
+  toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port_pair.first) + ", " + port_char + '}', Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){
     device_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), HIGH != this->reversed);
