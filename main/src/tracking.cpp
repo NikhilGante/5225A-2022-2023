@@ -8,7 +8,7 @@ constexpr double DRIVEBASE_WIDTH = 13.5;
 constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
 constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
 constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
-// constexpr double BACK_EDGE_DIST = 9.0;  // How far back edge is from tracking centre
+constexpr double DISTANCE_DIST_OFFSET = 6.0;  // How far the distance sensor is from the tracking center on the up to down axis
 
 
 double getDistL(){
@@ -22,6 +22,35 @@ double getDistR(){
 double getDistBack(){
   return ((double)(ultra_left.get_value() + ultra_right.get_value())/2/25.4) + BACK_DIST_OFFSET;
 }
+
+//x:13.711525 y:10.399731 a:50.518857
+Position distanceReset(resetPosition pos, double angleOffset){
+  double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
+  printf("angle: %f\n", angle);
+  printf("angle: %f\n", degToRad(angle));
+  double x, y;
+  switch(pos){
+    case resetPosition::leftHome:
+    printf("cos1: %f, cos2: %f, distBack: %f \n", cos(angle), cos(degToRad(angle)), getDistBack());
+      x = (cos(degToRad(angle))*getDistL()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET;
+      y = cos(degToRad(angle))*getDistBack();
+      break;
+    case resetPosition::rightAway:
+      x = 141-cos(degToRad(angle))*getDistBack();
+      y = 141-((cos(degToRad(angle))*getDistR()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET);
+      break;
+    case resetPosition::leftAway:
+      x = 141 - ((cos(degToRad(angle))*getDistL()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET);
+      y = 141-cos(degToRad(angle))*getDistBack();
+      break;
+    case resetPosition::rightHome:
+      x = cos(degToRad(angle))*getDistBack();
+      y = (cos(degToRad(angle))*getDistR()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET;
+      break;
+  }
+  return Position{x, y, angle+degToRad(angleOffset)};
+}
+
 
 // Coords of high goal
 Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};

@@ -112,7 +112,11 @@ void competition_initialize() {}
  */
 void autonomous() {
 	WAIT_UNTIL(!gyro.is_calibrating());
-	autonAWP();
+	// autonAWP();
+	// autonLine();
+	autonStack();
+
+
 	// Auton::runAuton();
 	// provSkills();
 }
@@ -227,19 +231,16 @@ void opcontrol() {
 
 
 	WAIT_UNTIL(!gyro.is_calibrating());
+	delay(200);
 
-	double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
-	tracking.reset({cos(degToRad(angle))*getDistL(), cos(degToRad(angle))*getDistBack(), angle});
-	// double angle;
-	// while (true) {
-	// 	angle = radToDeg(atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4)));
-	// 	cout << "ANGLE OF ROBOT: " << angle << endl;
-	// 	cout << "X: " << cos(degToRad(angle))*getDistR() << endl;
-	// 	cout << "Y: " << cos(degToRad(angle))*getDistBack() << endl;
+	tracking.reset(distanceReset(resetPosition::leftHome, 0));
 
+	while (true){
+		log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
 
-	// 	delay(10);
-	// }
+		delay(100);
+	}
+
 	
 	// autonLine();
 	// flattenAgainstWallSync();
@@ -251,6 +252,11 @@ void opcontrol() {
 	WAIT_UNTIL(false);
 	// driverPractice();
 	// trans_p.setState(HIGH);
+
+
+
+
+
 	delay(100);
 	moveDrive(-40, 0);
 	delay(500);

@@ -5,7 +5,7 @@
 #include "pros/misc.hpp"
 
 const int toaster_rpm = 1425;
-const int barrier_rpm = 2125;// 2330 For long shots, 1775 for short shots, 2125 for middle shots
+const int barrier_rpm = 1800;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -75,11 +75,11 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
+  bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want Robert to shoot no matter what
   // bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
   if (angler_p.getState() == HIGH){
-    trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
+    trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want Robert to shoot no matter what
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   } else if(pros::competition::is_autonomous()){
     trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
@@ -132,8 +132,7 @@ void shoot(int shots){
 }
 
 void handleRpm() {
-  if (angleOverride) setFlywheelVel(toaster_rpm); // Override
-  else if (goal_disturb) setFlywheelVel(3600); // Goal_disturb
+  if (goal_disturb) setFlywheelVel(3600); // Goal_disturb
   else if (!pros::competition::is_autonomous()) { // Automatic
     if (angler_p.getState() == LOW) setFlywheelVel(barrier_rpm);
     else setFlywheelVel(toaster_rpm);

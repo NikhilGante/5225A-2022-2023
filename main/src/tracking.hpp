@@ -24,10 +24,19 @@ enum class E_Robot_Sides{
   automatic // automatically deduce which side
 };
 
+enum class resetPosition {
+   leftHome = 0,
+   rightAway = 1,
+   leftAway = 2,
+   rightHome = 3
+};
+
+
 
 double getDistL();  // Gets tracking centre's position from wall on left
 double getDistR();  // Gets tracking centre's position from wall on right
 double getDistBack(); // Gets tracking centre's position from back wall
+Position distanceReset(resetPosition pos, double angleOffset = 0);
 
 
 class Tracking{
