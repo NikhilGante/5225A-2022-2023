@@ -201,7 +201,7 @@ void autonStack(){
   moveInches(5.0);
 	aimAtBlue(1.5);
   printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
-	// shoot(2);
+	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
 	setFlywheelVel(2180);

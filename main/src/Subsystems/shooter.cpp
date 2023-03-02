@@ -130,8 +130,6 @@ void ShooterShootParams::handle(){
       intakeOn();
       shooter.changeState(ShooterIdleParams{}, 109);
 
-      handleRpm();
-
     }
 
     // Ends shooting if disc hasn't been seen for 2 seconds

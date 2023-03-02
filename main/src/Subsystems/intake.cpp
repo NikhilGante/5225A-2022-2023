@@ -82,6 +82,7 @@ void IntakeOnParams::handle(){  // synchronous state
 void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   angler_p.setState(LOW);
   intake_m.move(speed);
+  handleRpm();
 }
 
 // Wrapper function to turn intake on

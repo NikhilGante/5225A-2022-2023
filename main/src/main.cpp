@@ -111,17 +111,19 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	WAIT_UNTIL(!gyro.is_calibrating());
+	autonStack();
 
 	// Starting at match loader
-	setFlywheelVel(1800);
-	WAIT_UNTIL(!gyro.is_calibrating());
+	// setFlywheelVel(1800);
+	// WAIT_UNTIL(!gyro.is_calibrating());
 
-	tracking.loadPosFromSD();
+	// tracking.loadPosFromSD();
 	// delay(4000);
-	aimAtRed();
+	// aimAtRed();
 
-	shoot(9, true);
-	shooter.waitToReachState(ShooterIdleParams{});
+	// shoot(9, true);
+	// shooter.waitToReachState(ShooterIdleParams{});
 	// Shoots until empty
 	// shooter.setTimeout(5000);
 	// if(mag_ds.get_value() < 1000){
@@ -133,10 +135,10 @@ void autonomous() {
 	// log("TIMEOUTTT\n\n\n\n\n");
 	// WAIT_UNTIL(false);
 
-	turnToTargetSync({33.0, 15.0}, 0.0, true);
+	// turnToTargetSync({33.0, 15.0}, 0.0, true);
 
-	moveToTargetSync({33.0, 15.0});
-	turnToAngleSync(0.0);
+	// moveToTargetSync({33.0, 15.0});
+	// turnToAngleSync(0.0);
 
 
 	// moveDrive(0, -50);
