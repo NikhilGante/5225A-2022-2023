@@ -7,10 +7,6 @@
 #include "util.hpp"
 #include <sys/wait.h>
 
-constexpr double DRIVEBASE_WIDTH = 14.5;
-constexpr double LEFT_DIST_OFFSET = 1.75;  // How far in the left sensor is from left edge
-constexpr double RIGHT_DIST_OFFSET = 2.125;  // How far in the right sensor is from right edge
-
 void moveInches(double target, double max_power){
 	Timer move_timer{"move_timer"};
 	double start = right_tracker.get_position()*1/36000.0 *(2.75*M_PI);

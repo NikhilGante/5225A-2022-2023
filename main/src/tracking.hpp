@@ -6,6 +6,14 @@
 #include "Libraries/pid.hpp"
 #include "Libraries/state.hpp"
 
+
+constexpr double DRIVEBASE_WIDTH = 13.5;
+constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
+constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
+constexpr double DISTANCE_DIST_OFFSET = 6.0;  // How far the distance sensor is from the tracking center on the up to down axis
+
+
 #define MAX_TURNING_POWER 127
 #define TURNING_END_ERROR 1.5
 

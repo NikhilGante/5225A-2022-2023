@@ -136,7 +136,7 @@ public:
     Timer timeout{"timeout"};
     log("TIMEOUT | %d %d\n", timeout.getTime(), time);
     while(getTargetState().index() != base_state.index() || getState().index() != base_state.index()){
-      log("TIMEOUT | %d %d\n", timeout.getTime(), time);
+      // log("TIMEOUT | %d %d\n", timeout.getTime(), time);
       if(timeout.getTime() > time){
         log("%s | Timeout reached, %s state took longer than %d ms\n", name, getStateName(state), time);
         changeState(base_state);
@@ -144,6 +144,8 @@ public:
       }
       _Task::delay(10);
     } 
+    log("%s TIMEOUT REACHED | %d %d\n", name, timeout.getTime(), time);
   }
+
 
 };

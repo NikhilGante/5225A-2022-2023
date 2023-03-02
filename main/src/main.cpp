@@ -111,11 +111,134 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+
+	// Starting at match loader
+	setFlywheelVel(1800);
 	WAIT_UNTIL(!gyro.is_calibrating());
+	master.rumble("-");
+
+	tracking.reset({74.0, 9.0, M_PI_2});
+	delay(4000);
+	// aimAtRed();
+
+	shoot(9, true);
+	// Shoots until empty
+	shooter.setTimeout(5000);
+	if(mag_ds.get_value() < 1000){
+		log("DISCS LEFT\n\n");
+		shoot(1);
+		shooter.waitToReachState(ShooterIdleParams{});
+		delay(100);
+	}
+	log("TIMEOUTTT\n\n\n\n\n");
+	// WAIT_UNTIL(false);
+
+	turnToTargetSync({33.0, 15.0}, 0.0, true);
+
+	moveToTargetSync({33.0, 15.0});
+	turnToAngleSync(0.0);
+
+
+	// moveDrive(0, -50);
+	// delay(300);
+
+	// while(true) {
+	// 	log("b_Vel: %lf\n", tracking.b_vel);
+		
+	// 	delay(10);
+	// }
+
+	// while(true){
+	// 	printf("dist_l: %lf, %d, %lf\n", getDistL(), l_reset_dist.get(), LEFT_DIST_OFFSET);
+	// 	delay(10);
+	// }
+	// WAIT_UNTIL(!gyro.is_calibrating());
+	// setFlywheelVel(2075);
+	// flattenAgainstWallSync();
+	// tracking.reset(distanceReset(resetPosition::leftHome));
+	// spinRoller();
+	// intake.waitToReachState(IntakeOffParams{});
+	// intakeOn();
+	// moveToTargetSync({35.0, 25.0}, E_Brake_Modes::coast);
+
+	// moveToTargetSync({35.0, 45.0}, E_Brake_Modes::brake, 50);
+	// aimAtBlue(6);
+	// driveBrake();
+	// shoot(3);
+	// shooter.waitToReachState(ShooterIdleParams{});
+
+	// setFlywheelVel(1850);
+	// // turnToTargetSync({64.0, 84.0});
+	// moveToTargetSync({68.0, 90.0}, E_Brake_Modes::brake, 100);	// Go to barrier
+	// aimAtBlue(5);
+	// shoot(3);
+	// shooter.waitToReachState(ShooterIdleParams{});
+
+
+	// turnToTargetSync({114, 128});	// Go to corner
+	// intakeOn();
+	// moveToTargetSync({116, 128}, E_Brake_Modes::brake, 100);
+	// turnToAngleSync(180);
+
+
+// NEW SECTION
+
+/*
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftAway, 180));
+	spinRoller();
+	intake.waitToReachState(IntakeOffParams{});
+
+	// moveInches(8.0);	// move away from wall
+	moveToTargetSync({tracking.g_pos.x, tracking.g_pos.y - 2});
+
+	turnToAngleSync(-72);
+	moveInches(40, 100);
+	moveDrive(tracking.min_move_power_y, 0);
+	delay(300);	// wait for vel rise up
+		log("r_Vel: %lf\n", tracking.r_vel);
+
+	// while(tracking.r_vel > 3){
+	// 	log("r_Vel: %lf\n", tracking.r_vel);
+	// 	delay(10);
+	// }
+
+	WAIT_UNTIL(tracking.r_vel < 3);
+	driveBrake();
+	moveDriveSide(-40, 0);
+	aimAtBlue();
+	// WAIT_UNTIL(tracking.b_vel < 3);
+	
+	intakeOn();
+	// shooter.waitToReachState(ShooterIdleParams{});
+	WAIT_UNTIL(false);
+
+	moveInches(30);
+	delay(300);	// wait for vel rise up
+	WAIT_UNTIL(tracking.r_vel < 3);
+	driveBrake();
+	tracking.reset();
+	WAIT_UNTIL(false);
+
+	turnToAngleSync(-10);
+	setFlywheelVel(1800);
+
+	shoot(12, true);
+	// Shoots until empty
+	shooter.setTimeout(10000);
+	if(mag_ds.get_value() < 1000){
+		log("DISCS LEFT\n\n");
+		shoot(1);
+		shooter.waitToReachState(ShooterIdleParams{});
+		delay(100);
+	}
+	log("TIMEOUTTT\n\n\n\n\n");
+	WAIT_UNTIL(false);
 	// autonAWP();
 	// autonLine();
 	autonStack();
 
+*/
 
 	// Auton::runAuton();
 	// provSkills();
@@ -228,6 +351,17 @@ IMU THINGS:
 void opcontrol() {
 
 	// driverPractice();
+
+	// while(true){
+	// 	printf("mag_ds: %d\n", mag_ds.get_value());
+
+	// 	delay(10);
+	// }
+	setFlywheelVel(barrier_rpm);
+
+	shoot(10);
+
+	WAIT_UNTIL(false);
 
 
 	WAIT_UNTIL(!gyro.is_calibrating());

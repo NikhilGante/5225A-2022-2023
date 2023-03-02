@@ -31,23 +31,28 @@ struct ShooterIdleParams{
 };
 
 struct ShooterShootParams{  
-  ShooterShootParams(int shots = 3);
+  ShooterShootParams(int shots = 3, bool match_load = false);
 
   const char* getName();
   void handle();
   void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
 
   int shots_left;
+  bool disc_seen = false, disc_seen_last = false;
+  bool match_load;
 
   FLYWHEEL_STATE_TYPES_VARIANT flywheel_state;
 private:
   static Timer shoot_timer;
+
+  static Timer disc_seen_timer;
+
 
   Timer cycle_check{"cycle_check"};
 };
 
 
 
-void shoot(int shots = 3);  // Shoots x number of shots
+void shoot(int shots = 3, bool match_load = false);  // Shoots x number of shots
 
 void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)

@@ -4,12 +4,6 @@
 #include "Libraries/timer.hpp"
 #include "util.hpp"
 
-constexpr double DRIVEBASE_WIDTH = 13.5;
-constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
-constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
-constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
-constexpr double DISTANCE_DIST_OFFSET = 6.0;  // How far the distance sensor is from the tracking center on the up to down axis
-
 
 double getDistL(){
   return (l_reset_dist.get()/25.4) - LEFT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
@@ -370,7 +364,9 @@ void DriveMttParams::handle(){
       break;
   }
   // log("power_sgn: %d\n", power_sgn);
-  const double kP_a = 2.8;  // proportional multiplier for angular error
+  const double kP_a = 2.5;  // proportional multiplier for angular error
+  log("MTT MOTION STARTED | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
