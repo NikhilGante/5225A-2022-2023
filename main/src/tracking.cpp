@@ -224,6 +224,18 @@ void Tracking::reset(Position pos){
 
 }
 
+void Tracking::savePosToSD(){
+  ofstream pos_file("pos.txt", ios::out);
+  pos_file << g_pos.x << " " << g_pos.y  << " " << g_pos.a << endl;
+  pos_file.close(); 
+}
+
+void Tracking::loadPosFromSD(){
+  ifstream pos_file("pos.txt");
+  pos_file >> g_pos.x >> g_pos.y >> g_pos.a;
+  pos_file.close(); 
+}
+
 void handleBrake(E_Brake_Modes brake_mode){
   switch(brake_mode){
     case E_Brake_Modes::none:

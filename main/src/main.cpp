@@ -115,22 +115,22 @@ void autonomous() {
 	// Starting at match loader
 	setFlywheelVel(1800);
 	WAIT_UNTIL(!gyro.is_calibrating());
-	master.rumble("-");
 
-	tracking.reset({74.0, 9.0, M_PI_2});
-	delay(4000);
-	// aimAtRed();
+	tracking.loadPosFromSD();
+	// delay(4000);
+	aimAtRed();
 
 	shoot(9, true);
+	shooter.waitToReachState(ShooterIdleParams{});
 	// Shoots until empty
-	shooter.setTimeout(5000);
-	if(mag_ds.get_value() < 1000){
-		log("DISCS LEFT\n\n");
-		shoot(1);
-		shooter.waitToReachState(ShooterIdleParams{});
-		delay(100);
-	}
-	log("TIMEOUTTT\n\n\n\n\n");
+	// shooter.setTimeout(5000);
+	// if(mag_ds.get_value() < 1000){
+	// 	log("DISCS LEFT\n\n");
+	// 	shoot(1);
+	// 	shooter.waitToReachState(ShooterIdleParams{});
+	// 	delay(100);
+	// }
+	// log("TIMEOUTTT\n\n\n\n\n");
 	// WAIT_UNTIL(false);
 
 	turnToTargetSync({33.0, 15.0}, 0.0, true);
@@ -349,6 +349,18 @@ IMU THINGS:
 // };
 
 void opcontrol() {
+	driverPractice();
+	// Skills setup
+	// master.clear();
+	// WAIT_UNTIL(!gyro.is_calibrating());
+	// tracking.reset({74.0, 9.0, M_PI_2});
+	// master.rumble("-");
+	// master.print(0, 0, "Press A to save");
+	// tracking.reset();
+	// tracking.savePosToSD();
+	// master.print(0, 0, "Saved.         ");
+	// WAIT_UNTIL(false);
+
 
 	// driverPractice();
 

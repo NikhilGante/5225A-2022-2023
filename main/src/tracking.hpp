@@ -63,6 +63,8 @@ public:
   void waitForComplete(); // Waits until the motion completes
   void waitForDistance(double distance); // Waits until the robot is within a certain distance from it's target
   void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
+  void savePosToSD(); // Writes tracking pos to file on SD
+  void loadPosFromSD(); // Loads position from file on SD into tracking pos
 };
 extern Tracking tracking;
 

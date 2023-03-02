@@ -47,6 +47,7 @@ private:
 
   static Timer disc_seen_timer;
 
+  static Timer disc_absence_timer; // Ends match loads after not seeing for 2 seconds
 
   Timer cycle_check{"cycle_check"};
 };
