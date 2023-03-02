@@ -328,7 +328,8 @@ namespace alert{
     }
   }
 
-  GUI::GUI(std::vector<Page*> pages, std::function<void()> setup, std::function<void()> background){
+  GUI::GUI(std::vector<Page*> pages, std::function<void()> setup, std::function<void()> background):
+  setup{setup}, background{background} {
     //Saves pages to gui
     this->pages.push_back(&perm);
     for (Page* page_ptr: pages) this->pages.push_back(page_ptr);
@@ -339,25 +340,14 @@ namespace alert{
 
     //Saves gui to pages
     for (Page* page_ptr: this->pages) page_ptr->guis.push_back(this);
-
-    this->setup = setup;
-    this->background = background;
   }
 
   Button::Button(GUI::Box coord, press_type form, Page& page, std::string text, Color background_colour, Color label_colour): ObjectTracker{"Button", text} {
     construct(coord, form, &page, text, background_colour, label_colour);
   }
 
-  Slider::Slider (GUI::Box coord, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour): ObjectTracker{"Slider", label}{
-    //Saves params to class private vars
-    this->coord = coord;
-    this->dir = dir;
-    this->min = min;
-    this->max = max;
-    this->page = &page;
-    this->val = inRangeIncl(0, min, max) ? 0 : (inRangeIncl(1, min, max) ? 1 : (min + max) / 2); //0 if that's the min, otherwise the average
-    this->b_col = static_cast<std::uint32_t>(background_colour);
-    this->l_col = static_cast<std::uint32_t>(label_colour);
+  Slider::Slider (GUI::Box coord, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour):
+  ObjectTracker{"Slider", label}, coord{coord}, dir{dir}, min{min}, max{max}, page{&page}, val{inRangeIncl(0, min, max) ? 0 : (inRangeIncl(1, min, max) ? 1 : (min + max) / 2)}, b_col{static_cast<std::uint32_t>(background_colour)}, l_col{static_cast<std::uint32_t>(label_colour)} {
     this->page->sliders.push_back(this);
 
     switch(this->dir){
@@ -386,9 +376,8 @@ namespace alert{
     inc.setFunc([&, increment](){this->val+=increment; if(!inRangeIncl(this->val, this->min, this->max)) this->val = this->max;});
   }
 
-  Page::Page(std::string title, Color background_colour): ObjectTracker{"Page", title}{
-    this->b_col = static_cast<std::uint32_t>(background_colour);
-    this->title = title;
+  Page::Page(std::string title, Color background_colour):
+  ObjectTracker{"Page", title}, b_col{static_cast<std::uint32_t>(background_colour)}, title{title} {
     if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
       for (Button* btn_ptr: perm.buttons) buttons.push_back(btn_ptr);
     }

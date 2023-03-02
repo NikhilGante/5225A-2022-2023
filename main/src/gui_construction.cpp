@@ -1,16 +1,16 @@
-#include "gui.hpp"
+#include "Libraries/gui.hpp"
 #include "pros/apix.h"
-#include "../Devices/controller.hpp"
-#include "../Devices/motor.hpp"
-#include "../Devices/piston.hpp"
-#include "../Devices/others.hpp"
-#include "../config.hpp"
-#include "../tracking.hpp"
-#include "../drive.hpp"
-#include "../util.hpp"
-#include "../menu.hpp"
-#include "../Subsystems/intake.hpp"
-#include "../Subsystems/shooter.hpp"
+#include "Devices/controller.hpp"
+#include "Devices/motor.hpp"
+#include "Devices/piston.hpp"
+#include "Devices/others.hpp"
+#include "config.hpp"
+#include "tracking.hpp"
+#include "drive.hpp"
+#include "util.hpp"
+#include "menu.hpp"
+#include "Subsystems/intake.hpp"
+#include "Subsystems/shooter.hpp"
 
 #include <bitset>
 
@@ -192,20 +192,16 @@ void mainSetup(){
     });
 
     sensor_check.setFunc([](){
-      auto correctDevice = [](Port port, c::v5_device_e device) {return c::registry_get_plugged_type(port-1) == device;};
-
       if (!correctDevice(expander_port, c::E_DEVICE_ADI)) alert::start("No expander in port %d", expander_port);
-      
-      for (_Distance* distance: _Distance::getList()) if (!correctDevice(distance->getPort(), c::E_DEVICE_DISTANCE)) alert::start("Distance %s not plugged in port %d", distance->getName(), distance->getPort());
-      for (Encoder*   encoder:  Encoder  ::getList()) if (!correctDevice(encoder->getPort(), c::E_DEVICE_ROTATION)) alert::start("Encoder %s not plugged in port %d", encoder->getName(), encoder->getPort());
-      for (Gyro*      gyro:     Gyro     ::getList()) if (!correctDevice(gyro->getPort(), c::E_DEVICE_IMU)) alert::start("Gyro %s not plugged in port %d", gyro->getName(), gyro->getPort());
-      for (_Motor*    motor:    _Motor   ::getList()) if (!correctDevice(motor->getPort(), c::E_DEVICE_MOTOR) || !motor->plugged()) alert::start("Motor %s not plugged in port %d", motor->getName(), motor->getPort());
-      
       if(_Controller::id_to_ptr(CONTROLLER_MASTER) && !_Controller::id_to_ptr(CONTROLLER_MASTER)->connected()) alert::start("Master Controller not connected");
       if(_Controller::id_to_ptr(CONTROLLER_PARTNER) && !_Controller::id_to_ptr(CONTROLLER_PARTNER)->connected()) alert::start("Partner Controller not connected");
-
-      else if(!inRangeIncl(r_reset_dist.get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");
-      else if(!inRangeIncl(l_reset_dist.get(), 20, 2000)) alert::start("Left Distance Sensor Out of Range");
+      
+      for (_Distance* distance: _Distance::getList()) if (!correctDevice(distance)) alert::start("Distance %s not plugged in port %d", distance->getName(), distance->getPort());
+      for ( Encoder*  encoder:   Encoder ::getList()) if (!correctDevice(encoder)) alert::start("Encoder %s not plugged in port %d", encoder->getName(), encoder->getPort());
+      for ( Gyro*     gyro:      Gyro    ::getList()) if (!correctDevice(gyro)) alert::start("Gyro %s not plugged in port %d", gyro->getName(), gyro->getPort());
+      for (_Motor*    motor:    _Motor   ::getList()) if (!correctDevice(motor) || !motor->plugged()) alert::start("Motor %s not plugged in port %d", motor->getName(), motor->getPort());
+      
+      for (_Distance* distance: _Distance::getList()) {if(!inRangeIncl(distance->get(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");}
     });
 
     misc_checks.setFunc([](){

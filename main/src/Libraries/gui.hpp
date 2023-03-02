@@ -370,7 +370,7 @@ class Slider: public ObjectTracker<Slider>{
   private:
     GUI::Box coord;
     GUI::Coordinate text_coord;
-    int
+    double
       min, max,
       val, prev_val;
     std::uint32_t l_col, b_col;

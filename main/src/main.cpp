@@ -102,17 +102,19 @@ Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", fullSkills);
 
-//!check that log folders is good
 //!fix logging issue
-//remove timer from subsystems
+//!check that log folders is good
 //add rumble back to alert
+
+//remove timer from subsystems by making them static, and then initializing in the constructor
+//Add a config page to the gui
 //Logging different sizes
 //Eliminate the idea of multiple guis
-//log an initialize statement for all objects
 //Make all buttons use a Text
 
-//doc for sensor port detection
-//debugging
+
+//debugging doc
+//change GitHub to conventions and styles doc
 
 void opcontrol() {
   DEBUG;

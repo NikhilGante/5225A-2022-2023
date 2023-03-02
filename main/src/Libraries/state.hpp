@@ -7,14 +7,13 @@
 #include <variant>
 #include <atomic>
 
-
 template <typename... StateTypes>
 class Machine{
-  // The Base state is what the machine returns to after any operation, and the first state it enters
   public:
     using variant = std::variant<StateTypes...>;
 
   private:
+    //The Base state is what the machine returns to after any operation, and the first state it enters
     variant state, target_state, base_state;
     Mutex state_mutex, target_state_mutex;
     std::string name;
@@ -22,15 +21,15 @@ class Machine{
     _Task task;
 
     // Getters and setters for state and target state (since they need mutexes)
-    void setState(variant state_param){
+    void setState(variant state){
       state_mutex.take(TIMEOUT_MAX);
-      state = state_param;
+      this->state = state;
       state_mutex.give();
     }
 
-    void setTargetState(variant target_state_param){
+    void setTargetState(variant target_state){
       target_state_mutex.take(TIMEOUT_MAX);
-      target_state = target_state_param;
+      this->target_state = target_state;
       target_state_mutex.give();
     }
 

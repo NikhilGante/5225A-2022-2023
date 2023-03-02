@@ -3,7 +3,7 @@
 #include "../Libraries/gui.hpp"
 #include "../config.hpp"
 
-class Piston: private ADIDigitalOut, public ObjectTracker<Piston, 12>{
+class Piston: private ADIDigitalOut, public ObjectTracker<Piston>{
   private:
     Button toggle;
     std::string name;

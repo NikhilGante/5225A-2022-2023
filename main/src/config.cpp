@@ -42,6 +42,12 @@ Gyro gyro{9, "Gyro"};
 
 // std::map<port, std::pair<class_name, name>>
 std::map<Port, std::pair<std::string, std::string>> port_list;
+/*
+ 0   : Invalid Port
+ 1-21: Smart Ports
+22-29: V5 ADI Ports
+30-37: Expander ADI Ports
+*/
 
 Port valid_smart_port(std::string class_name, std::string name, Port port){
   if(!inRangeIncl(port, 1, 21)) throw std::domain_error(sprintf2("Cannot initialize %s %s in port %c. Invalid port number", class_name, name, port + 'A' - 1));

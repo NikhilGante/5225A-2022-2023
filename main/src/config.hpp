@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "pros/apix.h"
 
 using Port = std::uint8_t;
 
@@ -41,9 +42,6 @@ Port valid_adi_port(std::string, std::string, Port);
 std::pair<Port, Port> valid_adi_ports(std::string, std::string, Port, Port);
 Port valid_ext_adi_port(std::string, std::string, ext_adi_port_pair_t);
 std::pair<Port, Port> valid_ext_adi_ports(std::string, std::string, ext_adi_port_tuple_t);
-/*
- 0   : Invalid Port
- 1-21: Smart Ports
-22-29: V5 ADI Ports
-30-37: Expander ADI Ports
-*/
+
+inline bool correctDevice (Port port, c::v5_device_e device) {return c::registry_get_plugged_type(port-1) == device;}
+bool correctDevice (auto* obj) {return correctDevice(obj->getPort(), obj->device);}
