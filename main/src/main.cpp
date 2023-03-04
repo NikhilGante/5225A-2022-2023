@@ -111,9 +111,12 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	// intakeOn();
+	// WAIT_UNTIL(false);
+
+	// provSkillsLow();
 	// provSkills();
-	WAIT_UNTIL(!gyro.is_calibrating());
-	autonAWP();
+	// autonAWP();
 
 	// backupSkills();
 
@@ -234,7 +237,7 @@ void auton3func(){
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
-Auton auton4("Skills", fullSkills);
+Auton auton4("Skills", provSkillsLow);
 
 
 
@@ -285,13 +288,55 @@ IMU THINGS:
 // At x:33.471447 y:13.344594, a:97.183773 (fail)
 // Target:102.447318 | At x:33.821090 y:14.427238, a:100.672574
 
-void opcontrol() {
+#define PROG_SKILLS
+// #define DRIVER_SKILLS
+// #define MATCH
 
+void opcontrol() {
+	// while(true){
+	// 	log("ultra: %d\n", match_ultra.get_value());
+	// 	delay(10);
+	// }
+
+
+	// flattenAgainstWallSync();
+	// tracking.reset(distanceReset(resetPosition::leftHome));
+
+	// turnToAngleSync(103);
+	// moveInches(30.0, 70, E_Brake_Modes::coast);
+	// moveDrive(30, 0.0);
+	// delay(300);	// wait for speed up
+	// WAIT_UNTIL(fabs(match_ultra.get_value() - 100) < 50);	// Waits to see loader
+	// WAIT_UNTIL(fabs(match_ultra.get_value() - 100) < 50);	// Waits to not see loader
+	// driveBrake();
+	// aimAtRed(3.0);
+	// moveInches(-0.75);
+
+	// driveBrake();
+	// shoot(10, true);
+	// shooter.waitToReachState(ShooterIdleParams{});
+	// WAIT_UNTIL(false);
+
+
+#ifdef PROG_SKILLS
+	WAIT_UNTIL(!gyro.is_calibrating());
+	tracking.reset({74.0, 8.0, M_PI_2});
+	WAIT_UNTIL(false);
+#endif
+
+#ifdef DRIVER_SKILLS
 	setFlywheelVel(barrier_rpm - 50);
 	shoot(9, true);	
 	shooter.waitToReachState(ShooterIdleParams{});
 
 	driverPractice();
+#endif
+
+#ifdef MATCH
+	driverPractice();
+#endif
+
+
 	WAIT_UNTIL(!gyro.is_calibrating());
 	tracking.reset({74.0, 8.0, M_PI_2});
 	

@@ -12,7 +12,7 @@ bool goal_disturb = false;
 
 Timer ShooterShootParams::shoot_timer{"shoot_timer"};
 Timer ShooterShootParams::disc_seen_timer{"disc_seen_timer"};
-Timer ShooterShootParams::disc_absence_timer{"disc_seen_timer"};
+Timer ShooterShootParams::disc_absence_timer{"disc_absence_timer"};
 
 // 1820
 bool angleOverride = false;
@@ -134,19 +134,20 @@ void ShooterShootParams::handle(){
 
     }
 
-    // Ends shooting if disc hasn't been seen for 2 seconds
-    if(match_load && disc_absence_timer.getTime() > 2000){
-      master.rumble("-"); // Lets driver know shooting is done
-      log("CONTROLLER RUMBLING FROM LINE 140 in file shooter.cpp");
-      g_mag_disc_count = 0;
-      _Task::delay(150); // Waits for last disc to shoot
-      // Sets subsystems back to their state before shooting
-      intakeOn();
-      shooter.changeState(ShooterIdleParams{}, 109);
+  }
+  // Ends shooting if disc hasn't been seen for 2 seconds
+  if(match_load && disc_absence_timer.getTime() > 2000){
+    master.rumble("-"); // Lets driver know shooting is done
+    log("CONTROLLER RUMBLING FROM LINE 140 in file shooter.cpp");
+    log("FINISHED MATCH LOADER, TIMED OUT\n");
 
-      handleRpm();
+    g_mag_disc_count = 0;
+    _Task::delay(150); // Waits for last disc to shoot
+    // Sets subsystems back to their state before shooting
+    intakeOn();
+    shooter.changeState(ShooterIdleParams{}, 109);
 
-    }
+    handleRpm();
 
   }
 

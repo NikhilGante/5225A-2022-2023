@@ -30,6 +30,8 @@ Motor flywheel_m(18, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 
 Piston indexer_p({e_port, 'C'}, "indexer_p", true, LOW);
 
+ADIAnalogIn intk_ds('G');
+
 ADIAnalogIn mag_ds({e_port, 'D'});
 ADIAnalogIn shooter_ds('A');
 
@@ -38,10 +40,12 @@ Rotation flywheel_rot_sensor(7);
 ADIUltrasonic ultra_left({{e_port, 'E', 'F'}});
 ADIUltrasonic ultra_right({{e_port,'G', 'H'}});
 
+ADIUltrasonic match_ultra({'C', 'D'});
+
 Piston angler_p({e_port, 'B'}, "angler_p", true, LOW);
 Piston trans_p({e_port, 'A'}, "trans_p", true, HIGH);
 Piston endgame_s_p('F', "endgame_s_p", false, LOW); // Single acting
-Piston endgame_d_p('G', "endgame_d_p", false, LOW); // Double acting
+Piston endgame_d_p('B', "endgame_d_p", false, LOW); // Double acting
 
 Imu gyro(9);
 

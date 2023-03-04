@@ -1,7 +1,9 @@
 #include "intake.hpp"
+#include "pros/misc.hpp"
 #include "shooter.hpp"
 #include "../tracking.hpp"
 #include "../drive.hpp"
+#include "../auton.hpp"
 
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
@@ -52,8 +54,9 @@ const char* IntakeOnParams::getName(){
   return "IntakeOn";
 }
 void IntakeOnParams::handle(){  // synchronous state
-  // mag_ds_val = mag_ds.get_value();
-  mag_ds_val = mag_disc_thresh + 1;
+  mag_ds_val = intk_ds.get_value();
+  printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
+  // mag_ds_val = mag_disc_thresh + 1;
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
@@ -73,7 +76,16 @@ void IntakeOnParams::handle(){  // synchronous state
     master.rumble("-");
     log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
     _Task::delay(185);
-    intakeOff();
+
+    if(pros::competition::is_autonomous()){
+      drive.changeState(DriveIdleParams{});
+      drive.waitToReachState(DriveIdleParams{});
+      intake_m.move(-127);
+      moveInches(-2.0);
+      intakeRev();
+
+    }
+    else intakeOff();
     if(angleOverride)  angler_p.setState(HIGH);
   }
 
