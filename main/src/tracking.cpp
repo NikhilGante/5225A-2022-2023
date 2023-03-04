@@ -225,15 +225,19 @@ void Tracking::reset(Position pos){
 }
 
 void Tracking::savePosToSD(){
-  ofstream pos_file("pos.txt", ios::out);
+  log_mutex.take();
+  ofstream pos_file("/usd/pos.txt", ios::out);
   pos_file << g_pos.x << " " << g_pos.y  << " " << g_pos.a << endl;
   pos_file.close(); 
+  log_mutex.give();
 }
 
 void Tracking::loadPosFromSD(){
-  ifstream pos_file("pos.txt");
+  log_mutex.take();
+  ifstream pos_file("/usd/pos.txt");
   pos_file >> g_pos.x >> g_pos.y >> g_pos.a;
   pos_file.close(); 
+  log_mutex.give();
 }
 
 void handleBrake(E_Brake_Modes brake_mode){
@@ -312,7 +316,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(fabs(power) > max_power) power = sgn(power) * max_power;
-    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 30) power = sgn(power) * tracking.min_move_power_a;
+    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 40) power = sgn(power) * tracking.min_move_power_a;
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     
     // log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);

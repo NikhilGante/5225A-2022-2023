@@ -111,65 +111,38 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	// WAIT_UNTIL(!gyro.is_calibrating());
-	// autonStack();
+	WAIT_UNTIL(!gyro.is_calibrating());
+	Timer total_timer{"total_timer"};
 
-	// Starting at match loader
-	// setFlywheelVel(1800);
-	// WAIT_UNTIL(!gyro.is_calibrating());
+	tracking.reset({74.1952, 8.29092, 1.40752});
 
-	// tracking.loadPosFromSD();
-	// delay(4000);
-	// aimAtRed();
+	setFlywheelVel(barrier_rpm - 50);
+	shoot(9, true);	
+	shooter.waitToReachState(ShooterIdleParams{});
 
-	// shoot(9, true);
-	// shooter.waitToReachState(ShooterIdleParams{});
-	// Shoots until empty
-	// shooter.setTimeout(5000);
-	// if(mag_ds.get_value() < 1000){
-	// 	log("DISCS LEFT\n\n");
-	// 	shoot(1);
-	// 	shooter.waitToReachState(ShooterIdleParams{});
-	// 	delay(100);
-	// }
-	// log("TIMEOUTTT\n\n\n\n\n");
-	// WAIT_UNTIL(false);
+	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	turnToAngleSync(90);
+	moveToTargetSync({32, 15});
 
-	// turnToTargetSync({33.0, 15.0}, 0.0, true);
+	turnToAngleSync(0);
 
-	// moveToTargetSync({33.0, 15.0});
-	// turnToAngleSync(0.0);
-
-
-	// moveDrive(0, -50);
-	// delay(300);
-
-	// while(true) {
-	// 	log("b_Vel: %lf\n", tracking.b_vel);
-		
-	// 	delay(10);
-	// }
-
-	// while(true){
-	// 	printf("dist_l: %lf, %d, %lf\n", getDistL(), l_reset_dist.get(), LEFT_DIST_OFFSET);
-	// 	delay(10);
-	// }
 
 // SKILLS START ---------
 
 
-	WAIT_UNTIL(!gyro.is_calibrating());
-	Timer total_timer{"total_timer"};
+	// WAIT_UNTIL(!gyro.is_calibrating());
 	setFlywheelVel(2115);
-// /*
+
 	flattenAgainstWallSync();
 	tracking.reset(distanceReset(resetPosition::leftHome));
 	spinRoller(600);
 	intake.waitToReachState(IntakeOffParams{});
-	intakeOn();
-	moveToTargetSync({tracking.g_pos.x, 26.0}, E_Brake_Modes::coast);
+	turnToTargetSync({35.0, 205.0});
 
-	moveToTargetSync({tracking.g_pos.x, 45.0}, E_Brake_Modes::brake, 45);
+	// moveToTargetSync({tracking.g_pos.x, 25.0}, E_Brake_Modes::coast);	// HITS STACK
+
+	intakeOn();
+	moveToTargetSync({35.0, 45.0}, E_Brake_Modes::brake, 70);
 	aimAtBlue(4);
 	driveBrake();
 	shoot(3);
@@ -182,9 +155,9 @@ void autonomous() {
 	shooter.waitToReachState(ShooterIdleParams{});
 
 
-	turnToTargetSync({114, 123});	// Go to corner
+	turnToTargetSync({114, 125});	// Go to corner
 	intakeOn();
-	moveToTargetSync({114, 123}, E_Brake_Modes::brake, 90);
+	moveToTargetSync({114, 125}, E_Brake_Modes::brake, 90);
 	turnToAngleSync(180);
 
 
@@ -227,39 +200,38 @@ void autonomous() {
 
 	turnToAngleSync(-90);
 	flattenAgainstWallSync();
-// */
+
 
 // SECTION 3 -------------------------------------------
+
+	flattenAgainstWallSync();
 	setFlywheelVel(2075);
 	tracking.reset(distanceReset(resetPosition::rightHome, 90));
 	spinRoller(600);
 	intake.waitToReachState(IntakeOffParams{});
 
 	// Goes to stack
-	moveToTargetSync({47.0, 25.0});
-	aimAtRed(2);
+	moveToTargetSync({47.0, tracking.g_pos.y});
+
+	aimAtRed(3);
 	shoot(3);
 	shooter.waitToReachState(ShooterIdleParams{});
 
 	// Goes to barrier corner
-	setFlywheelVel(1800);
+	setFlywheelVel(1750);
 	intakeOn();
-	turnToTargetSync({89.0, 60.0});
-	moveToTargetSync({89.0, 60.0}, E_Brake_Modes::brake, 100);
-	aimAtRed(4);
+
+	turnToTargetSync({72.0, 40.0});
+	moveInches(30.0);
+	aimAtRed(3);
 	shoot(3);
 	shooter.waitToReachState(ShooterIdleParams{});
 
 	// Goes field corner
 
-	turnToTargetSync({130, 108}, 0.0, true);
-	moveToTargetAsync({130, 108});
-	drive.setTimeout(2000);
-	turnToAngleSync(-90);
-	spinRoller(500);
-	intake.waitToReachState(IntakeOffParams{});
-
-	moveInches(5);
+	turnToTargetSync({24.0, 24.0}, 0.0, true);
+	moveToTargetSync({24.0, 24.0}, E_Brake_Modes::brake, 127, 2.0);
+	turnToAngleSync(45.0);
 
 	master.print(2, 0, "total: %d", total_timer.getTime());
 
@@ -429,7 +401,24 @@ IMU THINGS:
 // };
 
 void opcontrol() {
+	// flattenAgainstWallSync();
+	// tracking.reset(distanceReset(resetPosition::leftHome));
+	// moveInches(1);
+	// turnToTargetSync({72.0, 6.0});
+	// moveInches(30.0);
+	// WAIT_UNTIL(false);
+
+
+
+	// Saves position to file
+	tracking.reset({74.5, 7.25, degToRad(90)});
+	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+	tracking.savePosToSD();
+
+	WAIT_UNTIL(false);
 	driverPractice();
+
+
 	// Skills setup
 	// master.clear();
 	// WAIT_UNTIL(!gyro.is_calibrating());
