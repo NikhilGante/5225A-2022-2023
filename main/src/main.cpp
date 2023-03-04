@@ -111,7 +111,9 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	provSkills();
+	// provSkills();
+	WAIT_UNTIL(!gyro.is_calibrating());
+	autonAWP();
 
 	// backupSkills();
 
@@ -284,6 +286,11 @@ IMU THINGS:
 // Target:102.447318 | At x:33.821090 y:14.427238, a:100.672574
 
 void opcontrol() {
+
+	setFlywheelVel(barrier_rpm - 50);
+	shoot(9, true);	
+	shooter.waitToReachState(ShooterIdleParams{});
+
 	driverPractice();
 	WAIT_UNTIL(!gyro.is_calibrating());
 	tracking.reset({74.0, 8.0, M_PI_2});

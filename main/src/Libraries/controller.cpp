@@ -18,7 +18,7 @@ controller_digital_e_t endgameBtnRight = DIGITAL_Y;
 
 
 // ------------------------------ Front Buttons ------------------------------
-controller_digital_e_t anglerToggleBtn = DIGITAL_UP;
+controller_digital_e_t anglerToggleBtn = DIGITAL_L1;
 controller_digital_e_t transToggleBtn = DIGITAL_L2;
 controller_digital_e_t singleShotBtn = DIGITAL_R1;
 controller_digital_e_t tripleShotBtn = DIGITAL_R2;

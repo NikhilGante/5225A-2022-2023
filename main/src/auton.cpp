@@ -237,7 +237,7 @@ void autonAWP(){
 
 
   Timer timer1{"timer"};
-  setFlywheelVel(2200);
+  setFlywheelVel(2270);
 
   tracking.reset(distanceReset(resetPosition::leftHome));
 
@@ -268,11 +268,12 @@ void autonAWP(){
 
 
   // YOOOO
-  turnToTargetSync({73.0, 48.0}); // Faces stack
+  turnToTargetSync({76.0, 44.0}); // Faces stack
 	intakeOn();
-	moveToTargetSync({73.0, 48.0}, E_Brake_Modes::brake, 100); // Pickup stack of discs
+	moveToTargetSync({76.0, 44.0}, E_Brake_Modes::brake, 80); // Pickup stack of discs
+  delay(250);
 
-	aimAtBlue(1.5);
+	aimAtBlue(1);
 
   driveBrake();
 	shoot(3);
@@ -280,26 +281,28 @@ void autonAWP(){
   // WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
-  setFlywheelVel(2420);
+  setFlywheelVel(2375);
   
   // YOOOO
-	turnToTargetSync({125.0, 110.0}); // Face corner
+	turnToTargetSync({130.0, 110.0}); // Face corner
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
-	moveToTargetSync({125.0, 110.0}); // Move to corner
+	moveToTargetSync({130.0, 110.0}); // Move to corner
   log("TURNED INTAKE OFF\n");
   intakeOff();
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
+  // flattenAgainstWallSync();
 
+  // tracking.reset(distanceReset(resetPosition::rightAway, -90));
   
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
 
   moveInches(4.0);
 
-  aimAtBlue(1.5);
-  shoot(3);
+  // aimAtBlue(0.5);
+  // shoot(3);
   // WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
   // log("CONTROLLER RUM BLING FROM LINE 293 in file auton.cpp");
   shooter.waitToReachState(ShooterIdleParams{});

@@ -95,7 +95,6 @@ void FlywheelMoveVelParams::handle(){
   // if(shooter_ds.get_value() < 2000){// || log_timer.getTime() > 25) {
   if(log_timer.getTime() > 10 || shooter_ds.get_value() < 800){
     if (shooter_ds.get_value() < 800) log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
-    // log("FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, smoothed_vel, intake_m.get_actual_velocity());
     // log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }
@@ -124,7 +123,7 @@ void FlywheelMoveVelParams::handle(){
   if(flywheelOn) flywheel_m.move(output);
   else flywheel_m.move(0);
   
-  _Task::delay(30);
+  _Task::delay(10);
   
 }
 void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){

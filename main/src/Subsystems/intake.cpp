@@ -52,8 +52,8 @@ const char* IntakeOnParams::getName(){
   return "IntakeOn";
 }
 void IntakeOnParams::handle(){  // synchronous state
-  mag_ds_val = mag_ds.get_value();
-  // mag_ds_val = mag_disc_thresh + 1?;
+  // mag_ds_val = mag_ds.get_value();
+  mag_ds_val = mag_disc_thresh + 1;
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
