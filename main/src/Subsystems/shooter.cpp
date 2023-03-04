@@ -23,7 +23,6 @@ void shooterHandleInput(){
   SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.get_digital_new_press(tripleShotBtn)) shoot(3);
-    if(master.get_digital_new_press(singleShotBtn)) shoot(1);
   }
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
@@ -77,7 +76,7 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  disc_seen = mag_ds.get_value() < 1000;
+  disc_seen = mag_ds.get_value() < 2000;
   if(disc_seen && !disc_seen_last){ // Just saw disc
     log("%d JUST SAW mag: %d\n", millis(), mag_ds.get_value());
 
@@ -121,7 +120,7 @@ void ShooterShootParams::handle(){
 
     _Task::delay(75);// wait for SHOOTER to retract // DON'T CHANGE THIS LINE 
 
-    if(shots_left <= 0){  // If shooting is done
+    if(!disc_seen){  // If shooting is done
       master.rumble("-"); // Lets driver know shooting is done
       log("CONTROLLER RUMBLING FROM LINE 126 in file shooter.cpp");
       g_mag_disc_count = 0;

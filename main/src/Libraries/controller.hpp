@@ -26,7 +26,6 @@ extern controller_digital_e_t endgameBtnLeft;
 // ------------------------------ Letter Buttons ------------------------------
 extern controller_digital_e_t intakeToggleBtn;
 extern controller_digital_e_t intakeRevBtn;
-extern controller_digital_e_t angleOverrideBtn;
 extern controller_digital_e_t endgameBtnRight;
 
 
