@@ -95,15 +95,17 @@ void ShooterShootParams::handle(){
   bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want Robert to shoot no matter what
   // bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
 
-  printf("%d mag: %d\n", millis(), mag_ds.get_value());
+  log("%d mag: %d\n", millis(), mag_ds.get_value());
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want Robert to shoot no matter what
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
-  } else if(pros::competition::is_autonomous()){
-    if(match_load) trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10 && disc_seen_timer.getTime() > 100;
-    else trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
+  } 
+  else if(pros::competition::is_autonomous()){
+    trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
   }
+  
+  if(match_load) trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10 && disc_seen_timer.getTime() > 100;
   
   if(trigger){ // && cycle_check.getTime() >= 30){
     log("%d STARTED SHOOTING\n", millis());
@@ -155,6 +157,7 @@ void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_stat
   FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
 
   disc_seen_timer.reset(false);
+  disc_absence_timer.reset();
 
   // if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;
   // else get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.5;
