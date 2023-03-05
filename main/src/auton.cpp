@@ -731,5 +731,7 @@ void provSkillsLow(){
   moveToTargetSync({22.0, 22.0});
   turnToAngleSync(45.0);
 
+  endgame_s_p.setState(HIGH);
+  endgame_d_p.setState(HIGH);
 
 }

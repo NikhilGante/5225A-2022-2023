@@ -114,7 +114,7 @@ void autonomous() {
 	// intakeOn();
 	// WAIT_UNTIL(false);
 
-	// provSkillsLow();
+	provSkillsLow();
 	// provSkills();
 	// autonAWP();
 
@@ -288,9 +288,9 @@ IMU THINGS:
 // At x:33.471447 y:13.344594, a:97.183773 (fail)
 // Target:102.447318 | At x:33.821090 y:14.427238, a:100.672574
 
-#define PROG_SKILLS
+// #define PROG_SKILLS
 // #define DRIVER_SKILLS
-// #define MATCH
+#define MATCH
 
 void opcontrol() {
 	// while(true){

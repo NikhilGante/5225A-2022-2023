@@ -40,12 +40,10 @@ Rotation flywheel_rot_sensor(7);
 ADIUltrasonic ultra_left({{e_port, 'E', 'F'}});
 ADIUltrasonic ultra_right({{e_port,'G', 'H'}});
 
-ADIUltrasonic match_ultra({'C', 'D'});
-
 Piston angler_p({e_port, 'B'}, "angler_p", true, LOW);
 Piston trans_p({e_port, 'A'}, "trans_p", true, HIGH);
-Piston endgame_s_p('F', "endgame_s_p", false, LOW); // Single acting
-Piston endgame_d_p('B', "endgame_d_p", false, LOW); // Double acting
+Piston endgame_s_p('B', "endgame_s_p", false, LOW); // Single acting
+Piston endgame_d_p('C', "endgame_d_p", false, LOW); // Double acting
 
 Imu gyro(9);
 
