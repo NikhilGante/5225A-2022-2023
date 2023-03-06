@@ -40,7 +40,7 @@ Rotation flywheel_rot_sensor(7);
 ADIUltrasonic ultra_left({{e_port, 'E', 'F'}});
 ADIUltrasonic ultra_right({{e_port,'G', 'H'}});
 
-Piston angler_p({e_port, 'B'}, "angler_p", true, LOW);
+Piston angler_p({e_port, 'B'}, "angler_p", false, LOW);
 Piston trans_p({e_port, 'A'}, "trans_p", true, HIGH);
 Piston endgame_s_p('B', "endgame_s_p", false, LOW); // Single acting
 Piston endgame_d_p('C', "endgame_d_p", false, LOW); // Double acting

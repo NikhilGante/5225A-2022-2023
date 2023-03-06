@@ -71,23 +71,23 @@ void IntakeOnParams::handle(){  // synchronous state
   // If mag is full, don't let any more discs in
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
-  if(g_mag_disc_count >= 3) {
-    log("COUNTED 3\n");
-    master.rumble("-");
-    log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
-    _Task::delay(185);
+  // if(g_mag_disc_count >= 3) {
+  //   log("COUNTED 3\n");
+  //   master.rumble("-");
+  //   log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
+  //   _Task::delay(185);
 
-    if(pros::competition::is_autonomous()){
-      drive.changeState(DriveIdleParams{});
-      drive.waitToReachState(DriveIdleParams{});
-      intake_m.move(-127);
-      moveInches(-2.0);
-      intakeRev();
+  //   if(pros::competition::is_autonomous()){
+  //     drive.changeState(DriveIdleParams{});
+  //     drive.waitToReachState(DriveIdleParams{});
+  //     intake_m.move(-127);
+  //     moveInches(-2.0);
+  //     intakeRev();
 
-    }
-    else intakeOff();
-    if(angleOverride)  angler_p.setState(HIGH);
-  }
+  //   }
+  //   else intakeOff();
+  //   if(angleOverride)  angler_p.setState(HIGH);
+  // }
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }

@@ -111,71 +111,15 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	Auton::runAuton();
 	// intakeOn();
 	// WAIT_UNTIL(false);
 
-	provSkillsLow();
+	// provSkillsLow();
 	// provSkills();
 	// autonAWP();
 
 	// backupSkills();
-
-/*
-	flattenAgainstWallSync();
-	tracking.reset(distanceReset(resetPosition::leftAway, 180));
-	spinRoller(600);
-	intake.waitToReachState(IntakeOffParams{});
-
-	// moveInches(8.0);	// move away from wall
-	moveToTargetSync({tracking.g_pos.x, tracking.g_pos.y - 2});
-
-	turnToAngleSync(-72);
-	moveInches(40, 100);
-	moveDrive(tracking.min_move_power_y, 0);
-	delay(300);	// wait for vel rise up
-		log("r_Vel: %lf\n", tracking.r_vel);
-
-	// while(tracking.r_vel > 3){
-	// 	log("r_Vel: %lf\n", tracking.r_vel);
-	// 	delay(10);
-	// }
-
-	WAIT_UNTIL(tracking.r_vel < 3);
-	driveBrake();
-	moveDriveSide(-40, 0);
-	aimAtBlue();
-	// WAIT_UNTIL(tracking.b_vel < 3);
-	
-	intakeOn();
-	// shooter.waitToReachState(ShooterIdleParams{});
-	WAIT_UNTIL(false);
-
-	moveInches(30);
-	delay(300);	// wait for vel rise up
-	WAIT_UNTIL(tracking.r_vel < 3);
-	driveBrake();
-	tracking.reset();
-	WAIT_UNTIL(false);
-
-	turnToAngleSync(-10);
-	setFlywheelVel(1800);
-
-	shoot(12, true);
-	// Shoots until empty
-	shooter.setTimeout(10000);
-	if(mag_ds.get_value() < 1000){
-		log("DISCS LEFT\n\n");
-		shoot(1);
-		shooter.waitToReachState(ShooterIdleParams{});
-		delay(100);
-	}
-	log("TIMEOUTTT\n\n\n\n\n");
-	WAIT_UNTIL(false);
-	// autonAWP();
-	// autonLine();
-	autonStack();
-
-*/
 
 	// Auton::runAuton();
 	// provSkills();
@@ -289,38 +233,27 @@ IMU THINGS:
 // Target:102.447318 | At x:33.821090 y:14.427238, a:100.672574
 
 // #define PROG_SKILLS
-#define DRIVER_SKILLS
-// #define MATCH
+// #define DRIVER_SKILLS
+#define MATCH
+// #define SELECT
 
 void opcontrol() {
+
 	// while(true){
-	// 	log("ultra: %d\n", match_ultra.get_value());
-	// 	delay(10);
+	// 	Position pos = distanceReset(resetPosition::rightAway, -90);
+
+	// 	printf("X:%lf y:%lf, A:%lf, dist:%d\n", pos.x, pos.y, radToDeg(pos.a), r_reset_dist.get());
 	// }
-
-
-	// flattenAgainstWallSync();
-	// tracking.reset(distanceReset(resetPosition::leftHome));
-
-	// turnToAngleSync(103);
-	// moveInches(30.0, 70, E_Brake_Modes::coast);
-	// moveDrive(30, 0.0);
-	// delay(300);	// wait for speed up
-	// WAIT_UNTIL(fabs(match_ultra.get_value() - 100) < 50);	// Waits to see loader
-	// WAIT_UNTIL(fabs(match_ultra.get_value() - 100) < 50);	// Waits to not see loader
-	// driveBrake();
-	// aimAtRed(3.0);
-	// moveInches(-0.75);
-
-	// driveBrake();
-	// shoot(10, true);
-	// shooter.waitToReachState(ShooterIdleParams{});
-	// WAIT_UNTIL(false);
-
 
 #ifdef PROG_SKILLS
 	WAIT_UNTIL(!gyro.is_calibrating());
+	master.clear();
 	tracking.reset({74.0, 8.0, M_PI_2});
+	while(true){
+		master.print(0, 0, "A: %.2lf", radToDeg(tracking.g_pos.a));
+		delay(100);
+	}
+
 	WAIT_UNTIL(false);
 #endif
 
@@ -336,121 +269,9 @@ void opcontrol() {
 	driverPractice();
 #endif
 
-
-	WAIT_UNTIL(!gyro.is_calibrating());
-	tracking.reset({74.0, 8.0, M_PI_2});
-	
+#ifdef SELECT 
+	Auton::selectAuton();
 	WAIT_UNTIL(false);
-	setFlywheelVel(1750);
-
-	flattenAgainstWallSync();
-	tracking.reset(distanceReset(resetPosition::leftHome));
-	spinRoller();
-	intake.waitToReachState(IntakeOffParams{});
-	// moveInches(1);
-	turnToTargetSync({72.0, 5.5});
-	moveInches(35.0, 70, E_Brake_Modes::coast);
-	moveDrive(30, 0.0);
-	delay(300);	// wait for speed up
-	WAIT_UNTIL(fabs(tracking.r_vel) < 5.0);
-	driveBrake();
-	aimAtRed(2.0);
-	moveInches(-0.75);
-
-	driveBrake();
-	shoot(10, true);	
-	shooter.waitToReachState(ShooterIdleParams{});
-
-	// moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
-	// turnToAngleSync(90);
-	// moveToTargetSync({32, 15});
-
-	// turnToAngleSync(0);
-
-	WAIT_UNTIL(false);
-
-
-	// Saves position to file
-	tracking.reset({74.5, 7.25, degToRad(90)});
-	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-	tracking.savePosToSD();
-
-	WAIT_UNTIL(false);
-	driverPractice();
-
-
-	// Skills setup
-	// master.clear();
-	// WAIT_UNTIL(!gyro.is_calibrating());
-	// tracking.reset({74.0, 9.0, M_PI_2});
-	// master.rumble("-");
-	// master.print(0, 0, "Press A to save");
-	// tracking.reset();
-	// tracking.savePosToSD();
-	// master.print(0, 0, "Saved.         ");
-	// WAIT_UNTIL(false);
-
-
-	// driverPractice();
-
-	// while(true){
-	// 	printf("mag_ds: %d\n", mag_ds.get_value());
-
-	// 	delay(10);
-	// }
-	setFlywheelVel(barrier_rpm);
-
-	shoot(10);
-
-	WAIT_UNTIL(false);
-
-
-	WAIT_UNTIL(!gyro.is_calibrating());
-	delay(200);
-
-	tracking.reset(distanceReset(resetPosition::leftHome, 0));
-
-	while (true){
-		log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
-
-		delay(100);
-	}
-
-	
-	// autonLine();
-	// flattenAgainstWallSync();
-  // tracking.reset({getDistR(), getDistBack(), degToRad(0.0)});
-	// spinRoller();
-	// drive.changeState(DriveIdleParams{});
-  // drive.waitToReachState(DriveIdleParams{});
-
-	WAIT_UNTIL(false);
-	// driverPractice();
-	// trans_p.setState(HIGH);
-
-
-
-
-
-	delay(100);
-	moveDrive(-40, 0);
-	delay(500);
-	moveDrive(-10, 0);
-	WAIT_UNTIL(false);
-	Imu gyro_1(1);
-	Imu gyro_2(2);
-	Imu gyro_3(3);
-
-// */
-	
-	// delay(3000);
-	// while (true){
-
-	// 	lcd::print(0, "Gyro_1: %.3f", gyro_1.get_rotation()*1.0108); // C - *1.0108
-	// 	lcd::print(1, "Gyro_2: %.3f", gyro_2.get_rotation()*1.0027); // B - *1.0027
-	// 	lcd::print(2, "Gyro_3: %.3f", gyro_3.get_rotation()*1.0125); // A - *1.0125
-	// 	delay(50);
-	// }
-
+#endif
 
 }
