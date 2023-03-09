@@ -7,12 +7,48 @@
 #include "Devices/piston.hpp"
 #include "Devices/others.hpp"
 
+#include <fstream>
+
 static Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0}; //Coords of high goal
 Tracking tracking;
 
 double getDistL() {return (l_reset_dist.get()*MM_TO_IN) - LEFT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
 double getDistR() {return (r_reset_dist.get()*MM_TO_IN) - RIGHT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
 double getDistBack() {return (ultra_left.getVal() + ultra_right.getVal()) * MM_TO_IN / 2.0 + BACK_DIST_OFFSET;}
+
+//x:13.711525 y:10.399731 a:50.518857
+Position distanceReset(resetPosition pos, double angleOffset){
+  double angle = std::atan((ultra_left.getVal()-ultra_right.getVal())*MM_TO_IN / 12); //? Why not atan2
+  printf("angle: %f\n", angle);
+  printf("angle: %f\n", degToRad(angle));
+
+  double x, y;
+  double cos = std::cos(degToRad(angle));
+  double sin = std::sin(degToRad(angle))*DISTANCE_DIST_OFFSET;
+
+  switch(pos){
+    case resetPosition::leftHome:
+    printf("cos1: %f, cos2: %f, distBack: %f \n", std::cos(angle), cos, getDistBack());
+
+      x = cos*getDistL() - sin;
+      y = cos*getDistBack();
+      break;
+    case resetPosition::rightAway:
+      x = 141 - cos*getDistBack();
+      y = 141 - cos*getDistR() + sin;
+      break;
+    case resetPosition::leftAway:
+      x = 141 - cos*getDistL() + sin;
+      y = 141 - cos*getDistBack();
+      break;
+    case resetPosition::rightHome:
+      x = cos*getDistBack();
+      y = cos*getDistR() - sin;
+      break;
+  }
+  return {x, y, angle + degToRad(angleOffset)};
+}
+
 
 void trackingUpdate(){
   left_tracker.resetPos(); right_tracker.resetPos(); back_tracker.resetPos();
@@ -133,7 +169,7 @@ void trackingUpdate(){
       // tracking_log("POS | %lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // tracking_log("%lf\n", radToDeg(tracking.g_vel.a));
 
-      tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
+      // tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
       // tracking_log("VEL| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
 
       tracking_timer.reset();
@@ -174,6 +210,9 @@ Position Tracking::getPos(){
 
   return g_pos;
 }
+
+void Tracking::  savePosToSD() {Logging::Interrupter<std::ofstream>("/usd/pos.txt").stream << g_pos.x << " " << g_pos.y  << " " << g_pos.a << std::endl;}
+void Tracking::loadPosFromSD() {Logging::Interrupter<std::ifstream>("/usd/pos.txt").stream >> g_pos.x >> g_pos.y >> g_pos.a;}
 
 void handleBrake(E_Brake_Modes brake_mode){
   switch(brake_mode){
@@ -249,7 +288,7 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(std::abs(power) > max_power) power = sgn(power) * max_power;
-    else if(std::abs(power) < tracking.min_move_power_a && std::abs(radToDeg(tracking.g_vel.a)) < 30) power = sgn(power) * tracking.min_move_power_a;
+    else if(std::abs(power) < tracking.min_move_power_a && std::abs(radToDeg(tracking.g_vel.a)) < 40) power = sgn(power) * tracking.min_move_power_a;
     // tracking_log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     
     // tracking_log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
@@ -301,8 +340,8 @@ void DriveMttParams::handle(){
       if(!power_sgn) power_sgn = 1; // Doesn't let power_sgn be 0
       break;
   }
-  // tracking_log("power_sgn: %d\n", power_sgn);
-  constexpr double kP_a = 2.8;  // proportional multiplier for angular error
+  constexpr double kP_a = 2.5;  // proportional multiplier for angular error
+  tracking_log("MTT MOTION STARTED | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", target.getX(), target.getY(), tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
   do{
     line_error = target - tracking.getPos();
     // How much robot has to turn to face target

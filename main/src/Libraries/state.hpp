@@ -100,11 +100,13 @@ class Machine{
       while(getTargetState().index() != base_state.index() || getState().index() != base_state.index()){
         timer.print("%d", time);
         if(timer.getTime() > time){
+          timer.print("%s state's timeout of %dms reached in %s machine", getStateName(state), time, name);
           timer.print("%s state's timeout of %dms reached in %s machine", getStateName(state), name, time);
           changeState(base_state);
           break;
         }
         _Task::delay(10);
       } 
+      timer.print("%s TIMEOUT REACHED", name);
     }
 };

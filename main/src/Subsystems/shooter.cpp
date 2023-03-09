@@ -1,10 +1,14 @@
 #include "shooter.hpp"
+#include "flywheel.hpp"
 #include "intake.hpp"
 #include "../config.hpp"
 #include "../Devices/controller.hpp"
 #include "../Devices/piston.hpp"
+#include "../Devices/others.hpp"
 
-Timer ShooterShootParams::shoot_timer{"Shoot", shooter.log};
+Timer ShooterShootParams::shoot_timer{"Shot", shooter.log};
+Timer ShooterShootParams::disc_seen_timer{"Disc Seen"};
+Timer ShooterShootParams::disc_absence_timer{"Disc Absent"};
 
 Machine<SHOOTER_STATE_TYPES> shooter("Shooter", ShooterIdleParams{});
 static constexpr int toaster_rpm = 1425;
@@ -12,7 +16,6 @@ bool angleOverride = false;
 bool goal_disturb = false;
 
 void shooterHandleInput(){
-
   shooterVariant cur_state = shooter.getState();
   if(std::get_if<ShooterIdleParams>(&cur_state)){
     if(master.getNewDigital(tripleShotBtn)) shoot(3);
@@ -42,7 +45,7 @@ void ShooterIdleParams::handleStateChange(shooterVariant prev_state){}
 
 // Shooter shoot state
 
-ShooterShootParams::ShooterShootParams(int shots): shots_left(shots){}
+ShooterShootParams::ShooterShootParams(int shots, bool match_load): shots_left(shots), match_load(match_load){}
 
 void ShooterShootParams::handle(){
   // shooter.log("Shoot_time: %lld \n", shoot_timer.getTime());
@@ -62,16 +65,36 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
-  // bool trigger = shoot_timer.getTime() > 350; // && cycle_check.getTime() >= 30;
+  disc_seen = mag_ds.getVal() < 1000;
+  if(disc_seen && !disc_seen_last){ // Just saw disc
+    shooter.log("%d JUST SAW mag: %d", millis(), mag_ds.getVal());
+
+    disc_seen_timer.reset();
+    disc_absence_timer.reset(false);
+  }
+  else if(disc_seen_last && !disc_seen){  // Just saw lack of discs
+    shooter.log("%d JUST LOST DISK mag: %d", millis(), mag_ds.getVal());
+
+    disc_seen_timer.reset(false);
+    disc_absence_timer.reset();
+  }
+  disc_seen_last = disc_seen;
+
+
+  bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want Robert to shoot no matter what
+  // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
+
+  shooter.log("%d mag: %d", millis(), mag_ds.getVal());
 
   if (angler_p.getState() == HIGH){
-    trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 30;
+    trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want Robert to shoot no matter what
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   }
   else if(competition::is_autonomous()){
     trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
   }
+  
+  if(match_load) trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10 && disc_seen_timer.getTime() > 100;
   
   if(trigger){ // && cycle_check.getTime() >= 30){
     shooter.log("%d STARTED SHOOTING\n", millis());
@@ -98,26 +121,45 @@ void ShooterShootParams::handle(){
       intakeOn();
       shooter.changeState(ShooterIdleParams{});
 
-      handleRpm();
-
     }
   }
+  // Ends shooting if disc hasn't been seen for 2 seconds
+  if(match_load && disc_absence_timer.getTime() > 2000){
+    master.rumble("-"); // Lets driver know shooting is done
+    shooter.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+    shooter.log("FINISHED MATCH LOADER, TIMED OUT");
+
+    g_mag_disc_count = 0;
+    _Task::delay(150); // Waits for last disc to shoot
+    // Sets subsystems back to their state before shooting
+    intakeOn();
+    shooter.changeState(ShooterIdleParams{});
+
+    handleRpm();
+  }
+
 }
 
 void ShooterShootParams::handleStateChange(shooterVariant prev_state){
+  // angler_p.setState(LOW);
   shooter.log("INIT shots_left %d", shots_left);
   intakeIndex();  // Sets intake to index state
   flywheelVariant temp_flywheel_state = flywheel.getState();
+
+  disc_seen_timer.reset(false);
+  disc_absence_timer.reset();
+
+  // if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000) get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.7;
+  // else get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->kP = 0.5;
 }
 
-void shoot(int shots){
+void shoot(int shots, bool match_load){
   shooter.log("Shot requested for %d shots at %d", millis(), shots);
-  shooter.changeState(ShooterShootParams{shots});
+  shooter.changeState(ShooterShootParams{shots, match_load});
 }
 
 void handleRpm() {
-  if (angleOverride) setFlywheelVel(toaster_rpm); // Override
-  else if (goal_disturb) setFlywheelVel(3600); // Goal_disturb
+  if (goal_disturb) setFlywheelVel(3600); // Goal_disturb
   else if (!pros::competition::is_autonomous()) { // Automatic
     if (angler_p.getState() == LOW) setFlywheelVel(barrier_rpm);
     else setFlywheelVel(toaster_rpm);

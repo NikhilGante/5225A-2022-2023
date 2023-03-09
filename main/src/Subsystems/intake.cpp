@@ -38,7 +38,8 @@ void IntakeIdleParams::handleStateChange(intakeVariant prev_state){}
 IntakeOnParams::IntakeOnParams(int8_t speed) : speed(speed){}
 
 void IntakeOnParams::handle(){  // synchronous state
-  mag_ds_val = mag_ds.getVal();
+  mag_ds_val = intk_ds.get_value();
+  printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
@@ -49,7 +50,7 @@ void IntakeOnParams::handle(){  // synchronous state
 
   // If mag is full, don't let any more discs in
   // intake.log("%d MAG| %d %d", millis(), mag_ds_val, g_mag_disc_count.load());  
-  
+  /*
   if(g_mag_disc_count >= 3) {
     intake.log("COUNTED 3");
     master.rumble();
@@ -60,10 +61,12 @@ void IntakeOnParams::handle(){  // synchronous state
   }
 
   // intake.log("count:%d", g_mag_disc_count.load());
+  */
 }
 void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);
   intake_m.move(speed);
+  handleRpm();
 }
 
 // Wrapper function to turn intake on

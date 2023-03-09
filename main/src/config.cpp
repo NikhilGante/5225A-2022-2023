@@ -23,16 +23,17 @@ _Motor intake_m{17, "Intake", true, MOTOR_GEARSET_18};
 _Motor flywheel_m{18, "Flywheel"};
 
 Piston trans_p{{expander_port, 'A'}, "Transmission", true, HIGH};
-Piston angler_p{{expander_port, 'B'}, "Angler", true, HIGH};
+Piston angler_p{{expander_port, 'B'}, "Angler"};
 Piston indexer_p{{expander_port, 'C'}, "Indexer", true};
-Piston endgame_s_p{'F', "Endgame Single"}; // Single acting
-Piston endgame_d_p{'G', "Endgame Double"}; // Double acting
+Piston endgame_s_p{'B', "Endgame Single"}; // Single acting
+Piston endgame_d_p{'C', "Endgame Double"}; // Double acting
 
 Ultrasonic ultra_left{{expander_port, 'E', 'F'}, "Left"};
 Ultrasonic ultra_right{{expander_port,'G', 'H'}, "Right"};
 
-Touch mag_ds{'E', "Magazine"};
 Touch shooter_ds{'A', "Shooter"};
+Touch mag_ds{'E', "Magazine"};
+Touch intk_ds{'G', "Intake"};
 
 Encoder left_tracker{3, "Left Track"}, right_tracker{10, "Right Track"}, back_tracker{19, "Back Track"};
 Encoder flywheel_rot_sensor{7, "Flywheel"};

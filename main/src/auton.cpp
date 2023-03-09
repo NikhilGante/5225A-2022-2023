@@ -11,9 +11,7 @@
 #include "tracking.hpp"
 #include "util.hpp"
 
-#include <numbers>
-
-void moveInches(double target, double max_power){
+void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 	Timer move_timer{"Move Inches", auton_log};
 	double start = right_tracker.getPos()*TICKS_TO_INCHES;
 	double error;
@@ -29,7 +27,8 @@ void moveInches(double target, double max_power){
 
 	} while(std::abs(error) > 0.5);
 	master.print(2, "time: %ld", move_timer.getTime());
-	driveBrake();
+	handleBrake(brake_mode);
+
 	master.rumble();
   auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 }
@@ -47,7 +46,6 @@ void fullSkills(){
   // skills2();
   // skills3();
 }
-
 
 // start coord 
 // tracking.getPos() = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
@@ -117,7 +115,6 @@ void skills2(){
   setFlywheelVel(1950);
   intakeOn();
   moveToTargetSync({84.0, 60.0}); // Intake line
-  // turnToTargetSync(r_goal, 12.0, false, E_Brake_Modes::brake, 80);
   aimAtRed(12.0);
 
   driveBrake();
@@ -147,7 +144,7 @@ void skills3(){
 
   endgame_s_p.setState(HIGH);
 
-/*
+  /*
 
   moveToTargetSync({42.0, 30.0}); // Moves in front of stack
   aimAtRed(13);
@@ -173,7 +170,7 @@ void skills3(){
   moveToTargetSync({130,111}, E_Brake_Modes::brake, 127); // Move to corner
 
   turnToAngleSync(-90, E_Brake_Modes::brake, 2.0, 127);
-*/
+  */
   endgame_s_p.setState(HIGH);
 
   auton_log("total: %d", total.getTime());
@@ -181,22 +178,31 @@ void skills3(){
   // expand
 }
 
-void autonStack(){
-  // tracking.reset({30.75, 9.0, degToRad(0.0)});
-  auton_log("STARTED AUTON\n");
 
+/*
+X: 72.3, Y: 49.72, A: -34.99
+  - 1.25 Inches Backwards
+*/
+
+
+void autonStack(){
+  WAIT_UNTIL(!gyro.is_calibrating());
+  tracking.reset({30.75, 9.0, degToRad(0.0)});
   Timer timer1{"timer", auton_log};
-  setFlywheelVel(2440);
+  setFlywheelVel(2350);
 	angler_p.setState(LOW);
+
+  Position pos = distanceReset(resetPosition::leftHome);
+  if(fabs(pos.x - tracking.g_pos.x) < 2 && fabs(pos.y - tracking.g_pos.y) < 2)  tracking.reset(distanceReset(resetPosition::leftHome));
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+
   // tracking.reset({31.0, 7.375, degToRad(0.0)});
 	// moveToTargetSync({37.0, 12.5});  // Move away from wall
   moveInches(5.0);
-	aimAtBlue(10.0);
-  auton_log("DONE AIMING: %lld %d", timer1.getTime(), millis());
+	aimAtBlue(1.5);
+  printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
@@ -205,9 +211,13 @@ void autonStack(){
 	intakeOn();
 	moveToTargetSync({73.0, 50.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
 
-	aimAtBlue(0);
-  moveInches(7.0);
-	aimAtBlue(11.0);
+	aimAtBlue(1.5);
+
+  // shoot(1);
+  // shooter.waitToReachState(ShooterIdleParams{});
+  // intakeOn();
+  // moveInches(7.0);
+	// aimAtBlue(1.5);
 
 
   driveBrake();
@@ -227,14 +237,13 @@ void autonStack(){
 }
 
 void autonAWP(){
+  WAIT_UNTIL(!gyro.is_calibrating());
   Timer timer1{"timer", auton_log};
-  setFlywheelVel(2200);
+  setFlywheelVel(2270);
 
-  double angle = atan((ultra_left.getVal()-ultra_right.getVal())/(12*25.4));
-	tracking.reset({cos(degToRad(angle))*getDistL(), cos(degToRad(angle))*getDistBack(), angle});
+  tracking.reset(distanceReset(resetPosition::leftHome));
 
 
-  // tracking.reset({getDistL(), 9.75, degToRad(0.0)});
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -261,11 +270,12 @@ void autonAWP(){
 
 
   // YOOOO
-  turnToTargetSync({73.0, 48.0}); // Faces stack
+  turnToTargetSync({76.0, 44.0}); // Faces stack
 	intakeOn();
-	moveToTargetSync({73.0, 48.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
+	moveToTargetSync({76.0, 44.0}, E_Brake_Modes::brake, 80); // Pickup stack of discs
+  delay(250);
 
-	aimAtBlue(0);
+	aimAtBlue(1);
 
   driveBrake();
 	shoot(3);
@@ -273,44 +283,48 @@ void autonAWP(){
   // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   shooter.waitToReachState(ShooterIdleParams{});
   intakeOn();
-  setFlywheelVel(2420);
+  setFlywheelVel(2375);
   
-	turnToTargetSync({125.0, 115.0}); // Face corner
+  // YOOOO
+	turnToTargetSync({130.0, 110.0}); // Face corner
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
-	moveToTargetSync({125.0, 115.0}); // Move to corner
+	moveToTargetSync({130.0, 110.0}); // Move to corner
   auton_log("TURNED INTAKE OFF\n");
   intakeOff();
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
+  // flattenAgainstWallSync();
 
+  // tracking.reset(distanceReset(resetPosition::rightAway, -90));
   
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
 
   moveInches(4.0);
 
-  // aimAtBlue(0.0);
+  // aimAtBlue(0.5);
   // shoot(3);
   // WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
-  auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  // auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	auton_log("total:%ld", timer1.getTime());
 }
 
 void autonLine(){ // No moving after start
-
+  WAIT_UNTIL(!gyro.is_calibrating());
   tracking.reset({128.75, 83.25, degToRad(0.0)});
 
   Timer timer1{"timer", auton_log};
   setFlywheelVel(2255);
-  moveToTargetSync({tracking.getPos().x, 108}, E_Brake_Modes::brake, 127); // move in front of roller
+  moveToTargetSync({tracking.getPos().x, 109}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
 
   flattenAgainstWallSync();
-	double angle = atan((ultra_left.getVal()-ultra_right.getVal())/(12*25.4));
-	tracking.reset({141-cos(degToRad(angle))*getDistBack(), 141-cos(degToRad(angle))*getDistR(), angle-degToRad(90)});
+  Position pos = distanceReset(resetPosition::rightAway, -90);
+  if(fabs(pos.x - tracking.g_pos.x) < 3 && fabs(pos.y - tracking.g_pos.y) < 3)  tracking.reset(distanceReset(resetPosition::rightAway, -90));
+
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -319,13 +333,13 @@ void autonLine(){ // No moving after start
   intakeOn();
   turnToTargetSync({103.0, 79.0}); // Drives through line
   moveToTargetSync({105.0, 81.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtBlue(3);
+  aimAtBlue(1);
   driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
 
   turnToTargetSync({83.0, 60.0}); // Drives through line
-  setFlywheelVel(2185);
+  setFlywheelVel(2175);
   moveToTargetSync({83.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
   aimAtBlue(3);
   driveBrake();
@@ -382,100 +396,369 @@ void autonLine(){ // No moving after start
   master.print(2,0, "total:%ld", timer1.getTime());
 	auton_log("total:%ld", timer1.getTime());
  
-*/
+  */
 }
 
-
-
 void provSkills(){
-  Timer timer1{"timer"};
-  WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
-  intakeOn();
-  moveInches(45, 60);
+	WAIT_UNTIL(!gyro.is_calibrating());
+	Timer total_timer{"total_timer"};
+// /*
+	tracking.reset({74.1952, 8.29092, 1.40752});
+
+	setFlywheelVel(barrier_rpm - 50);
+	shoot(9, true);	
+	shooter.waitToReachState(ShooterIdleParams{});
+  shoot(3);	
+	shooter.waitToReachState(ShooterIdleParams{});
+
+
+	// shoot(2);	
+	// shooter.waitToReachState(ShooterIdleParams{});
+
+
+	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	turnToTargetSync({33, 17}, 0.0, true);
+	moveToTargetSync({33, 17});
+
+	turnToAngleSync(0);
+
+
+// SKILLS START (from roller) ---------
+
+
+	setFlywheelVel(2115);
+
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+	turnToTargetSync({35.0, 46.0});
+
+	intakeOn();
+	moveToTargetSync({35.0, 46.0}, E_Brake_Modes::brake, 55);
+  delay(500); // Intakes last disc
+	aimAtBlue(4);
+	driveBrake();
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	setFlywheelVel(1820);
+	moveToTargetSync({68.0, 90.0}, E_Brake_Modes::brake, 100);	// Go to barrier
+	aimAtBlue(3);
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+
+	turnToTargetSync({110, 125});	// Go to corner
+	intakeOn();
+	moveToTargetSync({110, 125}, E_Brake_Modes::brake, 90);
+	turnToAngleSync(180);
+// */..
+  // Match loader routine
+  setFlywheelVel(1750);
+
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+
+
+  // drive.changeState(DriveIdleParams{});
+  // drive.waitToReachState(DriveIdleParams{});
+  // moveDrive(0.0, 0.0);
+  // trans_p.setState(HIGH);
+  // delay(100);
+
+  // spinRoller(600);
+	// intake.waitToReachState(IntakeOffParams{});
+
+	moveDrive(-40, 0);
+	delay(300); // Waits for velocity to rise
+  WAIT_UNTIL(tracking.r_vel > -3);
+
+	turnToAngleSync(103);
+	moveInches(35.0, 70, E_Brake_Modes::coast);
+	moveDrive(30, 0.0);
+	delay(300);	// wait for speed up
+	WAIT_UNTIL(fabs(tracking.r_vel) < 5.0);
+	driveBrake();
+	aimAtRed(3.0);
+	moveInches(-0.75);
+
+	driveBrake();
+	shoot(10, true);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+  // End of match loader routine
+
   WAIT_UNTIL(false);
+  // Returns to roller
+  moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	turnToTargetSync({32, 15}, 0.0, true);
+	moveToTargetSync({32, 15});
 
-  /*
-  spinRoller();
-  setFlywheelVel(2150);
-  intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({getDistL(), 9.75, degToRad(0.0)});
+	turnToAngleSync(0);
 
-  moveToTargetAsync({35, 45}, E_Brake_Modes::brake, 55);
-  tracking.waitForDistance(10);
+
+
+// SECTION 2 -------------------------------------------
+
+
+	setFlywheelVel(2045);
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+  moveDrive(0.0, 0.0);
+  trans_p.setState(HIGH);
+  delay(100); // Waits for transmission to shift
+
   intakeOn();
-  tracking.waitForComplete();
-  aimAtBlue(12);
-  intake.waitToReachState(IntakeOffParams{});
+	turnToTargetSync({35.0, 23.0});
+	moveToTargetSync({35.0, 23.0}, E_Brake_Modes::coast);
+	
+	// Goes to stack
+	turnToTargetSync({35.0, 48.0});
+	moveToTargetSync({35.0, 48.0});
+	aimAtBlue(2);
+	driveBrake();
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	setFlywheelVel(1850);
+	moveToTargetSync({60.0, 82.0}, E_Brake_Modes::brake, 100);	// Go to barrier
+	aimAtBlue(2);
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+  turnToTargetSync({24.0, 24.0}, 0.0, true);  // Face corner
+  moveToTargetSync({24.0, 24.0});  // Face corner
+  turnToAngleSync(45.0);
+  
+  endgame_s_p.setState(HIGH);
+  endgame_d_p.setState(HIGH);
+
+	// moveToTargetSync({tracking.g_pos.x + 10.0, tracking.g_pos.y - 10.0});
+	// turnToTargetSync({125.0, 125.0});
+	// intakeOn();
+	// moveToTargetSync({120.0, 120.0}, E_Brake_Modes::brake, 100);
+	// moveToTargetSync({112.0, 112.0});
+
+	// turnToAngleSync(-90);
+	// flattenAgainstWallSync();
+	// tracking.reset(distanceReset(resetPosition::rightHome, 90));
+	// spinRoller(600);
+  // intake.waitToReachState(IntakeOffParams{});
+
+  // moveInches(1.0);
+  // turnToTargetSync({24.0, 24.0});
+  // moveToTargetSync({24.0, 24.0});
+  // turnToAngleSync(45.0);
+
+	master.print(2, 0, "total: %d", total_timer.getTime());
+
+  WAIT_UNTIL(false);
+}
+
+void backupSkills(){
+	WAIT_UNTIL(!gyro.is_calibrating());
+	Timer total_timer{"total_timer"};
+
+	tracking.reset({74.1952, 8.29092, 1.40752});
+
+	setFlywheelVel(barrier_rpm - 50);
+	shoot(9, true);	
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	turnToAngleSync(90);
+	moveToTargetSync({32, 15});
+
+	turnToAngleSync(0);
+
+
+// SKILLS START ---------
+
+
+	// WAIT_UNTIL(!gyro.is_calibrating());
+	setFlywheelVel(2115);
+
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+	turnToTargetSync({35.0, 205.0});
+
+	// moveToTargetSync({tracking.g_pos.x, 25.0}, E_Brake_Modes::coast);	// HITS STACK
+
+	intakeOn();
+	moveToTargetSync({35.0, 45.0}, E_Brake_Modes::brake, 70);
+	aimAtBlue(4);
+	driveBrake();
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	setFlywheelVel(1820);
+	moveToTargetSync({68.0, 90.0}, E_Brake_Modes::brake, 100);	// Go to barrier
+	aimAtBlue(3);
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+
+	turnToTargetSync({114, 125});	// Go to corner
+	intakeOn();
+	moveToTargetSync({114, 125}, E_Brake_Modes::brake, 90);
+	turnToAngleSync(180);
+
+
+// SECTION 2 -------------------------------------------
+
+
+	setFlywheelVel(2300);
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+	turnToTargetSync({35.0, 23.0});
+	moveToTargetSync({35.0, 23.0}, E_Brake_Modes::coast);
+	aimAtBlue(2);
+	delay(500);	// WAITS FOR LAST DISC TO INTAKE
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+	
+	// Goes to stack
+	setFlywheelVel(2045);
+	turnToTargetSync({35.0, 49.0});
+	moveToTargetSync({35.0, 49.0});
+	aimAtBlue(2);
+	driveBrake();
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	setFlywheelVel(1850);
+	// turnToTargetSync({64.0, 84.0});
+	moveToTargetSync({60.0, 82.0}, E_Brake_Modes::brake, 100);	// Go to barrier
+	aimAtBlue(2);
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	moveToTargetSync({tracking.g_pos.x + 10.0, tracking.g_pos.y - 10.0});
+	turnToTargetSync({125.0, 125.0});
+	intakeOn();
+	moveToTargetSync({120.0, 120.0}, E_Brake_Modes::brake, 100);
+	moveToTargetSync({112.0, 112.0});
+
+	turnToAngleSync(-90);
+	flattenAgainstWallSync();
+
+
+// SECTION 3 -------------------------------------------
+
+	flattenAgainstWallSync();
+	setFlywheelVel(2075);
+	tracking.reset(distanceReset(resetPosition::rightHome, 90));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+
+	// Goes to stack
+	moveToTargetSync({47.0, tracking.g_pos.y});
+
+	aimAtRed(3);
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	// Goes to barrier corner
+	setFlywheelVel(1750);
+	intakeOn();
+
+	turnToTargetSync({72.0, 40.0});
+	moveInches(30.0);
+	aimAtRed(3);
+	shoot(3);
+	shooter.waitToReachState(ShooterIdleParams{});
+
+	// Goes field corner
+
+	turnToTargetSync({24.0, 24.0}, 0.0, true);
+	moveToTargetSync({24.0, 24.0}, E_Brake_Modes::brake, 127, 2.0);
+	turnToAngleSync(45.0);
+
+	master.print(2, 0, "total: %d", total_timer.getTime());
+}
+
+void provSkillsLow(){
+	WAIT_UNTIL(!gyro.is_calibrating());
+	Timer total_timer{"total_timer"};
+// /*
+	tracking.reset({74.1952, 8.29092, 1.40752});
+
+	setFlywheelVel(barrier_rpm - 25);
+  delay(1000);
+	shoot(9, true);	
+	shooter.waitToReachState(ShooterIdleParams{});
+  shoot(3);	
+	shooter.waitToReachState(ShooterIdleParams{});
+
+
+
+	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	turnToTargetSync({33, 17}, 0.0, true);
+	moveToTargetSync({33, 17});
+
+	turnToAngleSync(0);
+
+
+// SKILLS START (from roller) ---------
+
+
+	setFlywheelVel(1825);
+
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+	turnToTargetSync({35.0, 46.0});
+
+	intakeOn();
+	moveToTargetSync({35.0, 46.0}, E_Brake_Modes::brake, 55);
+  delay(500); // Intakes last disc
+	intakeOff();
+
+	// aimAtBlue(4);
+	// driveBrake();
+	// shoot(1);
+	// shooter.waitToReachState(ShooterIdleParams{});
+  // delay(100000);
+
+  // moveToTargetSync({35.0, 72.0}); // pushes disks
+  moveInches(25.0);
+  intakeRev();
+  moveInches(-1);
+	aimAtBlue(2);
+	driveBrake();
   shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});
-  
-  intakeOn();
-  setFlywheelVel(2000);
-  moveInches(8);
-  turnToTargetSync({57, 83});
-  moveToTargetSync({57, 83}, E_Brake_Modes::brake, 85); // picks up line of discs
-  aimAtBlue(10.5);
-  driveBrake();
-  shoot(3); // Shoot shots from barrier corner
-  shooter.waitToReachState(ShooterIdleParams{});
 
-  setFlywheelVel(1900);
-  turnToAngleSync(-12.0);
-  moveInches(45, 50);
-  // moveToTargetSync({51, 141-12});
-
-  aimAtBlue(13.5);
-  driveBrake();
-  shoot(3); // Shoots shots from inside barrier
-  shooter.waitToReachState(ShooterIdleParams{});
-
-  turnToTargetSync({102, 129}, 0.0, true);
-  intakeOff();
-  moveToTargetSync({102, 129});
-  turnToAngleSync(-180);
-  
-  */
-  spinRoller();
-  setFlywheelVel(2150);
-  intake.waitToReachState(IntakeOffParams{});
-  // tracking.reset({getDistL(), 9.75, tracking.g_pos.a+M_PI});
-  tracking.reset({getDistL(), 9.75, tracking.getPos().a});
   // intakeOn();
-  
-  // REPEATED STUFF
+  // moveInches(4.0); // intakes disks
+	// aimAtBlue(2);
+  // shoot(1);
+  // shooter.waitToReachState(ShooterIdleParams{});
+  // delay(100000);
 
-  moveToTargetAsync({35, 45}, E_Brake_Modes::brake, 55);
-  delay(750);
-  intakeOn();
-  tracking.waitForComplete();
 
-  aimAtBlue(11.5);
-  intake.waitToReachState(IntakeOffParams{});
-  shoot(3);
-  shooter.waitToReachState(ShooterIdleParams{});
-  
-  intakeOn();
-  setFlywheelVel(2000);
-  moveInches(8);
-  turnToTargetSync({57, 83});
-  moveToTargetSync({57, 83}, E_Brake_Modes::brake, 85); // picks up line of discs
-  aimAtBlue(10);
-  driveBrake();
-  shoot(3); // Shoot shots from barrier corner
-  shooter.waitToReachState(ShooterIdleParams{});
 
-  moveInches(-15);
-  turnToAngleSync(45);
-  moveToTargetSync({120, 120});
-  turnToAngleSync(-90);
-  moveInches(-10);
-  spinRoller();
-  intake.waitToReachState(IntakeOffParams{});
-  tracking.reset({141-9.75, 141-getDistR(), degToRad(-90)});
-  moveToTargetSync({100, 116});
+  // Goes to Roller
 
-  
+  turnToTargetSync({15.0, 30.0}, 0.0, true);
+  moveToTargetSync({15.0, 30.0});
+  turnToAngleSync(90);
 
-  master.print(2,0, "total:%ld", timer1.getTime());
-	auton_log("total:%ld\n", timer1.getTime());
+	flattenAgainstWallSync();
+  tracking.reset(distanceReset(resetPosition::rightHome, 90));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+
+  turnToTargetSync({22.0, 22.0});
+  moveToTargetSync({22.0, 22.0});
+  turnToAngleSync(45.0);
+
+  endgame_s_p.setState(HIGH);
+  endgame_d_p.setState(HIGH);
 }

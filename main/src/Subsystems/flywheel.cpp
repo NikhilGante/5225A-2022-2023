@@ -66,16 +66,16 @@ void FlywheelMoveVelParams::handle(){
   const double correction = flywheel_error*kP;
   output = kB * target_vel + correction;
   output = std::clamp(output, -5.0, 127.0);
-  
-  if(log_timer.getTime() > 10){
-    //flywheel.log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d", millis(), shooter_ds.getVal(), target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM());
+
+  if(log_timer.getTime() > 10 || shooter_ds.getVal() < 800){
+    if (shooter_ds.getVal() < 800) flywheel.log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
+    // flywheel.log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }
   if (shooter_ds.getVal() < 800){
     flywheel.log("DISC CONTACTED FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM(), angler_p.getState());
     log_timer.reset();
   }
-    
 
   if(!master.connected()){
     WAIT_UNTIL(master.connected());
@@ -88,7 +88,7 @@ void FlywheelMoveVelParams::handle(){
 
   flywheel_m.move(flywheelOn ? output : 0);
   
-  _Task::delay(30);
+  _Task::delay(10);
 }
 
 void FlywheelMoveVelParams::handleStateChange(flywheelVariant prev_state) {log_timer.reset();}

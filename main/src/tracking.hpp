@@ -4,17 +4,17 @@
 #include "Libraries/state.hpp"
 #include "Libraries/task.hpp"
 
-static constexpr double MAX_TURNING_POWER = 127;
-static constexpr double TURNING_END_ERROR = 1.5;
-static constexpr int MAX_DRIVE_POWER = 127;
-static constexpr double TICKS_TO_INCHES = 2.75*std::numbers::pi/36000;
-static constexpr double MM_TO_IN = okapi::mmToInch;
-static constexpr double HALF_DRIVEBASE_WIDTH = 13.5/2;
+constexpr int MAX_DRIVE_POWER = 127;
+constexpr int MAX_TURNING_POWER = MAX_DRIVE_POWER;
+constexpr double TURNING_END_ERROR = 1.5;
+constexpr double TICKS_TO_INCHES = 2.75*std::numbers::pi/36000;
+constexpr double MM_TO_IN = okapi::mmToInch;
+constexpr double HALF_DRIVEBASE_WIDTH = 13.5/2;
 constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
 constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
 constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
 // constexpr double BACK_EDGE_DIST = 9.0;  // How far back edge is from tracking centre
-
+constexpr double DISTANCE_DIST_OFFSET = 6.0;  // How far the distance sensor is from the tracking center on the up to down axis
 
 enum class E_Brake_Modes{
   none, // the robot will keep going at whatever speed it was already going at
@@ -28,10 +28,19 @@ enum class E_Robot_Sides{
   automatic // automatically deduce which side
 };
 
+enum class resetPosition {
+   leftHome = 0,
+   rightAway = 1,
+   leftAway = 2,
+   rightHome = 3
+};
+
+
 
 double getDistL();  // Gets tracking centre's position from wall on left
 double getDistR();  // Gets tracking centre's position from wall on right
 double getDistBack(); // Gets tracking centre's position from back wall
+Position distanceReset(resetPosition pos, double angleOffset = 0);
 
 
 class Tracking{
@@ -54,7 +63,9 @@ class Tracking{
     void init(Position initial_pos = {});
     void waitForComplete(); // Waits until the motion completes
     void waitForDistance(double distance); // Waits until the robot is within a certain distance from it's target
-    void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
+    void reset(Position pos = {}); // Resets the global tracking position to pos
+    void savePosToSD(); // Writes tracking pos to file on SD
+    void loadPosFromSD(); // Loads position from file on SD into tracking pos
     Position getPos(); // Getter for g_pos. Should probably wrap in a mutex
 };
 extern Tracking tracking;

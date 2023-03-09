@@ -24,6 +24,7 @@ extern Piston indexer_p;
 
 extern Touch mag_ds;
 extern Touch shooter_ds;
+extern Touch intk_ds;
 
 extern Ultrasonic ultra_left;
 extern Ultrasonic ultra_right;

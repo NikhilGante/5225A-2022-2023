@@ -97,21 +97,26 @@ void autonomous() {
 void auton2func() {auton_log("whatup");}
 void auton3func() {auton_log("ayyyy");}
 
-Auton auton1("autonStack", autonStack);
-Auton auton2("autonAWP", autonAWP);
-Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
-Auton auton4("Skills", fullSkills);
+Auton auton1("Stack", autonStack);
+Auton auton2("AWP", autonAWP);
+Auton auton3("Line", autonLine, Auton::E_Reset_Types::far);
+Auton auton4("Skills", provSkillsLow);
 
 //!fix logging issue
 //!check that log folders is good
 //add rumble back to alert
-
+//controller queue
 //remove timer from subsystems by making them static, and then initializing in the constructor
 //Add a config page to the gui
 //Logging different sizes
 //Eliminate the idea of multiple guis
 //Make all buttons use a Text
 
+timer.get_time
+pros c u
+fabs
+Touch -> Light
+lcd
 
 //debugging doc
 //change GitHub to conventions and styles doc

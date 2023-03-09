@@ -13,7 +13,6 @@
   // ------------------------------ Letter Buttons ------------------------------
   static constexpr controller_digital_e_t intakeToggleBtn = DIGITAL_A;
   static constexpr controller_digital_e_t intakeRevBtn = DIGITAL_X;
-  static constexpr controller_digital_e_t angleOverrideBtn = DIGITAL_B;
   static constexpr controller_digital_e_t endgameBtnRight = DIGITAL_Y;
 
 

@@ -1,10 +1,14 @@
 #pragma once
 
 
-void moveInches(double target, double max_power = 127);
+void moveInches(double target, double max_power = 127, E_Brake_Modes brake_mode = E_Brake_Modes::brake);
 
 void fullSkills();
 void provSkills();
+void provSkillsLow();
+
+
+void backupSkills();
 
 void skills1();
 void skills2();
