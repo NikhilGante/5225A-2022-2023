@@ -9,8 +9,9 @@
 Timer ShooterShootParams::shoot_timer{"Shot", shooter.log};
 Timer ShooterShootParams::disc_seen_timer{"Disc Seen"};
 Timer ShooterShootParams::disc_absence_timer{"Disc Absent"};
+Timer ShooterShootParams::cycle_check{"Cycle Check", shooter.log};
 
-Machine<SHOOTER_STATE_TYPES> shooter("Shooter", ShooterIdleParams{});
+Machine<SHOOTER_STATE_TYPES> shooter{"Shooter", ShooterIdleParams{}};
 static constexpr int toaster_rpm = 1425;
 bool angleOverride = false;
 bool goal_disturb = false;
@@ -48,7 +49,7 @@ void ShooterIdleParams::handleStateChange(shooterVariant prev_state){}
 ShooterShootParams::ShooterShootParams(int shots, bool match_load): shots_left(shots), match_load(match_load){}
 
 void ShooterShootParams::handle(){
-  // shooter.log("Shoot_time: %lld \n", shoot_timer.getTime());
+  // shoot_timer.print();
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
   if(goal_disturb){
     if(std::abs(flywheel_error) > 1000) cycle_check.reset();
@@ -61,7 +62,7 @@ void ShooterShootParams::handle(){
     else if(std::abs(flywheel_error) > 150)  cycle_check.reset();
   }
 
-  // shooter.log("cycle_check:%lld", cycle_check.getTime());
+  // cycle_check.print();
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 

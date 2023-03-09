@@ -31,9 +31,9 @@ Piston endgame_d_p{'C', "Endgame Double"}; // Double acting
 Ultrasonic ultra_left{{expander_port, 'E', 'F'}, "Left"};
 Ultrasonic ultra_right{{expander_port,'G', 'H'}, "Right"};
 
-Touch shooter_ds{'A', "Shooter"};
-Touch mag_ds{'E', "Magazine"};
-Touch intk_ds{'G', "Intake"};
+Light shooter_ds{'A', "Shooter"};
+Light mag_ds{'E', "Magazine"};
+Light intk_ds{'G', "Intake"};
 
 Encoder left_tracker{3, "Left Track"}, right_tracker{10, "Right Track"}, back_tracker{19, "Back Track"};
 Encoder flywheel_rot_sensor{7, "Flywheel"};

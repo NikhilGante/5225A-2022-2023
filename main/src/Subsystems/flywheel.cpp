@@ -12,6 +12,10 @@ constexpr double MS_TO_MIN = 60000;
 constexpr double SPROCKET_RATIO = 1.0/1;
 constexpr double CARTRIDGE_TO_RAW = 6;
 
+
+Timer FlywheelMoveVelParams::motor_vel_read{"Motor Velocity Read", flywheel.log}; // Ensures motor's velocity is calculated every 40ms
+Timer FlywheelMoveVelParams::log_timer{"Log Timer", flywheel.log};
+
 // 11/27
 // 28/60
 // 43/88
@@ -68,7 +72,7 @@ void FlywheelMoveVelParams::handle(){
   output = std::clamp(output, -5.0, 127.0);
 
   if(log_timer.getTime() > 10 || shooter_ds.getVal() < 800){
-    if (shooter_ds.getVal() < 800) flywheel.log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
+    if (shooter_ds.getVal() < 800) flywheel.log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM(), angler_p.getState());
     // flywheel.log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }

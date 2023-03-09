@@ -166,28 +166,24 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 	while(true){
 
     if(endgame_click_timer_left.getTime() > 300){
-      driver_log("timer reset: %lld", endgame_click_timer_left.getTime());
       endgame_click_timer_left.reset(false);
       endgame_dbl_click_left = false;
       driver_log("SHOULD BE FALSE dbl_click: %d", endgame_dbl_click_left);
     }
     if(master.getNewDigital(endgameBtnLeft)){
-      driver_log("PRESSED | timer reset: %lld", endgame_click_timer_left.getTime());
+      endgame_click_timer_left.print("PRESSED");
       driver_log("dbl_click: %d", endgame_dbl_click_left);
-      if(endgame_dbl_click_left) {
-        endgame_s_p.setState(HIGH);
-      }
+      if(endgame_dbl_click_left) endgame_s_p.setState(HIGH);
       else endgame_dbl_click_left = true;
       endgame_click_timer_left.reset();
     }
     if(endgame_click_timer_right.getTime() > 300){
-      driver_log("timer reset: %lld\n", endgame_click_timer_right.getTime());
       endgame_click_timer_right.reset(false);
       endgame_dbl_click_right = false;
       driver_log("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_right);
     }
     if(master.getNewDigital(endgameBtnRight)){
-      driver_log("PRESSED | timer reset: %lld\n", endgame_click_timer_right.getTime());
+      endgame_click_timer_left.print("PRESSED");
       driver_log("dbl_click: %d\n", endgame_dbl_click_right);
       if(endgame_dbl_click_right) endgame_d_p.setState(HIGH);
       else endgame_dbl_click_right = true;

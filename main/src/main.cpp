@@ -104,6 +104,7 @@ Auton auton4("Skills", provSkillsLow);
 
 //!fix logging issue
 //!check that log folders is good
+//check if timer prints look nice
 //add rumble back to alert
 //controller queue
 //remove timer from subsystems by making them static, and then initializing in the constructor
@@ -111,12 +112,6 @@ Auton auton4("Skills", provSkillsLow);
 //Logging different sizes
 //Eliminate the idea of multiple guis
 //Make all buttons use a Text
-
-timer.get_time
-pros c u
-fabs
-Touch -> Light
-lcd
 
 //debugging doc
 //change GitHub to conventions and styles doc

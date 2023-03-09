@@ -40,10 +40,8 @@ struct ShooterShootParams{
     static Timer shoot_timer;
     static Timer disc_seen_timer;
     static Timer disc_absence_timer; // Ends match loads after not seeing for 2 seconds
-
-    Timer cycle_check{"cycle_check", shooter.log};
+    static Timer cycle_check;
 };
-
 
 
 void shoot(int shots = 3, bool match_load = false);  // Shoots x number of shots

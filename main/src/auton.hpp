@@ -1,4 +1,5 @@
 #pragma once
+#include "tracking.hpp"
 
 
 void moveInches(double target, double max_power = 127, E_Brake_Modes brake_mode = E_Brake_Modes::brake);

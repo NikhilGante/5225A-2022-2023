@@ -22,15 +22,15 @@ class Ultrasonic: private ADIUltrasonic, public ObjectTracker<Ultrasonic>{
     int getVal() const;
 };
 
-class Touch: private ADIAnalogIn, public ObjectTracker<Touch>{
+class Light: private ADIAnalogIn, public ObjectTracker<Light>{
   private:
     std::string name;
     Port port;
 
   public:
-    Touch(Port port, std::string name);
-    Touch(ext_adi_port_pair_t port_pair, std::string name);
-    inline static const std::string class_name = "Touch";
+    Light(Port port, std::string name);
+    Light(ext_adi_port_pair_t port_pair, std::string name);
+    inline static const std::string class_name = "Light";
 
     std::string getName() const;
     Port getPort() const;
@@ -68,7 +68,7 @@ class _Distance: private Distance, public ObjectTracker<_Distance>{
 
     std::string getName() const;
     Port getPort() const;
-    std::int32_t get();
+    int getVal();
 };
 
 class Gyro: private Imu, public ObjectTracker<Gyro>{

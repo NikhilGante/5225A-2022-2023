@@ -12,7 +12,7 @@ class Encoder;
 class Gyro;
 class _Motor;
 class Piston;
-class Touch;
+class Light;
 class Ultrasonic;
 
 extern _Controller master;
@@ -22,9 +22,9 @@ extern Encoder left_tracker, right_tracker, back_tracker;
 
 extern Piston indexer_p;
 
-extern Touch mag_ds;
-extern Touch shooter_ds;
-extern Touch intk_ds;
+extern Light mag_ds;
+extern Light shooter_ds;
+extern Light intk_ds;
 
 extern Ultrasonic ultra_left;
 extern Ultrasonic ultra_right;

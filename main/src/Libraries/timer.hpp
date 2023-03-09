@@ -19,8 +19,8 @@ class Timer{
     Logging* log;
     uint64_t getTimeInTimingUnit() const; // returns time in either millis micros
 
-    // Timer(Timer const &) = delete;
-    // Timer& operator=(Timer const &) = delete;
+    Timer(Timer const &) = delete;
+    Timer& operator=(Timer const &) = delete;
 
   public:
     Timer(std::string name, Logging& log = none_log, bool play = true, timing_units timing_unit = timing_units::millis);
@@ -30,7 +30,7 @@ class Timer{
     void pause();
     bool playing() const;
     std::string get_name() const;
-    void print(std::string str = "", auto... args) const{
-      (*log)("%s Timer's current time is: %lld | %s\n", get_name(), getTime(), sprintf2(str, args...));
+    void print(std::string str = "", auto... args) const {
+      (*log)("%s%s Timer's current time is: %lld | %s\n", str == "" ? "" : sprintf2(str, args...) + " | ", get_name(), getTime());
     }
 };

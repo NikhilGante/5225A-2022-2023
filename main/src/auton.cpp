@@ -79,8 +79,8 @@ void skills1(){
   moveToTargetSync({113, 127.0});  // Drive to corner
   turnToAngleSync(177, E_Brake_Modes::brake, 2.0, 127);
 
-	auton_log("total: %d", total.getTime());
-	// auton_log("total: %d", total.getTime());
+	total.print();
+	// total.print();
 }
 
 // tracking.getPos() = {110.5, 133.75, degToRad(180.0)}
@@ -129,7 +129,7 @@ void skills2(){
   turnToAngleSync(95, E_Brake_Modes::brake, 2.0, 127);
   moveToTargetSync({9.0, 28.0}, E_Brake_Modes::coast, 127); // backup to wall
 
-	auton_log("total: %d", total.getTime());
+	total.print();
 	master.print(0, "total: %d", total.getTime());
   // shoot match loads here
 }
@@ -173,8 +173,7 @@ void skills3(){
   */
   endgame_s_p.setState(HIGH);
 
-  auton_log("total: %d", total.getTime());
-	// auton_log(7, "total: %d", total.getTime());
+  total.print();
   // expand
 }
 
@@ -186,14 +185,14 @@ X: 72.3, Y: 49.72, A: -34.99
 
 
 void autonStack(){
-  WAIT_UNTIL(!gyro.is_calibrating());
+  WAIT_UNTIL(!gyro.isCalibrating());
   tracking.reset({30.75, 9.0, degToRad(0.0)});
   Timer timer1{"timer", auton_log};
   setFlywheelVel(2350);
 	angler_p.setState(LOW);
 
   Position pos = distanceReset(resetPosition::leftHome);
-  if(fabs(pos.x - tracking.g_pos.x) < 2 && fabs(pos.y - tracking.g_pos.y) < 2)  tracking.reset(distanceReset(resetPosition::leftHome));
+  if(std::abs(pos.x - tracking.getPos().x) < 2 && std::abs(pos.y - tracking.getPos().y) < 2)  tracking.reset(distanceReset(resetPosition::leftHome));
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -232,12 +231,12 @@ void autonStack(){
   // shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 
-	auton_log("total:%ld", timer1.getTime());
+	timer1.print();
 
 }
 
 void autonAWP(){
-  WAIT_UNTIL(!gyro.is_calibrating());
+  WAIT_UNTIL(!gyro.isCalibrating());
   Timer timer1{"timer", auton_log};
   setFlywheelVel(2270);
 
@@ -309,11 +308,11 @@ void autonAWP(){
   // auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
-	auton_log("total:%ld", timer1.getTime());
+	timer1.print();
 }
 
 void autonLine(){ // No moving after start
-  WAIT_UNTIL(!gyro.is_calibrating());
+  WAIT_UNTIL(!gyro.isCalibrating());
   tracking.reset({128.75, 83.25, degToRad(0.0)});
 
   Timer timer1{"timer", auton_log};
@@ -323,7 +322,7 @@ void autonLine(){ // No moving after start
 
   flattenAgainstWallSync();
   Position pos = distanceReset(resetPosition::rightAway, -90);
-  if(fabs(pos.x - tracking.g_pos.x) < 3 && fabs(pos.y - tracking.g_pos.y) < 3)  tracking.reset(distanceReset(resetPosition::rightAway, -90));
+  if(std::abs(pos.x - tracking.getPos().x) < 3 && std::abs(pos.y - tracking.getPos().y) < 3)  tracking.reset(distanceReset(resetPosition::rightAway, -90));
 
 
   spinRoller();
@@ -394,13 +393,13 @@ void autonLine(){ // No moving after start
   // intake.waitToReachState(IntakeOffParams{});
   
   master.print(2,0, "total:%ld", timer1.getTime());
-	auton_log("total:%ld", timer1.getTime());
+	timer1.print();
  
   */
 }
 
 void provSkills(){
-	WAIT_UNTIL(!gyro.is_calibrating());
+	WAIT_UNTIL(!gyro.isCalibrating());
 	Timer total_timer{"total_timer"};
 // /*
 	tracking.reset({74.1952, 8.29092, 1.40752});
@@ -416,7 +415,7 @@ void provSkills(){
 	// shooter.waitToReachState(ShooterIdleParams{});
 
 
-	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	moveToTargetSync({tracking.getPos().x + 10, tracking.getPos().y + 3});
 	turnToTargetSync({33, 17}, 0.0, true);
 	moveToTargetSync({33, 17});
 
@@ -478,7 +477,7 @@ void provSkills(){
 	moveInches(35.0, 70, E_Brake_Modes::coast);
 	moveDrive(30, 0.0);
 	delay(300);	// wait for speed up
-	WAIT_UNTIL(fabs(tracking.r_vel) < 5.0);
+	WAIT_UNTIL(std::abs(tracking.r_vel) < 5.0);
 	driveBrake();
 	aimAtRed(3.0);
 	moveInches(-0.75);
@@ -491,7 +490,7 @@ void provSkills(){
 
   WAIT_UNTIL(false);
   // Returns to roller
-  moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+  moveToTargetSync({tracking.getPos().x + 10, tracking.getPos().y + 3});
 	turnToTargetSync({32, 15}, 0.0, true);
 	moveToTargetSync({32, 15});
 
@@ -534,7 +533,7 @@ void provSkills(){
   endgame_s_p.setState(HIGH);
   endgame_d_p.setState(HIGH);
 
-	// moveToTargetSync({tracking.g_pos.x + 10.0, tracking.g_pos.y - 10.0});
+	// moveToTargetSync({tracking.getPos().x + 10.0, tracking.getPos().y - 10.0});
 	// turnToTargetSync({125.0, 125.0});
 	// intakeOn();
 	// moveToTargetSync({120.0, 120.0}, E_Brake_Modes::brake, 100);
@@ -557,7 +556,7 @@ void provSkills(){
 }
 
 void backupSkills(){
-	WAIT_UNTIL(!gyro.is_calibrating());
+	WAIT_UNTIL(!gyro.isCalibrating());
 	Timer total_timer{"total_timer"};
 
 	tracking.reset({74.1952, 8.29092, 1.40752});
@@ -566,7 +565,7 @@ void backupSkills(){
 	shoot(9, true);	
 	shooter.waitToReachState(ShooterIdleParams{});
 
-	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	moveToTargetSync({tracking.getPos().x + 10, tracking.getPos().y + 3});
 	turnToAngleSync(90);
 	moveToTargetSync({32, 15});
 
@@ -576,7 +575,7 @@ void backupSkills(){
 // SKILLS START ---------
 
 
-	// WAIT_UNTIL(!gyro.is_calibrating());
+	// WAIT_UNTIL(!gyro.isCalibrating());
 	setFlywheelVel(2115);
 
 	flattenAgainstWallSync();
@@ -585,7 +584,7 @@ void backupSkills(){
 	intake.waitToReachState(IntakeOffParams{});
 	turnToTargetSync({35.0, 205.0});
 
-	// moveToTargetSync({tracking.g_pos.x, 25.0}, E_Brake_Modes::coast);	// HITS STACK
+	// moveToTargetSync({tracking.getPos().x, 25.0}, E_Brake_Modes::coast);	// HITS STACK
 
 	intakeOn();
 	moveToTargetSync({35.0, 45.0}, E_Brake_Modes::brake, 70);
@@ -638,7 +637,7 @@ void backupSkills(){
 	shoot(3);
 	shooter.waitToReachState(ShooterIdleParams{});
 
-	moveToTargetSync({tracking.g_pos.x + 10.0, tracking.g_pos.y - 10.0});
+	moveToTargetSync({tracking.getPos().x + 10.0, tracking.getPos().y - 10.0});
 	turnToTargetSync({125.0, 125.0});
 	intakeOn();
 	moveToTargetSync({120.0, 120.0}, E_Brake_Modes::brake, 100);
@@ -657,7 +656,7 @@ void backupSkills(){
 	intake.waitToReachState(IntakeOffParams{});
 
 	// Goes to stack
-	moveToTargetSync({47.0, tracking.g_pos.y});
+	moveToTargetSync({47.0, tracking.getPos().y});
 
 	aimAtRed(3);
 	shoot(3);
@@ -683,7 +682,7 @@ void backupSkills(){
 }
 
 void provSkillsLow(){
-	WAIT_UNTIL(!gyro.is_calibrating());
+	WAIT_UNTIL(!gyro.isCalibrating());
 	Timer total_timer{"total_timer"};
 // /*
 	tracking.reset({74.1952, 8.29092, 1.40752});
@@ -697,7 +696,7 @@ void provSkillsLow(){
 
 
 
-	moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
+	moveToTargetSync({tracking.getPos().x + 10, tracking.getPos().y + 3});
 	turnToTargetSync({33, 17}, 0.0, true);
 	moveToTargetSync({33, 17});
 
