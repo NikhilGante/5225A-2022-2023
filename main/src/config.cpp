@@ -52,4 +52,4 @@ Imu gyro(9);
 Distance l_reset_dist(1), r_reset_dist(20);
 // Link radio(4, "Robot1", pros::E_LINK_RECIEVER);
 
-Motor b_lift_m(5);
+// Motor b_lift_m(5);

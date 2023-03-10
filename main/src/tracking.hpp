@@ -8,10 +8,10 @@
 
 
 constexpr double DRIVEBASE_WIDTH = 13.5;
-constexpr double LEFT_DIST_OFFSET = 0.5;  // How far in the left sensor is from left edge
-constexpr double RIGHT_DIST_OFFSET = 0.5;  // How far in the right sensor is from right edge
-constexpr double BACK_DIST_OFFSET = 6.75;  // How far in the ultrasonic is from back edge
-constexpr double DISTANCE_DIST_OFFSET = 6.0;  // How far the distance sensor is from the tracking center on the up to down axis
+constexpr double LEFT_DIST_OFFSET = 0.0;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 0.0;  // How far in the right sensor is from right edge
+constexpr double BACK_DIST_OFFSET = 6.9375;  // How far in the ultrasonics are from tracking centre
+constexpr double DISTANCE_DIST_OFFSET = 2.0;  // How far the distance sensor is from the tracking center on the local x axis
 
 
 #define MAX_TURNING_POWER 127
@@ -44,7 +44,7 @@ enum class resetPosition {
 double getDistL();  // Gets tracking centre's position from wall on left
 double getDistR();  // Gets tracking centre's position from wall on right
 double getDistBack(); // Gets tracking centre's position from back wall
-Position distanceReset(resetPosition pos, double angleOffset = 0);
+Position distanceReset(resetPosition pos);
 
 
 class Tracking{

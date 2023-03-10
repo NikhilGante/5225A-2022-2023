@@ -18,31 +18,39 @@ double getDistBack(){
 }
 
 //x:13.711525 y:10.399731 a:50.518857
-Position distanceReset(resetPosition pos, double angleOffset){
+Position distanceReset(resetPosition pos){
   double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
   printf("angle: %f\n", angle);
   printf("angle: %f\n", degToRad(angle));
   double x, y;
+  double angleOffset = 0;  // In degrees
   switch(pos){
     case resetPosition::leftHome:
     printf("cos1: %f, cos2: %f, distBack: %f \n", cos(angle), cos(degToRad(angle)), getDistBack());
-      x = (cos(degToRad(angle))*getDistL()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET;
-      y = cos(degToRad(angle))*getDistBack();
+      cout << "L " << getDistL() << endl;
+      x = cos(angle)*(getDistL()) + sin(angle)*DISTANCE_DIST_OFFSET;
+      y = cos(angle)*getDistBack();
+      angleOffset = 0;
       break;
     case resetPosition::rightAway:
       x = 141-cos(degToRad(angle))*getDistBack();
-      y = 141-((cos(degToRad(angle))*getDistR()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET);
+      y = 141-(cos(angle)*(getDistR()) - sin(angle)*DISTANCE_DIST_OFFSET);
+      angleOffset = -90;
       break;
     case resetPosition::leftAway:
-      x = 141 - ((cos(degToRad(angle))*getDistL()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET);
+      x = 141 - (cos(angle)*(getDistL()) + sin(angle)*DISTANCE_DIST_OFFSET);
       y = 141-cos(degToRad(angle))*getDistBack();
+      angleOffset = 180;
       break;
     case resetPosition::rightHome:
       x = cos(degToRad(angle))*getDistBack();
-      y = (cos(degToRad(angle))*getDistR()) - sin(degToRad(angle))*DISTANCE_DIST_OFFSET;
+      y = cos(angle)*(getDistR()) - sin(angle)*DISTANCE_DIST_OFFSET;
+      angleOffset = 90;
       break;
   }
-  return Position{x, y, angle+degToRad(angleOffset)};
+  lcd::print(3, "RES| X:%.2lf y:%.2lf, A:%.2lf\n", x, y, radToDeg(angle) + angleOffset); 
+  return {x, y, angle + degToRad(angleOffset)};
+  // cout << x << " " << y << " " << radToDeg(angle)+angleOffset << endl;
 }
 
 

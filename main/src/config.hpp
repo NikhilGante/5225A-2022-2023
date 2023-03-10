@@ -31,4 +31,4 @@ extern Distance r_reset_dist;
 
 // extern Link radio;
 
-extern Motor b_lift_m;
+// extern Motor b_lift_m;

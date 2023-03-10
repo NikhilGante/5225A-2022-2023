@@ -67,7 +67,7 @@ void ShooterShootParams::handle(){
   }
   else{
     FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
-    if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
+    if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state) && get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
       if(fabs(flywheel_error) > 30) cycle_check.reset();
     }
     else if(fabs(flywheel_error) > 150)  cycle_check.reset();

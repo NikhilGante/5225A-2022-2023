@@ -11,7 +11,6 @@
 #include "auton.hpp"
 #include "menu.hpp"
 
-#include "lift.hpp"
 #include "pros/misc.h"
 #include "tracking.hpp"
 #include "drive.hpp"
@@ -39,36 +38,11 @@ void initialize() {
 	lcd::initialize();
 
 	tracking.g_pos = {0.0, 0.0, 0.0};
-	// tracking.g_pos = {30.75, 9.0, degToRad(0.0)};	// ACTUAL SKILLS
-	// tracking.g_pos = {128.5, 83.5, degToRad(0.0)};	// Line auton
 
 	log_init();
 	// gyro.reset(true);
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
-
-	/*
-	_Task battery_check("Battery_Checker");
-	battery_check.start([](){
-		while(true){
-			// if(pros::battery::get_voltage()){master.}
-			// printf("%d\n\n\n", pros::c::battery_get_voltage());
-			if(pros::c::battery_get_voltage() < 12200){
-				master.rumble("-");
-			}
-			delay(2000);
-
-		}
-	});
-	*/
-	
-	// _Task led_task("led_task");
-	// led_task.start([](){
-	// 	while(true){
-	// 		roller_sensor.set_led_pwm(100);
-	// 		_Task::delay(100);
-	// 	}
-	// });
 
 	// Data::init();
 	_Controller::init();
@@ -111,6 +85,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	// provSkills();
 	Auton::runAuton();
 	// intakeOn();
 	// WAIT_UNTIL(false);
@@ -165,18 +140,6 @@ void autonomous() {
 // red: 4100-5600
 // blue: 1170
 // thresh 3000
-
-void auton1func(){
-	printf("yooo\n");
-}
-
-void auton2func(){
-	printf("whatup\n");
-}
-
-void auton3func(){
-	printf("ayyyy\n");
-}
 
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
@@ -240,9 +203,12 @@ IMU THINGS:
 void opcontrol() {
 
 	// while(true){
-	// 	Position pos = distanceReset(resetPosition::rightAway, -90);
+	// 	Position pos = distanceReset(resetPosition::rightAway);
 
-	// 	printf("X:%lf y:%lf, A:%lf, dist:%d\n", pos.x, pos.y, radToDeg(pos.a), r_reset_dist.get());
+	// 	lcd::print(3, "RES| X:%.2lf y:%.2lf, A:%.2lf\n", pos.x, pos.y, radToDeg(pos.a), r_reset_dist.get());
+	// 	lcd::print(5, "dist_l: %d dist_r:%d\n", l_reset_dist.get(), r_reset_dist.get());
+		
+	// 	delay(10);
 	// }
 
 #ifdef PROG_SKILLS
