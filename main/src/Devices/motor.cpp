@@ -11,7 +11,7 @@ extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
 ObjectTracker{class_name, name}, Motor{port, gearset, reversed, encoder_units}, name{name}{
-  valid_smart_port(class_name, name, port);
+  valid_smart_port(class_name + ": " + name, port);
 
   {
     std::stringstream ss{getName()};

@@ -6,10 +6,8 @@
 extern Page pneumatics;
 
 Piston::Piston(Port port, std::string name, bool reversed, bool init_state):
-ObjectTracker{"Piston", name}, ADIDigitalOut{port, init_state}, name{name}, reversed{reversed}  {
-  valid_adi_port("Piston", name, port);
-
-  char port_char = okapi::transformADIPort(port) + 'A' - 1;
+ObjectTracker{class_name, name}, ADIDigitalOut{port, init_state}, name{name}, reversed{reversed} {
+  char port_char = valid_adi_port(class_name + ": " + name, port) + 'A' - 1;
   toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": " + port_char, Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){
@@ -25,10 +23,8 @@ ObjectTracker{"Piston", name}, ADIDigitalOut{port, init_state}, name{name}, reve
 }
 
 Piston::Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed, bool init_state):
-ObjectTracker{"Piston", name}, ADIDigitalOut{port_pair, init_state}, name{name}, reversed{reversed} {
-  valid_ext_adi_port("Piston", name, port_pair);
-
-  char port_char = okapi::transformADIPort(port_pair.second) + 'A' - 1;
+ObjectTracker{class_name, name}, ADIDigitalOut{port_pair, init_state}, name{name}, reversed{reversed} {
+  char port_char = valid_ext_adi_port(class_name + ": " + name, port_pair) + 'A' - 1;
   toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port_pair.first) + ", " + port_char + '}', Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){

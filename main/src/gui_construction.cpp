@@ -201,13 +201,13 @@ void mainSetup(){
       for ( Gyro*     gyro:      Gyro    ::getList()) if (!correctDevice(gyro)) alert::start("Gyro %s not plugged in port %d", gyro->getName(), gyro->getPort());
       for (_Motor*    motor:    _Motor   ::getList()) if (!correctDevice(motor) || !motor->plugged()) alert::start("Motor %s not plugged in port %d", motor->getName(), motor->getPort());
       
-      for (_Distance* distance: _Distance::getList()) {if(!inRangeIncl(distance->getVal(), 20, 2000)) alert::start("Right Distance Sensor Out of Range");}
+      for (_Distance* distance: _Distance::getList()) {if(!inRangeIncl(distance->getVal(), 20, 2000)) alert::start("%s Distance Sensor Out of Range", distance->getName());}
     });
 
     misc_checks.setFunc([](){
       if (!usd::is_installed()) alert::start("No SD Card!");
       else if(battery::get_capacity() && battery::get_capacity() <= 60) alert::start("Battery is at %d%%", battery::get_capacity());
-      else if(battery::get_voltage() < 12200) alert::start("Battery is at %dV", battery::get_voltage());
+      else if(battery::get_voltage() && battery::get_voltage() < 12200) alert::start("Battery is at %dV",  battery::get_voltage());
     });
 
     auton_selector.setFunc(Auton::select);

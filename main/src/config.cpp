@@ -5,8 +5,6 @@
 #include "Devices/piston.hpp"
 #include "Devices/others.hpp"
 
-#include <map>
-
 _Controller master {CONTROLLER_MASTER};
 _Controller partner{CONTROLLER_PARTNER};
 
@@ -41,8 +39,8 @@ _Distance l_reset_dist{1, "Left Reset"}, r_reset_dist{20, "Right Reset"};
 Gyro gyro{9, "Gyro"};
 
 
-// std::map<port, std::pair<class_name, name>>
-std::map<Port, std::pair<std::string, std::string>> port_list;
+
+std::array<std::string, 38> port_list;
 /*
  0   : Invalid Port
  1-21: Smart Ports
@@ -50,73 +48,99 @@ std::map<Port, std::pair<std::string, std::string>> port_list;
 30-37: Expander ADI Ports
 */
 
-Port valid_smart_port(std::string class_name, std::string name, Port port){
-  if(!inRangeIncl(port, 1, 21)) throw std::domain_error(sprintf2("Cannot initialize %s %s in port %c. Invalid port number", class_name, name, port + 'A' - 1));
-  if(port_list.contains(port)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in port %c. %s %s already exists there", class_name, name, port + 'A' - 1, port_list[port].first, port_list[port].second));
-  port_list[port] = {class_name, name};
+std::string port_to_string(Port port){
+  if(inRangeIncl(port, 1, 21))  return sprintf2("Brain: %d", std::to_string(port));
+  if(inRangeIncl(port, 22, 29)) return sprintf2("ADI: %c", port + 'A' - 22);
+  if(inRangeIncl(port, 30, 37)) return sprintf2("Expander: %c", port + 'A' - 30);
+  return "Invalid Port";
+}
+
+Port valid_smart_port(std::string device_label, Port port){
+  std::string port_label = port_to_string(port);
+  std::string& saved_device = port_list[port];
+
+  if(!inRangeIncl(port, 1, 21)) alert::start("Cannot initialize %s in port \"%s\". Invalid port number",     device_label, port_label              );
+  if(saved_device != "")        alert::start("Cannot initialize %s in port \"%s\". %s already exists there", device_label, port_label, saved_device);
+  saved_device = device_label;
   return port;
 }
 
-Port valid_adi_port(std::string class_name, std::string name, Port port){
-  Port numerical_port = okapi::transformADIPort(port);
-  Port port_index = numerical_port + 21;
-  char char_port = numerical_port + 'A' - 1;
+Port valid_adi_port(std::string device_label, Port port){
+  port = okapi::transformADIPort(port);
+  std::string port_label = port_to_string(port+21);
+  std::string& saved_device = port_list[port+21];
 
-  if(!inRangeIncl(numerical_port, 1, 8)) throw std::domain_error(sprintf2("Cannot initialize %s %s in ADI port %c. Invalid port number", class_name, name, char_port));
-  if(!port_list.contains(port_index)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in ADI port %c. %s %s already exists there", class_name, name, char_port, port_list[port_index].first, port_list[port_index].second));
-  port_list[port_index] = {class_name, name};
-  return port_index;
+  if(!inRangeIncl(port, 1, 8)) alert::start("Cannot initialize %s in port \"%s\". Invalid port number",     device_label, port_label              );
+  if(saved_device != "")       alert::start("Cannot initialize %s in port \"%s\". %s already exists there", device_label, port_label, saved_device);
+
+  saved_device = device_label;
+  return port;
 }
 
-std::pair<Port, Port> valid_adi_ports(std::string class_name, std::string name, Port port1, Port port2){
-  Port numerical_port_1 = okapi::transformADIPort(port1);
-  Port port_index_1 = numerical_port_1 + 29;
-  char char_port_1 = numerical_port_1 + 'A' - 1;
+std::pair<Port, Port> valid_adi_ports(std::string device_label, Port port1, Port port2){
+  port1 = okapi::transformADIPort(port1);
+  std::string port_label1 = port_to_string(port1+21);
+  std::string& saved_device1 = port_list[port1+21];
 
-  Port numerical_port_2 = okapi::transformADIPort(port2);
-  Port port_index_2 = numerical_port_2 + 29;
-  char char_port_2 = numerical_port_2 + 'A' - 1;
+  port2 = okapi::transformADIPort(port2);
+  std::string port_label2 = port_to_string(port2+21);
+  std::string& saved_device2 = port_list[port2+21];
 
-  if(!inRangeIncl(numerical_port_1, 1, 8)) throw std::domain_error(sprintf2("Cannot initialize %s %s in ADI port %c. Invalid port number", class_name, name, char_port_1));
-  if(!inRangeIncl(numerical_port_2, 1, 8)) throw std::domain_error(sprintf2("Cannot initialize %s %s in ADI port %c. Invalid port number", class_name, name, char_port_2));
-  if(numerical_port_1 % 2 == 0) throw std::domain_error(sprintf2("Cannot initialize %s %s in ADI port %c. Must be in ports 'A', 'C', 'E', or 'G'", class_name, name, char_port_1));
-  if(numerical_port_2 - numerical_port_1 != 1) throw std::domain_error(sprintf2("Cannot initialize %s %s in ADI ports %c and %c. The second plug must come after the first", class_name, name, char_port_1, char_port_2));
-  if(port_list.contains(port_index_1)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in ADI port %c. %s %s already exists there", class_name, name, char_port_1, port_list[port_index_1].first, port_list[port_index_1].second));
-  if(port_list.contains(port_index_2)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in ADI port %c. %s %s already exists there", class_name, name, char_port_2, port_list[port_index_2].first, port_list[port_index_2].second));
-  port_list[port_index_1] = {class_name, name};
-  port_list[port_index_2] = {class_name, name};
-  return {port_index_1, port_index_2};
+  if(!inRangeIncl(port1, 1, 8)) alert::start("Cannot initialize %s in port \"%s\". Invalid port number",     device_label, port_label1               );
+  if(!inRangeIncl(port2, 1, 8)) alert::start("Cannot initialize %s in port \"%s\". Invalid port number",     device_label, port_label2               );
+  if(saved_device1 != "")       alert::start("Cannot initialize %s in port \"%s\". %s already exists there", device_label, port_label1, saved_device1);
+  if(saved_device2 != "")       alert::start("Cannot initialize %s in port \"%s\". %s already exists there", device_label, port_label2, saved_device2);
+  if(port1 % 2 == 0)            alert::start("Cannot initialize %s in port \"%s\". Must be in ports 'A', 'C', 'E', or 'G'", device_label, port_label1);
+  if(port1 + 1 != port2)        alert::start("Cannot initialize %s in ports \"%s\" and \"%s\". The second plug must come immediately after the first", device_label, port_label1, port_label2);
+
+  saved_device1 = device_label;
+  saved_device2 = device_label;
+  return {port1, port2};
 }
 
-Port valid_ext_adi_port(std::string class_name, std::string name, ext_adi_port_pair_t port_pair){
-  Port numerical_port = okapi::transformADIPort(port_pair.second);
-  Port port_index = numerical_port + 29;
-  char char_port = numerical_port + 'A' - 1;
+Port valid_ext_adi_port(std::string device_label, ext_adi_port_pair_t port_pair){
+  Port port = okapi::transformADIPort(port_pair.second);
+  std::string port_label = port_to_string(port+29);
+  std::string& saved_device = port_list[port+29];
+  
+  Port expander = port_pair.first;
+  std::string expander_port_label = port_to_string(expander);
+  std::string& saved_smart_device = port_list[expander];
 
-  if(!inRangeIncl(port_pair.first, 1, 21)) throw std::domain_error(sprintf2("Cannot initialize %s %s expander in port %c. Invalid smart port number", class_name, name, port_pair.first));
-  if(!inRangeIncl(numerical_port, 1, 8)) throw std::domain_error(sprintf2("Cannot initialize %s %s in expander port %c. Invalid port number", class_name, name, char_port));
-  if(port_list.contains(port_index)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in expander port %c. %s %s already exists there", class_name, name, char_port, port_list[port_index].first, port_list[port_index].second));
-  port_list[port_index] = {class_name, name};
-  return port_index;
+  if(!inRangeIncl(expander, 1, 21)) alert::start("Cannot initialize %s expander in port \"%s\". Invalid smart port number", device_label, expander_port_label);
+  if(!inRangeIncl(port, 1, 8))      alert::start("Cannot initialize %s in port \"%s\". Invalid port number",                device_label, port_label              );
+  if(saved_device != "")            alert::start("Cannot initialize %s in port \"%s\". %s already exists there",            device_label, port_label, saved_device);
+  if(saved_smart_device != "" && saved_smart_device != "Expander") alert::start("Cannot initialize %s expander in port \"%s\". %s already exists there", device_label, expander_port_label, saved_smart_device);
+
+  saved_device = device_label;
+  saved_smart_device = "Expander";
+  return port;
 }
 
-std::pair<Port, Port> valid_ext_adi_ports(std::string class_name, std::string name, ext_adi_port_tuple_t port_tuple){
-  Port numerical_port_1 = okapi::transformADIPort(std::get<1>(port_tuple));
-  Port port_index_1 = numerical_port_1 + 29;
-  char char_port_1 = numerical_port_1 + 'A' - 1;
+std::pair<Port, Port> valid_ext_adi_ports(std::string device_label, ext_adi_port_tuple_t port_tuple){
+  Port port1 = okapi::transformADIPort(std::get<1>(port_tuple));
+  std::string port_label1 = port_to_string(port1+29);
+  std::string& saved_device1 = port_list[port1+29];
 
-  Port numerical_port_2 = okapi::transformADIPort(std::get<2>(port_tuple));
-  Port port_index_2 = numerical_port_2 + 29;
-  char char_port_2 = numerical_port_2 + 'A' - 1;
+  Port port2 = okapi::transformADIPort(std::get<2>(port_tuple));
+  std::string port_label2 = port_to_string(port2+29);
+  std::string& saved_device2 = port_list[port2+29];
 
-  if(!inRangeIncl(std::get<0>(port_tuple), 1, 21)) throw std::domain_error(sprintf2("Cannot initialize %s %s expander in port %c. Invalid smart port number", class_name, name, std::get<0>(port_tuple)));
-  if(!inRangeIncl(numerical_port_1, 1, 8)) throw std::domain_error(sprintf2("Cannot initialize %s %s in expander port %c. Invalid port number", class_name, name, char_port_1));
-  if(!inRangeIncl(numerical_port_2, 1, 8)) throw std::domain_error(sprintf2("Cannot initialize %s %s in expander port %c. Invalid port number", class_name, name, char_port_2));
-  if(numerical_port_1 % 2 == 0) throw std::domain_error(sprintf2("Cannot initialize %s %s in expander port %c. Must be in ports 'A', 'C', 'E', or 'G'", class_name, name, char_port_1));
-  if(numerical_port_2 - numerical_port_1 != 1) throw std::domain_error(sprintf2("Cannot initialize %s %s in expander ports %c and %c. The second plug must come after the first", class_name, name, char_port_1, char_port_2));
-  if(port_list.contains(port_index_1)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in expander port %c. %s %s already exists there", class_name, name, char_port_1, port_list[port_index_1].first, port_list[port_index_1].second));
-  if(port_list.contains(port_index_2)) throw std::invalid_argument(sprintf2("Cannot initialize %s %s in expander port %c. %s %s already exists there", class_name, name, char_port_2, port_list[port_index_2].first, port_list[port_index_2].second));
-  port_list[port_index_1] = {class_name, name};
-  port_list[port_index_2] = {class_name, name};
-  return {port_index_1, port_index_2};
+  Port expander = std::get<0>(port_tuple);
+  std::string expander_port_label = port_to_string(expander);
+  std::string& saved_smart_device = port_list[expander];
+
+  if(!inRangeIncl(expander, 1, 21)) alert::start("Cannot initialize %s expander in port \"%s\". Invalid smart port number", device_label, expander_port_label       );
+  if(!inRangeIncl(port1, 1, 8))     alert::start("Cannot initialize %s in port \"%s\". Invalid port number",                device_label, port_label1               );
+  if(!inRangeIncl(port2, 1, 8))     alert::start("Cannot initialize %s in port \"%s\". Invalid port number",                device_label, port_label2               );
+  if(saved_device1 != "")           alert::start("Cannot initialize %s in port \"%s\". %s already exists there",            device_label, port_label1, saved_device1);
+  if(saved_device2 != "")           alert::start("Cannot initialize %s in port \"%s\". %s already exists there",            device_label, port_label2, saved_device2);
+  if(port1 % 2 == 0)                alert::start("Cannot initialize %s in port \"%s\". Must be in ports 'A', 'C', 'E', or 'G'", device_label, port_label1);
+  if(port1 + 1 != port2)            alert::start("Cannot initialize %s in ports \"%s\" and \"%s\". The second plug must come immediately after the first", device_label, port_label1, port_label2);
+  if(saved_smart_device != "" && saved_smart_device != "Expander") alert::start("Cannot initialize %s expander in port \"%s\". %s already exists there", device_label, expander_port_label, saved_smart_device);
+
+  saved_device1 = device_label;
+  saved_device2 = device_label;
+  saved_smart_device = "Expander";
+  return {port1, port2};
 }

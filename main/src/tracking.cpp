@@ -9,7 +9,7 @@
 
 #include <fstream>
 
-static Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0}; //Coords of high goal
+static const Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0}; //Coords of high goal
 Tracking tracking;
 
 double getDistL() {return (l_reset_dist.getVal()*MM_TO_IN) - LEFT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
