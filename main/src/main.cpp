@@ -85,8 +85,8 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	// provSkills();
-	Auton::runAuton();
+	provSkills();
+	// Auton::runAuton();
 	// intakeOn();
 	// WAIT_UNTIL(false);
 
@@ -201,6 +201,19 @@ IMU THINGS:
 // #define SELECT
 
 void opcontrol() {
+	flattenAgainstWallSync();
+	tracking.reset(distanceReset(resetPosition::leftHome));
+	spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
+	moveInches(1);
+	WAIT_UNTIL(false);
+	// WAIT_UNTIL(!gyro.is_calibrating());
+
+
+	// while(true){
+	// 	lcd::print(3, "ultra: %lf %lf", ultra_left.get_value()/25.4, ultra_right.get_value()/25.4);
+	// 	delay(10);
+	// }
 
 	// while(true){
 	// 	Position pos = distanceReset(resetPosition::rightAway);

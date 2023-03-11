@@ -477,10 +477,9 @@ const char* DriveFlattenParams::getName(){
   return "DriveFlatten";
 }
 void DriveFlattenParams::handle(){  // Flattens against wall
-  Timer motion_timer{"motion_timer"};
   double error;
-	trans_p.setState(LOW);
-	delay(100); // wait for tranmission to shift
+	// trans_p.setState(LOW);
+	// delay(100); // wait for tranmission to shift
 	Timer flatten_timeout{"flatten_timeout"};
 	double power;
 	double error_rate, last_error;
@@ -495,7 +494,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 
 		power = error*0.8;
 		if(fabs(error) <= 2) power = 0;
-		else if(fabs(power) < 20 && error_rate < 5) power = sgn(error) * 20;
+		else if(fabs(power) < 30 && error_rate < 5) power = sgn(error) * tracking.min_move_power_a;
 		printf("Err: %lf pow: %lf\n", error, power);
 
 		moveDrive(0, power);
@@ -503,14 +502,11 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 
 	}
 	while (fabs(error) > 15 && flatten_timeout.getTime() < 1000);
-  moveDrive(0, 0); // Applies holding power
+  moveDrive(0, 0); // frees drive
 	master.rumble("-");
   log("CONTROLLER RUMBLING FROM LINE 458 in file tracking.cpp");
-  log("\n\n%d DONE ALIGN\n", millis());
 
-
-  moveDrive(0, 0); // frees drive
-  log("DRIVE ALIGN DONE, took %lld ms\n", motion_timer.getTime());
+  log("DRIVE ALIGN DONE, took %lld ms\n", flatten_timeout.getTime());
   drive.changeState(DriveIdleParams{});
 }
 void DriveFlattenParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}

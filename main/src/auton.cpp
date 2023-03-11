@@ -453,7 +453,6 @@ void provSkills(){
 	moveToTargetSync({111, 127}, E_Brake_Modes::brake, 90);
 	turnToAngleSync(180);
 
-  WAIT_UNTIL(false);
 
 // */..
   // Match loader routine
@@ -462,28 +461,21 @@ void provSkills(){
 	flattenAgainstWallSync();
 	tracking.reset(distanceReset(resetPosition::leftHome));
 
+  spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
 
-  // drive.changeState(DriveIdleParams{});
-  // drive.waitToReachState(DriveIdleParams{});
-  // moveDrive(0.0, 0.0);
-  // trans_p.setState(HIGH);
-  // delay(100);
-
-  // spinRoller(600);
-	// intake.waitToReachState(IntakeOffParams{});
-
-	moveDrive(-40, 0);
-	delay(300); // Waits for velocity to rise
-  WAIT_UNTIL(tracking.r_vel > -3);
-
-	turnToAngleSync(103);
+	turnToAngleSync(101);	// Face wall
 	moveInches(35.0, 70, E_Brake_Modes::coast);
-	moveDrive(30, 0.0);
+	// driveBrake();
+	master.rumble("-");
+	moveDrive(25, 0.0);
 	delay(300);	// wait for speed up
-	WAIT_UNTIL(fabs(tracking.r_vel) < 5.0);
+	while(ultra_left.get_value()/25.4 < 67){
+		log("***Ultra: %lf\n", ultra_left.get_value()/25.4);
+		delay(10);
+	}
 	driveBrake();
-	aimAtRed(3.0);
-	moveInches(-0.75);
+	aimAtRed(2.0);
 
 	driveBrake();
 	shoot(10, true);
@@ -491,7 +483,6 @@ void provSkills(){
 
   // End of match loader routine
 
-  WAIT_UNTIL(false);
   // Returns to roller
   moveToTargetSync({tracking.g_pos.x + 10, tracking.g_pos.y + 3});
 	turnToTargetSync({32, 15}, 0.0, true);

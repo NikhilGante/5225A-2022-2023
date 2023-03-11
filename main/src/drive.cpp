@@ -104,12 +104,22 @@ void driveHandleInput(){
     power_a = tracking.min_move_power_a * sgn(power_a);
   }
 
+  // Anti-tipping code
+  // log("VEL %lf %lf\n", tracking.r_vel, power_y);
+  // if(fabs(tracking.r_vel) > 10 && sgn(tracking.r_vel) != sgn(power_y) && !power_a){
+  //   power_y = sgn(power_y) * 1;
+
+  // }
+
+
   lcd::print(3, "intk:%lf", intake_m.get_temperature());
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
   lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
   lcd::print(7, "flywheel:%.lf", flywheel_m.get_temperature());
 
-  if(master.get_digital_new_press(transToggleBtn)) trans_p.toggleState();
+  if(master.get_digital_new_press(transToggleBtn)){
+    shiftTrans(!trans_p.getState());
+  }
   moveDrive(power_y, power_a);
 }
 
@@ -291,4 +301,18 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     } 
 		delay(10);
 	}
+}
+
+void shiftTrans(bool state){
+  _Task trans_task;
+  trans_task.start([=](){
+    log("%d Transmission started shifting into %s gear\n", millis(), state? "HIGH" : "LOW");
+    trans_p.setState(state);
+    drive.changeState(DriveIdleParams{});
+    drive.waitToReachState(DriveIdleParams{});
+    moveDrive(0, 0);
+    delay(100);
+    drive.changeState(DriveOpControlParams{});
+    log("%d Transmission finished shifting into %s gear\n", millis(), state? "HIGH" : "LOW");
+  });
 }
