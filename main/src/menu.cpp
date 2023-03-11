@@ -5,7 +5,7 @@
 #include <fstream>
 
 Auton::Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type):
-ObjectTracker{"Auton", name}, name{name}, program{program}, reset_type{reset_type} {}
+ObjectTracker{name + " Auton"}, name{name}, program{program}, reset_type{reset_type} {}
 
 // Runs selected auton
 void Auton::run() {getNth(get())->runFunction();}

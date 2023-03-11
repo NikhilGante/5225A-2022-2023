@@ -45,9 +45,9 @@
       Text track_x{{50, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "X:%.1f", [](){return tracking.getPos().x;}};
       Text track_y{{135, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "Y:%.1f", [](){return tracking.getPos().y;}};
       Text track_a{{220, 45}, GUI::Style::CENTRE, TEXT_SMALL, track, "A:%.1f", [](){return std::fmod(tracking.getPos().a, 360);}};
-      Text enc_l{{50, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "L:%d", [](){return left_tracker.getPos() != std::numeric_limits<int32_t>::max() ? left_tracker.getPos() : 0;}};
-      Text enc_r{{135, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "R:%d", [](){return right_tracker.getPos() != std::numeric_limits<int32_t>::max() ? right_tracker.getPos() : 0;}};
-      Text enc_b{{220, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "B:%d", [](){return back_tracker.getPos() != std::numeric_limits<int32_t>::max() ? back_tracker.getPos() : 0;}};
+      Text enc_l{{50, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "L:%d", [](){return left_tracker.getVal() != std::numeric_limits<int32_t>::max() ? left_tracker.getVal() : 0;}};
+      Text enc_r{{135, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "R:%d", [](){return right_tracker.getVal() != std::numeric_limits<int32_t>::max() ? right_tracker.getVal() : 0;}};
+      Text enc_b{{220, 130}, GUI::Style::CENTRE, TEXT_SMALL, track, "B:%d", [](){return back_tracker.getVal() != std::numeric_limits<int32_t>::max() ? back_tracker.getVal() : 0;}};
       Button res_x{{15, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset X"};
       Button res_y{{100, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset Y"};
       Button res_a{{185, 60, 70, 55, GUI::Style::SIZE}, Button::SINGLE, track, "Reset A"};
@@ -295,9 +295,9 @@ void mainSetup(){
           tracking.reset();
 
           if (GUI::prompt("Press when done movement")){
-            printf2("The left tracking wheel is in the %s direction", left_tracker.getPos() > 0 ? "right" : "wrong");
-            printf2("The right tracking wheel is in the %s direction", right_tracker.getPos() > 0 ? "right" : "wrong");
-            printf2("The back tracking wheel is in the %s direction", back_tracker.getPos() > 0 ? "right" : "wrong");
+            printf2("The left tracking wheel is in the %s direction", left_tracker.getVal() > 0 ? "right" : "wrong");
+            printf2("The right tracking wheel is in the %s direction", right_tracker.getVal() > 0 ? "right" : "wrong");
+            printf2("The back tracking wheel is in the %s direction", back_tracker.getVal() > 0 ? "right" : "wrong");
           }
         }
       }
@@ -309,9 +309,9 @@ void mainSetup(){
           tracking.waitForDistance(30);
           driveBrake();
 
-          printf2("The left tracking wheel is in the %s direction", left_tracker.getPos() > 0 ? "right" : "wrong");
-            printf2("The right tracking wheel is in the %s direction", right_tracker.getPos() > 0 ? "right" : "wrong");
-            printf2("The back tracking wheel is in the %s direction", back_tracker.getPos() > 0 ? "right" : "wrong");
+          printf2("The left tracking wheel is in the %s direction", left_tracker.getVal() > 0 ? "right" : "wrong");
+            printf2("The right tracking wheel is in the %s direction", right_tracker.getVal() > 0 ? "right" : "wrong");
+            printf2("The back tracking wheel is in the %s direction", back_tracker.getVal() > 0 ? "right" : "wrong");
         }
       }
     });
@@ -322,9 +322,9 @@ void mainSetup(){
           tracking.reset();
 
           if (GUI::prompt("Press when stopped")){
-            double left = left_tracker.getPos() / 360.0;
-            double right = right_tracker.getPos() / 360.0;
-            double back = back_tracker.getPos() / 360.0;
+            double left = left_tracker.getVal() / 360.0;
+            double right = right_tracker.getVal() / 360.0;
+            double back = back_tracker.getVal() / 360.0;
             int left_rot = round(left);
             int right_rot = round(right);
             int back_rot = round(back);
@@ -357,9 +357,9 @@ void mainSetup(){
           tracking.reset();
 
           if (GUI::prompt("Press when stopped")){
-            int back = back_tracker.getPos();
+            int back = back_tracker.getVal();
             if(std::abs(back) <= 2) printf2(term_colours::GREEN, "The back wheel is pretty accurate, it is at %d ticks.", back);
-            else printf2(term_colours::RED, "The back wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", back, sgn(left_tracker.getPos()) == sgn(back) ? "" : "counter-");
+            else printf2(term_colours::RED, "The back wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", back, sgn(left_tracker.getVal()) == sgn(back) ? "" : "counter-");
           }
         }
       }
@@ -371,9 +371,9 @@ void mainSetup(){
           tracking.waitForDistance(25);
           driveBrake();
 
-          int back = back_tracker.getPos();
+          int back = back_tracker.getVal();
           if(std::abs(back) <= 2) printf2(term_colours::GREEN, "The back wheel is pretty accurate, it is at %d ticks.", back);
-          else printf2(term_colours::RED, "The back wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", back, sgn(left_tracker.getPos()) == sgn(back) ? "" : "counter-");
+          else printf2(term_colours::RED, "The back wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", back, sgn(left_tracker.getVal()) == sgn(back) ? "" : "counter-");
         }
       }
     });
@@ -384,14 +384,14 @@ void mainSetup(){
           tracking.reset();
 
           if(GUI::prompt("Press when stopped")){
-            int left = left_tracker.getPos();
-            int right = right_tracker.getPos();
+            int left = left_tracker.getVal();
+            int right = right_tracker.getVal();
 
             if(std::abs(left) <= 2) printf2(term_colours::GREEN, "The left wheel is pretty accurate, it is at %d ticks.", left);
-            else printf2(term_colours::RED, "The left wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", left, sgn(left) == sgn(back_tracker.getPos()) ? "counter-" : "");
+            else printf2(term_colours::RED, "The left wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", left, sgn(left) == sgn(back_tracker.getVal()) ? "counter-" : "");
 
             if(std::abs(right) <= 2) printf2(term_colours::GREEN, "The right wheel is pretty accurate, it is at %d ticks.", right);
-            else printf2(term_colours::RED, "The right wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", right, sgn(right) == sgn(back_tracker.getPos()) ? "counter-" : "");
+            else printf2(term_colours::RED, "The right wheel is corkscrewing. It is at %d ticks. Consider turning it %sclockwise.", right, sgn(right) == sgn(back_tracker.getVal()) ? "counter-" : "");
           }
         }
       }
@@ -406,8 +406,8 @@ void mainSetup(){
           tracking.reset();
 
           if (GUI::prompt("Press when completed 30 inches")){
-            printf2("The left tracking wheel's diameter is %f", 60.0 / degToRad(left_tracker.getPos()));
-            printf2("The right tracking wheel's diameter is %f", 60.0 / degToRad(right_tracker.getPos()));
+            printf2("The left tracking wheel's diameter is %f", 60.0 / degToRad(left_tracker.getVal()));
+            printf2("The right tracking wheel's diameter is %f", 60.0 / degToRad(right_tracker.getVal()));
           }
         }
       }
@@ -420,8 +420,8 @@ void mainSetup(){
           driveBrake();
 
           printf2("If the robot is far off of 30 inches, consider changing the wheel size constants.");
-          printf2("Multiply the actual travelled distance by %f to get the left wheel diameter", std::abs(2.0 / degToRad(left_tracker.getPos())));
-          printf2("Multiply the actual travelled distance by %f to get the right wheel diameter", std::abs(2.0 / degToRad(right_tracker.getPos())));
+          printf2("Multiply the actual travelled distance by %f to get the left wheel diameter", std::abs(2.0 / degToRad(left_tracker.getVal())));
+          printf2("Multiply the actual travelled distance by %f to get the right wheel diameter", std::abs(2.0 / degToRad(right_tracker.getVal())));
         }
       }
     });
@@ -432,7 +432,7 @@ void mainSetup(){
           tracking.reset();
 
           if (GUI::prompt("Press when completed 30 inches")){
-            printf2("The back tracking wheel's diameter is %f", 60.0 / degToRad(back_tracker.getPos()));
+            printf2("The back tracking wheel's diameter is %f", 60.0 / degToRad(back_tracker.getVal()));
           }
         }
       }
@@ -455,7 +455,7 @@ void mainSetup(){
             turned = 180 * (turned-rots);
             rots /= 2;
 
-            double dist = std::abs(left_tracker.getPos() - right_tracker.getPos()) / (360.0 * rots);
+            double dist = std::abs(left_tracker.getVal() - right_tracker.getVal()) / (360.0 * rots);
 
             if(std::abs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
             else if(turned > 0) printf2(term_colours::RED, "However, the robot gained %.2f degrees over %.1f rotations. Consider decreasing the DistanceLR to %.3f.", turned, rots, dist);
@@ -487,7 +487,7 @@ void mainSetup(){
           turned = 180 * (turned-rots);
           rots /= 2;
 
-          double dist = std::abs(left_tracker.getPos() - right_tracker.getPos()) / (360.0 * rots);
+          double dist = std::abs(left_tracker.getVal() - right_tracker.getVal()) / (360.0 * rots);
 
           if(std::abs(turned) <= 0.05) printf2(term_colours::GREEN, "This seems pretty accurate. It's %.4f degrees off over %.1f rotations.", turned, rots);
           else if(turned > 0) printf2(term_colours::RED, "However, the robot gained %.2f degrees over %.1f rotations. Consider decreasing the DistanceLR to %.3f.", turned, rots, dist);

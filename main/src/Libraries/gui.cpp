@@ -32,7 +32,7 @@
     Slider testing_slider {{MID_X, 200, 200, 20, GUI::Style::CENTRE}, Slider::HORIZONTAL, -100, 100, testing, "BLANK SLIDER"};
 
   Page prompt_sequence {"Prompt"};
-    Button prompt_button {{300, MID_Y, 160, 90, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence};
+    Button prompt_button {{410, 190, 35, 20, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence};
     Button prompt_back_button {{20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, prompt_sequence, "BACK"};
     Text prompt_button_text {{0, 0}, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string};
 
@@ -342,12 +342,12 @@ namespace alert{
     for (Page* page_ptr: this->pages) page_ptr->guis.push_back(this);
   }
 
-  Button::Button(GUI::Box coord, press_type form, Page& page, std::string text, Color background_colour, Color label_colour): ObjectTracker{"Button", text} {
+  Button::Button(GUI::Box coord, press_type form, Page& page, std::string text, Color background_colour, Color label_colour): ObjectTracker{text + "Button"} {
     construct(coord, form, &page, text, background_colour, label_colour);
   }
 
   Slider::Slider (GUI::Box coord, direction dir, double min, double max, Page& page, std::string label, double increment, Color background_colour, Color label_colour):
-  ObjectTracker{"Slider", label}, coord{coord}, dir{dir}, min{min}, max{max}, page{&page}, val{inRangeIncl(0, min, max) ? 0 : (inRangeIncl(1, min, max) ? 1 : (min + max) / 2)}, b_col{static_cast<std::uint32_t>(background_colour)}, l_col{static_cast<std::uint32_t>(label_colour)} {
+  ObjectTracker{label + "Slider"}, coord{coord}, dir{dir}, min{min}, max{max}, page{&page}, val{inRangeIncl(0, min, max) ? 0 : (inRangeIncl(1, min, max) ? 1 : (min + max) / 2)}, b_col{static_cast<std::uint32_t>(background_colour)}, l_col{static_cast<std::uint32_t>(label_colour)} {
     this->page->sliders.push_back(this);
 
     switch(this->dir){
@@ -377,7 +377,7 @@ namespace alert{
   }
 
   Page::Page(std::string title, Color background_colour):
-  ObjectTracker{"Page", title}, b_col{static_cast<std::uint32_t>(background_colour)}, title{title} {
+  ObjectTracker{title + "Page"}, b_col{static_cast<std::uint32_t>(background_colour)}, title{title} {
     if (!(title == "PERM BTNS" || title == "Prompt" || title == "Alert")){
       for (Button* btn_ptr: perm.buttons) buttons.push_back(btn_ptr);
     }

@@ -18,7 +18,7 @@ class Ultrasonic: private ADIUltrasonic, public ObjectTracker<Ultrasonic>{
 
 
     std::string getName() const;
-    std::pair<Port, Port> getPorts() const;
+    ext_adi_port_pair_t getPorts() const;
     int getVal() const;
 };
 
@@ -50,7 +50,7 @@ class Encoder: private Rotation, public ObjectTracker<Encoder>{
 
     std::string getName() const;
     Port getPort() const;
-    int getPos();
+    int getVal();
     int getVel();
     std::int32_t reset();
     std::int32_t resetPos();
@@ -85,5 +85,5 @@ class Gyro: private Imu, public ObjectTracker<Gyro>{
     Port getPort() const;
     void tare();
     bool isCalibrating() const;
-    double getRot() const;
+    double getVal() const;
 };

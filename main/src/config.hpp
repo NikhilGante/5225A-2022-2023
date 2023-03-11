@@ -40,9 +40,9 @@ extern _Distance r_reset_dist;
 
 Port valid_smart_port(std::string, Port);
 Port valid_adi_port(std::string, Port);
-std::pair<Port, Port> valid_adi_ports(std::string, Port, Port);
+ext_adi_port_pair_t valid_adi_ports(std::string, Port, Port);
 Port valid_ext_adi_port(std::string, ext_adi_port_pair_t);
-std::pair<Port, Port> valid_ext_adi_ports(std::string, ext_adi_port_tuple_t);
+ext_adi_port_pair_t valid_ext_adi_ports(std::string, ext_adi_port_tuple_t);
 
 inline bool correctDevice (Port port, c::v5_device_e device) {return c::registry_get_plugged_type(port-1) == device;}
 bool correctDevice (auto* obj) {return correctDevice(obj->getPort(), obj->device);}

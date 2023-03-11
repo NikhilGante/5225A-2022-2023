@@ -77,7 +77,7 @@ Port valid_adi_port(std::string device_label, Port port){
   return port;
 }
 
-std::pair<Port, Port> valid_adi_ports(std::string device_label, Port port1, Port port2){
+ext_adi_port_pair_t valid_adi_ports(std::string device_label, Port port1, Port port2){
   port1 = okapi::transformADIPort(port1);
   std::string port_label1 = port_to_string(port1+21);
   std::string& saved_device1 = port_list[port1+21];
@@ -117,7 +117,7 @@ Port valid_ext_adi_port(std::string device_label, ext_adi_port_pair_t port_pair)
   return port;
 }
 
-std::pair<Port, Port> valid_ext_adi_ports(std::string device_label, ext_adi_port_tuple_t port_tuple){
+ext_adi_port_pair_t valid_ext_adi_ports(std::string device_label, ext_adi_port_tuple_t port_tuple){
   Port port1 = okapi::transformADIPort(std::get<1>(port_tuple));
   std::string port_label1 = port_to_string(port1+29);
   std::string& saved_device1 = port_list[port1+29];

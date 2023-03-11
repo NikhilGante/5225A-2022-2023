@@ -102,12 +102,12 @@ Auton auton2("AWP", autonAWP);
 Auton auton3("Line", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
+//check if objecttracker and gui throws are creating issues
+//controller queue
 //!fix logging issue
 //!check that log folders is good
 //check if timer prints look nice
 //add rumble back to alert
-//controller queue
-//remove timer from subsystems by making them static, and then initializing in the constructor
 //Add a config page to the gui
 //Logging different sizes
 //Eliminate the idea of multiple guis
@@ -116,10 +116,14 @@ Auton auton4("Skills", provSkillsLow);
 //debugging doc
 //change GitHub to conventions and styles doc
 
+extern std::array<std::string, 38> port_list;
+
 void opcontrol() {
   DEBUG;
   std::ofstream file_init{"/usd/testfile1.txt", std::ofstream::trunc};
+  DEBUG;
   file_init << "Hello";
+  DEBUG;
   file_init.close();
   
   DEBUG;

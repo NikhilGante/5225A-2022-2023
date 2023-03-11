@@ -13,10 +13,10 @@
 
 void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 	Timer move_timer{"Move Inches", auton_log};
-	double start = right_tracker.getPos()*TICKS_TO_INCHES;
+	double start = right_tracker.getVal()*TICKS_TO_INCHES;
 	double error;
 	do{
-		double cur_y = right_tracker.getPos()*TICKS_TO_INCHES - start;
+		double cur_y = right_tracker.getVal()*TICKS_TO_INCHES - start;
 		error = target - cur_y;
 		double power = 5.0*error;
 		if(std::abs(power) < 30) power = sgn(error) * 30;
