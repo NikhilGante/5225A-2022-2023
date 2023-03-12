@@ -3,7 +3,7 @@
 #include "printing.hpp"
 
 //Forward Declare
-namespace alert {void priority(term_colours colour, std::string fmt, auto... args);}
+namespace alert {struct Params; void priority(alert::Params params, std::string fmt, auto... args);}
 
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 

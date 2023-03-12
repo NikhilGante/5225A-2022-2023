@@ -16,7 +16,7 @@ Auton::E_Reset_Types Auton::getResetType() const {return reset_type;} // Getter
 // Returns selected Auton as an int
 int Auton::get(){
 	int auton_num;
-  auto file = Logging::Interrupter<std::ifstream>("/usd/auton.txt");
+  auto file = Logging::Interrupter<std::ifstream>("/usd/auton.txt", std::ifstream::in);
   if(file.stream.is_open()) file.stream >> auton_num;
   else auton_num = 0;
   return auton_num;
@@ -52,7 +52,7 @@ void Auton::select(){
 
       case DIGITAL_A:
         master.clear();
-        Logging::Interrupter<std::ofstream>("/usd/auton.txt").stream << cur_auton << std::endl;
+        Logging::Interrupter<std::ofstream>("/usd/auton.txt", std::ofstream::trunc).stream << cur_auton << std::endl;
         master.print(0, "Saved " + getNth(cur_auton)->name);
         alert::start(term_colours::NOTIF, "Saved " + getNth(cur_auton)->name);
         return;

@@ -2,7 +2,6 @@
 #include "main.h"
 #include "okapi/api/util/mathUtil.hpp"
 #include "pros/colors.hpp"
-#include <type_traits>
 
 struct Position;
 struct Vector;

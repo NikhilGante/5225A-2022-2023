@@ -1,5 +1,7 @@
 #pragma once
 #include "gui.hpp"
+#include <ios>
+#include <fstream>
 
 enum class log_locations{
   none,
@@ -68,10 +70,10 @@ class Logging: public ObjectTracker<Logging>{
     class Interrupter{
       public:
         T stream;
-        Interrupter(std::string filename) {
+        Interrupter(std::string filename, std::ios_base::openmode mode) {
           log_log(term_colours::NOTIF, "%d: Interrupting Logging for %s", millis(), filename);
           pause();
-          stream.open(filename);
+          stream.open(filename, mode);
           if(!stream.is_open()) alert::start("Unable to open %s file when Interrupting Logging", filename);
         }
         ~Interrupter(){

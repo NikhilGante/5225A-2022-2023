@@ -102,11 +102,8 @@ Auton auton4("Skills", provSkillsLow);
 //arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
 //controller queue
-//change printfs to logs
-//!check that log folders is good
-//struct for alert params
+//fix logging button visibility
 //check if timer prints look nice
-//add rumble back to alert
 //Add a config page to the gui
 //Logging different sizes
 //Eliminate the idea of multiple guis
@@ -123,8 +120,6 @@ GUI needs Tracker
 
 void opcontrol() {
   DEBUG;
-  WAIT_UNTIL(false){
-    if(master.getNewDigital(DIGITAL_A)) task_log("Hey Robert!");
-  }
+  WAIT_UNTIL(false);
   DEBUG;
 }

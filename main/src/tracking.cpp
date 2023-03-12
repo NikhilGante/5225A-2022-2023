@@ -7,8 +7,6 @@
 #include "Devices/piston.hpp"
 #include "Devices/others.hpp"
 
-#include <fstream>
-
 static const Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0}; //Coords of high goal
 Tracking tracking;
 
@@ -211,8 +209,8 @@ Position Tracking::getPos(){
   return g_pos;
 }
 
-void Tracking::  savePosToSD() {Logging::Interrupter<std::ofstream>("/usd/pos.txt").stream << g_pos.x << " " << g_pos.y  << " " << g_pos.a << std::endl;}
-void Tracking::loadPosFromSD() {Logging::Interrupter<std::ifstream>("/usd/pos.txt").stream >> g_pos.x >> g_pos.y >> g_pos.a;}
+void Tracking::  savePosToSD() {Logging::Interrupter<std::ofstream>("/usd/pos.txt", std::ofstream::out).stream << g_pos.x << " " << g_pos.y  << " " << g_pos.a << std::endl;}
+void Tracking::loadPosFromSD() {Logging::Interrupter<std::ifstream>("/usd/pos.txt", std::ifstream::in).stream >> g_pos.x >> g_pos.y >> g_pos.a;}
 
 void handleBrake(E_Brake_Modes brake_mode){
   switch(brake_mode){

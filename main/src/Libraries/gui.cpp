@@ -46,14 +46,15 @@
 
 namespace alert{
   const Page* page;
-  Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 25> queue{"Alert"};
+  Queue<std::pair<Params, std::string>, 25> queue{"Alert"};
 
   //rest are templates, so defined in header
 
   void update(){
     //If nothing is currently flashing and there is something to flash, starts new flash
+    Params& params = std::get<Params>(queue.front());
     if(!timer.playing() && !queue.empty()){
-      Colour colour = static_cast<Colour>(std::get<Color>(queue.front()));
+      Colour colour = static_cast<Colour>(params.GUI_colour);
 
       screen_flash.b_col = colour;
       screen_flash_time.b_col = colour;
@@ -63,12 +64,12 @@ namespace alert{
       screen_flash_text.label = std::get<std::string>(queue.front());
 
       page = GUI::current_page;
-      end_time = std::get<std::uint32_t>(queue.front());
+      end_time = params.time;
       screen_flash.goTo();
 
-      // master.rumble("-.");
+      master.rumble("-.");
 
-      error_log(std::get<term_colours>(queue.front()), "%s\n", std::get<std::string>(queue.front()));
+      error_log(params.colour, "%s\n", std::get<std::string>(queue.front()));
       timer.reset(); //Starts counting down
     }
 

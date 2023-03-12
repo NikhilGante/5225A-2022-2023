@@ -2,17 +2,21 @@
 #include "queue.hpp"
 
 namespace alert{
+  struct Params{
+    term_colours colour;
+    Color GUI_colour;
+    std::uint32_t time;
+
+    Params(term_colours colour = term_colours::ERROR, std::uint32_t time = 1000): colour{colour}, GUI_colour{getGUIColour(colour)}, time{time} {}
+    Params(std::uint32_t time): Params{term_colours::ERROR, time} {}
+  };
+
   void update();
 
-  extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 25> queue;
+  extern Queue<std::pair<Params, std::string>, 25> queue;
 
-  void start   (                                         std::string fmt, auto... args) {queue.         push({getGUIColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-  void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({getGUIColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-  void start   (term_colours colour,                     std::string fmt, auto... args) {queue.         push({getGUIColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-  void start   (term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.         push({getGUIColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
-
-  void priority(                                         std::string fmt, auto... args) {queue.priority_push({getGUIColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-  void priority(                     std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({getGUIColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-  void priority(term_colours colour,                     std::string fmt, auto... args) {queue.priority_push({getGUIColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-  void priority(term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({getGUIColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
+  void start   (Params params, std::string fmt, auto... args) {queue.         push({params, sprintf2(fmt, args...)});}
+  void start   (std::string fmt, auto... args) {Params params; queue.         push({params, sprintf2(fmt, args...)});}
+  void priority(Params params, std::string fmt, auto... args) {queue.priority_push({params, sprintf2(fmt, args...)});}
+  void priority(std::string fmt, auto... args) {Params params; queue.priority_push({params, sprintf2(fmt, args...)});}
 }

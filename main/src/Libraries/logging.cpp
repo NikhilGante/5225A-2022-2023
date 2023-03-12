@@ -28,13 +28,13 @@ ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location
   x = x != 360 ? x+115 : 15;
   if ((getID()+1) % 4 == 0) y += 50;
 
-  printf2("%s: (%d, %d)", name, x, y);
+  printf2("%s: (%d, %d)\n", name, x, y);
 
   print_btn.setFunc([this](){
+    auto file = Interrupter<std::ifstream>(past_logs.isOn() ? pastFullName : fullName, std::ifstream::in);
     printf2(term_colours::GREEN, "\n\nStart %s Log Terminal Dump\n", getName());
     printf2("%s", getTermColour(term_colours::BLUE));
 
-    auto file = Interrupter<std::ifstream>(past_logs.isOn() ? pastFullName : fullName);
     if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
     else printf2("%s unopenable\n", fullName);
 
