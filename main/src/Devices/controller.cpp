@@ -143,3 +143,9 @@ std::string& _Controller::getText(int line){
     default: return error; break;
   }
 }
+
+void _Controller::blackout(){
+  print(0, "22222222222222222222");
+  print(1, "22222222222222222222");
+  print(2, "22222222222222222222");
+}

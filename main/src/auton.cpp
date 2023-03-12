@@ -201,7 +201,7 @@ void autonStack(){
 	// moveToTargetSync({37.0, 12.5});  // Move away from wall
   moveInches(5.0);
 	aimAtBlue(1.5);
-  printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
+  auton_log("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 

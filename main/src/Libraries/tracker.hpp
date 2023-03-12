@@ -11,7 +11,7 @@ class ObjectTracker{
     ObjectTracker& operator=(ObjectTracker const &) = delete;
 
     std::size_t id;
-    std::string short_name, name, full_name;
+    std::string short_name, name, long_name;
     inline static std::string class_name;
 
     static std::vector<Derived*> & getListInternal() {static std::vector<Derived*> objects; return objects;}
@@ -23,21 +23,18 @@ class ObjectTracker{
         id = getList().size();
 
         this->class_name = class_name;
-        if(name == "") full_name = class_name + ' ' + std::to_string(id);
+        if(name == "") long_name = class_name + ' ' + std::to_string(id);
         else updateName(name);
-
-        std::stringstream ss{getName()};
-        using iterator = std::istream_iterator<std::string>;
-        for(auto it = iterator{ss}; it != iterator{}; it++) short_name += it->front();
 
         // device_log("Initialized %s, object %d of %s class.", name, id, class_name);
       }
-      else alert::start("Creating \"%s\" would exceed class' object limit of %d", full_name, size);
+      else alert::start("Creating \"%s\" would exceed class' object limit of %d", long_name, size);
     }
 
     void updateName(std::string name){
       this->name = name;
-      full_name = name + ' ' + class_name;
+      short_name = "";
+      long_name = name + ' ' + class_name;
 
       std::stringstream ss{getName()};
       using iterator = std::istream_iterator<std::string>;
@@ -51,5 +48,5 @@ class ObjectTracker{
     std::size_t getID()        const {return id;}
     std::string getShortName() const {return short_name;}
     std::string getName()      const {return       name;}
-    std::string getFullName()  const {return  full_name;}
+    std::string getLongName()  const {return  long_name;}
 };

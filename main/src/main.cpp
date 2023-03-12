@@ -22,7 +22,7 @@
 void initialize() {
   DEBUG;
 
-  // Logging::init();
+  Logging::init();
 	_Controller::init();
   GUI::init();
   tracking.init({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
@@ -72,11 +72,8 @@ void competition_initialize() {
  */
 void autonomous() {
   DEBUG;
-	Auton::run();
 	WAIT_UNTIL(!gyro.isCalibrating());
-	autonAWP();
-	// Auton::runAuton();
-	// provSkills();
+	Auton::run();
   DEBUG;
 }
 
@@ -105,8 +102,9 @@ Auton auton4("Skills", provSkillsLow);
 //arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
 //controller queue
-//!fix logging issue
+//change printfs to logs
 //!check that log folders is good
+//struct for alert params
 //check if timer prints look nice
 //add rumble back to alert
 //Add a config page to the gui
@@ -125,9 +123,6 @@ GUI needs Tracker
 
 void opcontrol() {
   DEBUG;
-  WAIT_UNTIL(false){
-    if(master.getNewDigital(DIGITAL_A)) alert::start(term_colours::MAGENTA, "Hey There!");
-  }
-
+  WAIT_UNTIL(false);
   DEBUG;
 }

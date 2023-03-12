@@ -1,21 +1,21 @@
 #include "printing.hpp"
 #include "geometry.hpp"
 
-std::string convert_all_args(const std::string& fmt, const std::string& arg){
+std::string convert_all_args(std::string const & fmt, std::string const & arg){
   if(fmt.back() == 'p') return convert_all_args(fmt, arg.data());
   return arg;
 }
 
-std::string convert_all_args(const std::string& fmt, const Position& arg){
+std::string convert_all_args(std::string const & fmt, const Position& arg){
   return '(' + convert_all_args(fmt, arg.x) + ", " + convert_all_args(fmt, arg.y) + ", " + convert_all_args(fmt, arg.a) + ")";
 }
 
-std::string convert_all_args(const std::string& fmt, const Vector& arg){
+std::string convert_all_args(std::string const & fmt, const Vector& arg){
   return '(' + convert_all_args(fmt, arg.getX()) + ", " + convert_all_args(fmt, arg.getY()) + ")";
 }
 
 //Template Recursion Base case
-const std::string& sprintf2(const std::string& fmt){
+std::string const & sprintf2(std::string const & fmt){
   return fmt;
 }
 

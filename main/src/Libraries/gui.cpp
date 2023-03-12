@@ -32,7 +32,7 @@
     Slider testing_slider {{MID_X, 200, 200, 20, GUI::Style::CENTRE}, Slider::HORIZONTAL, -100, 100, testing, "BLANK SLIDER"};
 
   Page prompt_sequence {"Prompt"};
-    Button prompt_button {{410, 190, 35, 20, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence};
+    Button prompt_button {{300, MID_Y, 160, 90, GUI::Style::CENTRE}, Button::SINGLE, prompt_sequence};
     Button prompt_back_button {{20, USER_UP, 100, 50, GUI::Style::SIZE}, Button::SINGLE, prompt_sequence, "BACK"};
     Text prompt_button_text {{0, 0}, GUI::Style::CENTRE, TEXT_SMALL, prompt_sequence, "%s", prompt_string};
 
@@ -158,19 +158,19 @@ namespace alert{
 
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-      // GUI::update_screen_status(); //? Should be able to get rid of this
+      GUI::update_screen_status(); //Need this because prompt is run from checking a button press which is in the GUI thread
       if (prompt_back_button.pressed()) interrupted = true;
     }
 
     //Wait for Press
     WAIT_UNTIL((prompt_button.pressed() || master.getDigital(okBtn)) || interrupted){ //waits for a press from prompt btn or ok btn. Interrupts with any controller digital btn
-      // GUI::update_screen_status(); //? Should be able to get rid of this
+      GUI::update_screen_status(); //Need this because prompt is run from checking a button press which is in the GUI thread
       if (prompt_back_button.pressed() || master.interrupt(false, true, true)) interrupted = true;
     }
     
     //Wait for Release
     WAIT_UNTIL(!(prompt_button.pressed() || master.getDigital(okBtn) || master.interrupt(false, true, false)) || interrupted){ //checks that no button is being pressed
-      // GUI::update_screen_status(); //? Should be able to get rid of this
+      GUI::update_screen_status(); //Need this because prompt is run from checking a button press which is in the GUI thread
       if (prompt_back_button.pressed()) interrupted = true;
     }
 
@@ -433,8 +433,6 @@ namespace alert{
     }
   }
 
-  double Slider::getValue() const {return val;}
-
   void Slider::setValue(double val){
     // double old_val = this->val;
     // this->val = std::clamp<double>(val, min, max);
@@ -459,7 +457,10 @@ namespace alert{
     text_ref.type = GUI::Style::CENTRE;
     text_ref.coord.y = (coord.y1 + coord.y2) / 2;
     text_ref.coord.x = (coord.x1 + coord.x2) / 2;
-    text_ref.box = {USER_RIGHT, USER_DOWN, USER_LEFT, USER_UP};
+    text_ref.box.x1 = USER_RIGHT;
+    text_ref.box.y1 = USER_DOWN;
+    text_ref.box.x2 = USER_LEFT;
+    text_ref.box.y2 = USER_UP;
 
     if (overwrite){
       label = "";
@@ -638,15 +639,14 @@ namespace alert{
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     updateVal();
 
-    if (box.x2 != 0 && box.y2 != 0){ //If background box exists. Should be able to get rid of this as now it always exists
+    if(box.x2 != 0){ //Hasn't been drawn yet
       screen::set_eraser(page->b_col);
       screen::erase_rect(box.x1, box.y1, box.x2, box.y2);
-
       screen::set_pen(b_col);
       GUI::drawOblong(box.x1, box.y1, box.x2, box.y2, 0, 0.15);
+      screen::set_pen(l_col);
+      screen::set_eraser(b_col);
     }
-    screen::set_pen(l_col);
-    screen::set_eraser(b_col);
 
     int x_coord = coord.x, y_coord = coord.y;
     if (type == GUI::Style::CENTRE){
@@ -665,14 +665,14 @@ namespace alert{
 
 
 //Function Handling
-  void Page::setSetupFunc(std::function<void()> function){setup_func = function;}
-  void Page::setLoopFunc(std::function<void()> function){loop_func = function;}
-  void Button::setFunc(std::function<void()> function){func = function;}
-  void Button::setOffFunc(std::function<void()> function){off_func = function;}
+  void Page::setSetupFunc(std::function<void()> function) {setup_func = function;}
+  void Page::setLoopFunc (std::function<void()> function) { loop_func = function;}
+  void Button::setFunc   (std::function<void()> function) {      func = function;}
+  void Button::setOffFunc(std::function<void()> function) {  off_func = function;}
   void Button::runFunc() const {if (func) func();}
   void Button::runOffFunc() const {if (off_func) off_func();}
   bool Button::isOn() const {return on;}
-
+  double Slider::getValue() const {return val;}
 
 //Data Updates
   void GUI::init(){

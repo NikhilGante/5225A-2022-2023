@@ -48,7 +48,7 @@ class Queue{
         pointer begin, end;
         int cycle;
 
-        constexpr bool same_container(iterator const& rhs) const {return begin == rhs.begin && end == rhs.end;}
+        constexpr bool same_container(iterator const & rhs) const {return begin == rhs.begin && end == rhs.end;}
       public:
         constexpr iterator(pointer ptr, pointer begin, pointer end): internal{ptr}, begin{begin}, end{end}, cycle{0} {};
         constexpr iterator(std::nullptr_t = nullptr): iterator{nullptr, nullptr, nullptr} {};
@@ -63,7 +63,7 @@ class Queue{
         }
         constexpr iterator& operator-=(difference_type n) {return *this += -n;}
         constexpr iterator operator+(difference_type n) const {iterator temp{*this}; return temp += n;}
-        friend constexpr iterator operator+(difference_type n, iterator const& rhs) {return rhs+n;}
+        friend constexpr iterator operator+(difference_type n, iterator const & rhs) {return rhs+n;}
         constexpr iterator operator-(difference_type n) const {return *this + -n;}
         constexpr iterator& operator++() {return *this += 1;}
         constexpr iterator& operator--() {return *this += -1;}
@@ -71,11 +71,11 @@ class Queue{
         constexpr iterator operator--(int) {iterator temp{*this}; --(*this); return temp;}
         constexpr reference operator*() const {return *internal;}
         constexpr pointer operator->() {return internal;}
-        friend constexpr difference_type operator-(iterator const& lhs, iterator const& rhs) {return lhs.same_container(rhs) ? lhs.internal-rhs.internal+(lhs.cycle-rhs.cycle)*(lhs.end-lhs.begin) : std::numeric_limits<difference_type>::max();}
+        friend constexpr difference_type operator-(iterator const & lhs, iterator const & rhs) {return lhs.same_container(rhs) ? lhs.internal-rhs.internal+(lhs.cycle-rhs.cycle)*(lhs.end-lhs.begin) : std::numeric_limits<difference_type>::max();}
 
         //== checks for equality on the same cycle. <=> only checks pointer equality
-        friend constexpr bool operator==(iterator const& lhs, iterator const& rhs) {return lhs.internal == rhs.internal && lhs.cycle == rhs.cycle;}
-        constexpr std::partial_ordering operator<=>(iterator const& rhs) const{
+        friend constexpr bool operator==(iterator const & lhs, iterator const & rhs) {return lhs.internal == rhs.internal && lhs.cycle == rhs.cycle;}
+        constexpr std::partial_ordering operator<=>(iterator const & rhs) const{
           if(same_container(rhs)) return cycle == rhs.cycle ? internal <=> rhs.internal : cycle <=> rhs.cycle;
           else return std::partial_ordering::unordered;
         }

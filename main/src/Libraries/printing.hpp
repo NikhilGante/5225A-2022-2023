@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
+#include "okapi/api/util/mathUtil.hpp"
 #include "pros/colors.hpp"
+#include <type_traits>
 
 struct Position;
 struct Vector;
@@ -29,41 +31,31 @@ Color getGUIColour(term_colours);
 void newline(int count = 1);
 
 //Convert Args
-  /*General case*/ template <typename T, typename = typename std::enable_if_t<!std::is_arithmetic_v<T>, void>> std::string convert_all_args(const std::string& fmt, const T& arg); //Forces double / int overload instead
-  /*For arithmetic types*/ template <typename T, typename = typename std::enable_if_t<std::is_arithmetic_v<T>, void>> std::string convert_all_args(const std::string& fmt, T arg); //Not const T& because that duplicates against the non-arithmetic template overload
-  /*Vectors (C++)*/ template <typename _Tp> std::string convert_all_args(const std::string& fmt, const std::vector<_Tp>& arg);
-  /*Arrays (C++)*/ template <typename _Tp, std::size_t _Nm> std::string convert_all_args(const std::string& fmt, const std::array<_Tp, _Nm>& arg);
-  /*Arrays (C)*/ template <typename _Tp, std::size_t _Nm> std::string convert_all_args(const std::string& fmt, const _Tp (&arg) [_Nm]);
-  /*Strings*/ std::string convert_all_args(const std::string& fmt, const std::string& arg);
-  /*Positions*/ std::string convert_all_args(const std::string& fmt, const Position& arg);
-  /*Vectors (Geometry)*/ std::string convert_all_args(const std::string& fmt, const Vector& arg);
+  /*General case*/ std::string convert_all_args(std::string const & fmt, auto const & arg) requires (std::is_trivial_v<decltype(arg)>);
+  /*For arithmetic types*/ std::string convert_all_args(std::string const & fmt, auto arg) requires (std::is_arithmetic_v<decltype(arg)>);
+  /*Enums*/ std::string convert_all_args(std::string const & fmt, auto arg) requires (std::is_enum_v<decltype(arg)>);
+  /*Ranges*/ std::string convert_all_args(std::string const & fmt, const auto& arg) requires requires{arg.begin();};
+  /*Arrays (C)*/ template <typename _Tp, std::size_t _Nm> std::string convert_all_args(std::string const & fmt, const _Tp (&arg) [_Nm]);
+  /*Pointers */ std::string convert_all_args(std::string const & fmt, auto* arg);
+  /*Strings*/ std::string convert_all_args(std::string const & fmt, std::string const & arg);
+  /*Positions*/ std::string convert_all_args(std::string const & fmt, const Position& arg);
+  /*Vectors (Geometry)*/ std::string convert_all_args(std::string const & fmt, const Vector& arg);
 
 // Printing
 
-  //Template Recursion Base case
-  const std::string& sprintf2(const std::string& fmt);
-
-  template <typename Param, typename... Params>
-  std::string sprintf2(std::string fmt, const Param& arg, const Params&... args);
-
-  template <typename... Params>
-  std::string sprintf2_colour(term_colours colour, std::string fmt, Params... args);
-
-  template <typename... Params>
-  int printf2(term_colours colour, std::string fmt, Params... args);
-
-  template <typename... Params>
-  int printf2(std::string fmt, Params... args);
+  std::string const & sprintf2(std::string const & fmt); //Template Recursion Base case
+  std::string sprintf2(std::string fmt, const auto& arg, const auto&... args);
+  std::string sprintf2_colour(term_colours colour, std::string fmt, auto... args);
+  void printf2(term_colours colour, std::string fmt, auto... args);
+  void printf2(std::string fmt, auto... args);
 
 //Convert Args Definitions
-  template <typename T, typename> //Forces double / int overload instead
-  std::string convert_all_args(const std::string& fmt, const T& arg){
+  std::string convert_all_args(std::string const & fmt, auto const & arg) requires (std::is_trivial_v<decltype(arg)>){ //General
     char buffer[n_printf_max];
     snprintf(buffer, n_printf_max, fmt.c_str(), arg);
     return buffer;
   }
-  template <typename T, typename>
-  std::string convert_all_args(const std::string& fmt, T arg){ //Not const T& because that duplicates against the non-arithmetic template overload
+  std::string convert_all_args(std::string const & fmt, auto arg) requires (std::is_arithmetic_v<decltype(arg)>){ //Arithmetic
     const char* format = fmt.c_str();
     std::string fmt_safe = "   " + fmt;
     char buffer[n_printf_max];
@@ -97,33 +89,29 @@ void newline(int count = 1);
     else snprintf(buffer, n_printf_max, format, arg);
     return buffer;
   }
-  template <typename _Tp>
-  std::string convert_all_args(const std::string& fmt, const std::vector<_Tp>& arg){
-    if(fmt.back() == 'p') return convert_all_args(fmt, arg.data());
-    std::string str;
-    str += '{';
-    for (typename std::vector<_Tp>::const_iterator it = arg.begin(); it != arg.end(); it++){
+  std::string convert_all_args(std::string const & fmt, auto arg) requires (std::is_enum_v<decltype(arg)>){ //General
+    return convert_all_args(fmt, okapi::toUnderlyingType(arg));
+  }
+
+  std::string convert_all_args(std::string const & fmt, auto* arg){
+    char buffer[n_printf_max];
+    snprintf(buffer, n_printf_max, fmt.c_str(), arg);
+    return buffer;
+  }
+
+  std::string convert_all_args(std::string const & fmt, const auto& arg) requires requires{arg.begin();} { //Ranges
+    if(fmt.back() == 'p' || (std::same_as<typename decltype(arg)::value_type, char> && fmt.back() == 's')) return convert_all_args(fmt, arg.data());
+    std::string str = "{";
+    for (auto it = arg.cbegin(); it != arg.cend(); it++){
       str += convert_all_args(fmt, *it);
       if (it+1 != arg.end()) str += ", ";
     }
     str += '}';
     return str;
   }
+
   template <typename _Tp, std::size_t _Nm>
-  std::string convert_all_args(const std::string& fmt, const std::array<_Tp, _Nm>& arg){
-    if(fmt.back() == 'p') return convert_all_args(fmt, arg.data());
-    else if(std::is_same<_Tp, char>::value && fmt.back() == 's') return convert_all_args(fmt, arg.data());
-    std::string str;
-    str += '{';
-    for (typename std::array<_Tp, _Nm>::const_iterator it = arg.begin(); it != arg.end(); it++){
-      str += convert_all_args(fmt, *it);
-      if (it+1 != arg.end()) str += ", ";
-    }
-    str += '}';
-    return str;
-  }
-  template <typename _Tp, std::size_t _Nm>
-  std::string convert_all_args(const std::string& fmt, const _Tp (&arg) [_Nm]){
+  std::string convert_all_args(std::string const & fmt, const _Tp (&arg) [_Nm]){
     if(fmt.back() == 'p') return convert_all_args(fmt, const_cast<_Tp*>(arg));
     else if(std::is_same<_Tp, char>::value && fmt.back() == 's') return convert_all_args(fmt, const_cast<_Tp*>(arg));
     std::string str;
@@ -137,8 +125,7 @@ void newline(int count = 1);
   }
 
 //Print Definitions
-  template <typename Param, typename... Params>
-  std::string sprintf2(std::string fmt, const Param& arg, const Params&... args){
+  std::string sprintf2(std::string fmt, const auto& arg, const auto&... args){
     std::string::const_iterator first = fmt.begin(), second; //initialized just to be overwritten
 
     first = std::find(first, fmt.cend(), '%');
@@ -173,8 +160,7 @@ void newline(int count = 1);
     
     return start + converted + rest;
   }
-  template <typename... Params>
-  std::string sprintf2_colour(term_colours colour, std::string fmt, Params... args){
+  std::string sprintf2_colour(term_colours colour, std::string fmt, auto... args){
     std::string str = sprintf2(fmt, args...);
 
     int white_front_count = str.find_first_not_of(" \n");
@@ -187,11 +173,9 @@ void newline(int count = 1);
 
     return white_front_space + getTermColour(colour) + str + getTermColour(term_colours::NONE) + white_end_space;
   }
-  template <typename... Params>
-  int printf2(term_colours colour, std::string fmt, Params... args){
-    return printf("%s", sprintf2_colour(colour, fmt, args...).c_str());
+  void printf2(term_colours colour, std::string fmt, auto... args){
+    printf("%s", sprintf2_colour(colour, fmt, args...).c_str());
   }
-  template <typename... Params>
-  int printf2(std::string fmt, Params... args){
-    return printf("%s", sprintf2(fmt, args...).c_str());
+  void printf2(std::string fmt, auto... args){
+    printf("%s", sprintf2(fmt, args...).c_str());
   }

@@ -3,7 +3,6 @@
 #include "task.hpp"
 
 #include <fstream>
-#include <ostream>
 
 extern Page logging;
 
@@ -31,10 +30,12 @@ ObjectTracker{"Logging", name}, queue{name}, name{name}, newline{newline}, locat
 
   print_btn.setFunc([this](){
     printf2(term_colours::GREEN, "\n\nStart %s Log Terminal Dump\n", this->name);
-    std::cout << getTermColour(term_colours::BLUE);
+    printf2("%s", getTermColour(term_colours::BLUE));
+
     auto file = Interrupter<std::ifstream>(past_logs.isOn() ? pastFullName : fullName);
     if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
-    else std::cout << fullName << " unopenable" << std::endl;
+    else printf2("%s unopenable\n", fullName);
+
     printf2(term_colours::RED, "\nEnd %s Log Terminal Dump\n\n", this->name);
   });
 }

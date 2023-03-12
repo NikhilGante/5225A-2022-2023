@@ -1,5 +1,7 @@
 #include "menu.hpp"
+#include "Libraries/printing.hpp"
 #include "config.hpp"
+#include "util.hpp"
 #include "Devices/controller.hpp"
 
 #include <fstream>
@@ -16,7 +18,7 @@ int Auton::get(){
 	int auton_num;
   auto file = Logging::Interrupter<std::ifstream>("/usd/auton.txt");
   if(file.stream.is_open()) file.stream >> auton_num;
-  else auton_num = -1;
+  else auton_num = 0;
   return auton_num;
 }
 
@@ -30,10 +32,6 @@ void Auton::runFunction() const {
 
 void Auton::select(){
 	int cur_auton = get();
-  if(cur_auton == -1){
-    alert::start(3000, "Cannot Run Auton Selector without SD");
-    return;
-  }
 	master.clear();
 	master.print(0, getNth(cur_auton) ? getNth(cur_auton)->name : "No Auton " + std::to_string(cur_auton));
 	master.print(1, "Up/dn change auton");
@@ -56,6 +54,7 @@ void Auton::select(){
         master.clear();
         Logging::Interrupter<std::ofstream>("/usd/auton.txt").stream << cur_auton << std::endl;
         master.print(0, "Saved " + getNth(cur_auton)->name);
+        alert::start(term_colours::NOTIF, "Saved " + getNth(cur_auton)->name);
         return;
         break;
 

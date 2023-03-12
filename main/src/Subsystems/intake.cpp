@@ -39,7 +39,7 @@ IntakeOnParams::IntakeOnParams(int8_t speed) : speed(speed){}
 
 void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = intk_ds.getVal();
-  printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
+  intake.log("%d | %d, count: %d", millis(), mag_ds_val, g_mag_disc_count.load());
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
