@@ -29,7 +29,6 @@ class Logging: public ObjectTracker<Logging>{
     term_colours print_colour;
     bool newline;
     log_locations location;
-    std::string name;
     std::string fullName, pastFullName;
     Queue<char, 20000> queue;
     Mutex queue_mutex;
@@ -55,11 +54,12 @@ class Logging: public ObjectTracker<Logging>{
       if(newline) str += '\n';
 
       if(location == log_locations::terminal || location == log_locations::both) printf2(colour, str);
-      // else if(location == log_locations::sd_main || location == log_locations::sd_only){
-      //   queue_mutex.take(TIMEOUT_MAX);
-      //   queue.insert(str);
-      //   queue_mutex.give();
-      // }
+      if(location == log_locations::sd_main || location == log_locations::sd_only || location == log_locations::both){
+        // printf2("Here:%s\n", getName());
+        queue_mutex.take(TIMEOUT_MAX);
+        queue.insert(str);
+        queue_mutex.give();
+      }
     }
 
     void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}

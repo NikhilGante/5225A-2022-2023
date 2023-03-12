@@ -644,9 +644,9 @@ namespace alert{
       screen::erase_rect(box.x1, box.y1, box.x2, box.y2);
       screen::set_pen(b_col);
       GUI::drawOblong(box.x1, box.y1, box.x2, box.y2, 0, 0.15);
-      screen::set_pen(l_col);
-      screen::set_eraser(b_col);
     }
+    screen::set_pen(l_col);
+    screen::set_eraser(b_col);
 
     int x_coord = coord.x, y_coord = coord.y;
     if (type == GUI::Style::CENTRE){

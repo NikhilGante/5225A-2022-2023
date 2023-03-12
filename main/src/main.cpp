@@ -123,6 +123,8 @@ GUI needs Tracker
 
 void opcontrol() {
   DEBUG;
-  WAIT_UNTIL(false);
+  WAIT_UNTIL(false){
+    if(master.getNewDigital(DIGITAL_A)) task_log("Hey Robert!");
+  }
   DEBUG;
 }

@@ -22,21 +22,23 @@ Logging log_log       {"Log"       , true};
 Logging none_log      {"None"      , false, log_locations::none};
 
 Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
-ObjectTracker{"Logging", name}, queue{name}, name{name}, newline{newline}, location{location}, print_colour{print_colour} {
+ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location}, print_colour{print_colour} {
   static int x = 130, y = 40;
   print_btn.construct({x, y, 100, 40, GUI::Style::SIZE}, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
   x = x != 360 ? x+115 : 15;
   if ((getID()+1) % 4 == 0) y += 50;
 
+  printf2("%s: (%d, %d)", name, x, y);
+
   print_btn.setFunc([this](){
-    printf2(term_colours::GREEN, "\n\nStart %s Log Terminal Dump\n", this->name);
+    printf2(term_colours::GREEN, "\n\nStart %s Log Terminal Dump\n", getName());
     printf2("%s", getTermColour(term_colours::BLUE));
 
     auto file = Interrupter<std::ifstream>(past_logs.isOn() ? pastFullName : fullName);
     if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
     else printf2("%s unopenable\n", fullName);
 
-    printf2(term_colours::RED, "\nEnd %s Log Terminal Dump\n\n", this->name);
+    printf2(term_colours::RED, "\nEnd %s Log Terminal Dump\n\n", getName());
   });
 }
 
@@ -45,7 +47,7 @@ void Logging::init(){
   if(!usd::is_installed()){ //Rerouting data to non-sd card
     alert::start("SD Logging Inactive");
     log_log(term_colours::ERROR, "No SD Card, deactivating Logging");
-    past_logs.setActive(false);
+    past_logs.setActive(true);
     for(Logging* log: getList()){
       switch(log->location){
         case log_locations::terminal:
@@ -70,16 +72,16 @@ void Logging::init(){
     }
 
     for(Logging* log: getList()){
-      log->fullName = "/usd/Logging/" + std::to_string(count) + ' ' + log->name + ".txt";
-      log->pastFullName = "/usd/Logging/" + std::to_string(count-1) + ' ' + log->name + ".txt";
+      log->fullName = "/usd/Logging/" + std::to_string(count) + ' ' + log->getName() + ".txt";
+      log->pastFullName = "/usd/Logging/" + std::to_string(count-1) + ' ' + log->getName() + ".txt";
       log_log("%d: Opening %s log file on SD", millis(), log->fullName);
       std::ofstream file_init{log->fullName, std::ofstream::trunc};
-      file_init << "Start of " + log->name + " - " + std::to_string(count) + " log file\n\n";
+      file_init << "Start of " + log->getName() + " - " + std::to_string(count) + " log file\n\n";
     }
   }
 
   for(Logging* log: getList()){
-    if(log->location == log_locations::terminal || log->location == log_locations::none) log->print_btn.setActive(false);
+    if(log->location == log_locations::terminal || log->location == log_locations::none) log->print_btn.setActive(true);
   }
 
   task.start([](){ //Logging is good to go
