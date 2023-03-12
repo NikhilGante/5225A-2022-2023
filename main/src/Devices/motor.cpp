@@ -3,14 +3,12 @@
 #include "../Libraries/logging.hpp"
 #include "../util.hpp"
 #include "../config.hpp"
-#include <sstream>
-#include <stdexcept>
 
 extern Page temps, motors;
 extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
-ObjectTracker{class_name, name}, Motor{port, gearset, reversed, encoder_units}{
+ObjectTracker{"Motor", name}, Motor{port, gearset, reversed, encoder_units}{
   valid_smart_port(getFullName(), port);
   //2x4
   on         .construct({static_cast<int>(115*((getID()-1)%4) + 15), getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);

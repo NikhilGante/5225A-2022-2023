@@ -23,7 +23,7 @@ void newline(int count){
   std::cout << std::string (count-1 , '\n') << std::endl; //-1 because endl puts the final one
 }
 
-std::string get_term_colour(term_colours colour){
+std::string getTermColour(term_colours colour){
   switch(colour){
     case term_colours::BLACK: return "\033[30m"; break;
     case term_colours::RED: return "\033[31m"; break;
@@ -39,4 +39,22 @@ std::string get_term_colour(term_colours colour){
     case term_colours::NOTIF: return "\033[34mNOTIF: "; break;
   }
   return "";
+}
+
+Color getGUIColour(term_colours colour){
+  switch(colour){
+    case term_colours::BLACK: return Color::black; break;
+    case term_colours::ERROR:
+    case term_colours::RED: return Color::red; break;
+    case term_colours::NOTIF:
+    case term_colours::GREEN: return Color::green; break;
+    case term_colours::WARNING:
+    case term_colours::YELLOW: return Color::yellow; break;
+    case term_colours::BLUE: return Color::blue; break;
+    case term_colours::MAGENTA: return Color::magenta; break;
+    case term_colours::CYAN: return Color::cyan; break;
+    case term_colours::WHITE: return Color::white; break;
+    case term_colours::NONE: return Color::black; break;
+  }
+  return Color::black;
 }

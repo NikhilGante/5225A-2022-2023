@@ -102,8 +102,8 @@ Auton auton2("AWP", autonAWP);
 Auton auton3("Line", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
-//check if objecttracker and gui throws are creating issues
-//make objecttracker create name and short name too
+//arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
+
 //controller queue
 //!fix logging issue
 //!check that log folders is good
@@ -117,16 +117,13 @@ Auton auton4("Skills", provSkillsLow);
 //debugging doc
 //change GitHub to conventions and styles doc
 
-// extern std::array<std::string, 38> port_list;
+/*Dependencies
+Logging needs GUI
+Tracker needs Logging
+GUI needs Tracker
+*/
 
 void opcontrol() {
-  DEBUG;
-  std::ofstream file_init{"/usd/testfile1.txt", std::ofstream::trunc};
-  DEBUG;
-  file_init << "Hello";
-  DEBUG;
-  file_init.close();
-  
   DEBUG;
   WAIT_UNTIL(false){
     if(master.getNewDigital(DIGITAL_A)) alert::start(term_colours::MAGENTA, "Hey There!");

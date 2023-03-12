@@ -220,24 +220,6 @@ namespace alert{
     }
   }
 
-  Color GUI::getColour(term_colours colour){
-    switch(colour){
-      case term_colours::BLACK: return Color::black; break;
-      case term_colours::ERROR:
-      case term_colours::RED: return Color::red; break;
-      case term_colours::NOTIF:
-      case term_colours::GREEN: return Color::green; break;
-      case term_colours::WARNING:
-      case term_colours::YELLOW: return Color::yellow; break;
-      case term_colours::BLUE: return Color::blue; break;
-      case term_colours::MAGENTA: return Color::magenta; break;
-      case term_colours::CYAN: return Color::cyan; break;
-      case term_colours::WHITE: return Color::white; break;
-      case term_colours::NONE: return Color::black; break;
-    }
-    return Color::black;
-  }
-
   void GUI::screen_terminal_fix(){
     //Will only run if things are actually being printed
     if(terminal.texts.empty()){
@@ -299,6 +281,7 @@ namespace alert{
     //Saves the buttons owning page
     this->page = page;
     this->page->buttons.push_back(this);
+    updateName(text);
 
 
     std::size_t next_space = text.find(' ', text.length() / 2);
@@ -329,7 +312,7 @@ namespace alert{
   }
 
   GUI::GUI(std::vector<Page*> pages, std::function<void()> setup, std::function<void()> background):
-  setup{setup}, background{background} {
+  ObjectTracker{"GUI"}, setup{setup}, background{background} {
     //Saves pages to gui
     this->pages.push_back(&perm);
     for (Page* page_ptr: pages) this->pages.push_back(page_ptr);

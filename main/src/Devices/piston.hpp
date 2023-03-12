@@ -14,7 +14,6 @@ class Piston: private ADIDigitalOut, public ObjectTracker<Piston>{
 
     Piston(Port port, std::string name, bool reversed = false, bool init_state = LOW);
     Piston(ext_adi_port_pair_t port_pair, std::string name, bool reversed = false, bool init_state = LOW);
-    inline static const std::string class_name = "Piston";
 
     void setState(bool state);
     void toggleState();

@@ -1,12 +1,13 @@
 #pragma once
 #include "main.h"
+#include "pros/colors.hpp"
 
 struct Position;
 struct Vector;
 
 constexpr int n_printf_max = 50;
 
-//feel free to suggest shorter names for term_colours
+//feel free to suggest a shorter name for term_colours
 enum class term_colours{
   NONE = 0,
   BLACK,
@@ -22,19 +23,9 @@ enum class term_colours{
   NOTIF,
 };
 
-/**
- * @brief Get the terminal control string to modify its printing colour 
- * 
- * @param colour the colour to use
- * @return std::string 
- */
-std::string get_term_colour(term_colours colour);
+std::string getTermColour(term_colours colour);
+Color getGUIColour(term_colours);
 
-/**
- * @brief prints a new line to the terminal
- * 
- * @param count how many lines to print
- */
 void newline(int count = 1);
 
 //Convert Args
@@ -194,7 +185,7 @@ void newline(int count = 1);
     std::string white_end_space = std::string(str.begin() + white_end_count + 1, str.end());
     str.erase(str.begin() + white_end_count + 1, str.end());
 
-    return white_front_space + get_term_colour(colour) + str + get_term_colour(term_colours::NONE) + white_end_space;
+    return white_front_space + getTermColour(colour) + str + getTermColour(term_colours::NONE) + white_end_space;
   }
   template <typename... Params>
   int printf2(term_colours colour, std::string fmt, Params... args){

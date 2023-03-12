@@ -31,7 +31,7 @@ ObjectTracker{"Logging", name}, queue{name}, name{name}, newline{newline}, locat
 
   print_btn.setFunc([this](){
     printf2(term_colours::GREEN, "\n\nStart %s Log Terminal Dump\n", this->name);
-    std::cout << get_term_colour(term_colours::BLUE);
+    std::cout << getTermColour(term_colours::BLUE);
     auto file = Interrupter<std::ifstream>(past_logs.isOn() ? pastFullName : fullName);
     if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
     else std::cout << fullName << " unopenable" << std::endl;

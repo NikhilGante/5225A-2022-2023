@@ -1,7 +1,6 @@
 #pragma once
 #include "main.h"
-#include "pros/colors.hpp"
-#include "queue.hpp"
+#include "alert.hpp"
 #include "tracker.hpp"
 
 using pros::text_format_e_t;
@@ -45,9 +44,7 @@ constexpr int
   CHAR_HEIGHT_LARGE = 32,
   CHAR_WIDTH_LARGE = 19;
 
-namespace alert{
-  void update();
-}
+
 
 //All constructor args are in the format points, format, page, Text, Color
 
@@ -118,9 +115,10 @@ class GUI: public ObjectTracker<GUI>{
       alignedCoords (int, int, int, int, int = 480, int = 220),
       init(),
       goTo(int);
-    static Color getColour(term_colours);
     static bool prompt(std::string, std::string = "", std::uint32_t=0); //Also prompts to controller
 };
+
+Color getGUIColour(term_colours);
 
 class Page: public ObjectTracker<Page>{
   template <typename V> friend class Text;
@@ -184,6 +182,8 @@ class Text_: public ObjectTracker<Text_>{
       updateVal() = 0;
     void draw();
 
+    Text_(): ObjectTracker{"Text"} {}
+
   public:
     void
       setBackground(int, int, Color), //Centre
@@ -221,6 +221,7 @@ class Text: public Text_{
     }
     void construct (GUI::Coordinate coord, GUI::Style type, text_format_e_t txt_size, Page* page, std::string label, std::function<V()> value, Color l_col){
       //static_assert(!std::is_same_v<V, std::string>, "Text variable cannot be std::string, it causes unknown failures"); //Keep this for the painful memories
+      updateName(label);
       box.x1 = USER_RIGHT;
       box.y1 = USER_DOWN;
       box.x2 = USER_LEFT;
@@ -311,7 +312,7 @@ class Button: public ObjectTracker<Button>{
   };
 
   private:
-    Button (){};
+    Button (): ObjectTracker{"Button"} {}
 
     std::uint32_t l_col, b_col, b_col_dark;
     std::string label, label1 = "";
@@ -393,18 +394,3 @@ class Slider: public ObjectTracker<Slider>{
     double getValue() const;
     void setValue(double);
 };
-
-//Screen Flash Definitions
-namespace alert{
-  extern Queue<std::tuple<Color, term_colours, std::uint32_t, std::string>, 25> queue;
-
-  void start   (                                         std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-  void start   (                     std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-  void start   (term_colours colour,                     std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-  void start   (term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.         push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
-
-  void priority(                                         std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, 1000, sprintf2(fmt, args...)});} //Defaults colour and time
-  void priority(                     std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(term_colours::ERROR), term_colours::ERROR, time, sprintf2(fmt, args...)});} //Defaults colour
-  void priority(term_colours colour,                     std::string fmt, auto... args) {queue.priority_push({GUI::getColour(colour)             , colour             , 1000, sprintf2(fmt, args...)});} //Defaults time
-  void priority(term_colours colour, std::uint32_t time, std::string fmt, auto... args) {queue.priority_push({GUI::getColour(colour)             , colour             , time, sprintf2(fmt, args...)});} //Doesn't default
-}
