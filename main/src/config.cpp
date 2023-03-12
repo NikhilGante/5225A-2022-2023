@@ -62,6 +62,9 @@ Port valid_smart_port(std::string device_label, Port port){
   if(!inRangeIncl(port, 1, 21)) alert::start("Cannot initialize %s in port \"%s\". Invalid port number",     device_label, port_label              );
   if(saved_device != "")        alert::start("Cannot initialize %s in port \"%s\". %s already exists there", device_label, port_label, saved_device);
   saved_device = device_label;
+
+  printf2("%s: %d\n", device_label, port);
+
   return port;
 }
 

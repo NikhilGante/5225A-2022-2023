@@ -23,7 +23,7 @@ Logging log_log       {"Log"       , true};
 Logging none_log      {"None"      , false, log_locations::none};
 
 Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
-ObjectTracker{name + " Logging"}, queue{name}, name{name}, newline{newline}, location{location}, print_colour{print_colour} {
+ObjectTracker{"Logging", name}, queue{name}, name{name}, newline{newline}, location{location}, print_colour{print_colour} {
   static int x = 130, y = 40;
   print_btn.construct({x, y, 100, 40, GUI::Style::SIZE}, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
   x = x != 360 ? x+115 : 15;

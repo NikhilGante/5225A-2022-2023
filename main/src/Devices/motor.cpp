@@ -10,15 +10,8 @@ extern Page temps, motors;
 extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
-ObjectTracker{name + ' ' + class_name}, Motor{port, gearset, reversed, encoder_units}, name{name}{
-  valid_smart_port(name + class_name, port);
-
-  {
-    std::stringstream ss{getName()};
-    using iterator = std::istream_iterator<std::string>;
-    for(auto it = iterator{ss}; it != iterator{}; it++) short_name += it->front();
-  }
-
+ObjectTracker{class_name, name}, Motor{port, gearset, reversed, encoder_units}{
+  valid_smart_port(getFullName(), port);
   //2x4
   on         .construct({static_cast<int>(115*((getID()-1)%4) + 15), getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
   off        .construct({static_cast<int>(115*((getID()-1)%4) + 70), getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
@@ -76,8 +69,6 @@ bool _Motor::plugged() const {return static_cast<int>(get_temperature()) != std:
 double _Motor::getPosition() const {return get_position();}
 double _Motor::getTargetPosition() const {return get_target_position();}
 Port _Motor::getPort() const {return get_port();}
-std::string _Motor::getName() const {return name;}
-std::string _Motor::getShortName() const {return short_name;}
 
 void _Motor::updateTemperatureText(){
   switch(getTemperature()){

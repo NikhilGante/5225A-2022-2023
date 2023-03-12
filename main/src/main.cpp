@@ -103,6 +103,7 @@ Auton auton3("Line", autonLine, Auton::E_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
 //check if objecttracker and gui throws are creating issues
+//make objecttracker create name and short name too
 //controller queue
 //!fix logging issue
 //!check that log folders is good
@@ -116,7 +117,7 @@ Auton auton4("Skills", provSkillsLow);
 //debugging doc
 //change GitHub to conventions and styles doc
 
-extern std::array<std::string, 38> port_list;
+// extern std::array<std::string, 38> port_list;
 
 void opcontrol() {
   DEBUG;

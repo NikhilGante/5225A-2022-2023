@@ -6,7 +6,6 @@
 class Piston: private ADIDigitalOut, public ObjectTracker<Piston>{
   private:
     Button toggle;
-    std::string name;
 
     bool state;  //The state of the SUBSYSTEM (e.g. 1 if the claw is closed, 0 if open)
     bool reversed;  //If the state of the subsytem is opposite the state of the piston
@@ -20,6 +19,4 @@ class Piston: private ADIDigitalOut, public ObjectTracker<Piston>{
     void setState(bool state);
     void toggleState();
     bool getState() const;
-
-    std::string getName() const;
 };

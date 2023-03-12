@@ -196,12 +196,13 @@ void mainSetup(){
       if(_Controller::id_to_ptr(CONTROLLER_MASTER) && !_Controller::id_to_ptr(CONTROLLER_MASTER)->connected()) alert::start("Master Controller not connected");
       if(_Controller::id_to_ptr(CONTROLLER_PARTNER) && !_Controller::id_to_ptr(CONTROLLER_PARTNER)->connected()) alert::start("Partner Controller not connected");
       
-      for (_Distance* distance: _Distance::getList()) if (!correctDevice(distance)) alert::start("Distance %s not plugged in port %d", distance->getName(), distance->getPort());
-      for ( Encoder*  encoder:   Encoder ::getList()) if (!correctDevice(encoder)) alert::start("Encoder %s not plugged in port %d", encoder->getName(), encoder->getPort());
-      for ( Gyro*     gyro:      Gyro    ::getList()) if (!correctDevice(gyro)) alert::start("Gyro %s not plugged in port %d", gyro->getName(), gyro->getPort());
-      for (_Motor*    motor:    _Motor   ::getList()) if (!correctDevice(motor) || !motor->plugged()) alert::start("Motor %s not plugged in port %d", motor->getName(), motor->getPort());
-      
-      for (_Distance* distance: _Distance::getList()) {if(!inRangeIncl(distance->getVal(), 20, 2000)) alert::start("%s Distance Sensor Out of Range", distance->getName());}
+      for ( Encoder*  encoder:   Encoder ::getList()) if (!correctDevice(encoder)) alert::start("%s not plugged in port %d", encoder->getFullName(), encoder->getPort());
+      for ( Gyro*     gyro:      Gyro    ::getList()) if (!correctDevice(gyro)) alert::start("%s not plugged in port %d", gyro->getFullName(), gyro->getPort());
+      for (_Motor*    motor:    _Motor   ::getList()) if (!correctDevice(motor) || !motor->plugged()) alert::start("%s not plugged in port %d", motor->getFullName(), motor->getPort());
+      for (_Distance* distance: _Distance::getList()){
+        if (!correctDevice(distance)) alert::start("%s not plugged in port %d", distance->getFullName(), distance->getPort());
+        if(!inRangeIncl(distance->getVal(), 20, 2000)) alert::start("%s Out of Range", distance->getFullName());
+      }
     });
 
     misc_checks.setFunc([](){

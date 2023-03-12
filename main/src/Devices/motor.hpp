@@ -9,7 +9,6 @@ class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
     Button on, off;
     Text<int> temperature, data;
     Text<> text;
-    std::string name, short_name;
     int speed; //Represents the target speed
 
     int velocityToVoltage(int velocity);
@@ -31,6 +30,4 @@ class _Motor: private Motor, public ObjectTracker<_Motor, 8>{
     int getTemperature() const;
     int getRPM() const;
     Port getPort() const;
-    std::string getName() const;
-    std::string getShortName() const;
 };
