@@ -27,6 +27,7 @@ extern controller_digital_e_t endgameBtnLeft;
 extern controller_digital_e_t intakeToggleBtn;
 extern controller_digital_e_t intakeRevBtn;
 extern controller_digital_e_t endgameBtnRight;
+extern controller_digital_e_t rollerBtn;
 
 
 // ------------------------------ Front Buttons ------------------------------

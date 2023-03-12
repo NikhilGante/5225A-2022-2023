@@ -2,6 +2,8 @@
 #include "config.hpp"
 #include "util.hpp"
 
+extern Timer op_control_timer;
+
 extern const int deadzone;
 
 int polynomial(int x, double curvature);

@@ -201,6 +201,11 @@ IMU THINGS:
 // #define SELECT
 
 void opcontrol() {
+	// setFlywheelVel(barrier_rpm - 50);
+	// shoot(9, true);	
+	// shooter.waitToReachState(ShooterIdleParams{});
+	driverPractice();
+
 	flattenAgainstWallSync();
 	tracking.reset(distanceReset(resetPosition::leftHome));
 	spinRoller(600);

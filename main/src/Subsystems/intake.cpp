@@ -5,35 +5,61 @@
 #include "../drive.hpp"
 #include "../auton.hpp"
 
+Timer intk_off_buzz_timer{"intk_off_buzz_timer"};
+
 Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 
 void intakeHandleInput(){
   INTAKE_STATE_TYPES_VARIANT cur_state = intake.getState();
   if(get_if<IntakeOnParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn))  intakeOff();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
+    if(master.get_digital_new_press(intakeToggleBtn)){
+      log("%lld | INTAKE TOGGLE BUTTON PRESSED\n", op_control_timer.getTime());
+      intakeOff();
+    }  
+    if(master.get_digital_new_press(intakeRevBtn)){
+      log("%lld | INTAKE REVERSE BUTTON PRESSED\n", op_control_timer.getTime());
+      intakeRev();
+    } 
   }
   else if(get_if<IntakeOffParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeRev();
+    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3){
+      log("%lld | INTAKE TOGGLE BUTTON PRESSED\n", op_control_timer.getTime());
+      intakeOn();
+    }
+    if(master.get_digital_new_press(intakeRevBtn)){
+      log("%lld | INTAKE REVERSE BUTTON PRESSED\n", op_control_timer.getTime());
+      intakeRev();
+    } 
   }
   else if(get_if<IntakeRevParams>(&cur_state)){
-    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.get_digital_new_press(intakeRevBtn)) intakeOff();
-  }
-  /*
-  else if(get_if<IntakeRollerParams>(&cur_state)){  // Cancel spinning of roller if roller btn is pressed
-    if(master.get_digital_new_press(rollerBtn)){
-      // Gives driver back control
-      trans_p.setState(HIGH);
-      drive.changeState(DriveOpControlParams{});
-      intakeOff();
+    if(master.get_digital_new_press(intakeToggleBtn) && g_mag_disc_count < 3){
+      log("%lld | INTAKE TOGGLE BUTTON PRESSED\n", op_control_timer.getTime());
+      intakeOn();
     }
+    if(master.get_digital_new_press(intakeRevBtn)){
+      log("%lld | INTAKE REVERSE BUTTON PRESSED\n", op_control_timer.getTime());
+      intakeOff();
+    } 
   }
-  */
-  
+ 
   // Spin roller if btn is pressed and not already spinning
-  // if(master.get_digital_new_press(rollerBtn) && !get_if<IntakeRollerParams>(&cur_state))  spinRoller(false);
+  if(master.isRising(rollerBtn) && !get_if<IntakeIndexParams>(&cur_state)){
+    log("%lld | ROLLER BUTTON RISING\n", op_control_timer.getTime());
+    intake.changeState(IntakeIdleParams{});
+    intake.waitToReachState(IntakeIdleParams{});
+    intake_m.move(127); // Operates intake manually so disc count doesn't turn it off
+  }
+  else if (master.isFalling(rollerBtn)){
+    log("%lld | ROLLER BUTTON RELEASED\n", op_control_timer.getTime());
+    intakeOff();
+  }
+
+  
+  if(get_if<IntakeOffParams>(&cur_state) && intk_off_buzz_timer.getTime() > 300){  // Buzzes if in low gear for driver
+    intk_off_buzz_timer.reset();
+    master.rumble("..");
+  }
+
 
 }
 
@@ -55,7 +81,7 @@ const char* IntakeOnParams::getName(){
 }
 void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = intk_ds.get_value();
-  printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
+  // printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
   // mag_ds_val = mag_disc_thresh + 1;
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
@@ -71,23 +97,24 @@ void IntakeOnParams::handle(){  // synchronous state
   // If mag is full, don't let any more discs in
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
-  // if(g_mag_disc_count >= 3) {
-  //   log("COUNTED 3\n");
-  //   master.rumble("-");
-  //   log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
-  //   _Task::delay(185);
+  if(g_mag_disc_count >= 3) {
+    log("COUNTED 3\n");
+    master.rumble("-");
+    log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
+    _Task::delay(185);
 
-  //   if(pros::competition::is_autonomous()){
-  //     drive.changeState(DriveIdleParams{});
-  //     drive.waitToReachState(DriveIdleParams{});
-  //     intake_m.move(-127);
-  //     moveInches(-2.0);
-  //     intakeRev();
+    // Flushes out 4th disc if in auto
+    if(g_mag_disc_count > 3 && pros::competition::is_autonomous()){
+      drive.changeState(DriveIdleParams{});
+      drive.waitToReachState(DriveIdleParams{});
+      intake_m.move(-127);
+      moveInches(-2.0);
+      intakeRev();
 
-  //   }
-  //   else intakeOff();
-  //   if(angleOverride)  angler_p.setState(HIGH);
-  // }
+    }
+    else intakeOff();
+    if(angleOverride)  angler_p.setState(HIGH);
+  }
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }

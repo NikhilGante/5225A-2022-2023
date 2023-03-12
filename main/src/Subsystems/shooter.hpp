@@ -31,7 +31,7 @@ struct ShooterIdleParams{
 };
 
 struct ShooterShootParams{  
-  ShooterShootParams(int shots = 3, bool match_load = false);
+  ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = false);
 
   const char* getName();
   void handle();
@@ -40,6 +40,7 @@ struct ShooterShootParams{
   int shots_left;
   bool disc_seen = false, disc_seen_last = false;
   bool match_load;
+  bool clear_mag;
 
   FLYWHEEL_STATE_TYPES_VARIANT flywheel_state;
 private:
@@ -54,6 +55,6 @@ private:
 
 
 
-void shoot(int shots = 3, bool match_load = false);  // Shoots x number of shots
+void shoot(int shots = 3, bool match_load = false, bool clear_mag = false);  // Shoots x number of shots
 
 void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)

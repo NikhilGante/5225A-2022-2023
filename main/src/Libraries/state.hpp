@@ -73,8 +73,8 @@ public:
   Machine(const char* name, base_state_type base_state):  name(name), state(base_state), target_state(base_state), base_state(base_state){}
 
   template <typename next_state_type>
-  void changeState(next_state_type next_state, int line = -1){
-    log("%s state change requested from %s to %s, LINE:%d\n", name, getStateName(state), getStateName(next_state), line);
+  void changeState(next_state_type next_state){
+    log("%s state change requested from %s to %s\n", name, getStateName(state), getStateName(next_state));
     setTargetState(next_state);
     state_change_requested = true;
     task.kill();  // Interrupts current state

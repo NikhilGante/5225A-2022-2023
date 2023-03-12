@@ -6,6 +6,8 @@
 #include "Subsystems/shooter.hpp"
 #include <cmath>
 
+Timer op_control_timer{"shoot_timer"};
+
 double drive_curvature = 1.0;
 double angle_curvature = 2.0;
 
@@ -80,6 +82,7 @@ Timer backwards_timer{"backwards_timer"};
 bool backwards = false;
 bool last_backwards = false;
 
+
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
@@ -111,16 +114,13 @@ void driveHandleInput(){
 
   // }
 
+  moveDrive(power_y, power_a);
 
   lcd::print(3, "intk:%lf", intake_m.get_temperature());
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
   lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
   lcd::print(7, "flywheel:%.lf", flywheel_m.get_temperature());
 
-  if(master.get_digital_new_press(transToggleBtn)){
-    shiftTrans(!trans_p.getState());
-  }
-  moveDrive(power_y, power_a);
 }
 
 const int dz = 7; // Deadzone for joystick
@@ -208,8 +208,11 @@ void driveHandleInputProg(){
 }
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop
+  op_control_timer.reset();
   Timer disc_count_print{"disc_count_print"};
 	Timer angle_override_print{"angle_override_print"};
+  Timer low_gear_buzz_timer{"low_gear_buzz_timer"};
+
 	master.clear();
 
   // Initialises states of subsystems
@@ -229,34 +232,36 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   // drive.changeState(DriveIdleParams{});
 
 	while(true){
+    master.updateButtons();
+
+
+    if(master.get_digital_new_press(transToggleBtn))  shiftTrans(!trans_p.getState());
+  
+    if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
+      low_gear_buzz_timer.reset();
+      master.rumble("-");
+    }
 
     if(endgame_click_timer_left.getTime() > 300){
-      printf("timer reset: %lld\n", endgame_click_timer_left.getTime());
       endgame_click_timer_left.reset(false);
       endgame_dbl_click_left = false;
-      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_left);
-
     }
     if(master.get_digital_new_press(endgameBtnLeft)){
-      printf("PRESSED | timer reset: %lld\n", endgame_click_timer_left.getTime());
-      printf("dbl_click: %d\n", endgame_dbl_click_left);
       if(endgame_dbl_click_left) {
+        log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_s_p.setState(HIGH);
       }
       else endgame_dbl_click_left = true;
       endgame_click_timer_left.reset();
     }
+
     if(endgame_click_timer_right.getTime() > 300){
-      printf("timer reset: %lld\n", endgame_click_timer_right.getTime());
       endgame_click_timer_right.reset(false);
       endgame_dbl_click_right = false;
-      printf("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_right);
-
     }
     if(master.get_digital_new_press(endgameBtnRight)){
-      printf("PRESSED | timer reset: %lld\n", endgame_click_timer_right.getTime());
-      printf("dbl_click: %d\n", endgame_dbl_click_right);
       if(endgame_dbl_click_right) {
+        log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_d_p.setState(HIGH);
       }
       else endgame_dbl_click_right = true;
