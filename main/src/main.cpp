@@ -21,9 +21,7 @@
 void initialize() {
   DEBUG;
 
-  DEBUG;
   Logging::init();
-  DEBUG;
 	_Controller::init();
   GUI::init();
   tracking.init();	// ACTUAL SKILLS
@@ -118,8 +116,6 @@ Auton auton4("Skills", provSkillsLow);
 
 void opcontrol() {
   DEBUG;
-  WAIT_UNTIL(false){
-    if(master.getNewDigital(DIGITAL_B)) flywheel_log(true, "Heklp me");
-  }
+  WAIT_UNTIL(false);
   DEBUG;
 }

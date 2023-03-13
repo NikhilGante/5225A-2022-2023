@@ -56,9 +56,9 @@ void _Motor::moveRelative(int velocity){
 }
 
 void _Motor::brake(){
-  state_log("%d: Motor %s braking requested", millis(), getName());
+  state_log("%d: %s Motor braking requested", millis(), getName());
   moveRelative(0);
-  state_log("%d: Motor %s braking request processed", millis(), getName());
+  state_log("%d: %s Motor braking request processed", millis(), getName());
 }
 
 int _Motor::getTemperature() const {return plugged() ? get_temperature() : -1;}

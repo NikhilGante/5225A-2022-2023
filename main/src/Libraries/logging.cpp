@@ -91,7 +91,7 @@ void Logging::init(){
   task.start([](){ //Logging is good to go
     Timer timer{"Logging Queue"};
     while(true){
-      if(timer.getTime() > print_max_time){
+      if(timer.getTime() > max_time){
         for(Logging* log: getList()) log->update(true);
         timer.reset();
       }
@@ -104,7 +104,7 @@ void Logging::init(){
 }
 
 void Logging::update(bool force){
-  if(!queue.empty() && (force || queue.size() > print_max_size)){
+  if(!queue.empty() && (force || queue.size() > max_size)){
     if(location == log_locations::sd_main || location == log_locations::sd_only || location == log_locations::both){
       queue_mutex.take(TIMEOUT_MAX);
       std::ofstream data{fullName, std::ofstream::app};

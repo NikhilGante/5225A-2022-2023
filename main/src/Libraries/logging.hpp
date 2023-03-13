@@ -32,8 +32,8 @@ class Logging: public ObjectTracker<Logging>{
     Queue<char, 20000> queue;
     Mutex queue_mutex;
 
-    static constexpr std::size_t print_max_size{12000};
-    static constexpr uint32_t print_max_time{800};
+    static constexpr std::size_t max_size{12500};
+    static constexpr uint32_t max_time{750};
     static _Task task;
     static Button past_logs;
     static void pause();

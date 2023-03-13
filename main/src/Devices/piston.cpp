@@ -28,12 +28,12 @@ ObjectTracker{"Piston", name}, ADIDigitalOut{port_pair, init_state}, reversed{re
   toggle.construct({static_cast<int>(155*((getID()-1)%3) + 10), static_cast<int>(50*std::floor((getID()-1)/3) + 30), 145, 40, GUI::Style::SIZE}, Button::TOGGLE, &pneumatics, getName() + ": {" + std::to_string(port_pair.first) + ", " + port_char + '}', Color::dark_orange, Color::black);
 
   toggle.setFunc([this](){
-    state_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), HIGH != this->reversed);
+    state_log("%d: %s Piston switching from %d to %d", millis(), getName(), getState(), HIGH != this->reversed);
     this->state = HIGH != this->reversed;
     set_value(getState());
   });
   toggle.setOffFunc([this](){
-    state_log("%d: Piston %s switching from %d to %d", millis(), getName(), getState(), LOW != this->reversed);
+    state_log("%d: %s Piston switching from %d to %d", millis(), getName(), getState(), LOW != this->reversed);
     this->state = LOW != this->reversed;
     set_value(getState());
   });

@@ -13,9 +13,9 @@ constexpr double MS_TO_MIN = 60000;
 constexpr double SPROCKET_RATIO = 1.0/1;
 constexpr double CARTRIDGE_TO_RAW = 6;
 
-Timer FlywheelMoveVelParams::motor_vel_read{"Motor Velocity Read", flywheel_log}; // Ensures motor's velocity is calculated every 40ms
-Timer FlywheelMoveVelParams::log_timer{"Log Timer", flywheel_log};
-Timer FlywheelMoveVelParams::disc_correction_timer{"Disc Correction", flywheel_log, false}; // Doesn't apply correction while disc is passing through
+Timer FlywheelMoveVelParams::motor_vel_read{"Motor Velocity Read"}; // Ensures motor's velocity is calculated every 40ms
+Timer FlywheelMoveVelParams::log_timer{"Log Timer"};
+Timer FlywheelMoveVelParams::disc_correction_timer{"Disc Correction", none_log, false}; // Doesn't apply correction while disc is passing through
 
 // 11/27
 // 28/60
