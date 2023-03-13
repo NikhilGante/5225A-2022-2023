@@ -1,7 +1,7 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 #include "../Libraries/logging.hpp"
-#include "../Libraries/queue.hpp"
+#include "okapi/api/util/mathUtil.hpp"
 
 // Buttons
   static constexpr controller_digital_e_t okBtn = DIGITAL_A;
@@ -13,8 +13,8 @@
   // ------------------------------ Letter Buttons ------------------------------
   static constexpr controller_digital_e_t intakeToggleBtn = DIGITAL_A;
   static constexpr controller_digital_e_t intakeRevBtn = DIGITAL_X;
-  static constexpr controller_digital_e_t angleOverrideBtn = DIGITAL_B;
   static constexpr controller_digital_e_t endgameBtnRight = DIGITAL_Y;
+  static constexpr controller_digital_e_t rollerBtn = DIGITAL_B;
 
 
   // ------------------------------ Front Buttons ------------------------------
@@ -37,40 +37,58 @@ class _Controller: private Controller{
     void handle();
     std::string& getText(int line);
 
+    _Controller(_Controller const &) = delete;
+    _Controller& operator=(_Controller const &) = delete;
     
   public:
     _Controller(controller_id_e_t id);
     static void init();
 
     static constexpr int deadzone = 7;
-    
+
+    static void deadband(auto& value) {value = okapi::deadband(value, -deadzone, deadzone);}
+    static auto deadband(auto&& value) {return okapi::deadband(value, -deadzone, deadzone);}
+
+    void blackout();
     void clearLine (std::uint8_t line);
     void clear();
-    void rumble(std::string rumble_pattern);
-    int getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
+    void rumble(std::string rumble_pattern = "-");
+    int  getAnalog(controller_analog_e_t joystick, int deadzone = _Controller::deadzone);
     bool getDigital(controller_digital_e_t);
     bool getNewDigital(controller_digital_e_t);
+    bool connected();
     bool interrupt(bool analog = true, bool digital = true, bool OK_except = true);
-    void wait_for_press(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
-    controller_digital_e_t wait_for_press(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
+    void waitForPress(controller_digital_e_t button, int timeout = std::numeric_limits<int>::max());
+    controller_digital_e_t waitForPress(std::vector<controller_digital_e_t> buttons, int timeout = std::numeric_limits<int>::max());
     std::string getText(int line) const;
+
+    static _Controller* id_to_ptr(controller_id_e_t id);
 
     void print(std::uint8_t line, std::string fmt, auto... args){
       clearLine(line);
       std::string str = sprintf2(fmt, args...);
       queue.push([=, this](){
         Controller::print(line, 0, str.c_str());
-        controller_log("Printing \"%s\" to %s controller", str, name);
+        state_log("Printing \"%s\" to %s controller", str, name);
       });
-      controller_log("Adding print to %s controller queue", name);
+      state_log("Adding print to %s controller queue", name);
 
       getText(line) = str;
     }
 
     void printScroll(std::string fmt, auto... args){
       std::string str = sprintf2(fmt, args...);
-      print(0, getText(1));
-      print(1, getText(2));
-      print(2, str);
+      if (getText(2) == ""){
+        print(2, str);
+      }
+      else if (getText(1) == ""){
+        print(1, getText(2));
+        print(2, str);
+      }
+      else{
+        print(0, getText(1));
+        print(1, getText(2));
+        print(2, str);
+      }
     }
 };

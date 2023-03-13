@@ -1,11 +1,16 @@
 #include "drive.hpp"
+#include "Libraries/logging.hpp"
 #include "config.hpp"
+#include "util.hpp"
 #include "tracking.hpp"
 #include "Devices/controller.hpp"
 #include "Devices/motor.hpp"
 #include "Devices/piston.hpp"
+#include "Devices/others.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
+
+Timer op_control_timer{"Op Control"};
 
 static constexpr double drive_curvature = 1.0;
 static constexpr double angle_curvature = 2.0;
@@ -20,11 +25,10 @@ constexpr int poly_min_pow(int x, double curvature){
   if(std::abs(x) < _Controller::deadzone) return 0;
   return round(sgn(x) * ((127 - tracking.min_move_power_a)/pow(127 - _Controller::deadzone, n) * pow(abs(x) - _Controller::deadzone, n) + tracking.min_move_power_a));
 }
-// private methods
 constexpr int CustomDrive::polynomial (int x) const {return ::polynomial(x, curvature);}
 constexpr int CustomDrive::exponential(int x) const {
   const double n = curvature;
-  return std::round(exp(0.002 * n * (std::abs(x) - 127)) * x);
+  return std::round(std::exp(0.002 * n * (std::abs(x) - 127)) * x);
 }
 
 // CustomDrive constructor
@@ -34,13 +38,13 @@ void CustomDrive::fillLookupTable(){
   for (short x = -127; x < 128; x++){ // fills lookup table with values from appropriate function
     lookup(x) = exponential(x);
     // UNCOMMENT THESE FOR DEBUGGING, comment for performance
-    // driver_log2("%d, %d", x, lookup(x));
+    // drive_log("%d, %d", x, lookup(x));
     // delay(1);
   }
 }
 
-constexpr int& CustomDrive::lookup(unsigned char x)       {return lookup_table[x];}
-constexpr int  CustomDrive::lookup(unsigned char x) const {return lookup_table[x];}
+constexpr int& CustomDrive::lookup(unsigned char x)       {return lookup_table.at(x);}
+constexpr int  CustomDrive::lookup(unsigned char x) const {return lookup_table.at(x);}
 
 void moveDrive(double y, double a) {moveDriveSide(y+a, y-a);}
 
@@ -62,17 +66,17 @@ void driveBrake(){
   centre_r.brake();
 }
 
-Timer curve_print_timer{"Curve Print"};
 Timer backwards_timer{"Backwards"};
 constexpr int slew = 5;
 bool backwards = false;
 bool last_backwards = false;
 
+
 void driveHandleInput(){
   double power_y = polynomial(master.getAnalog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
- 
-  if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
+
+  _Controller::deadband(power_y);
  
   backwards = power_y < 0;
   // if(backwards && !last_backwards){
@@ -86,18 +90,18 @@ void driveHandleInput(){
   //   power_y = 0;
   // }
 
-  if(std::abs(power_y) < 7) power_y = 0;
-  if(std::abs(power_a) < 7) power_a = 0;
+  _Controller::deadband(power_y);
+  _Controller::deadband(power_a);
 
-  for(_Motor* motor: _Motor::getList()){
-    if(motor->getTemperature() >= 50){
-      moveDrive(0, 0);
-      master.rumble("----------");
-      WAIT_UNTIL(false);
-    }
-  }
+  // Anti-tipping code
+  // drive_log("VEL %lf %lf\n", tracking.r_vel, power_y);
+  // if(std::abs(tracking.r_vel) > 10 && sgn(tracking.r_vel) != sgn(power_y) && !power_a){
+  //   power_y = sgn(power_y) * 1;
 
-  if(master.getNewDigital(transToggleBtn)) trans_p.toggleState();
+  // }
+
+  if(inRangeExcl(std::abs(power_a), 7, tracking.min_move_power_a)) power_a = tracking.min_move_power_a * sgn(power_a); //Give min power to driver when turning
+
   moveDrive(power_y, power_a);
 }
 
@@ -113,11 +117,11 @@ void driveHandleInputProg(){
   power_y = master.getAnalog(ANALOG_LEFT_Y);
   power_a = 0.7 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
 
-  if(std::abs(power_y) < _Controller::deadzone) power_y = 0;
-  if(std::abs(power_a) < _Controller::deadzone) power_a = 0;
+  _Controller::deadband(power_y);
+  _Controller::deadband(power_a);
   // if(power_y < -30){
   //   power_y = -30;
-  //   // master.rumble("-");
+  //   // master.rumble();
   // }
   if(std::abs(power_a) > 65) power_a = sgn(power_a) * 65;
 
@@ -128,7 +132,7 @@ void driveHandleInputProg(){
   if(std::abs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
   if(std::abs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
 
-  // driver_log("%lf %lf %lf %lf", l_power, l_power_last, r_power, r_power_last);
+  // drive_log("%lf %lf %lf %lf", l_power, l_power_last, r_power, r_power_last);
   moveDriveSide(l_power, r_power);
   l_power_last = l_power,  r_power_last = r_power;
 
@@ -136,15 +140,18 @@ void driveHandleInputProg(){
     if(motor->getTemperature() >= 50){
       moveDrive(0, 0);
       master.rumble("----------");
+      state_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
       WAIT_UNTIL(false);
     }
   }
-
 }
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop
-  Timer disc_count_print{"disc_count_print"};
-	Timer angle_override_print{"angle_override_print"};
+  op_control_timer.reset();
+  Timer disc_count_print{"Disc Count Print", drive_log};
+	Timer angle_override_print{"Angle Override Print", drive_log};
+  Timer low_gear_buzz_timer{"Low Gear Buzz", drive_log};
+
 	master.clear();
 
   // Initialises states of subsystems
@@ -153,54 +160,55 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   intakeOn();
   angleOverride = false;
 
-  Timer endgame_click_timer_left{"endgame_timer"};
+  Timer endgame_click_timer_left{"Left Endgame", drive_log};
   endgame_click_timer_left.reset(false);
   bool endgame_dbl_click_left = false;
 
-  Timer endgame_click_timer_right{"endgame_timer"};
+  Timer endgame_click_timer_right{"Right Endgame", drive_log};
   endgame_click_timer_right.reset(false);
   bool endgame_dbl_click_right = false;
   // driveBrake();
   // drive.changeState(DriveIdleParams{});
+
 	while(true){
+    if(master.getNewDigital(transToggleBtn)) shiftTrans(!trans_p.getState());
+  
+    if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
+      low_gear_buzz_timer.reset();
+      master.rumble("-");
+    }
 
     if(endgame_click_timer_left.getTime() > 300){
-      driver_log("timer reset: %lld", endgame_click_timer_left.getTime());
       endgame_click_timer_left.reset(false);
       endgame_dbl_click_left = false;
-      driver_log("SHOULD BE FALSE dbl_click: %d", endgame_dbl_click_left);
-
     }
     if(master.getNewDigital(endgameBtnLeft)){
-      driver_log("PRESSED | timer reset: %lld", endgame_click_timer_left.getTime());
-      driver_log("dbl_click: %d", endgame_dbl_click_left);
       if(endgame_dbl_click_left) {
+        drive_log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_s_p.setState(HIGH);
       }
       else endgame_dbl_click_left = true;
       endgame_click_timer_left.reset();
     }
+
     if(endgame_click_timer_right.getTime() > 300){
-      driver_log("timer reset: %lld\n", endgame_click_timer_right.getTime());
       endgame_click_timer_right.reset(false);
       endgame_dbl_click_right = false;
-      driver_log("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_right);
-
     }
     if(master.getNewDigital(endgameBtnRight)){
-      driver_log("PRESSED | timer reset: %lld\n", endgame_click_timer_right.getTime());
-      driver_log("dbl_click: %d\n", endgame_dbl_click_right);
       if(endgame_dbl_click_right) {
+        drive_log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_d_p.setState(HIGH);
       }
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();
     }
-    if(master.getDigital(endgameBtnLeft) && master.getDigital(endgameBtnRight)){
-      endgame_d_p.setState(HIGH);
-      endgame_s_p.setState(HIGH);
-    }
+    // if(master.getDigital(endgameBtnLeft) && master.getDigital(endgameBtnRight)){
+    //   endgame_d_p.setState(HIGH);
+    //   endgame_s_p.setState(HIGH);
+    // }
 
+    // master.print(2, 0, "DRIVE RPM | %lf %lf\n", front_l.get_actual_velocity(), front_r.get_actual_velocity());
 		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
@@ -222,11 +230,44 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     for(_Motor* motor: _Motor::getList()){
       if(motor->getTemperature() >= 50){
-        moveDrive(0, 0);
-        master.rumble("----------");
-        WAIT_UNTIL(false);
+        // moveDrive(0, 0);
+        master.rumble();
+        state_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+        delay(50);
+        // WAIT_UNTIL(false);
       }
     }
-		delay(10);
+		delay(50);
 	}
+}
+
+void shiftTrans(bool state){
+  _Task trans_task;
+  trans_task.start([=](){
+    drive_log("%d Transmission started shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
+    trans_p.setState(state);
+    drive.changeState(DriveIdleParams{});
+    drive.waitToReachState(DriveIdleParams{});
+    moveDrive(0, 0);
+    delay(100);
+    drive.changeState(DriveOpControlParams{});
+    drive_log("%d Transmission finished shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
+  });
+}
+
+void driveSpeedTest(){
+  drive.changeState(DriveIdleParams{});
+	drive.waitToReachState(DriveIdleParams{});
+	Timer timer{"timer"};
+	moveDrive(127, 0);
+	double start = right_tracker.getVal()*TICKS_TO_INCHES;
+	double cur_y = start;
+
+	while(cur_y < 120){
+		cur_y = right_tracker.getVal()*TICKS_TO_INCHES - start;
+		drive_log("%lld, %lf, %lf, %lf\n", timer.getTime(), cur_y, centre_l.getRPM(), centre_r.getRPM());
+		delay(50);
+	}
+	driveBrake();
+	delay(100);
 }

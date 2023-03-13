@@ -1,8 +1,8 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 
 class Logging;
-extern Logging misc; //Just to avoid pulling in the logging header
+extern Logging none_log;
 
 enum class timing_units{
   millis,
@@ -17,15 +17,20 @@ class Timer{
     bool paused;    // state of timer
     timing_units timing_unit;
     Logging* log;
-    uint64_t getTimeInTimingUnit(); // returns time in either millis micros
+    uint64_t getTimeInTimingUnit() const; // returns time in either millis micros
+
+    Timer(Timer const &) = delete;
+    Timer& operator=(Timer const &) = delete;
 
   public:
-    Timer(std::string name, Logging& log = misc, bool play = true, timing_units timing_unit = timing_units::millis);
+    Timer(std::string name, Logging& log = none_log, bool play = true, timing_units timing_unit = timing_units::millis);
     void reset(bool play = true);
-    uint64_t getTime();
+    uint64_t getTime() const;
     void play();
     void pause();
-    void print(std::string str = ""); // prints to the terminal with custom message
     bool playing() const;
     std::string get_name() const;
+    void print(std::string str = "", auto... args) const {
+      (*log)("%lld | %s%sFrom %s", getTime(), sprintf2(str, args...), str != "" ? " | " : "", get_name());
+    }
 };

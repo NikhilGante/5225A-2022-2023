@@ -1,8 +1,7 @@
 #pragma once
-#include "../Libraries/state.hpp"
 #include "flywheel.hpp"
 
-static constexpr int barrier_rpm = 1820;
+static constexpr int barrier_rpm = 1800;
 
 void shooterHandleInput();
 
@@ -24,20 +23,26 @@ struct ShooterIdleParams{
   void handleStateChange(shooterVariant prev_state);
 };
 
-struct ShooterShootParams{  
-  ShooterShootParams(int shots = 3);
+struct ShooterShootParams{
+    ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = false);
 
-  inline static const std::string name = "ShooterIdle";
-  void handle();
-  void handleStateChange(shooterVariant prev_state);
+    inline static const std::string name = "ShooterShoot";
+    void handle();
+    void handleStateChange(shooterVariant prev_state);
 
-  int shots_left;
+    int shots; // how many shots were requested
+    int shots_left;
+    bool disc_seen = false, disc_seen_last = false;
+    bool match_load;
+    bool clear_mag;
 
-  flywheelVariant flywheel_state;
+    flywheelVariant flywheel_state;
 
-  private: Timer shoot_timer{"shoot_timer"};
-
-  Timer cycle_check{"cycle_check"};
+  private:
+    static Timer shoot_timer, disc_seen_timer, cycle_check, disc_absence_timer; //Disc Absence ends match loads after not seeing for 2 seconds
 };
 
-void shoot(int shots = 3);  // Shoots x number of shots
+
+void shoot(int shots = 3, bool match_load = false, bool clear_mag = false);  // Shoots x number of shots
+
+void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)

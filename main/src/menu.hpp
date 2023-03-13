@@ -1,17 +1,16 @@
 #pragma once
-#include "main.h"
-#include "Libraries/counter.hpp"
+#include "util.hpp"
+#include "Libraries/tracker.hpp"
 
-class Auton: public Counter<Auton, 10>{
+class Auton: public ObjectTracker<Auton>{
   public:
-
     enum class E_Reset_Types{
       home,
       far
     };
 
   private:
-	  E_Reset_Types reset_type;
+    E_Reset_Types reset_type;
     std::string name;
     std::function<void()> program;
     
@@ -21,6 +20,6 @@ class Auton: public Counter<Auton, 10>{
     Auton(std::string name, std::function<void()> program, E_Reset_Types reset_type = E_Reset_Types::home);
     static void select();
     static void run();	// Reads auton from SD card and runs it
-	  static int get();	// Returns selected Auton as an int
+    static int get();	// Returns selected Auton as an int
 	  E_Reset_Types getResetType() const;	// Returns selected Auton as an int
 };

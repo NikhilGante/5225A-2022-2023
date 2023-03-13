@@ -1,37 +1,41 @@
 #pragma once
-#include "main.h"
-#include "task.hpp"
 #include "../util.hpp"
+#include "task.hpp"
+#include "timer.hpp"
+#include "../util.hpp"
+
 #include <variant>
 #include <atomic>
 
 template <typename... StateTypes>
 class Machine{
-  private:
+  public:
     using variant = std::variant<StateTypes...>;
-    variant state, target_state;
+
+  private:
+    //The Base state is what the machine returns to after any operation, and the first state it enters
+    variant state, target_state, base_state;
     Mutex state_mutex, target_state_mutex;
     std::string name;
-
     std::atomic<bool> state_change_requested = false;
-
-    _Task task{name};
+    _Task task;
 
     // Getters and setters for state and target state (since they need mutexes)
-    void setState(variant state_param){
+    void setState(variant state){
       state_mutex.take(TIMEOUT_MAX);
-      state = state_param;
+      this->state = state;
       state_mutex.give();
     }
 
-    void setTargetState(variant target_state_param){
+    void setTargetState(variant target_state){
       target_state_mutex.take(TIMEOUT_MAX);
-      target_state = target_state_param;
+      this->target_state = target_state;
       target_state_mutex.give();
     }
 
   public:
-    Machine(std::string name, auto base_state): name(name), state(base_state), target_state(base_state){}
+    Machine(std::string name, auto base_state):
+    name{name}, state{base_state}, target_state{base_state}, base_state{base_state}, task{name} {}
 
     void changeState(auto next_state){
       state_log("%s state change requested from %s to %s", name, getStateName(state), getStateName(next_state));
@@ -83,8 +87,24 @@ class Machine{
 
     std::string getStateName(variant state) const {return visit([](auto&& arg){return arg.name;}, state);}
 
-    void waitToReachState(variant state_param){  // blocks until desired state is reached
-      size_t index = state_param.index();
+    void waitToReachState(variant state_param){  // Blocks until desired state is reached
+      std::size_t index = state_param.index();
       WAIT_UNTIL(getTargetState().index() == index && getState().index() == index);
+    }
+
+    void setTimeout(int time){
+      Timer timer{"State Timeout", state_log};
+      timer.print("%d", time);
+      while(getTargetState().index() != base_state.index() || getState().index() != base_state.index()){
+        timer.print("%d", time);
+        if(timer.getTime() > time){
+          timer.print("%s state's timeout of %dms reached in %s machine", getStateName(state), time, name);
+          timer.print("%s state's timeout of %dms reached in %s machine", getStateName(state), name, time);
+          changeState(base_state);
+          break;
+        }
+        _Task::delay(10);
+      } 
+      timer.print("%s TIMEOUT REACHED", name);
     }
 };

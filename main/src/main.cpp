@@ -1,13 +1,16 @@
-#include "main.h"
+#include "util.hpp"
 #include "Libraries/gui.hpp"
-#include "Libraries/task.hpp"
 #include "Libraries/logging.hpp"
 #include "Devices/controller.hpp"
+#include "Devices/others.hpp"
+#include "Subsystems/flywheel.hpp"
+#include "Subsystems/intake.hpp"
+#include "Subsystems/shooter.hpp"
 #include "auton.hpp"
 #include "config.hpp"
 #include "menu.hpp"
 #include "tracking.hpp"
-#include "Devices/vision.hpp"
+#include "util.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -16,16 +19,23 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	Logging::init();
-  GUI::init();
-	_Controller::init();
+  DEBUG;
 
-	tracking.reset({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
-	_Task tracking_task("Tracking Update");
-	tracking_task.start(trackingUpdate);
+  DEBUG;
+  Logging::init();
+  DEBUG;
+	_Controller::init();
+  GUI::init();
+  tracking.init();	// ACTUAL SKILLS
 
   misc_checks.select();
-	delay(500);
+	delay(300);
+	drive.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
+
+  DEBUG;
 }
 
 /**
@@ -33,7 +43,9 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void disabled() {
+  DEBUG;
+}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -44,7 +56,9 @@ void disabled() {}
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+  DEBUG;
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -58,7 +72,10 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+  DEBUG;
+	WAIT_UNTIL(!gyro.isCalibrating());
 	Auton::run();
+  DEBUG;
 }
 
 /**
@@ -75,24 +92,34 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
-void auton2func(){
-	auton_log("whatup");
-}
+Auton auton1("Stack", autonStack);
+Auton auton2("AWP", autonAWP);
+Auton auton3("Line", autonLine, Auton::E_Reset_Types::far);
+Auton auton4("Skills", provSkillsLow);
 
-void auton3func(){
-	auton_log("ayyyy");
-}
+//arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
-Auton auton1("autonStack", autonStack);
-Auton auton2("autonAWP", autonAWP);
-Auton auton3("autonLine", autonLine, Auton::E_Reset_Types::far);
-Auton auton4("Skills", fullSkills);
+//reduce execution time of Logging::init()
+//how does inline work with file and line macros
+//make logging page a static member of Logging class
+//Add a config page to the gui
+//make Tracking a static class
+//Logging different sizes
+//Eliminate the idea of multiple guis
+//Make all buttons use a Text
+//Angle class
 
-//create task interrupter class with RAII
-//check that logging pause is good
+//debugging doc
+//change GitHub to conventions and styles doc
+//update logging doc
+
+//is button rising/falling needed?
+//distanceReset inconsistent use of degToRad
+
 void opcontrol() {
   DEBUG;
-  
+  WAIT_UNTIL(false){
+    if(master.getNewDigital(DIGITAL_B)) flywheel_log(true, "Heklp me");
+  }
   DEBUG;
-  WAIT_UNTIL(false);
 }

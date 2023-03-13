@@ -1,11 +1,15 @@
 #pragma once
+#include "tracking.hpp"
 
-double getDistL();  // Gets tracking centre's position from wall on left
-double getDistR();  // Gets tracking centre's position from wall on right
 
-void moveInches(double target);
+void moveInches(double target, double max_power = 127, E_Brake_Modes brake_mode = E_Brake_Modes::brake);
 
 void fullSkills();
+void provSkills();
+void provSkillsLow();
+
+
+void backupSkills();
 
 void skills1();
 void skills2();
@@ -13,5 +17,7 @@ void skills3();
 
 void autonStack();
 void autonAWP();
+void autonAWP2();
+void autonAWP3();
 void autonLine();
 

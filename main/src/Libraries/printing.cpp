@@ -1,21 +1,21 @@
 #include "printing.hpp"
 #include "geometry.hpp"
 
-std::string convert_all_args(const std::string& fmt, const std::string& arg){
+std::string convert_all_args(std::string const & fmt, std::string const & arg){
   if(fmt.back() == 'p') return convert_all_args(fmt, arg.data());
   return arg;
 }
 
-std::string convert_all_args(const std::string& fmt, const Position& arg){
+std::string convert_all_args(std::string const & fmt, const Position& arg){
   return '(' + convert_all_args(fmt, arg.x) + ", " + convert_all_args(fmt, arg.y) + ", " + convert_all_args(fmt, arg.a) + ")";
 }
 
-std::string convert_all_args(const std::string& fmt, const Vector& arg){
+std::string convert_all_args(std::string const & fmt, const Vector& arg){
   return '(' + convert_all_args(fmt, arg.getX()) + ", " + convert_all_args(fmt, arg.getY()) + ")";
 }
 
 //Template Recursion Base case
-const std::string& sprintf2(const std::string& fmt){
+std::string const & sprintf2(std::string const & fmt){
   return fmt;
 }
 
@@ -23,7 +23,7 @@ void newline(int count){
   std::cout << std::string (count-1 , '\n') << std::endl; //-1 because endl puts the final one
 }
 
-std::string get_term_colour(term_colours colour){
+std::string getTermColour(term_colours colour){
   switch(colour){
     case term_colours::BLACK: return "\033[30m"; break;
     case term_colours::RED: return "\033[31m"; break;
@@ -37,7 +37,24 @@ std::string get_term_colour(term_colours colour){
     case term_colours::ERROR: return "\033[31mERROR: "; break;
     case term_colours::WARNING: return "\033[33mWARNING: "; break;
     case term_colours::NOTIF: return "\033[34mNOTIF: "; break;
-    case term_colours::UNDERLINE: return "\033[4mNOTIF: "; break;
   }
   return "";
+}
+
+Color getGUIColour(term_colours colour){
+  switch(colour){
+    case term_colours::BLACK: return Color::black; break;
+    case term_colours::ERROR:
+    case term_colours::RED: return Color::red; break;
+    case term_colours::NOTIF:
+    case term_colours::GREEN: return Color::green; break;
+    case term_colours::WARNING:
+    case term_colours::YELLOW: return Color::yellow; break;
+    case term_colours::BLUE: return Color::blue; break;
+    case term_colours::MAGENTA: return Color::magenta; break;
+    case term_colours::CYAN: return Color::cyan; break;
+    case term_colours::WHITE: return Color::white; break;
+    case term_colours::NONE: return Color::black; break;
+  }
+  return Color::black;
 }

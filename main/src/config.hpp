@@ -1,32 +1,48 @@
 #pragma once
-#include "main.h"
+#include "util.hpp"
+#include "pros/apix.h"
 
-static constexpr uint8_t rotation_port = 2;
+using Port = std::uint8_t;
+
+static constexpr Port expander_port = 2;
 
 class _Controller;
+class _Distance;
+class Encoder;
+class Gyro;
 class _Motor;
 class Piston;
+class Light;
+class Ultrasonic;
 
 extern _Controller master;
 extern _Controller partner;
 extern _Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywheel_m, intake_m;
-extern Rotation left_tracker, right_tracker, back_tracker;
+extern Encoder left_tracker, right_tracker, back_tracker;
 
 extern Piston indexer_p;
 
-extern ADIAnalogIn mag_ds;
-extern ADIAnalogIn shooter_ds;
+extern Light mag_ds;
+extern Light shooter_ds;
+extern Light intk_ds;
 
-extern Rotation flywheel_rot_sensor;
+extern Ultrasonic ultra_left;
+extern Ultrasonic ultra_right;
+
+extern Encoder flywheel_rot_sensor;
 
 extern Piston angler_p, trans_p, endgame_s_p, endgame_d_p;
 
-extern Optical roller_sensor;
+extern Gyro gyro;
 
-extern Distance l_reset_dist;
-extern Distance r_reset_dist;
+extern _Distance l_reset_dist;
+extern _Distance r_reset_dist;
 
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define DEBUG printf("Time:%07d - File:%s | Function:%s | Line:%d\n", millis(), __FILENAME__, __PRETTY_FUNCTION__, __LINE__);
-#define DEPRECATE do{printf("Trying to use a deprecated feature:  "); DEBUG; alert::start("DEPRECATED");} while(0);
-#define TO_IMPLEMENT do{printf("Trying to use a feature that is not yet implemented: "); DEBUG; alert::start("NOT IMPLEMENTED");} while(0);
+Port valid_smart_port(std::string, Port);
+Port valid_adi_port(std::string, Port);
+ext_adi_port_pair_t valid_adi_ports(std::string, Port, Port);
+Port valid_ext_adi_port(std::string, ext_adi_port_pair_t);
+ext_adi_port_pair_t valid_ext_adi_ports(std::string, ext_adi_port_tuple_t);
+
+inline bool correctDevice (Port port, c::v5_device_e device) {return c::registry_get_plugged_type(port-1) == device;}
+bool correctDevice (auto* obj) {return correctDevice(obj->getPort(), obj->device);}

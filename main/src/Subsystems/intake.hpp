@@ -3,6 +3,7 @@
 
 void intakeHandleInput();
 
+extern Timer intk_off_buzz_timer;
 extern std::atomic<int> g_mag_disc_count;
 
 // forward declarations
@@ -38,7 +39,7 @@ struct IntakeOnParams{
 private:
   int mag_ds_val;
   bool mag_disc_detected = false, mag_disc_detected_last = false;
-  static constexpr int mag_disc_thresh = 500;
+  static constexpr int mag_disc_thresh = 1000;
 };
 
 void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on
@@ -76,12 +77,12 @@ struct IntakeIndexParams{
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs
 
 struct IntakeRollerParams{
-  bool flatten; // Whether to flatten against wall or not
-  IntakeRollerParams(bool flatten = true);
+  double degrees; // How many degrees to spin the roller
+  IntakeRollerParams(double degrees = 300); // 300 for auto, 500 for skills
 
   inline static const std::string name = "IntakeRoller";
   void handle();
   void handleStateChange(intakeVariant prev_state);
 };
 
-void spinRoller(bool flatten = true);  // Wrapper function to make intake index discs
+void spinRoller(double degrees = 300);  // Wrapper function to make intake index discs

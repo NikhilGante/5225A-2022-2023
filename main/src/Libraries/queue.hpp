@@ -1,9 +1,9 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 #include "printing.hpp"
 
 //Forward Declare
-namespace alert {void priority(term_colours colour, std::string fmt, auto... args);}
+namespace alert {struct Params; void priority(alert::Params params, std::string fmt, auto... args);}
 
 template <typename O, typename I> concept output_iter = std::input_iterator<I> && std::output_iterator<O, typename std::iterator_traits<I>::value_type>;
 
@@ -21,7 +21,7 @@ constexpr auto copy_pair(std::pair<I, I> in, std::pair<O, O> out){
   return amount;
 }
 
-template <typename T,  std::size_t N> requires std::same_as<std::remove_cvref_t<T>, T>
+template <typename T,  std::size_t N>
 class Queue{
   public:
     using size_type              = std::size_t;
@@ -48,7 +48,7 @@ class Queue{
         pointer begin, end;
         int cycle;
 
-        constexpr bool same_container(iterator const& rhs) const {return begin == rhs.begin && end == rhs.end;}
+        constexpr bool same_container(iterator const & rhs) const {return begin == rhs.begin && end == rhs.end;}
       public:
         constexpr iterator(pointer ptr, pointer begin, pointer end): internal{ptr}, begin{begin}, end{end}, cycle{0} {};
         constexpr iterator(std::nullptr_t = nullptr): iterator{nullptr, nullptr, nullptr} {};
@@ -63,7 +63,7 @@ class Queue{
         }
         constexpr iterator& operator-=(difference_type n) {return *this += -n;}
         constexpr iterator operator+(difference_type n) const {iterator temp{*this}; return temp += n;}
-        friend constexpr iterator operator+(difference_type n, iterator const& rhs) {return rhs+n;}
+        friend constexpr iterator operator+(difference_type n, iterator const & rhs) {return rhs+n;}
         constexpr iterator operator-(difference_type n) const {return *this + -n;}
         constexpr iterator& operator++() {return *this += 1;}
         constexpr iterator& operator--() {return *this += -1;}
@@ -71,11 +71,11 @@ class Queue{
         constexpr iterator operator--(int) {iterator temp{*this}; --(*this); return temp;}
         constexpr reference operator*() const {return *internal;}
         constexpr pointer operator->() {return internal;}
-        friend constexpr difference_type operator-(iterator const& lhs, iterator const& rhs) {return lhs.same_container(rhs) ? lhs.internal-rhs.internal+(lhs.cycle-rhs.cycle)*(lhs.end-lhs.begin) : std::numeric_limits<difference_type>::max();}
+        friend constexpr difference_type operator-(iterator const & lhs, iterator const & rhs) {return lhs.same_container(rhs) ? lhs.internal-rhs.internal+(lhs.cycle-rhs.cycle)*(lhs.end-lhs.begin) : std::numeric_limits<difference_type>::max();}
 
         //== checks for equality on the same cycle. <=> only checks pointer equality
-        friend constexpr bool operator==(iterator const& lhs, iterator const& rhs) {return lhs.internal == rhs.internal && lhs.cycle == rhs.cycle;}
-        constexpr std::partial_ordering operator<=>(iterator const& rhs) const{
+        friend constexpr bool operator==(iterator const & lhs, iterator const & rhs) {return lhs.internal == rhs.internal && lhs.cycle == rhs.cycle;}
+        constexpr std::partial_ordering operator<=>(iterator const & rhs) const{
           if(same_container(rhs)) return cycle == rhs.cycle ? internal <=> rhs.internal : cycle <=> rhs.cycle;
           else return std::partial_ordering::unordered;
         }
@@ -84,7 +84,6 @@ class Queue{
 
   private:
     //front_iter points to element about to be popped, back_iter points to location where element will be inserted
-    std::string name;
     array arr;
     iterator front_iter, back_iter;
 
@@ -102,11 +101,13 @@ class Queue{
     constexpr iterator construct_iterator(pointer pointer) {return {pointer, arr.begin(), arr.end()};}
 
   public:
+    std::string name;
+    
   //Constructors
     constexpr Queue(): name{}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
     Queue(std::string name): name{name}, arr{}, front_iter{construct_iterator(arr.begin())}, back_iter{front_iter} {}
 
-    //Getters
+  //Getters
     constexpr size_type size() const {return end()-begin();}
     constexpr size_type capacity() const {return N;}
     constexpr bool full() const {return size() == capacity();}
@@ -119,10 +120,8 @@ class Queue{
     constexpr reference       front(){return *begin();}
     constexpr reference       back() {return *(end()-1);}
     constexpr reference       operator[](difference_type n) {return *(begin() + n);}
-
-    void changeName(std::string name) {this->name = name;}
     
-    //Insert Modifiers
+  //Insert Modifiers
     constexpr void priority_push(const_reference value){
       if(full()) back_iter--;
       *end() = value;
@@ -146,14 +145,13 @@ class Queue{
     }
     constexpr iterator insert(auto const & range) {return insert(std::cbegin(range), std::cend(range));}
 
-    //Remove Modifiers
+  //Remove Modifiers
     constexpr void pop() {if(!empty()) front_iter++;}
     constexpr void clear() {front_iter = end();}
     constexpr void output(std::ostream& out) requires std::same_as<T, char>{
-      auto cur_end = end();
+      //construct string_view from the contiguous iterators and << that
       auto in = full_contiguous_iterators();
       out.write(in.first .first, std::distance(in.first .first, in.first .second));
       out.write(in.second.first, std::distance(in.second.first, in.second.second));
-      front_iter = cur_end;
     }
 };

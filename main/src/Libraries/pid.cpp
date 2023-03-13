@@ -1,11 +1,10 @@
 #include "pid.hpp"
 #include "../util.hpp"
 
-PID::PID(double kP, double kI, double kD, double bias, bool integral_sgn_reset, double integral_lower_bound, double integral_upper_bound):
-  kP(kP), kI(kI), kD(kD),
-  bias(bias),
-  integral_sgn_reset(integral_sgn_reset),
-  integral_upper_bound(integral_upper_bound), integral_lower_bound(integral_lower_bound)
+PID::PID(std::string name, Logging& log, double kP, double kI, double kD, double bias, bool integral_sgn_reset, double integral_lower_bound, double integral_upper_bound):
+  last_update_timer{name + " PID Timer", log},
+  kP{kP}, kI{kI}, kD{kD}, bias{bias},
+  integral_sgn_reset{integral_sgn_reset}, integral_upper_bound{integral_upper_bound}, integral_lower_bound{integral_lower_bound}
 {}
 
 double PID::getError() const {return error;}

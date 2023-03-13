@@ -28,27 +28,29 @@ struct FlywheelOffParams{
 extern std::atomic<double> flywheel_error; // Target vel - actual vel (global static var)
 
 struct FlywheelMoveVelParams{
-  int target_vel;
-  Timer flywheel_print{"flywheel_print"};
-	double kP = 0.7;
+  public:
+    int target_vel; //Don't make this const, because it screws up the variant
+    double kP = 0.5;
 
-  FlywheelMoveVelParams(int target_vel);
+    inline static const std::string name = "FlywheelMoveVel";
+    void handle();
+    void handleStateChange(flywheelVariant prev_state);
 
-  inline static const std::string name = "FlywheelMoveVel";
-  void handle();
-  void handleStateChange(flywheelVariant prev_state);
-private:
-  static constexpr double kB = 0.0332;	// Target velocity multiplied by this outputs a motor voltage
-  static double rot_vel; // Velocity detected by rotation sensor
-  static double output; // Power that goes to the flywheel motor
+    FlywheelMoveVelParams(int target_vel);
 
-  static constexpr double smooth_val = 0.65; // Tuned to smooth velocity values
-  Timer motor_vel_read{"motor_vel_read"}; // Ensures motor's velocity is calculated every 40ms
-  Timer log_timer{"log_timer"}; // Ensures motor's velocity is calculated every 40ms
-  static double smoothed_vel;  // Velocity with exponential filter applied to it
-  static double last_pos;  // Motor's position from previous cycle
-  static double last_vel; // Smoothed velocity (from last cycle)
-  static double manual_vel;  // Pre-smoothed velocity
+  private:
+    static constexpr double kB = 0.03735294117;
+    static double rot_vel; // Velocity detected by rotation sensor
+    static double output; // Power that goes to the flywheel motor
+
+    static constexpr double smooth_val = 0.65; // Tuned to smooth velocity values
+    static Timer motor_vel_read; // Ensures motor's velocity is calculated every 40ms
+    static Timer log_timer;
+    static Timer disc_correction_timer; // Doesn't apply correction while disc is passing through
+    static double smoothed_vel;  // Velocity with exponential filter applied to it
+    static double last_pos;  // Motor's position from previous cycle
+    static double last_vel; // Smoothed velocity (from last cycle)
+    static double manual_vel;  // Pre-smoothed velocity
 };
 
-void setFlywheelVel(int32_t vel, int line = -1);
+void setFlywheelVel(int32_t vel);

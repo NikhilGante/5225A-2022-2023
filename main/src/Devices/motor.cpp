@@ -1,24 +1,21 @@
 #include "motor.hpp"
+#include "../Libraries/printing.hpp"
 #include "../Libraries/logging.hpp"
-#include <sstream>
+#include "../util.hpp"
+#include "../config.hpp"
 
 extern Page temps, motors;
 extern Slider mot_speed_set;
 
 _Motor::_Motor(std::int8_t port, std::string name, bool reversed, motor_gearset_e_t gearset, motor_encoder_units_e_t encoder_units):
-Motor{port, gearset, reversed, encoder_units}, name{name}{
-  {
-    std::stringstream ss{getName()};
-    using iterator = std::istream_iterator<std::string>;
-    for(auto it = iterator{ss}; it != iterator{}; it++) short_name += it->front();
-  }
-
+ObjectTracker{"Motor", name}, Motor{port, gearset, reversed, encoder_units}{
+  valid_smart_port(getLongName(), port);
   //2x4
-  on         .construct(115*(getID()%4) + 15, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
-  off        .construct(115*(getID()%4) + 70, getID() < 4 ? 120 : 205, 45, 30, GUI::Style::SIZE  , Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
-  text       .construct(115*(getID()%4) + 65, getID() < 4 ? 95  : 180,         GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName()                    , nullptr                                           , Color::white);
-  data       .construct(115*(getID()%4) + 65, getID() < 4 ? 110 : 195,         GUI::Style::CENTRE, TEXT_SMALL    , &motors, std::to_string(port) + ": %d", std::function([this](){return getRPM();})         , Color::white);
-  temperature.construct(115*(getID()%4) + 65, getID() < 4 ? 125 : 190,         GUI::Style::CENTRE, TEXT_SMALL    , &temps , getShortName() + ": %dC"     , std::function([this](){return get_temperature();}), Color::black);
+  on         .construct({static_cast<int>(115*((getID()-1)%4) + 15), getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Run"                        , Color::dark_orange                                , Color::black);
+  off        .construct({static_cast<int>(115*((getID()-1)%4) + 70), getID() <= 4 ? 120 : 205, 45, 30, GUI::Style::SIZE},  Button::SINGLE, &motors, "Stop"                       , Color::dark_orange                                , Color::black);
+  text       .construct({static_cast<int>(115*((getID()-1)%4) + 65), getID() <= 4 ? 95  : 180},        GUI::Style::CENTRE, TEXT_SMALL    , &motors, getName()                    , nullptr                                           , Color::white);
+  data       .construct({static_cast<int>(115*((getID()-1)%4) + 65), getID() <= 4 ? 110 : 195},        GUI::Style::CENTRE, TEXT_SMALL    , &motors, std::to_string(port) + ": %d", std::function([this](){return getRPM();})         , Color::white);
+  temperature.construct({static_cast<int>(115*((getID()-1)%4) + 65), getID() <= 4 ? 125 : 190},        GUI::Style::CENTRE, TEXT_SMALL    , &temps , getShortName() + ": %dC"     , std::function([this](){return get_temperature();}), Color::black);
 
   on .setFunc([this](){move(mot_speed_set.getValue());});
   off.setFunc([this](){move(0                       );});
@@ -27,6 +24,7 @@ Motor{port, gearset, reversed, encoder_units}, name{name}{
   if(!plugged()){
     on         .setActive(false);
     off        .setActive(false);
+    text       .setActive(false);
     data       .setActive(false);
     temperature.setActive(false);
   }
@@ -45,38 +43,30 @@ int _Motor::velocityToVoltage(int velocity){
 }
 
 void _Motor::move(int voltage){
-  sensor_log("Motor %s moving from %d to %d speed", getName(), speed, voltage);
+  if (speed != voltage) state_log("%d: Motor %s moving from %d to %d speed", millis(), getName(), speed, voltage);
   Motor::move(voltage);
   speed = voltage;
 }
 
 void _Motor::moveRelative(int velocity){
   int new_speed = velocityToVoltage(velocity);
-  sensor_log("Motor %s relative moving from %d to %d speed", getName(), speed, new_speed);
+  if (speed != new_speed) state_log("%d: Motor %s relative moving from %d to %d speed", millis(), getName(), speed, new_speed);
   Motor::move_relative(velocity, 200);
   speed = new_speed;
 }
 
 void _Motor::brake(){
-  sensor_log("Motor %s braking", getName());
+  state_log("%d: Motor %s braking requested", millis(), getName());
   moveRelative(0);
+  state_log("%d: Motor %s braking request processed", millis(), getName());
 }
 
-int _Motor::getTemperature() const {
-  int temp = get_temperature();
-  return temp != std::numeric_limits<int>::max() ? temp : -1;
-}
-
-int _Motor::getRPM() const {
-  int rpm = get_actual_velocity();
-  return rpm != std::numeric_limits<int>::max() ? rpm : -1;
-}
-
+int _Motor::getTemperature() const {return plugged() ? get_temperature() : -1;}
+int _Motor::getRPM() const {return plugged() ? get_actual_velocity() : -1;}
 bool _Motor::plugged() const {return static_cast<int>(get_temperature()) != std::numeric_limits<int>::max();}
 double _Motor::getPosition() const {return get_position();}
 double _Motor::getTargetPosition() const {return get_target_position();}
-std::string _Motor::getName() const {return name;}
-std::string _Motor::getShortName() const {return short_name;}
+Port _Motor::getPort() const {return get_port();}
 
 void _Motor::updateTemperatureText(){
   switch(getTemperature()){
@@ -92,10 +82,10 @@ void _Motor::updateTemperatureText(){
     case 45: temperature.setBackground(Color::yellow); break;
     case 50: temperature.setBackground(Color::orange_red); break;
     case 55: temperature.setBackground(Color::red); break;
-    default: temperature.setBackground(static_cast<Color>((std::uint32_t)rand())); break;
+    default: temperature.setBackground(static_cast<Color>(rand())); break;
   }
 
-  if (getTemperature() > 55){
+  if (getTemperature() > 50){
     temps.goTo();
     alert::start(5000, "%s motor is at %dC\n", getName(), getTemperature());
   }

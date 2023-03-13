@@ -1,4 +1,5 @@
 #include "vision.hpp"
+#include "../Libraries/logging.hpp"
 
 _Vision::signature _Vision::blue_sig = Vision::signature_from_utility(1, -2835, -983, -1909, 6951, 9185, 8068, 3.0, 0);
 _Vision::signature _Vision::red_sig  = Vision::signature_from_utility(2, 10795, 13423, 12109, -399, 809, 205, 3.0, 0);
@@ -9,7 +10,7 @@ _Vision::_Vision(int port): Vision (port, VISION_ZERO_CENTER){
 }
 
 void _Vision::print_object(object obj){
-  sensor_log("Time:%d | Hor:%d, Ver:%d, Width:%d, Height:%d\n", millis(), obj.left_coord, obj.top_coord, obj.width, obj.height);
+  state_log("Time:%d | Hor:%d, Ver:%d, Width:%d, Height:%d\n", millis(), obj.left_coord, obj.top_coord, obj.width, obj.height);
 }
 
 _Vision::object _Vision::blue_object() const {return get_by_sig(0, 1);}

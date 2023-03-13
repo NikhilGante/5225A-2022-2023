@@ -1,74 +1,129 @@
 #include "logging.hpp"
+#include "alert.hpp"
 #include "timer.hpp"
 #include "task.hpp"
-#include "gui.hpp"
-#include "../config.hpp"
 
 #include <fstream>
 
-extern Page logging;
-
+Page logging {"Logging"}; //Log printing page from file to terminal
+Button Logging::past_logs {{15, 40, 100, 40, GUI::Style::SIZE}, Button::TOGGLE, logging, "Past Logs", Color::red};
 _Task Logging::task{"Logging"};
-std::vector<Logging*> Logging::logs{};
+bool Logging::active = true;
 
-Logging master_log    {"Master", false, term_colours::NONE, log_locations::sd};
-Logging tracking_log  {"Tracking"};
-Logging state_log     {"States"    , true};
-Logging auton_log     {"Auton"     , true};
-Logging shoot_log     {"Shooter"   , true};
-Logging intake_log    {"Intake"    , true};
-Logging flywheel_log  {"Flywheel"  , true};
-Logging controller_log{"Controller", true , term_colours::NONE, log_locations::sd};
-Logging task_log      {"Tasks"     , true , term_colours::ERROR};
-Logging error         {"Error"     , false, term_colours::ERROR};
-Logging misc          {"Misc"      , false, term_colours::NONE, log_locations::none};
-Logging driver_log    {"Driver"    , false, term_colours::NONE, log_locations::terminal};
-Logging term          {"Terminal"  , false, term_colours::NONE, log_locations::terminal};
-Logging sensor_log    {"Sensor"    , false, term_colours::NONE, log_locations::sd};
-Logging log_d         {"Log"       , false, term_colours::NONE, log_locations::sd};
+Logging tracking_log {"Tracking" , false};
+Logging drive_log    {"Drive"    , false};
+Logging flywheel_log {"Flywheel" , true , log_locations::sd_main};
+Logging state_log    {"State"    , true , log_locations::sd_only};
+Logging subsystem_log{"Subsystem", true , log_locations::sd_main};
+Logging system_log   {"System"   , true , log_locations::sd_main, term_colours::ERROR};
+Logging important_log{"Important", false, log_locations::sd_only};
+Logging none_log     {"None"     , false, log_locations::none};
+//!If more logs are created, the number of past logs will need to be reduced
 
-Logging::Logging(std::string name, bool newline, term_colours print_colour, log_locations location):
-name{name}, newline{newline}, print_colour{print_colour}, location{location} {
-  logs.push_back(this); //! Fix the issue with Counter
 
-  //4x5
-  //(20, 110, 200, 290, 380) x (15, 65, 115, 165)
-  print_btn.construct(90*(getID()%5) + 20, 50*std::floor(getID()/5) + 40, 80, 40, GUI::Style::SIZE, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
+Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
+ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location}, print_colour{print_colour} {
+  static int x = 130, y = 40;
+  print_btn.construct({x, y, 100, 40, GUI::Style::SIZE}, Button::SINGLE, &logging, name, Color::dark_orange, Color::black);
+  x = x != 360 ? x+115 : 15;
+  if ((getID()+1) % 4 == 0) y += 50;
 
   print_btn.setFunc([this](){
-    printf2("\n\n%s Log Terminal Dump", this->name);
-    pause();
-    std::ifstream file{"/usd/" + this->name + ".txt", std::ofstream::app};
-    if(file.is_open()) std::cout << file.rdbuf() << "\n\n" << std::endl;
-    else alert::start("Could not open %s log file", this->name);
-    restart();
+    auto file = Interrupter<std::ifstream>(past_logs.isOn() ? pastFullName : fullName, std::ifstream::in);
+    printf2("\n\n\n||||||||||||||||||||||||||||||||||||||||||||||\n");
+    printf2(term_colours::GREEN, "Start %s Log Terminal Dump", getName());
+    printf2("%s\n", getTermColour(term_colours::BLUE));
+
+    if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
+    else printf2("%s unopenable\n", past_logs.isOn() ? pastFullName : fullName);
+
+    printf2(term_colours::RED, "\nEnd %s Log Terminal Dump", getName());
+    printf2("\n||||||||||||||||||||||||||||||||||||||||||||||\n\n");
   });
 }
 
 void Logging::init(){
-  if(!usd::is_installed()){
-    alert::start("Logging Inactive");
+  system_log("%d: Initializing Logging", millis());
+  if(!usd::is_installed()){ //Rerouting data to non-sd card
+    alert::start("SD Logging Inactive");
+    system_log(term_colours::ERROR, "No SD Card, deactivating Logging");
+    past_logs.setActive(false);
     for(Logging* log: getList()){
-      log_locations& loc = log->location;
-      if(loc == log_locations::sd || loc == log_locations::both) loc = log_locations::terminal;
-      log->print_btn.setActive(false);
+      switch(log->location){
+        case log_locations::terminal:
+        case log_locations::both:
+        case log_locations::sd_main: log->location = log_locations::terminal; break;
+        case log_locations::sd_only:
+        case log_locations::none:    log->location = log_locations::none; break;
+      }
     }
   }
-  else task.start([](){ //Logging is good to go
+  else{ //Setting up the count for having past log files
+    int count, next_count, past_count;
+    {
+      std::ifstream log_count{"/usd/log_count.txt"};
+      if (log_count.is_open()) log_count >> count;
+      else count = 0;
+      next_count = count >= 10 ? 0 : count + 1;
+      past_count = count == 0 ? 10 : count - 1;
+    }
+    {
+      system_log(true, "Log Version %d", count);
+      std::ofstream log_count{"/usd/log_count.txt"};
+      log_count << next_count; //For the next round of logs
+    }
+
+    for(Logging* log: getList()){
+      if(log->location == log_locations::sd_main || log->location == log_locations::sd_only || log->location == log_locations::both){
+        log->fullName = "/usd/Logging/" + std::to_string(count) + '_' + log->getName() + ".txt";
+        log->pastFullName = "/usd/Logging/" + std::to_string(past_count) + '_' + log->getName() + ".txt";
+        system_log("%d: Opening %s log file on SD", millis(), log->fullName);
+        std::ofstream file_init{log->fullName, std::ofstream::trunc};
+        file_init << "Start of " + log->getName() + " - " + std::to_string(count) + " log file\n\n";
+      }
+    }
+  }
+
+  for(Logging* log: getList()){
+    if(log->location == log_locations::terminal || log->location == log_locations::none) log->print_btn.setActive(false);
+  }
+
+  task.start([](){ //Logging is good to go
     Timer timer{"Logging Queue"};
     while(true){
-      for(Logging* log: getList()){
-        if(!log->queue.empty() && (log->queue.size() > print_max_size || timer.getTime() > print_max_time)){
-          std::ofstream data{"/usd/" + log->name + ".txt", std::ofstream::app};
-          log->queue.output(data);
-          timer.reset();
-        }
+      if(timer.getTime() > print_max_time){
+        for(Logging* log: getList()) log->update(true);
+        timer.reset();
       }
-
+      else{
+        for(Logging* log: getList()) log->update();
+      }
       _Task::delay(10);
     }
   });
 }
 
-void Logging::pause() {task.suspend();}
-void Logging::restart() {task.resume();}
+void Logging::update(bool force){
+  if(!queue.empty() && (force || queue.size() > print_max_size)){
+    if(location == log_locations::sd_main || location == log_locations::sd_only || location == log_locations::both){
+      queue_mutex.take(TIMEOUT_MAX);
+      std::ofstream data{fullName, std::ofstream::app};
+      queue.output(data);
+      queue.clear();
+      queue_mutex.give();
+    }
+    else queue.clear();
+  }
+}
+
+void Logging::pause(){
+  system_log(term_colours::RED, "%d: Pausing Logging", millis());
+  task.suspend();
+  active = false;
+}
+void Logging::resume(){
+  system_log(term_colours::GREEN, "%d: Resuming Logging", millis());
+  task.resume();
+  active = true;
+}
+// bool Logging::paused() {return task.getState() == TASK_STATE_SUSPENDED;}
