@@ -11,8 +11,6 @@
 #include "tracking.hpp"
 #include "util.hpp"
 
-#include <fstream>
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -91,9 +89,6 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
-void auton2func() {auton_log("whatup");}
-void auton3func() {auton_log("ayyyy");}
-
 Auton auton1("Stack", autonStack);
 Auton auton2("AWP", autonAWP);
 Auton auton3("Line", autonLine, Auton::E_Reset_Types::far);
@@ -101,8 +96,7 @@ Auton auton4("Skills", provSkillsLow);
 
 //arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
-//controller queue
-//fix logging button visibility
+//!fix logging button visibility
 //check if timer prints look nice
 //Add a config page to the gui
 //Logging different sizes
@@ -111,12 +105,6 @@ Auton auton4("Skills", provSkillsLow);
 
 //debugging doc
 //change GitHub to conventions and styles doc
-
-/*Dependencies
-Logging needs GUI
-Tracker needs Logging
-GUI needs Tracker
-*/
 
 void opcontrol() {
   DEBUG;

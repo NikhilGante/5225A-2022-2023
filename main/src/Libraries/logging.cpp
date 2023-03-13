@@ -10,16 +10,16 @@ Button Logging::past_logs {{15, 40, 100, 40, GUI::Style::SIZE}, Button::TOGGLE, 
 _Task Logging::task{"Logging"};
 
 // Logging master_log    {"Master"    , false, term_colours::NONE, log_locations::none};
-Logging state_log     {"States"    , true , log_locations::sd_main};
-Logging auton_log     {"Auton"     , true , log_locations::sd_main};
-Logging tracking_log  {"Tracking"  , false, log_locations::sd_main};
-Logging driver_log    {"Driver"    , false, log_locations::sd_main};
+Logging state_log     {"States"    , true };
+Logging auton_log     {"Auton"     , true };
+Logging tracking_log  {"Tracking"  , false};
+Logging driver_log    {"Driver"    , false};
+Logging none_log      {"None"      , false, log_locations::none};
 Logging controller_log{"Controller", true , log_locations::sd_only};
 Logging device_log    {"Device"    , true , log_locations::sd_only};
+Logging log_log       {"Log"       , true,  log_locations::sd_only};
 Logging task_log      {"Tasks"     , true , log_locations::sd_main, term_colours::ERROR};
 Logging error_log     {"Error"     , false, log_locations::both   , term_colours::ERROR};
-Logging log_log       {"Log"       , true};
-Logging none_log      {"None"      , false, log_locations::none};
 
 Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
 ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location}, print_colour{print_colour} {

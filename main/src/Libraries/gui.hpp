@@ -242,47 +242,46 @@ class Text: public Text_{
 
     //Constructors (Points, Format, Page, Label, [var info], Lcolour)
 
-      
       //Terminal - no format      
-      Text(std::string text, V& value_obj, Color label_colour = Color::white){ //Var
+      Text(std::string text, V& value_obj, Color label_colour = Color::white): Text_{} { //Var
         construct ({5, 0}, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [&](){return value_obj;}, label_colour);
       }
 
-      Text(std::string text, V* value_arr, auto& index, Color label_colour = Color::white){ //Array
+      Text(std::string text, V* value_arr, auto& index, Color label_colour = Color::white): Text_{} { //Array
         construct ({5, 0}, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
       }
 
-      Text(std::string text, std::invocable auto&& func, Color label_colour = Color::white){ //Function
+      Text(std::string text, std::invocable auto&& func, Color label_colour = Color::white): Text_{} { //Function
         construct ({5, 0}, GUI::Style::CORNER, E_TEXT_LARGE_CENTER, &terminal, text, func, label_colour);
       }
 
       //Terminal - format
-      Text(std::string text, V& value_obj, text_format_e_t size, Color label_colour = Color::white){ //Var
+      Text(std::string text, V& value_obj, text_format_e_t size, Color label_colour = Color::white): Text_{} { //Var
         construct ({5, 0}, GUI::Style::CORNER, size, &terminal, text, [&](){return value_obj;}, label_colour);
       }
 
-      Text(std::string text, V* value_arr, auto& index, text_format_e_t size, Color label_colour = Color::white){ //Array
+      Text(std::string text, V* value_arr, auto& index, text_format_e_t size, Color label_colour = Color::white): Text_{} { //Array
         construct ({5, 0}, GUI::Style::CORNER, size, &terminal, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
       }
 
-      Text(std::string text, std::invocable auto&& func, text_format_e_t size, Color label_colour = Color::white){ //Function
+      Text(std::string text, std::invocable auto&& func, text_format_e_t size, Color label_colour = Color::white): Text_{} { //Function
         construct ({5, 0}, GUI::Style::CORNER, size, &terminal, text, func, label_colour);
       }
 
       //GUI Objects
-      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, Color label_colour = Color::white){ //No var
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, Color label_colour = Color::white): Text_{} { //No var
         construct (coord, rect_type, size, &page, text, nullptr, label_colour);
       }
 
-      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V& value_obj, Color label_colour = Color::white){ //Variable
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V& value_obj, Color label_colour = Color::white): Text_{} { //Variable
         construct (coord, rect_type, size, &page, text, [&](){return value_obj;}, label_colour);
       }
 
-      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V* value_arr, auto& index, Color label_colour = Color::white){ //Array
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, V* value_arr, auto& index, Color label_colour = Color::white): Text_{} { //Array
         construct (coord, rect_type, size, &page, text, [value_arr, &index](){return value_arr[static_cast<int>(index) ];}, label_colour);
       }
 
-      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, std::invocable auto&& func, Color label_colour = Color::white){ //Function
+      Text(GUI::Coordinate coord, GUI::Style rect_type, text_format_e_t size, Page& page, std::string text, std::invocable auto&& func, Color label_colour = Color::white): Text_{} { //Function
         construct (coord, rect_type, size, &page, text, func, label_colour);
       }
 };

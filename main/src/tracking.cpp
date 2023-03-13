@@ -7,18 +7,20 @@
 #include "Devices/piston.hpp"
 #include "Devices/others.hpp"
 
+#include <fstream>
+
 static const Vector r_goal{123.0, 18.0}, b_goal{18.0, 123.0}; //Coords of high goal
 Tracking tracking;
 
 double getDistL() {return (l_reset_dist.getVal()*MM_TO_IN) - LEFT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
 double getDistR() {return (r_reset_dist.getVal()*MM_TO_IN) - RIGHT_DIST_OFFSET + HALF_DRIVEBASE_WIDTH;}
-double getDistBack() {return (ultra_left.getVal() + ultra_right.getVal()) * MM_TO_IN / 2.0 + BACK_DIST_OFFSET;}
+double getDistBack() {return (ultra_left.getVal() + ultra_right.getVal())/2.0 * MM_TO_IN + BACK_DIST_OFFSET;}
 
 //x:13.711525 y:10.399731 a:50.518857
 Position distanceReset(resetPosition pos, double angleOffset){
   double angle = std::atan((ultra_left.getVal()-ultra_right.getVal())*MM_TO_IN / 12); //? Why not atan2
-  printf("angle: %f\n", angle);
-  printf("angle: %f\n", degToRad(angle));
+  printf2("angle: %f\n", angle);
+  printf2("angle: %f\n", degToRad(angle));
 
   double x, y;
   double cos = std::cos(degToRad(angle));
@@ -26,7 +28,7 @@ Position distanceReset(resetPosition pos, double angleOffset){
 
   switch(pos){
     case resetPosition::leftHome:
-    printf("cos1: %f, cos2: %f, distBack: %f \n", std::cos(angle), cos, getDistBack());
+    printf2("cos1: %f, cos2: %f, distBack: %f \n", std::cos(angle), cos, getDistBack());
 
       x = cos*getDistL() - sin;
       y = cos*getDistBack();

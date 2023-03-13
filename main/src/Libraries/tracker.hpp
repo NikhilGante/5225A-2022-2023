@@ -1,8 +1,9 @@
 #pragma once
-// #include "logging.hpp"
 #include "main.h"
 #include "alert.hpp"
 #include <sstream>
+
+void trackerInitMessage(std::string name, std::size_t id, std::string class_name); //Needs to be defined out of file to break dependencies
 
 template <typename Derived, std::size_t size = std::numeric_limits<std::size_t>::max()>
 class ObjectTracker{
@@ -26,7 +27,7 @@ class ObjectTracker{
         if(name == "") long_name = class_name + ' ' + std::to_string(id);
         else updateName(name);
 
-        // device_log("Initialized %s, object %d of %s class.", name, id, class_name);
+        trackerInitMessage(name, id, class_name);
       }
       else alert::start("Creating \"%s\" would exceed class' object limit of %d", long_name, size);
     }

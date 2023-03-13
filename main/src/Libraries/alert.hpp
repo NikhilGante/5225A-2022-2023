@@ -16,7 +16,7 @@ namespace alert{
   extern Queue<std::pair<Params, std::string>, 25> queue;
 
   void start   (Params params, std::string fmt, auto... args) {queue.         push({params, sprintf2(fmt, args...)});}
-  void start   (std::string fmt, auto... args) {Params params; queue.         push({params, sprintf2(fmt, args...)});}
+  void start   (std::string fmt, auto... args)                {queue.         push({Params{}, sprintf2(fmt, args...)});}
   void priority(Params params, std::string fmt, auto... args) {queue.priority_push({params, sprintf2(fmt, args...)});}
-  void priority(std::string fmt, auto... args) {Params params; queue.priority_push({params, sprintf2(fmt, args...)});}
+  void priority(std::string fmt, auto... args)                {queue.priority_push({Params{}, sprintf2(fmt, args...)});}
 }

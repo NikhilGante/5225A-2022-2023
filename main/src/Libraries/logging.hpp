@@ -1,7 +1,5 @@
 #pragma once
 #include "gui.hpp"
-#include <ios>
-#include <fstream>
 
 enum class log_locations{
   none,
@@ -45,7 +43,7 @@ class Logging: public ObjectTracker<Logging>{
     void update(bool force = false);
 
   public:
-    Logging(std::string name, bool newline = false, log_locations location = log_locations::both, term_colours print_colour = term_colours::NONE);
+    Logging(std::string name, bool newline = false, log_locations location = log_locations::sd_main, term_colours print_colour = term_colours::NONE);
 
     static void init();
     

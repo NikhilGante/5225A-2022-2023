@@ -192,7 +192,7 @@ void autonStack(){
 	angler_p.setState(LOW);
 
   Position pos = distanceReset(resetPosition::leftHome);
-  if(std::abs(pos.x - tracking.getPos().x) < 2 && std::abs(pos.y - tracking.getPos().y) < 2)  tracking.reset(distanceReset(resetPosition::leftHome));
+  if(std::abs(pos.x - tracking.getPos().x) < 2 && std::abs(pos.y - tracking.getPos().y) < 2) tracking.reset(distanceReset(resetPosition::leftHome));
 
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
