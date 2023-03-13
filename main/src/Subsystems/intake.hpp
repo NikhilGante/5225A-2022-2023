@@ -3,6 +3,7 @@
 
 void intakeHandleInput();
 
+extern Timer intk_off_buzz_timer;
 extern std::atomic<int> g_mag_disc_count;
 
 // forward declarations

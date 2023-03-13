@@ -1,30 +1,65 @@
 #include "intake.hpp"
+#include "../auton.hpp"
 #include "../config.hpp"
 #include "../drive.hpp"
-#include "../util.hpp"
-#include "../tracking.hpp"
 #include "../Devices/controller.hpp"
 #include "../Devices/motor.hpp"
 #include "../Devices/piston.hpp"
 #include "../Devices/others.hpp"
 #include "shooter.hpp"
 
-Machine<INTAKE_STATE_TYPES> intake{"Intake", IntakeOffParams{}};
+Timer intk_off_buzz_timer{"Intake Off Buzz"};
+Machine<INTAKE_STATE_TYPES> intake("Intake", IntakeOffParams{});
 std::atomic<int> g_mag_disc_count = 0;
 
 void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
   if(std::get_if<IntakeOnParams>(&cur_state)){
-    if(master.getNewDigital(intakeToggleBtn))  intakeOff();
-    if(master.getNewDigital(intakeRevBtn)) intakeRev();
+    if(master.getNewDigital(intakeToggleBtn)){
+      intake.log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
+      intakeOff();
+    }  
+    if(master.getNewDigital(intakeRevBtn)){
+      intake.log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
+      intakeRev();
+    } 
   }
   else if(std::get_if<IntakeOffParams>(&cur_state)){
-    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.getNewDigital(intakeRevBtn)) intakeRev();
+    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3){
+      intake.log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
+      intakeOn();
+    }
+    if(master.getNewDigital(intakeRevBtn)){
+      intake.log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
+      intakeRev();
+    } 
   }
   else if(std::get_if<IntakeRevParams>(&cur_state)){
-    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3) intakeOn();
-    if(master.getNewDigital(intakeRevBtn)) intakeOff();
+    if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3){
+      intake.log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
+      intakeOn();
+    }
+    if(master.getNewDigital(intakeRevBtn)){
+      intake.log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
+      intakeOff();
+    } 
+  }
+ 
+  // Spin roller if btn is pressed and not already spinning
+  if(master.isRising(rollerBtn) && !std::get_if<IntakeIndexParams>(&cur_state)){
+    intake.log("%lld | ROLLER BUTTON RISING", op_control_timer.getTime());
+    intake.changeState(IntakeIdleParams{});
+    intake.waitToReachState(IntakeIdleParams{});
+    intake_m.move(127); // Operates intake manually so disc count doesn't turn it off
+  }
+  else if(master.isFalling(rollerBtn)){
+    intake.log("%lld | ROLLER BUTTON RELEASED", op_control_timer.getTime());
+    intakeOff();
+  }
+  
+  if(std::get_if<IntakeOffParams>(&cur_state) && intk_off_buzz_timer.getTime() > 300){  // Buzzes if in low gear for driver
+    intk_off_buzz_timer.reset();
+    master.rumble("..");
   }
 }
 
@@ -49,19 +84,28 @@ void IntakeOnParams::handle(){  // synchronous state
   mag_disc_detected_last = mag_disc_detected;
 
   // If mag is full, don't let any more discs in
-  // intake.log("%d MAG| %d %d", millis(), mag_ds_val, g_mag_disc_count.load());  
-  /*
+  // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
+  
   if(g_mag_disc_count >= 3) {
     intake.log("COUNTED 3");
-    master.rumble();
+    master.rumble("-");
     intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
     _Task::delay(185);
-    intakeOff();
+
+    // Flushes out 4th disc if in auto
+    if(g_mag_disc_count > 3 && pros::competition::is_autonomous()){
+      drive.changeState(DriveIdleParams{});
+      drive.waitToReachState(DriveIdleParams{});
+      intake_m.move(-127);
+      moveInches(-2.0);
+      intakeRev();
+
+    }
+    else intakeOff();
     if(angleOverride)  angler_p.setState(HIGH);
   }
 
-  // intake.log("count:%d", g_mag_disc_count.load());
-  */
+  // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(intakeVariant prev_state){
   angler_p.setState(LOW);

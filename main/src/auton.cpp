@@ -51,7 +51,7 @@ void fullSkills(){
 // tracking.getPos() = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
   tracking.reset({getDistL(), 7.5, 0.0});
-  Timer total{"total_timer", auton_log};
+  Timer total{"Total", auton_log};
   setFlywheelVel(2175);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -85,7 +85,7 @@ void skills1(){
 
 // tracking.getPos() = {110.5, 133.75, degToRad(180.0)}
 void skills2(){
-  Timer total{"total_timer", auton_log};
+  Timer total{"Total", auton_log};
 
   setFlywheelVel(2340);
   spinRoller();
@@ -135,7 +135,7 @@ void skills2(){
 }
 // tracking.getPos() = {72.0, 11.25, 0.0};
 void skills3(){
-  Timer total{"total_timer", auton_log};
+  Timer total{"Total", auton_log};
   setFlywheelVel(2150);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -187,7 +187,7 @@ X: 72.3, Y: 49.72, A: -34.99
 void autonStack(){
   WAIT_UNTIL(!gyro.isCalibrating());
   tracking.reset({30.75, 9.0, degToRad(0.0)});
-  Timer timer1{"timer", auton_log};
+  Timer timer1{"imer", auton_log};
   setFlywheelVel(2350);
 	angler_p.setState(LOW);
 
@@ -237,7 +237,7 @@ void autonStack(){
 
 void autonAWP(){
   WAIT_UNTIL(!gyro.isCalibrating());
-  Timer timer1{"timer", auton_log};
+  Timer timer1{"imer", auton_log};
   setFlywheelVel(2270);
 
   tracking.reset(distanceReset(resetPosition::leftHome));
@@ -313,16 +313,18 @@ void autonAWP(){
 
 void autonLine(){ // No moving after start
   WAIT_UNTIL(!gyro.isCalibrating());
-  tracking.reset({128.75, 83.25, degToRad(0.0)});
+  tracking.reset({129.5, 86.00, degToRad(0.0)});
 
-  Timer timer1{"timer", auton_log};
+  Timer timer1{"imer", auton_log};
   setFlywheelVel(2255);
-  moveToTargetSync({tracking.getPos().x, 109}, E_Brake_Modes::brake, 127); // move in front of roller
+  moveToTargetSync({tracking.getPos().x, 112}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
 
   flattenAgainstWallSync();
-  Position pos = distanceReset(resetPosition::rightAway, -90);
-  if(std::abs(pos.x - tracking.getPos().x) < 3 && std::abs(pos.y - tracking.getPos().y) < 3)  tracking.reset(distanceReset(resetPosition::rightAway, -90));
+  Position pos = distanceReset(resetPosition::rightAway);
+  if(std::abs(pos.x - tracking.getPos().x) < 3 && std::abs(pos.y - tracking.getPos().y) < 3)  tracking.reset(pos);
+  else tracking.resetA(pos.a);
+  // tracking.reset(distanceReset(resetPosition::rightAway));
 
 
   spinRoller();
@@ -347,7 +349,7 @@ void autonLine(){ // No moving after start
   master.print(2,0, "total:%ld", timer1.getTime());
 
 
-/*  Timer timer1{"timer", auton_log};
+/*  Timer timer1{"imer", auton_log};
   angler_p.setState(LOW);
 
   flattenAgainstWallSync();
@@ -400,7 +402,7 @@ void autonLine(){ // No moving after start
 
 void provSkills(){
 	WAIT_UNTIL(!gyro.isCalibrating());
-	Timer total_timer{"total_timer"};
+	Timer total_timer{"Total"};
 // /*
 	tracking.reset({74.1952, 8.29092, 1.40752});
 
@@ -409,11 +411,6 @@ void provSkills(){
 	shooter.waitToReachState(ShooterIdleParams{});
   shoot(3);	
 	shooter.waitToReachState(ShooterIdleParams{});
-
-
-	// shoot(2);	
-	// shooter.waitToReachState(ShooterIdleParams{});
-
 
 	moveToTargetSync({tracking.getPos().x + 10, tracking.getPos().y + 3});
 	turnToTargetSync({33, 17}, 0.0, true);
@@ -429,8 +426,10 @@ void provSkills(){
 
 	flattenAgainstWallSync();
 	tracking.reset(distanceReset(resetPosition::leftHome));
+  // delay(2000);
 	spinRoller(600);
 	intake.waitToReachState(IntakeOffParams{});
+  moveInches(1);
 	turnToTargetSync({35.0, 46.0});
 
 	intakeOn();
@@ -448,10 +447,12 @@ void provSkills(){
 	shooter.waitToReachState(ShooterIdleParams{});
 
 
-	turnToTargetSync({110, 125});	// Go to corner
+	turnToTargetSync({111, 127});	// Go to corner
 	intakeOn();
-	moveToTargetSync({110, 125}, E_Brake_Modes::brake, 90);
+	moveToTargetSync({111, 127}, E_Brake_Modes::brake, 90);
 	turnToAngleSync(180);
+
+
 // */..
   // Match loader routine
   setFlywheelVel(1750);
@@ -459,28 +460,21 @@ void provSkills(){
 	flattenAgainstWallSync();
 	tracking.reset(distanceReset(resetPosition::leftHome));
 
+  spinRoller(600);
+	intake.waitToReachState(IntakeOffParams{});
 
-  // drive.changeState(DriveIdleParams{});
-  // drive.waitToReachState(DriveIdleParams{});
-  // moveDrive(0.0, 0.0);
-  // trans_p.setState(HIGH);
-  // delay(100);
-
-  // spinRoller(600);
-	// intake.waitToReachState(IntakeOffParams{});
-
-	moveDrive(-40, 0);
-	delay(300); // Waits for velocity to rise
-  WAIT_UNTIL(tracking.r_vel > -3);
-
-	turnToAngleSync(103);
+	turnToAngleSync(101);	// Face wall
 	moveInches(35.0, 70, E_Brake_Modes::coast);
-	moveDrive(30, 0.0);
+	// driveBrake();
+	master.rumble("-");
+	moveDrive(25, 0.0);
 	delay(300);	// wait for speed up
-	WAIT_UNTIL(std::abs(tracking.r_vel) < 5.0);
+	while(ultra_left.getVal()*MM_TO_IN < 67){
+		auton_log("***Ultra: %lf\n", ultra_left.getVal()/25.4);
+		delay(10);
+	}
 	driveBrake();
-	aimAtRed(3.0);
-	moveInches(-0.75);
+	aimAtRed(2.0);
 
 	driveBrake();
 	shoot(10, true);
@@ -488,7 +482,6 @@ void provSkills(){
 
   // End of match loader routine
 
-  WAIT_UNTIL(false);
   // Returns to roller
   moveToTargetSync({tracking.getPos().x + 10, tracking.getPos().y + 3});
 	turnToTargetSync({32, 15}, 0.0, true);
@@ -557,7 +550,7 @@ void provSkills(){
 
 void backupSkills(){
 	WAIT_UNTIL(!gyro.isCalibrating());
-	Timer total_timer{"total_timer"};
+	Timer total_timer{"Total"};
 
 	tracking.reset({74.1952, 8.29092, 1.40752});
 
@@ -651,7 +644,7 @@ void backupSkills(){
 
 	flattenAgainstWallSync();
 	setFlywheelVel(2075);
-	tracking.reset(distanceReset(resetPosition::rightHome, 90));
+	tracking.reset(distanceReset(resetPosition::rightHome));
 	spinRoller(600);
 	intake.waitToReachState(IntakeOffParams{});
 
@@ -683,7 +676,7 @@ void backupSkills(){
 
 void provSkillsLow(){
 	WAIT_UNTIL(!gyro.isCalibrating());
-	Timer total_timer{"total_timer"};
+	Timer total_timer{"Total"};
 // /*
 	tracking.reset({74.1952, 8.29092, 1.40752});
 
@@ -750,7 +743,7 @@ void provSkillsLow(){
   turnToAngleSync(90);
 
 	flattenAgainstWallSync();
-  tracking.reset(distanceReset(resetPosition::rightHome, 90));
+  tracking.reset(distanceReset(resetPosition::rightHome));
 	spinRoller(600);
 	intake.waitToReachState(IntakeOffParams{});
 

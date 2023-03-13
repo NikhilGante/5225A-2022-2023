@@ -238,9 +238,9 @@ void mainSetup(){
       }
     });
 
-    res_y.setFunc([](){tracking.reset(Position(tracking.getPos().x, 0.0, tracking.getPos().a));});
-    res_x.setFunc([](){tracking.reset(Position(0.0, tracking.getPos().y, tracking.getPos().a));});
-    res_a.setFunc([](){tracking.reset(Position(tracking.getPos().x, tracking.getPos().y, 0.0));});
+    res_y.setFunc([](){tracking.resetY();});
+    res_x.setFunc([](){tracking.resetX();});
+    res_a.setFunc([](){tracking.resetA();});
 
     res_all.setFunc([](){
       right_tracker.reset();

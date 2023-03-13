@@ -23,7 +23,7 @@ void initialize() {
   Logging::init();
 	_Controller::init();
   GUI::init();
-  tracking.init({30.75, 9.0, degToRad(0.0)});	// ACTUAL SKILLS
+  tracking.init();	// ACTUAL SKILLS
 
   misc_checks.select();
 	delay(300);
@@ -99,12 +99,17 @@ Auton auton4("Skills", provSkillsLow);
 //!fix logging button visibility
 //check if timer prints look nice
 //Add a config page to the gui
+//make Tracking a static class
 //Logging different sizes
 //Eliminate the idea of multiple guis
 //Make all buttons use a Text
+//Angle class
 
 //debugging doc
 //change GitHub to conventions and styles doc
+
+//is button rising/falling needed?
+//distanceReset inconsistent use of degToRad
 
 void opcontrol() {
   DEBUG;

@@ -1,6 +1,9 @@
 #pragma once
 #include <array>
 
+class Timer;
+
+extern Timer op_control_timer;
 constexpr int polynomial(int x, double curvature);
 constexpr int poly_min_pow(int x, double curvature);
 
@@ -27,3 +30,5 @@ void driveBrake(); // holds all the drivebase motors
 void driveHandleInput(); // takes input from the joysticks and moves the drivebase
 
 void driverPractice();  // Initializes state and runs driver code logic in loop
+
+void shiftTrans(bool state);

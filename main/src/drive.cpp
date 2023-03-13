@@ -9,6 +9,8 @@
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
 
+Timer op_control_timer{"Op Control"};
+
 static constexpr double drive_curvature = 1.0;
 static constexpr double angle_curvature = 2.0;
 
@@ -68,6 +70,7 @@ constexpr int slew = 5;
 bool backwards = false;
 bool last_backwards = false;
 
+
 void driveHandleInput(){
   double power_y = polynomial(master.getAnalog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.getAnalog(ANALOG_RIGHT_X), angle_curvature);
@@ -86,18 +89,18 @@ void driveHandleInput(){
   //   power_y = 0;
   // }
 
-    _Controller::deadband(power_y);
+  _Controller::deadband(power_y);
   _Controller::deadband(power_a);
 
-  // for(_Motor* motor: _Motor::getList()){
-  //   if(motor->getTemperature() >= 50){
-  //     moveDrive(0, 0);
-  //     master.rumble("----------");
-  //     WAIT_UNTIL(false);
-  //   }
+  // Anti-tipping code
+  // log("VEL %lf %lf\n", tracking.r_vel, power_y);
+  // if(std::abs(tracking.r_vel) > 10 && sgn(tracking.r_vel) != sgn(power_y) && !power_a){
+  //   power_y = sgn(power_y) * 1;
+
   // }
 
-  if(master.getNewDigital(transToggleBtn)) trans_p.toggleState();
+  if(inRangeExcl(std::abs(power_a), 7, tracking.min_move_power_a)) power_a = tracking.min_move_power_a * sgn(power_a); //Give min power to driver when turning
+
   moveDrive(power_y, power_a);
 }
 
@@ -143,8 +146,11 @@ void driveHandleInputProg(){
 }
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop
-  Timer disc_count_print{"disc_count_print", driver_log};
-	Timer angle_override_print{"angle_override_print", driver_log};
+  op_control_timer.reset();
+  Timer disc_count_print{"Disc Count Print", driver_log};
+	Timer angle_override_print{"Angle Override Print", driver_log};
+  Timer low_gear_buzz_timer{"Low Gear Buzz", driver_log};
+
 	master.clear();
 
   // Initialises states of subsystems
@@ -153,39 +159,46 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   intakeOn();
   angleOverride = false;
 
-  Timer endgame_click_timer_left{"endgame_timer", driver_log};
+  Timer endgame_click_timer_left{"Left Endgame", driver_log};
   endgame_click_timer_left.reset(false);
   bool endgame_dbl_click_left = false;
 
-  Timer endgame_click_timer_right{"endgame_timer", driver_log};
+  Timer endgame_click_timer_right{"Right Endgame", driver_log};
   endgame_click_timer_right.reset(false);
   bool endgame_dbl_click_right = false;
   // driveBrake();
   // drive.changeState(DriveIdleParams{});
 
 	while(true){
+    if(master.getNewDigital(transToggleBtn)) shiftTrans(!trans_p.getState());
+  
+    if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
+      low_gear_buzz_timer.reset();
+      master.rumble("-");
+    }
 
     if(endgame_click_timer_left.getTime() > 300){
       endgame_click_timer_left.reset(false);
       endgame_dbl_click_left = false;
-      driver_log("SHOULD BE FALSE dbl_click: %d", endgame_dbl_click_left);
     }
     if(master.getNewDigital(endgameBtnLeft)){
-      endgame_click_timer_left.print("PRESSED");
-      driver_log("dbl_click: %d", endgame_dbl_click_left);
-      if(endgame_dbl_click_left) endgame_s_p.setState(HIGH);
+      if(endgame_dbl_click_left) {
+        driver_log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
+        endgame_s_p.setState(HIGH);
+      }
       else endgame_dbl_click_left = true;
       endgame_click_timer_left.reset();
     }
+
     if(endgame_click_timer_right.getTime() > 300){
       endgame_click_timer_right.reset(false);
       endgame_dbl_click_right = false;
-      driver_log("SHOULD BE FALSE dbl_click: %d\n", endgame_dbl_click_right);
     }
     if(master.getNewDigital(endgameBtnRight)){
-      endgame_click_timer_left.print("PRESSED");
-      driver_log("dbl_click: %d\n", endgame_dbl_click_right);
-      if(endgame_dbl_click_right) endgame_d_p.setState(HIGH);
+      if(endgame_dbl_click_right) {
+        driver_log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
+        endgame_d_p.setState(HIGH);
+      }
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();
     }
@@ -224,4 +237,18 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     }
 		delay(10);
 	}
+}
+
+void shiftTrans(bool state){
+  _Task trans_task;
+  trans_task.start([=](){
+    driver_log("%d Transmission started shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
+    trans_p.setState(state);
+    drive.changeState(DriveIdleParams{});
+    drive.waitToReachState(DriveIdleParams{});
+    moveDrive(0, 0);
+    delay(100);
+    drive.changeState(DriveOpControlParams{});
+    driver_log("%d Transmission finished shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
+  });
 }

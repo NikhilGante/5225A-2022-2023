@@ -17,35 +17,40 @@ double getDistR() {return (r_reset_dist.getVal()*MM_TO_IN) - RIGHT_DIST_OFFSET +
 double getDistBack() {return (ultra_left.getVal() + ultra_right.getVal())/2.0 * MM_TO_IN + BACK_DIST_OFFSET;}
 
 //x:13.711525 y:10.399731 a:50.518857
-Position distanceReset(resetPosition pos, double angleOffset){
+Position distanceReset(resetPosition pos){
   double angle = std::atan((ultra_left.getVal()-ultra_right.getVal())*MM_TO_IN / 12); //? Why not atan2
   printf2("angle: %f\n", angle);
   printf2("angle: %f\n", degToRad(angle));
 
   double x, y;
+  double angleOffset = 0;  // In degrees
   double cos = std::cos(degToRad(angle));
   double sin = std::sin(degToRad(angle))*DISTANCE_DIST_OFFSET;
 
   switch(pos){
     case resetPosition::leftHome:
-    printf2("cos1: %f, cos2: %f, distBack: %f \n", std::cos(angle), cos, getDistBack());
-
+    printf2("cos1: %f, cos2: %f, distBack: %f\nL: %f\n", std::cos(angle), cos, getDistBack(), getDistL());
       x = cos*getDistL() - sin;
       y = cos*getDistBack();
+      angleOffset = 0;
       break;
     case resetPosition::rightAway:
       x = 141 - cos*getDistBack();
       y = 141 - cos*getDistR() + sin;
+      angleOffset = -90;
       break;
     case resetPosition::leftAway:
-      x = 141 - cos*getDistL() + sin;
+      x = 141 - cos*getDistL() - sin;
       y = 141 - cos*getDistBack();
+      angleOffset = 180;
       break;
     case resetPosition::rightHome:
       x = cos*getDistBack();
       y = cos*getDistR() - sin;
+      angleOffset = 90;
       break;
   }
+  printf2("RES | X:%.2lf Y:%.2lf, A:%.2lf\n", x, y, radToDeg(angle) + angleOffset); 
   return {x, y, angle + degToRad(angleOffset)};
 }
 
@@ -202,6 +207,30 @@ void Tracking::reset(Position pos){
   // alert::start(term_colours::NOTIF, "RESET!");
 }
 
+void Tracking::resetX(double x){
+  pos_mutex.take();
+  // tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", g_pos.x, g_pos.y, radToDeg(g_pos.a), pos.x,pos.y, radToDeg(pos.a));
+  g_pos.x = x;
+  pos_mutex.give();
+  // alert::start(term_colours::NOTIF, "RESET!");
+}
+
+void Tracking::resetY(double y){
+  pos_mutex.take();
+  // tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", g_pos.x, g_pos.y, radToDeg(g_pos.a), pos.x,pos.y, radToDeg(pos.a));
+  g_pos.y = y;
+  pos_mutex.give();
+  // alert::start(term_colours::NOTIF, "RESET!");
+}
+
+void Tracking::resetA(double a){
+  pos_mutex.take();
+  // tracking_log("Resetting tracking from %.2f, %.2f, %.2f to %.2f, %.2f, %.2f\n", g_pos.x, g_pos.y, radToDeg(g_pos.a), pos.x,pos.y, radToDeg(pos.a));
+  g_pos.a = a;
+  pos_mutex.give();
+  // alert::start(term_colours::NOTIF, "RESET!");
+}
+
 Position Tracking::getPos(){
   // pos_mutex.take();
   // Position pos = g_pos;
@@ -325,7 +354,7 @@ void DriveMttParams::handle(){
   double line_angle = std::numbers::pi/2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
   line_error.rotate(tracking.getPos().a);  // Now represents local displacement from robot's position to target
   int8_t power_sgn; // Sign of local y power
-  Timer motion_timer{"motion_timer", tracking_log};
+  Timer motion_timer{"Motion", tracking_log};
   PID y_pid("Move to Target", tracking_log, 4.5, 0, 0, 0, true, 0, 8);
   // Assigns a sign to power depending on side of robot
   switch(robot_side){
@@ -418,11 +447,10 @@ double rpmToInches(double rpm){
   return (rpm / 60) * 3.25 * M_PI * 2/3;
 }
 void DriveFlattenParams::handle(){  // Flattens against wall
-  Timer motion_timer{"Drive Flatten", tracking_log};
   double error;
-	trans_p.setState(LOW);
-	delay(100); // wait for tranmission to shift
-	Timer flatten_timeout{"flatten_timeout"};
+	// trans_p.setState(LOW);
+	// delay(100); // wait for tranmission to shift
+	Timer flatten_timeout{"Flatten Timeout"};
 	double power;
 	double error_rate, last_error;
 	do {
@@ -436,7 +464,7 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 
 		power = error*0.8;
 		if(std::abs(error) <= 2) power = 0;
-		else if(std::abs(power) < 20 && error_rate < 5) power = sgn(error) * 20;
+		else if(std::abs(power) < 30 && error_rate < 5) power = sgn(error) * tracking.min_move_power_a;
 		printf2("Err: %lf pow: %lf\n", error, power);
 
 		moveDrive(0, power);
@@ -447,11 +475,8 @@ void DriveFlattenParams::handle(){  // Flattens against wall
   moveDrive(0, 0); // Applies holding power
 	master.rumble();
   tracking_log("CONTROLLER RUMBLING FROM LINE 458 in file tracking.cpp");
-  tracking_log("\n\n%d DONE ALIGN\n", millis());
 
-
-  moveDrive(0, 0); // frees drive
-  tracking_log("DRIVE ALIGN DONE, took %lld ms\n", motion_timer.getTime());
+  tracking_log("DRIVE ALIGN DONE, took %lld ms\n", flatten_timeout.getTime());
   drive.changeState(DriveIdleParams{});
 }
 void DriveFlattenParams::handleStateChange(driveVariant prev_state){}

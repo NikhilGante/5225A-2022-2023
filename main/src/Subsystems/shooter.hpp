@@ -24,7 +24,7 @@ struct ShooterIdleParams{
 };
 
 struct ShooterShootParams{  
-    ShooterShootParams(int shots = 3, bool match_load = false);
+  ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = false);
 
     inline static const std::string name = "ShooterShoot";
     void handle();
@@ -33,17 +33,15 @@ struct ShooterShootParams{
     int shots_left;
     bool disc_seen = false, disc_seen_last = false;
     bool match_load;
+    bool clear_mag;
 
     flywheelVariant flywheel_state;
 
   private:
-    static Timer shoot_timer;
-    static Timer disc_seen_timer;
-    static Timer disc_absence_timer; // Ends match loads after not seeing for 2 seconds
-    static Timer cycle_check;
+    static Timer shoot_timer, disc_seen_timer, cycle_check, disc_absence_timer; //Disc Absence ends match loads after not seeing for 2 seconds
 };
 
 
-void shoot(int shots = 3, bool match_load = false);  // Shoots x number of shots
+void shoot(int shots = 3, bool match_load = false, bool clear_mag = false);  // Shoots x number of shots
 
 void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)
