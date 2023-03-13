@@ -37,6 +37,7 @@ struct ShooterShootParams{
   void handle();
   void handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state);
 
+  int shots; // how many shots were requested
   int shots_left;
   bool disc_seen = false, disc_seen_last = false;
   bool match_load;

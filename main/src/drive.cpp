@@ -272,6 +272,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     //   endgame_s_p.setState(HIGH);
     // }
 
+    // master.print(2, 0, "DRIVE RPM | %lf %lf\n", front_l.get_actual_velocity(), front_r.get_actual_velocity());
 		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
@@ -304,7 +305,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
       // WAIT_UNTIL(false);
     } 
-		delay(10);
+		delay(50);
 	}
 }
 
@@ -320,4 +321,21 @@ void shiftTrans(bool state){
     drive.changeState(DriveOpControlParams{});
     log("%d Transmission finished shifting into %s gear\n", millis(), state? "HIGH" : "LOW");
   });
+}
+
+void driveSpeedTest(){
+  drive.changeState(DriveIdleParams{});
+	drive.waitToReachState(DriveIdleParams{});
+	Timer timer{"timer"};
+	moveDrive(127, 0);
+	double start = right_tracker.get_position()*1/36000.0 *(2.75*M_PI);
+	double cur_y = start;
+
+	while(cur_y < 120){
+		cur_y = right_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start;
+		log("%lld, %lf, %lf, %lf\n", timer.getTime(), cur_y, centre_l.get_actual_velocity(), centre_r.get_actual_velocity());
+		delay(50);
+	}
+	driveBrake();
+	delay(100);
 }

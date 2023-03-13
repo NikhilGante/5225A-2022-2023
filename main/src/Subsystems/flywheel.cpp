@@ -1,4 +1,5 @@
 #include "flywheel.hpp"
+#include "pros/misc.hpp"
 #include "shooter.hpp"
 #include "../Libraries/logging.hpp"
 
@@ -83,18 +84,26 @@ void FlywheelMoveVelParams::handle(){
 
   // Velocity control
   flywheel_error = target_vel - rot_vel;
-  // double correction = sgn(flywheel_error.load())*pow(0.07*flywheel_error, 2);
-  double correction = flywheel_error*kP;
-  // if(fabs(correction) > 2500) correction = 2500;
+
+  double correction;
+  // Flywheel doesn't correct vel while disc is passing through
+  if(pros::competition::is_autonomous() && disc_correction_timer.getTime() < 250 && disc_correction_timer.isPlaying()) correction = 0;
+  else correction = flywheel_error*kP;
+  
   output = kB * target_vel + correction;
   output = std::clamp(output, -5.0, 127.0);
   // output = 127;
   
   #ifdef LOGS
-  // log_timer.getTime() > 100 ||
-  // if(shooter_ds.get_value() < 2000){// || log_timer.getTime() > 25) {
-  if(log_timer.getTime() > 10 || shooter_ds.get_value() < 800){
-    if (shooter_ds.get_value() < 800) log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
+  log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
+
+  if(log_timer.getTime() > 10 || shooter_ds.get_value() < 600){
+    if (shooter_ds.get_value() < 600){
+      disc_correction_timer.reset();  // Flywheel rpm shouldn't be corrected for the next 200 ms
+      log("DISC CONTACTED FLYWHEEL\n");
+
+    }
+    // if (shooter_ds.get_value() < 800) log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
     // log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }

@@ -85,14 +85,21 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	provSkills();
+  // WAIT_UNTIL(!gyro.is_calibrating());
+	// setFlywheelVel(2115);
+	// driveBrake();
+	// shoot(2);
+  // shooter.waitToReachState(ShooterIdleParams{});
+	// WAIT_UNTIL(false);
+	
+	// provSkills();
 	// Auton::runAuton();
 	// intakeOn();
 	// WAIT_UNTIL(false);
 
 	// provSkillsLow();
 	// provSkills();
-	// autonAWP();
+	autonAWP2();
 
 	// backupSkills();
 
@@ -201,6 +208,7 @@ IMU THINGS:
 // #define SELECT
 
 void opcontrol() {
+
 	// setFlywheelVel(barrier_rpm - 50);
 	// shoot(9, true);	
 	// shooter.waitToReachState(ShooterIdleParams{});

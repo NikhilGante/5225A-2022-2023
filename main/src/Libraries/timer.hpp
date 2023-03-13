@@ -20,6 +20,7 @@ public:
   uint64_t getLastResetTime();
   void reset(bool play = true);
   uint64_t getTime();
+  bool isPlaying();
   void play();
   void pause();
   void print(const char* str = ""); // prints to the terminal with custom message

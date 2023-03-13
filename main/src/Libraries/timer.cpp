@@ -25,6 +25,10 @@ uint64_t Timer::getTime(){
   else  return getTimeInTimingUnit() - last_play_time + time;
 }
 
+bool Timer::isPlaying(){
+  return !paused;
+}
+
 void Timer::play(){
   if (paused){
     last_play_time = getTimeInTimingUnit();

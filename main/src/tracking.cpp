@@ -328,7 +328,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     
     // log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
-    log("%d, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, tracking.g_vel.a, radToDeg(target_velocity - tracking.g_vel.a));
+    // log("%d, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, tracking.g_vel.a, radToDeg(target_velocity - tracking.g_vel.a));
 
     moveDrive(0.0, power);
     _Task::delay(10);

@@ -19,5 +19,6 @@ void skills3();
 
 void autonStack();
 void autonAWP();
+void autonAWP2();
 void autonLine();
 
