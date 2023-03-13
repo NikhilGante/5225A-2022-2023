@@ -95,7 +95,7 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   #ifdef LOGS
-  log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
+  // log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
 
   if(log_timer.getTime() > 10 || shooter_ds.get_value() < 600){
     if (shooter_ds.get_value() < 600){

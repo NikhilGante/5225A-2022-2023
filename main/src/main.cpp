@@ -99,7 +99,7 @@ void autonomous() {
 
 	// provSkillsLow();
 	// provSkills();
-	autonAWP2();
+	autonAWP3();
 
 	// backupSkills();
 
@@ -207,7 +207,18 @@ IMU THINGS:
 #define MATCH
 // #define SELECT
 
+// 10deg -> 600 ms
+// 30deg -> 500 ms
+// 45deg -> 700 ms
+// 60deg -> 650 ms
+// 90deg -> 700 ms
+
+
 void opcontrol() {
+	master.clear();
+	WAIT_UNTIL(!gyro.is_calibrating());
+	turnToAngleSync(135.0);
+	WAIT_UNTIL(false);
 
 	// setFlywheelVel(barrier_rpm - 50);
 	// shoot(9, true);	
