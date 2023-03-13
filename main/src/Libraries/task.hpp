@@ -31,6 +31,7 @@ class _Task{
     void kill();  // sends a notification to kill the task
     void suspend();  // sends a notification to suspend the task
     void resume();  // resume the task
+    task_state_e_t getState() const;
     
     static void delay(uint32_t delay_time = 10);  // special delay that handles notifications
 };

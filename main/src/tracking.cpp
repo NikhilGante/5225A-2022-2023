@@ -185,7 +185,7 @@ void trackingUpdate(){
     // tracking_log("h_x:%lf, h_y: %lf", h_x, h_y);
     // tracking_log("L:%d R:%d B:%d", new_left, new_right, new_back);
     tracking_log("L:%d R:%d B:%d\n", left_tracker.getVal(), right_tracker.getVal(), -back_tracker.getVal());
-		tracking_log("x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), fmod(radToDeg(tracking.getPos().a), 360));
+		tracking_log("x:%.2lf y:%.2lf a:%.2lf %.2lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), std::fmod(radToDeg(tracking.getPos().a), 360));
 
     _Task::delay(10);
   }

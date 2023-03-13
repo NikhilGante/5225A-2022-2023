@@ -38,6 +38,7 @@ class Logging: public ObjectTracker<Logging>{
     static Button past_logs;
     static void pause();
     static void resume();
+    static bool active;
 
     void update(bool force = false);
 
@@ -47,6 +48,7 @@ class Logging: public ObjectTracker<Logging>{
     static void init();
     
     void operator() (bool important, term_colours colour, std::string format, auto... args){
+      if(!active) return;
       if(location == log_locations::none) return;
 
       std::string str{sprintf2(format, args...)};

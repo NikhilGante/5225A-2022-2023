@@ -6,7 +6,9 @@ using namespace c;
 
 _Task::_Task(std::string name): name{name} {}
 
-bool _Task::isAlive() const {return task_handle && task_get_state(task_handle) != TASK_STATE_DELETED;}
+task_state_e_t _Task::getState() const {return task_get_state(task_handle);}
+
+bool _Task::isAlive() const {return task_handle && getState() != TASK_STATE_DELETED;}
 
 void _Task::killUnsafe(){
   if(isAlive()){
@@ -21,7 +23,7 @@ void _Task::kill(){
     // sends a notification to kill the task
     task_notify_ext(task_handle, static_cast<int>(notify_types_2::interrupt), NOTIFY_ACTION_OWRITE, nullptr);
     system_log("%s Task killed", name);
-    if(task_get_state(task_handle) == TASK_STATE_SUSPENDED) resume();
+    if(getState() == TASK_STATE_SUSPENDED) resume();
   }
   else system_log("%s Task already dead, kill failed", name);
 }
@@ -29,7 +31,7 @@ void _Task::kill(){
 void _Task::suspend(){
   if(isAlive()){
     task_notify_ext(task_handle, static_cast<int>(notify_types_2::suspend), NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
-    WAIT_UNTIL(task_get_state(task_handle) == TASK_STATE_SUSPENDED); // wait for the task to suspend
+    WAIT_UNTIL(getState() == TASK_STATE_SUSPENDED); // wait for the task to suspend
     system_log("%s Task suspended", name);
   }
   else system_log("%s Task already dead, suspend failed", name);

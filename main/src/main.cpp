@@ -21,7 +21,9 @@
 void initialize() {
   DEBUG;
 
+  DEBUG;
   Logging::init();
+  DEBUG;
 	_Controller::init();
   GUI::init();
   tracking.init();	// ACTUAL SKILLS
@@ -97,7 +99,7 @@ Auton auton4("Skills", provSkillsLow);
 
 //arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
-//dumping too much data is an issue
+//reduce execution time of Logging::init()
 //make logging page a static member of Logging class
 //Add a config page to the gui
 //make Tracking a static class
@@ -108,6 +110,7 @@ Auton auton4("Skills", provSkillsLow);
 
 //debugging doc
 //change GitHub to conventions and styles doc
+//update logging doc
 
 //is button rising/falling needed?
 //distanceReset inconsistent use of degToRad

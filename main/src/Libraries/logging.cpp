@@ -8,6 +8,7 @@
 Page logging {"Logging"}; //Log printing page from file to terminal
 Button Logging::past_logs {{15, 40, 100, 40, GUI::Style::SIZE}, Button::TOGGLE, logging, "Past Logs", Color::red};
 _Task Logging::task{"Logging"};
+bool Logging::active = true;
 
 Logging tracking_log {"Tracking" , false};
 Logging drive_log    {"Drive"    , false};
@@ -75,7 +76,7 @@ void Logging::init(){
     for(Logging* log: getList()){
       if(log->location == log_locations::sd_main || log->location == log_locations::sd_only || log->location == log_locations::both){
         log->fullName = "/usd/Logging/" + std::to_string(count) + '_' + log->getName() + ".txt";
-        log->pastFullName = "/usd/Logging/" + std::to_string(count-1) + '_' + log->getName() + ".txt";
+        log->pastFullName = "/usd/Logging/" + std::to_string(past_count) + '_' + log->getName() + ".txt";
         system_log("%d: Opening %s log file on SD", millis(), log->fullName);
         std::ofstream file_init{log->fullName, std::ofstream::trunc};
         file_init << "Start of " + log->getName() + " - " + std::to_string(count) + " log file\n\n";
@@ -115,5 +116,14 @@ void Logging::update(bool force){
   }
 }
 
-void Logging::pause() {system_log(term_colours::RED, "%d: Pausing Logging", millis()); task.suspend();}
-void Logging::resume() {system_log(term_colours::GREEN, "%d: Resuming Logging", millis()); task.resume();}
+void Logging::pause(){
+  system_log(term_colours::RED, "%d: Pausing Logging", millis());
+  task.suspend();
+  active = false;
+}
+void Logging::resume(){
+  system_log(term_colours::GREEN, "%d: Resuming Logging", millis());
+  task.resume();
+  active = true;
+}
+// bool Logging::paused() {return task.getState() == TASK_STATE_SUSPENDED;}
