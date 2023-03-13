@@ -25,7 +25,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 
 	}while(fabs(error) > 0.5);
 	// master.print(2, 0, "time: %ld", move_timer.getTime());
-  log("Move %d inches done, took %lld ms\n", target, move_timer.getTime());
+  log("Move %lf inches done, took %lld ms\n", target, move_timer.getTime());
 	handleBrake(brake_mode);
 
   log("CONTROLLER RUMBLING FROM LINE 31 in file auton.cpp");
@@ -451,6 +451,53 @@ void autonAWP3(){
   shoot(3);
   // WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
   // log("CONTROLLER RUM BLING FROM LINE 293 in file auton.cpp");
+  shooter.waitToReachState(ShooterIdleParams{});
+  master.print(2,0, "total:%ld", timer1.getTime());
+	lcd::print(6, "total:%ld", timer1.getTime());
+}
+
+void autonAWP4(){
+  WAIT_UNTIL(!gyro.is_calibrating());
+
+  Timer timer1{"timer"};
+  setFlywheelVel(2165);
+
+  tracking.reset(distanceReset(resetPosition::leftHome));
+
+
+
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+
+  // turnToTargetSync({70.0, 55.0}); // Faces stack
+	moveToTargetSync({69.0, 55.0}, E_Brake_Modes::brake, 127, 2.5); // Go to centre field
+
+	aimAtBlue(1);
+	shoot(2);
+  shooter.waitToReachState(ShooterIdleParams{});
+  
+  setFlywheelVel(2270);
+  moveInches(-4);  // backup
+
+	turnToTargetSync({102.0, 78.0}); // Face line
+
+	moveToTargetSync({102.0, 78.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
+
+  aimAtBlue(0.5);
+  // moveInches(7.0);
+	shoot(3);
+  shooter.waitToReachState(ShooterIdleParams{});
+	
+  turnToTargetSync({128.0, 103.0}, -20.0, true); // Face roller
+  moveToTargetAsync({128.0, 103.0}, E_Brake_Modes::coast); // move to roller
+  tracking.waitForDistance(7.0);
+  spinRoller();
+  intake.waitToReachState(IntakeOffParams{});
+
+  moveInches(1.0);
+  master.print(2,0, "total:%ld", timer1.getTime());
+  WAIT_UNTIL(false);
+
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	lcd::print(6, "total:%ld", timer1.getTime());

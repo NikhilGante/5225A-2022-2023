@@ -186,8 +186,6 @@ void IntakeRollerParams::handle(){
   drive.waitToReachState(DriveIdleParams{});
 
   moveDrive(0, 0);
-  trans_p.setState(HIGH);
-  delay(100);
 	// FLATTEN CODE
 	pros::lcd::print(4, "dist: %lf   ", error);
 	moveDrive(-40, 0);
@@ -214,9 +212,6 @@ void IntakeRollerParams::handle(){
   master.rumble("-"); // Notifies driver spinning roller has finished
   // log("CONTROLLER RUMBLING FROM LINE 173 in file intake.cpp");
 	moveDrive(0, 0);
-  delay(100);
-
-	trans_p.setState(HIGH);
   intakeOff();
 
 }

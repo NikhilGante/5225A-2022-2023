@@ -21,5 +21,6 @@ void autonStack();
 void autonAWP();
 void autonAWP2();
 void autonAWP3();
+void autonAWP4();
 void autonLine();
 

@@ -220,6 +220,7 @@ void Tracking::waitForComplete(){
 }
 
 void Tracking::waitForDistance(double distance){
+  WAIT_UNTIL(fabs(drive_error.load()) > distance);  // To ensure error isn't access before initialised
   WAIT_UNTIL(fabs(drive_error.load()) <= distance);
 }
 
@@ -258,6 +259,7 @@ void handleBrake(E_Brake_Modes brake_mode){
     case E_Brake_Modes::brake:
       log("drivebrake\n");
       driveBrake();
+      delay(50);  // Waits for brake to be applied
       break;
   }
 }
@@ -365,15 +367,15 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     // if(sgn(tracking.drive_error.load()) != sgn(power))  power = 0;
     // log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
-    log("%d, %lf, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(tracking.g_vel.a), radToDeg(target_velocity - tracking.g_vel.a), radToDeg(target_velocity));
     // if(fabs(radToDeg(tracking.g_vel.a)) < 30) slow_count++;
     // else slow_count = 0;
 
+    // log("%d, %lf, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(tracking.g_vel.a), radToDeg(target_velocity - tracking.g_vel.a), radToDeg(target_velocity));
     if(fabs(tracking.r_vel) > 5.0 && fabs(gyro.get_rotation()) < 0.1){
       power = 0;
       moveDrive(0.0, power);
-      break;
       log("GYRO NOT PLUGGED IN?\n");
+      break;
     }
     moveDrive(0.0, power);
     _Task::delay(10);
@@ -478,7 +480,6 @@ void DriveMttParams::handle(){
   }  
   while(line_error.getY() > 0.5);
   handleBrake(brake_mode);
-  delay(50);  // Waits for brake to be applied
   log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
 }
