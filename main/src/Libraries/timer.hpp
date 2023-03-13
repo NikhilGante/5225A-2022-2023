@@ -31,6 +31,6 @@ class Timer{
     bool playing() const;
     std::string get_name() const;
     void print(std::string str = "", auto... args) const {
-      (*log)("%s%s Timer's current time is: %lld | %s\n", str == "" ? "" : sprintf2(str, args...) + " | ", get_name(), getTime());
+      (*log)("%lld | %s%sFrom %s", getTime(), sprintf2(str, args...), str != "" ? " | " : "", get_name());
     }
 };

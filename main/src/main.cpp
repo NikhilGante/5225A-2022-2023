@@ -98,6 +98,7 @@ Auton auton4("Skills", provSkillsLow);
 
 //!fix logging button visibility
 //check if timer prints look nice
+//make logging page a static member of Logging class
 //Add a config page to the gui
 //make Tracking a static class
 //Logging different sizes

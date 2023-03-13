@@ -470,7 +470,7 @@ void provSkills(){
 	moveDrive(25, 0.0);
 	delay(300);	// wait for speed up
 	while(ultra_left.getVal()*MM_TO_IN < 67){
-		auton_log("***Ultra: %lf\n", ultra_left.getVal()/25.4);
+		auton_log("***Ultra: %lf\n", ultra_left.getVal()*MM_TO_IN);
 		delay(10);
 	}
 	driveBrake();

@@ -46,16 +46,16 @@ void intakeHandleInput(){
   }
  
   // Spin roller if btn is pressed and not already spinning
-  if(master.isRising(rollerBtn) && !std::get_if<IntakeIndexParams>(&cur_state)){
-    intake.log("%lld | ROLLER BUTTON RISING", op_control_timer.getTime());
-    intake.changeState(IntakeIdleParams{});
-    intake.waitToReachState(IntakeIdleParams{});
-    intake_m.move(127); // Operates intake manually so disc count doesn't turn it off
-  }
-  else if(master.isFalling(rollerBtn)){
-    intake.log("%lld | ROLLER BUTTON RELEASED", op_control_timer.getTime());
-    intakeOff();
-  }
+  // if(master.isRising(rollerBtn) && !std::get_if<IntakeIndexParams>(&cur_state)){
+  //   intake.log("%lld | ROLLER BUTTON RISING", op_control_timer.getTime());
+  //   intake.changeState(IntakeIdleParams{});
+  //   intake.waitToReachState(IntakeIdleParams{});
+  //   intake_m.move(127); // Operates intake manually so disc count doesn't turn it off
+  // }
+  // else if(master.isFalling(rollerBtn)){
+  //   intake.log("%lld | ROLLER BUTTON RELEASED", op_control_timer.getTime());
+  //   intakeOff();
+  // }
   
   if(std::get_if<IntakeOffParams>(&cur_state) && intk_off_buzz_timer.getTime() > 300){  // Buzzes if in low gear for driver
     intk_off_buzz_timer.reset();

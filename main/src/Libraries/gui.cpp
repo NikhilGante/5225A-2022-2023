@@ -589,6 +589,8 @@ namespace alert{
     for (Text_*  text  : texts  ) text  ->draw();
   }
 
+extern Page logging;
+
   void Button::draw() const{
     if (!(active && (page == GUI::current_page || page == &perm))) return;
     if (on){ //on buttons must be drawn in a pressed state

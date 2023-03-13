@@ -53,8 +53,8 @@ void Auton::select(){
       case DIGITAL_A:
         master.clear();
         Logging::Interrupter<std::ofstream>("/usd/auton.txt", std::ofstream::trunc).stream << cur_auton << std::endl;
-        master.print(0, "Saved " + getNth(cur_auton)->name);
-        alert::start(term_colours::NOTIF, "Saved " + getNth(cur_auton)->name);
+        master.print(0, "Saved " + getNth(cur_auton)->name + " Auton");
+        alert::start(term_colours::NOTIF, "Saved " + getNth(cur_auton)->name + " Auton");
         return;
         break;
 

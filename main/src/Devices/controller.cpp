@@ -46,7 +46,7 @@ void _Controller::init(){
 void _Controller::clearLine (std::uint8_t line){
   queue.push([=, this](){
     Controller::clear_line(line);
-    controller_log("%d: clearing line %d on %s controller", line, millis(), name);
+    controller_log("%d: clearing line %d on %s controller", millis(), line, name);
   });
   getText(line) = "";
   controller_log("%d: Adding clearLine for %s controller", millis(), name);
