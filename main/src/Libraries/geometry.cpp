@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../util.hpp"
 #include "geometry.hpp"
 
 // position constructors

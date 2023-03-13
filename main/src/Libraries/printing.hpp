@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 #include "okapi/api/util/mathUtil.hpp"
 #include "pros/colors.hpp"
 

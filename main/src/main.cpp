@@ -1,8 +1,9 @@
-#include "main.h"
+#include "util.hpp"
 #include "Libraries/gui.hpp"
 #include "Libraries/logging.hpp"
 #include "Devices/controller.hpp"
 #include "Devices/others.hpp"
+#include "Subsystems/flywheel.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
 #include "auton.hpp"
@@ -96,8 +97,7 @@ Auton auton4("Skills", provSkillsLow);
 
 //arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
-//!fix logging button visibility
-//check if timer prints look nice
+//dumping too much data is an issue
 //make logging page a static member of Logging class
 //Add a config page to the gui
 //make Tracking a static class
@@ -114,6 +114,8 @@ Auton auton4("Skills", provSkillsLow);
 
 void opcontrol() {
   DEBUG;
-  WAIT_UNTIL(false);
+  WAIT_UNTIL(false){
+    if(master.getNewDigital(DIGITAL_B)) flywheel_log(true, "Heklp me");
+  }
   DEBUG;
 }

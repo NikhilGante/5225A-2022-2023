@@ -24,7 +24,7 @@ int Auton::get(){
 
 void Auton::runFunction() const {
   if(program){
-    auton_log("Running auton %s\n", name);
+    drive_log("Running auton %s\n", name);
     program();
   }
   else alert::start("No Auton function for" + name);
@@ -36,7 +36,7 @@ void Auton::select(){
 	master.print(0, getNth(cur_auton) ? getNth(cur_auton)->name : "No Auton " + std::to_string(cur_auton));
 	master.print(1, "Up/dn change auton");
 	master.print(2, "Press A to save");
-	auton_log("Constructed %d Autons", Auton::getList().size()); //? Why is this line needed
+	drive_log("Constructed %d Autons", Auton::getList().size()); //? Why is this line needed
 
   while(true){
     switch(master.waitForPress({DIGITAL_UP, DIGITAL_RIGHT, DIGITAL_DOWN, DIGITAL_LEFT, DIGITAL_A, DIGITAL_B, DIGITAL_X})){

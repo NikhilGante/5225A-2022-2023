@@ -432,11 +432,11 @@ DriveTurnToTargetParams::DriveTurnToTargetParams(Vector target, double offset, b
   target(target), offset(offset), reverse(reverse), brake_mode(brake_mode), end_error(end_error), max_power(max_power){}
 
 void DriveTurnToTargetParams::handle(){
-  drive.log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), radToDeg(std::numbers::pi/2 - (b_goal-tracking.getPos()).getAngle()));
+  tracking_log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), radToDeg(std::numbers::pi/2 - (b_goal-tracking.getPos()).getAngle()));
   turnToAngleInternal(std::function([&](){
     return std::numbers::pi/2 - (target - tracking.getPos()).getAngle() + degToRad(offset) + (reverse ? std::numbers::pi : 0);
   }), brake_mode, end_error, max_power);
-  drive.log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), radToDeg(std::numbers::pi/2 - (b_goal-tracking.getPos()).getAngle()));
+  tracking_log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), radToDeg(std::numbers::pi/2 - (b_goal-tracking.getPos()).getAngle()));
 
 }
 void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}

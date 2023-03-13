@@ -26,7 +26,7 @@ _Controller::_Controller(controller_id_e_t id): Controller{id}{
 
 void _Controller::handle(){
   if(!queue.empty()){
-    controller_log("%d: Running function on %s controller\n", millis(), name);
+    state_log("%d: Running function on %s controller\n", millis(), name);
     queue.front()();
     queue.pop();
     _Task::delay(50);
@@ -46,42 +46,42 @@ void _Controller::init(){
 void _Controller::clearLine (std::uint8_t line){
   queue.push([=, this](){
     Controller::clear_line(line);
-    controller_log("%d: clearing line %d on %s controller", millis(), line, name);
+    state_log("%d: clearing line %d on %s controller", millis(), line, name);
   });
   getText(line) = "";
-  controller_log("%d: Adding clearLine for %s controller", millis(), name);
+  state_log("%d: Adding clearLine for %s controller", millis(), name);
 }
 
 void _Controller::clear(){
   queue.push([=, this](){
     Controller::clear();
-    controller_log("%d: Clearing screen on %s controller", millis(), name);
+    state_log("%d: Clearing screen on %s controller", millis(), name);
   });
   getText(0) = getText(1) = getText(2) = "";
-  controller_log("%d: Adding clear to %s controller queue", millis(), name);
+  state_log("%d: Adding clear to %s controller queue", millis(), name);
 }
 
 void _Controller::rumble(std::string rumble_pattern){
   queue.push([=, this](){
     Controller::rumble(rumble_pattern.c_str());
-    controller_log("%d: Rumbling %s controller", millis(), name);
+    state_log("%d: Rumbling %s controller", millis(), name);
   });
-  controller_log("%d: Adding rumble to %s controller queue", millis(), name);
+  state_log("%d: Adding rumble to %s controller queue", millis(), name);
 }
 
 controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_e_t> buttons, int timeout){
-  Timer timer{"Controller Button Timeout", controller_log};
-  controller_log("%d: Waiting for button press on %s controller with a timeout of %d", millis(), name, timeout);
+  Timer timer{"Controller Button Timeout", state_log};
+  state_log("%d: Waiting for button press on %s controller with a timeout of %d", millis(), name, timeout);
   
   WAIT_UNTIL(timer.getTime() > timeout){
     for(controller_digital_e_t btn: buttons){
       if(getNewDigital(btn)){
-        controller_log("%d: Button %d pressed on %s controller", millis(), btn, name);
+        state_log("%d: Button %d pressed on %s controller", millis(), btn, name);
         return btn;
       }
     }
   }
-  controller_log("%d: Timed out on waiting for button press from controller %s", millis(), name);
+  state_log("%d: Timed out on waiting for button press from controller %s", millis(), name);
   return static_cast<controller_digital_e_t>(0);
 }
 

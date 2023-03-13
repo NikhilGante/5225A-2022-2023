@@ -37,7 +37,7 @@ void CustomDrive::fillLookupTable(){
   for (short x = -127; x < 128; x++){ // fills lookup table with values from appropriate function
     lookup(x) = exponential(x);
     // UNCOMMENT THESE FOR DEBUGGING, comment for performance
-    // driver_log2("%d, %d", x, lookup(x));
+    // drive_log("%d, %d", x, lookup(x));
     // delay(1);
   }
 }
@@ -131,7 +131,7 @@ void driveHandleInputProg(){
   if(std::abs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
   if(std::abs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
 
-  // driver_log("%lf %lf %lf %lf", l_power, l_power_last, r_power, r_power_last);
+  // drive_log("%lf %lf %lf %lf", l_power, l_power_last, r_power, r_power_last);
   moveDriveSide(l_power, r_power);
   l_power_last = l_power,  r_power_last = r_power;
 
@@ -139,7 +139,7 @@ void driveHandleInputProg(){
     if(motor->getTemperature() >= 50){
       moveDrive(0, 0);
       master.rumble("----------");
-      device_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+      state_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
       WAIT_UNTIL(false);
     }
   }
@@ -147,9 +147,9 @@ void driveHandleInputProg(){
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop
   op_control_timer.reset();
-  Timer disc_count_print{"Disc Count Print", driver_log};
-	Timer angle_override_print{"Angle Override Print", driver_log};
-  Timer low_gear_buzz_timer{"Low Gear Buzz", driver_log};
+  Timer disc_count_print{"Disc Count Print", drive_log};
+	Timer angle_override_print{"Angle Override Print", drive_log};
+  Timer low_gear_buzz_timer{"Low Gear Buzz", drive_log};
 
 	master.clear();
 
@@ -159,11 +159,11 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   intakeOn();
   angleOverride = false;
 
-  Timer endgame_click_timer_left{"Left Endgame", driver_log};
+  Timer endgame_click_timer_left{"Left Endgame", drive_log};
   endgame_click_timer_left.reset(false);
   bool endgame_dbl_click_left = false;
 
-  Timer endgame_click_timer_right{"Right Endgame", driver_log};
+  Timer endgame_click_timer_right{"Right Endgame", drive_log};
   endgame_click_timer_right.reset(false);
   bool endgame_dbl_click_right = false;
   // driveBrake();
@@ -183,7 +183,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     }
     if(master.getNewDigital(endgameBtnLeft)){
       if(endgame_dbl_click_left) {
-        driver_log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
+        drive_log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_s_p.setState(HIGH);
       }
       else endgame_dbl_click_left = true;
@@ -196,7 +196,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     }
     if(master.getNewDigital(endgameBtnRight)){
       if(endgame_dbl_click_right) {
-        driver_log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
+        drive_log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_d_p.setState(HIGH);
       }
       else endgame_dbl_click_right = true;
@@ -230,7 +230,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       if(motor->getTemperature() >= 50){
         // moveDrive(0, 0);
         master.rumble();
-        device_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+        state_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
         delay(50);
         // WAIT_UNTIL(false);
       }
@@ -242,13 +242,13 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 void shiftTrans(bool state){
   _Task trans_task;
   trans_task.start([=](){
-    driver_log("%d Transmission started shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
+    drive_log("%d Transmission started shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
     trans_p.setState(state);
     drive.changeState(DriveIdleParams{});
     drive.waitToReachState(DriveIdleParams{});
     moveDrive(0, 0);
     delay(100);
     drive.changeState(DriveOpControlParams{});
-    driver_log("%d Transmission finished shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
+    drive_log("%d Transmission finished shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
   });
 }

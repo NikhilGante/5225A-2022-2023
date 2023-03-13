@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "util.hpp"
 #include "Libraries/tracker.hpp"
 
 class Auton: public ObjectTracker<Auton>{

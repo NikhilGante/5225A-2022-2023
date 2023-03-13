@@ -16,44 +16,44 @@ void intakeHandleInput(){
   intakeVariant cur_state = intake.getState();
   if(std::get_if<IntakeOnParams>(&cur_state)){
     if(master.getNewDigital(intakeToggleBtn)){
-      intake.log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
+      subsystem_log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
       intakeOff();
     }  
     if(master.getNewDigital(intakeRevBtn)){
-      intake.log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
+      subsystem_log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
       intakeRev();
     } 
   }
   else if(std::get_if<IntakeOffParams>(&cur_state)){
     if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3){
-      intake.log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
+      subsystem_log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
       intakeOn();
     }
     if(master.getNewDigital(intakeRevBtn)){
-      intake.log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
+      subsystem_log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
       intakeRev();
     } 
   }
   else if(std::get_if<IntakeRevParams>(&cur_state)){
     if(master.getNewDigital(intakeToggleBtn) && g_mag_disc_count < 3){
-      intake.log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
+      subsystem_log("%lld | TOGGLE BUTTON PRESSED", op_control_timer.getTime());
       intakeOn();
     }
     if(master.getNewDigital(intakeRevBtn)){
-      intake.log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
+      subsystem_log("%lld | REVERSE BUTTON PRESSED", op_control_timer.getTime());
       intakeOff();
     } 
   }
  
   // Spin roller if btn is pressed and not already spinning
   // if(master.isRising(rollerBtn) && !std::get_if<IntakeIndexParams>(&cur_state)){
-  //   intake.log("%lld | ROLLER BUTTON RISING", op_control_timer.getTime());
+  //   subsystem_log("%lld | ROLLER BUTTON RISING", op_control_timer.getTime());
   //   intake.changeState(IntakeIdleParams{});
   //   intake.waitToReachState(IntakeIdleParams{});
   //   intake_m.move(127); // Operates intake manually so disc count doesn't turn it off
   // }
   // else if(master.isFalling(rollerBtn)){
-  //   intake.log("%lld | ROLLER BUTTON RELEASED", op_control_timer.getTime());
+  //   subsystem_log("%lld | ROLLER BUTTON RELEASED", op_control_timer.getTime());
   //   intakeOff();
   // }
   
@@ -74,12 +74,12 @@ IntakeOnParams::IntakeOnParams(int8_t speed) : speed(speed){}
 
 void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = intk_ds.getVal();
-  intake.log("%d | %d, count: %d", millis(), mag_ds_val, g_mag_disc_count.load());
+  subsystem_log("%d | %d, count: %d", millis(), mag_ds_val, g_mag_disc_count.load());
   mag_disc_detected = mag_ds_val < mag_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
-    intake.log("INCR, count: %d", g_mag_disc_count.load());
+    subsystem_log("INCR, count: %d", g_mag_disc_count.load());
   }
   mag_disc_detected_last = mag_disc_detected;
 
@@ -87,9 +87,9 @@ void IntakeOnParams::handle(){  // synchronous state
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
   if(g_mag_disc_count >= 3) {
-    intake.log("COUNTED 3");
+    subsystem_log("COUNTED 3");
     master.rumble("-");
-    intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+    subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
     _Task::delay(185);
 
     // Flushes out 4th disc if in auto
@@ -144,7 +144,7 @@ void intakeIndex(int8_t speed) {intake.changeState(IntakeIndexParams{speed});} /
 IntakeRollerParams::IntakeRollerParams(double degrees): degrees(degrees){}
 
 void IntakeRollerParams::handle(){
-  Timer roller_timer{"Roller", intake.log};
+  Timer roller_timer{"Roller", subsystem_log};
   drive.changeState(DriveIdleParams{});
   drive.waitToReachState(DriveIdleParams{});
 
@@ -159,22 +159,22 @@ void IntakeRollerParams::handle(){
   WAIT_UNTIL(tracking.r_vel > -3);
 
 	master.rumble();
-  intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 
 	moveDrive(-10, 0);
-  intake.log("Turning roller");
+  subsystem_log("Turning roller");
   intake_m.moveRelative(degrees);  // should be 500 for skills, should be 300 for auton
   WAIT_UNTIL(std::abs(intake_m.getTargetPosition() - intake_m.getPosition()) < 10); // wait for intake to reach poisiton 
-  intake.log("Finished spinning roller");
+  subsystem_log("Finished spinning roller");
 
 	master.rumble();
-  intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 	moveDrive(0, 0);
-  intake.log("**DONE ROLLER\n");
+  subsystem_log("**DONE ROLLER\n");
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble(); // Notifies driver spinning roller has finished
-  intake.log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 	moveDrive(0, 0);
   delay(100);
 

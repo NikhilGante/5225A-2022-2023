@@ -69,7 +69,7 @@ namespace alert{
 
       master.rumble("-.");
 
-      error_log(params.colour, "%s\n", std::get<std::string>(queue.front()));
+      system_log(params.colour, "%s\n", std::get<std::string>(queue.front()));
       timer.reset(); //Starts counting down
     }
 

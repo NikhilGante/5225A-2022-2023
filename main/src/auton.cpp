@@ -12,7 +12,7 @@
 #include "util.hpp"
 
 void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
-	Timer move_timer{"Move Inches", auton_log};
+	Timer move_timer{"Move Inches", drive_log};
 	double start = right_tracker.getVal()*TICKS_TO_INCHES;
 	double error;
 	do{
@@ -30,7 +30,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 	handleBrake(brake_mode);
 
 	master.rumble();
-  auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  drive_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 }
 
 void fullSkills(){
@@ -51,13 +51,13 @@ void fullSkills(){
 // tracking.getPos() = {30.75, 7.375, degToRad(0.0)};	// ACTUAL SKILLS
 void skills1(){
   tracking.reset({getDistL(), 7.5, 0.0});
-  Timer total{"Total", auton_log};
+  Timer total{"Total", drive_log};
   setFlywheelVel(2175);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
   tracking.reset({31.0, 7.5, degToRad(0.0)});
   master.rumble();
-  auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  drive_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
   // WAIT_UNTIL(master.getNewDigital(DIGITAL_A));
   intakeOn();
   moveToTargetSync({37.0, 43.0}, E_Brake_Modes::brake, 50); // picks up stack
@@ -85,7 +85,7 @@ void skills1(){
 
 // tracking.getPos() = {110.5, 133.75, degToRad(180.0)}
 void skills2(){
-  Timer total{"Total", auton_log};
+  Timer total{"Total", drive_log};
 
   setFlywheelVel(2340);
   spinRoller();
@@ -135,7 +135,7 @@ void skills2(){
 }
 // tracking.getPos() = {72.0, 11.25, 0.0};
 void skills3(){
-  Timer total{"Total", auton_log};
+  Timer total{"Total", drive_log};
   setFlywheelVel(2150);
   spinRoller();
   intake.waitToReachState(IntakeOffParams{});
@@ -187,7 +187,7 @@ X: 72.3, Y: 49.72, A: -34.99
 void autonStack(){
   WAIT_UNTIL(!gyro.isCalibrating());
   tracking.reset({30.75, 9.0, degToRad(0.0)});
-  Timer timer1{"imer", auton_log};
+  Timer timer1{"imer", drive_log};
   setFlywheelVel(2350);
 	angler_p.setState(LOW);
 
@@ -201,7 +201,7 @@ void autonStack(){
 	// moveToTargetSync({37.0, 12.5});  // Move away from wall
   moveInches(5.0);
 	aimAtBlue(1.5);
-  auton_log("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
+  drive_log("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
 	shoot(2);
   shooter.waitToReachState(ShooterIdleParams{});
 
@@ -237,7 +237,7 @@ void autonStack(){
 
 void autonAWP(){
   WAIT_UNTIL(!gyro.isCalibrating());
-  Timer timer1{"imer", auton_log};
+  Timer timer1{"imer", drive_log};
   setFlywheelVel(2270);
 
   tracking.reset(distanceReset(resetPosition::leftHome));
@@ -289,7 +289,7 @@ void autonAWP(){
   
 	// turnToTargetSync({124.0, 117.0}, 0.0, false, E_Brake_Modes::brake, 45);
 	moveToTargetSync({130.0, 110.0}); // Move to corner
-  auton_log("TURNED INTAKE OFF\n");
+  drive_log("TURNED INTAKE OFF\n");
   intakeOff();
 
 	turnToAngleSync(-90.0, E_Brake_Modes::brake, 3.5);
@@ -305,7 +305,7 @@ void autonAWP(){
   // aimAtBlue(0.5);
   // shoot(3);
   // WAIT_UNTIL(timer1.getTime() > 15000) master.rumble("---");
-  // auton_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  // drive_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
   shooter.waitToReachState(ShooterIdleParams{});
   master.print(2,0, "total:%ld", timer1.getTime());
 	timer1.print();
@@ -315,7 +315,7 @@ void autonLine(){ // No moving after start
   WAIT_UNTIL(!gyro.isCalibrating());
   tracking.reset({129.5, 86.00, degToRad(0.0)});
 
-  Timer timer1{"imer", auton_log};
+  Timer timer1{"imer", drive_log};
   setFlywheelVel(2255);
   moveToTargetSync({tracking.getPos().x, 112}, E_Brake_Modes::brake, 127); // move in front of roller
   turnToAngleSync(-90.0, E_Brake_Modes::brake, 2.0, 127);
@@ -349,7 +349,7 @@ void autonLine(){ // No moving after start
   master.print(2,0, "total:%ld", timer1.getTime());
 
 
-/*  Timer timer1{"imer", auton_log};
+/*  Timer timer1{"imer", drive_log};
   angler_p.setState(LOW);
 
   flattenAgainstWallSync();
@@ -470,7 +470,7 @@ void provSkills(){
 	moveDrive(25, 0.0);
 	delay(300);	// wait for speed up
 	while(ultra_left.getVal()*MM_TO_IN < 67){
-		auton_log("***Ultra: %lf\n", ultra_left.getVal()*MM_TO_IN);
+		drive_log("***Ultra: %lf\n", ultra_left.getVal()*MM_TO_IN);
 		delay(10);
 	}
 	driveBrake();

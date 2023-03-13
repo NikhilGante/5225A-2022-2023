@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 
 class Logging;
 extern Logging none_log;

@@ -9,23 +9,16 @@ Page logging {"Logging"}; //Log printing page from file to terminal
 Button Logging::past_logs {{15, 40, 100, 40, GUI::Style::SIZE}, Button::TOGGLE, logging, "Past Logs", Color::red};
 _Task Logging::task{"Logging"};
 
-Logging state_log     {"States"    , true };
-Logging auton_log     {"Auton"     , true };
-Logging tracking_log  {"Tracking"  , false};
-Logging driver_log    {"Driver"    , false};
-Logging none_log      {"None"      , false, log_locations::none};
-Logging controller_log{"Controller", true , log_locations::sd_only};
-Logging device_log    {"Device"    , true , log_locations::sd_only};
-Logging task_log      {"Tasks"     , true , log_locations::sd_main, term_colours::ERROR};
-Logging log_log       {"Log"       , true,  log_locations::both, term_colours::BLUE};
-Logging error_log     {"Error"     , false, log_locations::both, term_colours::ERROR};
+Logging tracking_log {"Tracking" , false};
+Logging drive_log    {"Drive"    , false};
+Logging flywheel_log {"Flywheel" , true , log_locations::sd_main};
+Logging state_log    {"State"    , true , log_locations::sd_only};
+Logging subsystem_log{"Subsystem", true , log_locations::sd_main};
+Logging system_log   {"System"   , true , log_locations::sd_main, term_colours::ERROR};
+Logging important_log{"Important", false, log_locations::sd_only};
+Logging none_log     {"None"     , false, log_locations::none};
+//!If more logs are created, the number of past logs will need to be reduced
 
-/*
-Tracking + Drivebase
-Controller + Motors & Sensors + State Machine
-Errors + Tasks + Logging
-Autons + Driver + Flywheel + Intake + Shooter
-*/
 
 Logging::Logging(std::string name, bool newline, log_locations location, term_colours print_colour):
 ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location}, print_colour{print_colour} {
@@ -41,7 +34,7 @@ ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location
     printf2("%s\n", getTermColour(term_colours::BLUE));
 
     if(file.stream.is_open()) std::cout << file.stream.rdbuf() << std::endl;
-    else printf2("%s unopenable\n", fullName);
+    else printf2("%s unopenable\n", past_logs.isOn() ? pastFullName : fullName);
 
     printf2(term_colours::RED, "\nEnd %s Log Terminal Dump", getName());
     printf2("\n||||||||||||||||||||||||||||||||||||||||||||||\n\n");
@@ -49,10 +42,10 @@ ObjectTracker{"Logging", name}, queue{name}, newline{newline}, location{location
 }
 
 void Logging::init(){
-  log_log("%d: Initializing Logging", millis());
+  system_log("%d: Initializing Logging", millis());
   if(!usd::is_installed()){ //Rerouting data to non-sd card
     alert::start("SD Logging Inactive");
-    log_log(term_colours::ERROR, "No SD Card, deactivating Logging");
+    system_log(term_colours::ERROR, "No SD Card, deactivating Logging");
     past_logs.setActive(false);
     for(Logging* log: getList()){
       switch(log->location){
@@ -65,23 +58,25 @@ void Logging::init(){
     }
   }
   else{ //Setting up the count for having past log files
-    int count;
+    int count, next_count, past_count;
     {
       std::ifstream log_count{"/usd/log_count.txt"};
       if (log_count.is_open()) log_count >> count;
       else count = 0;
+      next_count = count >= 10 ? 0 : count + 1;
+      past_count = count == 0 ? 10 : count - 1;
     }
     {
-      log_log("Log Version %d", count);
+      system_log(true, "Log Version %d", count);
       std::ofstream log_count{"/usd/log_count.txt"};
-      log_count << count + 1; //For the next round of logs
+      log_count << next_count; //For the next round of logs
     }
 
     for(Logging* log: getList()){
       if(log->location == log_locations::sd_main || log->location == log_locations::sd_only || log->location == log_locations::both){
         log->fullName = "/usd/Logging/" + std::to_string(count) + '_' + log->getName() + ".txt";
         log->pastFullName = "/usd/Logging/" + std::to_string(count-1) + '_' + log->getName() + ".txt";
-        log_log("%d: Opening %s log file on SD", millis(), log->fullName);
+        system_log("%d: Opening %s log file on SD", millis(), log->fullName);
         std::ofstream file_init{log->fullName, std::ofstream::trunc};
         file_init << "Start of " + log->getName() + " - " + std::to_string(count) + " log file\n\n";
       }
@@ -120,5 +115,5 @@ void Logging::update(bool force){
   }
 }
 
-void Logging::pause() {log_log(term_colours::RED, "%d: Pausing Logging", millis()); task.suspend();}
-void Logging::resume() {log_log(term_colours::GREEN, "%d: Resuming Logging", millis()); task.resume();}
+void Logging::pause() {system_log(term_colours::RED, "%d: Pausing Logging", millis()); task.suspend();}
+void Logging::resume() {system_log(term_colours::GREEN, "%d: Resuming Logging", millis()); task.resume();}

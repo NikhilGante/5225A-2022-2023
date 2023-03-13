@@ -1,5 +1,6 @@
 #pragma once
 #include "gui.hpp"
+#include "../util.hpp"
 
 enum class log_locations{
   none,
@@ -12,16 +13,14 @@ enum class log_locations{
 class Logging;
 class _Task;
 
-extern Logging state_log;
-extern Logging auton_log;
 extern Logging tracking_log;
-extern Logging driver_log;
-extern Logging log_log;
-extern Logging controller_log;
-extern Logging device_log;
-extern Logging task_log;
-extern Logging error_log;
+extern Logging drive_log;
+extern Logging flywheel_log;
+extern Logging state_log;
+extern Logging subsystem_log;
+extern Logging system_log;
 extern Logging none_log;
+extern Logging important_log;
 
 class Logging: public ObjectTracker<Logging>{
   private:
@@ -47,29 +46,33 @@ class Logging: public ObjectTracker<Logging>{
 
     static void init();
     
-    void operator() (term_colours colour, std::string format, auto... args){
-      if (location == log_locations::none) return;
+    void operator() (bool important, term_colours colour, std::string format, auto... args){
+      if(location == log_locations::none) return;
 
       std::string str{sprintf2(format, args...)};
       if(newline) str += '\n';
 
+      if(important && this != &important_log) {important_log(colour, str);}
       if(location == log_locations::terminal || location == log_locations::both) printf2(colour, str);
       if(location == log_locations::sd_main || location == log_locations::sd_only || location == log_locations::both){
-        // printf2("Here:%s\n", getName());
         queue_mutex.take(TIMEOUT_MAX);
         queue.insert(str);
         queue_mutex.give();
       }
     }
 
-    void operator() (std::string format, auto... args) {(*this)(print_colour, format, args...);}
+    void operator() (std::string format, auto... args) {(*this)(false, print_colour, format, args...);}
+    void operator() (const char* format, auto... args) {(*this)(false, print_colour, format, args...);} //!Need this overload because bool is better implicit conversion for const char* than std::string
+    void operator() (term_colours colour, std::string format, auto... args) {(*this)(false, colour, format, args...);}
+    void operator() (bool important, std::string format, auto... args) {(*this)(important, print_colour, format, args...);}
+
 
     template <std::derived_from<std::ios> T>
     class Interrupter{
       public:
         T stream;
         Interrupter(std::string filename, std::ios_base::openmode mode) {
-          log_log(term_colours::NOTIF, "%d: Interrupting Logging for %s", millis(), filename);
+          system_log(term_colours::NOTIF, "%d: Interrupting Logging for %s", millis(), filename);
           pause();
           stream.open(filename, mode);
           if(!stream.is_open()) alert::start("Unable to open %s file when Interrupting Logging", filename);
@@ -77,7 +80,7 @@ class Logging: public ObjectTracker<Logging>{
         ~Interrupter(){
           stream.close();
           resume();
-          log_log(term_colours::NOTIF, "%d: Ended Logging Interruption", millis());
+          system_log(term_colours::NOTIF, "%d: Ended Logging Interruption", millis());
         }
     };
 };

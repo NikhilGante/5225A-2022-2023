@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 #include "pros/vision.h"
 
 class _Vision: private Vision{

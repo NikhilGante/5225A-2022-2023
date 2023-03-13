@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 #include "../Libraries/logging.hpp"
 #include "okapi/api/util/mathUtil.hpp"
 
@@ -69,9 +69,9 @@ class _Controller: private Controller{
       std::string str = sprintf2(fmt, args...);
       queue.push([=, this](){
         Controller::print(line, 0, str.c_str());
-        controller_log("Printing \"%s\" to %s controller", str, name);
+        state_log("Printing \"%s\" to %s controller", str, name);
       });
-      controller_log("Adding print to %s controller queue", name);
+      state_log("Adding print to %s controller queue", name);
 
       getText(line) = str;
     }

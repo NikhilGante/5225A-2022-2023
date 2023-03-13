@@ -10,7 +10,7 @@ _Vision::_Vision(int port): Vision (port, VISION_ZERO_CENTER){
 }
 
 void _Vision::print_object(object obj){
-  device_log("Time:%d | Hor:%d, Ver:%d, Width:%d, Height:%d\n", millis(), obj.left_coord, obj.top_coord, obj.width, obj.height);
+  state_log("Time:%d | Hor:%d, Ver:%d, Width:%d, Height:%d\n", millis(), obj.left_coord, obj.top_coord, obj.width, obj.height);
 }
 
 _Vision::object _Vision::blue_object() const {return get_by_sig(0, 1);}

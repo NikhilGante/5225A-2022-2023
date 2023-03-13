@@ -43,22 +43,22 @@ int _Motor::velocityToVoltage(int velocity){
 }
 
 void _Motor::move(int voltage){
-  if (speed != voltage) device_log("%d: Motor %s moving from %d to %d speed", millis(), getName(), speed, voltage);
+  if (speed != voltage) state_log("%d: Motor %s moving from %d to %d speed", millis(), getName(), speed, voltage);
   Motor::move(voltage);
   speed = voltage;
 }
 
 void _Motor::moveRelative(int velocity){
   int new_speed = velocityToVoltage(velocity);
-  if (speed != new_speed) device_log("%d: Motor %s relative moving from %d to %d speed", millis(), getName(), speed, new_speed);
+  if (speed != new_speed) state_log("%d: Motor %s relative moving from %d to %d speed", millis(), getName(), speed, new_speed);
   Motor::move_relative(velocity, 200);
   speed = new_speed;
 }
 
 void _Motor::brake(){
-  device_log("%d: Motor %s braking requested", millis(), getName());
+  state_log("%d: Motor %s braking requested", millis(), getName());
   moveRelative(0);
-  device_log("%d: Motor %s braking request processed", millis(), getName());
+  state_log("%d: Motor %s braking request processed", millis(), getName());
 }
 
 int _Motor::getTemperature() const {return plugged() ? get_temperature() : -1;}

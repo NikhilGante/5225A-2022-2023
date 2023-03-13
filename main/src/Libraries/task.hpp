@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "../util.hpp"
 #include "logging.hpp"
 
 class TaskEndException: public std::exception{
@@ -21,10 +21,10 @@ class _Task{
     _Task(std::string name = "");
     template <std::invocable F>
     void start(F&& function, void* parameters = nullptr, uint8_t prio = TASK_PRIORITY_DEFAULT, uint16_t stack_depth = TASK_STACK_DEPTH_DEFAULT){
-      task_log(term_colours::NOTIF, "Starting %s task", name);
+      system_log(term_colours::NOTIF, "Starting %s task", name);
       kill(); // kills task if it's alive
       task_handle = Task::create(std::forward<F>(function), prio, stack_depth, name.c_str());
-      task_log(term_colours::GREEN, "Started %s task", name);
+      system_log(term_colours::GREEN, "Started %s task", name);
     }
     bool isAlive() const; // returns if the task is currently on the scheduler
     void killUnsafe(); // removes task from scheduler
