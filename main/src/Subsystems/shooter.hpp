@@ -23,13 +23,14 @@ struct ShooterIdleParams{
   void handleStateChange(shooterVariant prev_state);
 };
 
-struct ShooterShootParams{  
-  ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = false);
+struct ShooterShootParams{
+    ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = false);
 
     inline static const std::string name = "ShooterShoot";
     void handle();
     void handleStateChange(shooterVariant prev_state);
 
+    int shots; // how many shots were requested
     int shots_left;
     bool disc_seen = false, disc_seen_last = false;
     bool match_load;

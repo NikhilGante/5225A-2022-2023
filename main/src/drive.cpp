@@ -6,6 +6,7 @@
 #include "Devices/controller.hpp"
 #include "Devices/motor.hpp"
 #include "Devices/piston.hpp"
+#include "Devices/others.hpp"
 #include "Subsystems/intake.hpp"
 #include "Subsystems/shooter.hpp"
 
@@ -93,7 +94,7 @@ void driveHandleInput(){
   _Controller::deadband(power_a);
 
   // Anti-tipping code
-  // log("VEL %lf %lf\n", tracking.r_vel, power_y);
+  // drive_log("VEL %lf %lf\n", tracking.r_vel, power_y);
   // if(std::abs(tracking.r_vel) > 10 && sgn(tracking.r_vel) != sgn(power_y) && !power_a){
   //   power_y = sgn(power_y) * 1;
 
@@ -207,6 +208,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     //   endgame_s_p.setState(HIGH);
     // }
 
+    // master.print(2, 0, "DRIVE RPM | %lf %lf\n", front_l.get_actual_velocity(), front_r.get_actual_velocity());
 		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
@@ -235,7 +237,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
         // WAIT_UNTIL(false);
       }
     }
-		delay(10);
+		delay(50);
 	}
 }
 
@@ -251,4 +253,21 @@ void shiftTrans(bool state){
     drive.changeState(DriveOpControlParams{});
     drive_log("%d Transmission finished shifting into %s gear\n", millis(), state ? "HIGH" : "LOW");
   });
+}
+
+void driveSpeedTest(){
+  drive.changeState(DriveIdleParams{});
+	drive.waitToReachState(DriveIdleParams{});
+	Timer timer{"timer"};
+	moveDrive(127, 0);
+	double start = right_tracker.getVal()*TICKS_TO_INCHES;
+	double cur_y = start;
+
+	while(cur_y < 120){
+		cur_y = right_tracker.getVal()*TICKS_TO_INCHES - start;
+		drive_log("%lld, %lf, %lf, %lf\n", timer.getTime(), cur_y, centre_l.getRPM(), centre_r.getRPM());
+		delay(50);
+	}
+	driveBrake();
+	delay(100);
 }

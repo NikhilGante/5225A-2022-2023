@@ -46,6 +46,7 @@ struct FlywheelMoveVelParams{
     static constexpr double smooth_val = 0.65; // Tuned to smooth velocity values
     static Timer motor_vel_read; // Ensures motor's velocity is calculated every 40ms
     static Timer log_timer;
+    static Timer disc_correction_timer; // Doesn't apply correction while disc is passing through
     static double smoothed_vel;  // Velocity with exponential filter applied to it
     static double last_pos;  // Motor's position from previous cycle
     static double last_vel; // Smoothed velocity (from last cycle)

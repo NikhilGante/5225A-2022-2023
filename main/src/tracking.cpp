@@ -306,12 +306,50 @@ void aimAtBlue(double offset, double max_power, double end_error){
 
 void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes brake_mode, double end_error, double max_power){
   end_error = degToRad(end_error);
+  double start_err = std::abs(radToDeg(nearAngle(getAngleFunc(), tracking.getPos().a)));
 
-  PID angle_pid("Turn to Angle", tracking_log, 4.5, 0, 100, 0.0, true, 1.0, degToRad(9.0));
+  double kP, kI, kD;
+  //use inRange for these statements
+  if(start_err >= 150){
+    kP = 4.7;
+    kI = 0.0;
+    kD = 120.0;
+  }
+  else if(start_err < 150 && start_err > 75){
+    kP = 4.9;
+    kI = 0.0;
+    kD = 0.0;
+  }
+  else if(start_err < 75 && start_err > 65){
+    kP = 5.1;
+    kI = 0.02;
+    kD = 0.0;
+  }
+  else if(start_err < 65 && start_err > 50){
+    kP = 5.5;
+    kI = 0.03;
+    kD = 0.0;
+  }
+  else if(start_err < 50 && start_err > 30){
+    kP = 5.8;
+    kI = 0.02;
+    kD = 0.0;
+  }
+  else {
+    kP = 6.0;
+    kI = 0.04;
+    kD = 0.0;
+  }  
 
-  constexpr double kB = 15; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
-  Timer motion_timer{"Motion", tracking_log};
-  constexpr double kP_vel = 5;
+  tracking_log("Start err: %lf | kP:%lf kI:%lf kD:%lf\n", start_err, kP, kI, kD);
+  PID angle_pid("Angle", tracking_log, kP, kI, kD, 0.0, true, degToRad(1.0), degToRad(20.0));
+
+
+
+  double kB = 15; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  Timer motion_timer{"motion_timer"};
+  double kP_vel = 8.0;
+  int slow_count = 3;
   do{
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.getPos().a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
@@ -321,13 +359,21 @@ void turnToAngleInternal(std::function<double()> getAngleFunc, E_Brake_Modes bra
     // tracking_log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     
     // tracking_log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
-    tracking_log("%d, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(target_velocity - tracking.g_vel.a));
+    //tracking_log("%d, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(target_velocity - tracking.g_vel.a));
+    tracking_log("%d, %lf, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(tracking.g_vel.a), radToDeg(target_velocity - tracking.g_vel.a), radToDeg(target_velocity));
 
+    if(std::abs(tracking.r_vel) > 5.0 && std::abs(gyro.getVal()) < 0.1){
+      power = 0;
+      moveDrive(0.0, power);
+      break;
+      tracking_log("GYRO NOT PLUGGED IN?\n");
+    }
     moveDrive(0.0, power);
     _Task::delay(10);
   }
-  while(std::abs(angle_pid.getError()) > end_error);
+  while(std::abs(angle_pid.getError()) > end_error || slow_count < 3);
   handleBrake(brake_mode);
+  master.print(2, 0, "time:%lld",  motion_timer.getTime());
   tracking_log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(tracking.drive_error), tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
   drive.changeState(DriveIdleParams{});
 }
@@ -423,7 +469,7 @@ DriveTurnToAngleParams::DriveTurnToAngleParams(double angle, E_Brake_Modes brake
   angle(angle), brake_mode(brake_mode), end_error(end_error), max_power(max_power){}
 
 void DriveTurnToAngleParams::handle(){
-  turnToAngleInternal(std::function([&](){return degToRad(angle);}), brake_mode, end_error, max_power);
+  turnToAngleInternal([&](){return degToRad(angle);}, brake_mode, end_error, max_power);
 }
 void DriveTurnToAngleParams::handleStateChange(driveVariant prev_state){}
 
@@ -444,7 +490,8 @@ void DriveTurnToTargetParams::handleStateChange(driveVariant prev_state){}
 // Drive Flatten state
 
 double rpmToInches(double rpm){
-  return (rpm / 60) * 3.25 * M_PI * 2/3;
+  // return (rpm / 60) * 3.25 * M_PI * 2/3;
+  return 40*3.25*std::numbers::pi*rpm;
 }
 void DriveFlattenParams::handle(){  // Flattens against wall
   double error;

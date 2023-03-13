@@ -100,6 +100,7 @@ Auton auton4("Skills", provSkillsLow);
 //arm-none-eabi-addr2line -faps -e ./bin/monolith.elf
 
 //reduce execution time of Logging::init()
+//how does inline work with file and line macros
 //make logging page a static member of Logging class
 //Add a config page to the gui
 //make Tracking a static class

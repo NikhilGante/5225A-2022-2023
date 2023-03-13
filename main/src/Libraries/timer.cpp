@@ -14,7 +14,6 @@ void Timer::reset(bool play){
   if(play) this->play();
 }
 
-
 void Timer::play(){
   if (paused){
     last_play_time = getTimeInTimingUnit();

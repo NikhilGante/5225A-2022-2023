@@ -35,6 +35,7 @@ void shooterHandleInput(){
     subsystem_log("%lld | ANGLER TOGGLE BUTTON PRESSED", op_control_timer.getTime());
     angler_p.toggleState();
     if(angler_p.getState()) intakeOff();
+    else if(g_mag_disc_count < 3) intakeOn();
     handleRpm();
   } 
 
@@ -56,20 +57,19 @@ void ShooterIdleParams::handleStateChange(shooterVariant prev_state){}
 
 // Shooter shoot state
 
-ShooterShootParams::ShooterShootParams(int shots, bool match_load, bool clear_mag): shots_left(shots), match_load(match_load), clear_mag(clear_mag){}
+ShooterShootParams::ShooterShootParams(int shots, bool match_load, bool clear_mag): shots(shots), shots_left(shots), match_load(match_load), clear_mag(clear_mag){}
 
 void ShooterShootParams::handle(){
 
-  printf2("SHOOTER | %d %d, count: %d\n", millis(), mag_ds.getVal(), g_mag_disc_count.load());
 
-  // log("Shoot_time: %lld \n", shoot_timer.getTime());
+  // subsystem_log("Shoot_time: %lld \n", shoot_timer.getTime());
   // Fires shot if flywheel rpm is within 20 of target and 300 ms has elapsed
   if(goal_disturb){
     if(std::abs(flywheel_error) > 1000) cycle_check.reset();
   }
   else{
     flywheelVariant temp_flywheel_state = flywheel.getState();
-    if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state) && std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > 2000){
+    if(std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state) && std::get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > barrier_rpm){
       if(std::abs(flywheel_error) > 30) cycle_check.reset();
     }
     else if(std::abs(flywheel_error) > 150)  cycle_check.reset();
@@ -98,7 +98,7 @@ void ShooterShootParams::handle(){
   bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
   // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
 
-  subsystem_log("%d mag: %d", millis(), mag_ds.getVal());
+  //subsystem_log("%d mag: %d", millis(), mag_ds.getVal());
 
   if (angler_p.getState() == HIGH){
     trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
@@ -126,9 +126,14 @@ void ShooterShootParams::handle(){
     _Task::delay(75); // wait for SHOOTER to retract
 
     if((!clear_mag && shots_left <= 0) || shots_left <= -2){  // If shooting is done
-      master.rumble("-"); // Lets driver know shooting is done
-      subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
-      g_mag_disc_count = 0;
+      master.rumble(); // Lets driver know shooting is done
+      //subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+      if(clear_mag) g_mag_disc_count = 0;
+      else{
+
+        g_mag_disc_count -= shots;
+        subsystem_log("SHO`````TS:%d\n", shots);
+      }
       _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
       intakeOn();
@@ -139,10 +144,11 @@ void ShooterShootParams::handle(){
   // Ends shooting if disc hasn't been seen for 2 seconds
   if((match_load && disc_absence_timer.getTime() > 2000) || (shots_left <= 0 && clear_mag && disc_absence_timer.getTime() > 100)){
     master.rumble("-"); // Lets driver know shooting is done
-    subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+    //subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
     subsystem_log("FINISHED MATCH LOADER, TIMED OUT");
 
-    g_mag_disc_count = 0;
+    if(clear_mag) g_mag_disc_count = 0;
+    else  g_mag_disc_count -= shots;
     // Sets subsystems back to their state before shooting
     intakeOn();
     shooter.changeState(ShooterIdleParams{});

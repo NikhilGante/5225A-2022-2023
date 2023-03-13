@@ -57,9 +57,9 @@ void intakeHandleInput(){
   //   intakeOff();
   // }
   
-  if(std::get_if<IntakeOffParams>(&cur_state) && intk_off_buzz_timer.getTime() > 300){  // Buzzes if in low gear for driver
+  if(get_if<IntakeOffParams>(&cur_state) && intk_off_buzz_timer.getTime() > 300 && g_mag_disc_count < 3){  // Buzzes if in low gear for driver
     intk_off_buzz_timer.reset();
-    master.rumble("..");
+    // master.rumble("..");
   }
 }
 
@@ -89,7 +89,7 @@ void IntakeOnParams::handle(){  // synchronous state
   if(g_mag_disc_count >= 3) {
     subsystem_log("COUNTED 3");
     master.rumble("-");
-    subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+    // subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
     _Task::delay(185);
 
     // Flushes out 4th disc if in auto
@@ -159,7 +159,7 @@ void IntakeRollerParams::handle(){
   WAIT_UNTIL(tracking.r_vel > -3);
 
 	master.rumble();
-  subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  //subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 
 	moveDrive(-10, 0);
   subsystem_log("Turning roller");
@@ -168,13 +168,13 @@ void IntakeRollerParams::handle(){
   subsystem_log("Finished spinning roller");
 
 	master.rumble();
-  subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  //subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 	moveDrive(0, 0);
   subsystem_log("**DONE ROLLER\n");
 	roller_timer.print();
   drive.changeState(DriveOpControlParams{});
   master.rumble(); // Notifies driver spinning roller has finished
-  subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
+  //subsystem_log("CONTROLLER RUMBLING FROM LINE %d in file %s", __LINE__, __FILE__);
 	moveDrive(0, 0);
   delay(100);
 

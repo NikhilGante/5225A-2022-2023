@@ -32,3 +32,5 @@ void driveHandleInput(); // takes input from the joysticks and moves the driveba
 void driverPractice();  // Initializes state and runs driver code logic in loop
 
 void shiftTrans(bool state);
+
+void driveSpeedTest();

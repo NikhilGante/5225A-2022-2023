@@ -1,4 +1,5 @@
 #include "flywheel.hpp"
+#include "pros/misc.hpp"
 #include "shooter.hpp"
 #include "../config.hpp"
 #include "../Devices/controller.hpp"
@@ -12,9 +13,9 @@ constexpr double MS_TO_MIN = 60000;
 constexpr double SPROCKET_RATIO = 1.0/1;
 constexpr double CARTRIDGE_TO_RAW = 6;
 
-
 Timer FlywheelMoveVelParams::motor_vel_read{"Motor Velocity Read", flywheel_log}; // Ensures motor's velocity is calculated every 40ms
 Timer FlywheelMoveVelParams::log_timer{"Log Timer", flywheel_log};
+Timer FlywheelMoveVelParams::disc_correction_timer{"Disc Correction", flywheel_log, false}; // Doesn't apply correction while disc is passing through
 
 // 11/27
 // 28/60
@@ -67,17 +68,24 @@ void FlywheelMoveVelParams::handle(){
 
   // Velocity control
   flywheel_error = target_vel - rot_vel;
-  const double correction = flywheel_error*kP;
+
+  // Flywheel doesn't correct vel while disc is passing through
+  const double correction = competition::is_autonomous() && disc_correction_timer.getTime() < 250 && disc_correction_timer.playing() ? 0 : flywheel_error*kP;
+
   output = kB * target_vel + correction;
   output = std::clamp(output, -5.0, 127.0);
+  // output = 127;
+  
+  // flywheel_log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
 
-  if(log_timer.getTime() > 10 || shooter_ds.getVal() < 800){
-    if (shooter_ds.getVal() < 800) flywheel_log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM(), angler_p.getState());
-    // flywheel_log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
-    log_timer.reset();
-  }
-  if (shooter_ds.getVal() < 800){
-    flywheel_log("DISC CONTACTED FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.getVal()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.getRPM(), angler_p.getState());
+  if(log_timer.getTime() > 10 || shooter_ds.getVal() < 600){
+    if (shooter_ds.getVal() < 600){
+      disc_correction_timer.reset();  // Flywheel rpm shouldn't be corrected for the next 200 ms
+      flywheel_log("DISC CONTACTED FLYWHEEL\n");
+
+    }
+    // if (shooter_ds.getVal() < 800) flywheel_log("DISC CONTACTED FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity(), angler_p.getState());
+    // flywheel_log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
     log_timer.reset();
   }
 
