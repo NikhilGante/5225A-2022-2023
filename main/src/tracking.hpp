@@ -8,7 +8,7 @@ constexpr int MAX_DRIVE_POWER = 127;
 constexpr int MAX_TURNING_POWER = MAX_DRIVE_POWER;
 constexpr double TURNING_END_ERROR = 1.5;
 constexpr double TICKS_TO_INCHES = 2.75*std::numbers::pi/36000;
-constexpr double MM_TO_IN = okapi::mmToInch;
+constexpr double MM_TO_IN = 1/25.4;
 constexpr double HALF_DRIVEBASE_WIDTH = 13.5/2;
 constexpr double LEFT_DIST_OFFSET = 0.0;  // How far in the left sensor is from left edge
 constexpr double RIGHT_DIST_OFFSET = 0.0;  // How far in the right sensor is from right edge
@@ -46,14 +46,15 @@ Position distanceReset(resetPosition pos);
 class Tracking{
   private:
     _Task task{"Tracking Update"};
-    Mutex pos_mutex; // locks g_pos
-    Position g_pos{};
 
     // Movement related fields
     Position power; // power to apply to the drive motors
   
   public:
     static constexpr double min_move_power_y = 25, min_move_power_a = 35;
+
+    Position g_pos{};
+    Mutex pos_mutex; // locks g_pos
 
     // Odometry related variables
     double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec

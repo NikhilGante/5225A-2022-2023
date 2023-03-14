@@ -634,8 +634,8 @@ extern Page logging;
     screen::set_pen(b_col);
     screen::fill_rect(coord.x1, coord.y1, coord.x2, coord.y2);
     screen::set_pen(l_col);
-    if(dir == HORIZONTAL) screen::fill_rect(coord.x1+1, coord.y1+1, okapi::remapRange(std::clamp(val, min, max), min, max, coord.x1, coord.x2), coord.y2-1);
-    else screen::fill_rect(coord.x1+1, okapi::remapRange(std::clamp(val, min, max), min, max, coord.y2, coord.y1), coord.x2-1, coord.y2-1);
+    if(dir == HORIZONTAL) screen::fill_rect(coord.x1+1, coord.y1+1, remapRange(std::clamp(val, min, max), min, max, coord.x1, coord.x2), coord.y2-1);
+    else screen::fill_rect(coord.x1+1, remapRange(std::clamp(val, min, max), min, max, coord.y2, coord.y1), coord.x2-1, coord.y2-1);
   }
 
   void Text_::draw(){
@@ -808,11 +808,11 @@ extern Page logging;
     if (pressed()){
       switch (dir){
         case HORIZONTAL:
-          val = okapi::remapRange(GUI::x, coord.x1, coord.x2, min, max); //Gets val based on press location
+          val = remapRange(GUI::x, coord.x1, coord.x2, min, max); //Gets val based on press location
           break;
 
         case VERTICAL:
-          val = okapi::remapRange(GUI::y, coord.y2, coord.y1, min, max);
+          val = remapRange(GUI::y, coord.y2, coord.y1, min, max);
           break;
       }
     }

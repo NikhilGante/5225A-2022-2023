@@ -1,7 +1,10 @@
 #pragma once
 #include "../util.hpp"
 #include "../Libraries/logging.hpp"
-#include "okapi/api/util/mathUtil.hpp"
+
+constexpr double deadband_(const double value, const double min, const double max) {
+  return std::clamp(value, min, max) == value ? 0 : value;
+}
 
 // Buttons
   static constexpr controller_digital_e_t okBtn = DIGITAL_A;
@@ -46,8 +49,8 @@ class _Controller: private Controller{
 
     static constexpr int deadzone = 7;
 
-    static void deadband(auto& value) {value = okapi::deadband(value, -deadzone, deadzone);}
-    static auto deadband(auto&& value) {return okapi::deadband(value, -deadzone, deadzone);}
+    static void deadband(auto& value) {value = deadband_(value, -deadzone, deadzone);}
+    static auto deadband(auto&& value) {return deadband_(value, -deadzone, deadzone);}
 
     void blackout();
     void clearLine (std::uint8_t line);

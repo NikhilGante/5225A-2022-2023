@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
 
-#include "okapi/api/util/mathUtil.hpp"
+// #include "okapi/api/util/mathUtil.hpp"
 #include <numbers>
 
 inline constexpr double rot_to_deg = 360;
@@ -36,13 +36,21 @@ constexpr double nearAngle(double angle, double reference) {return std::round((r
 
 constexpr int sgn(double x) {return x == 0 ? 0 : x > 0 ? 1 : -1;}
 
+constexpr double remapRange(const double value,
+                            const double oldMin,
+                            const double oldMax,
+                            const double newMin,
+                            const double newMax) {
+  return (value - oldMin) * ((newMax - newMin) / (oldMax - oldMin)) + newMin;
+}
+
 // base case for recursive function mapSet
 auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range, auto val){
-  if (input <= range) return okapi::remapRange(input, in_min, range, out_min, val);
+  if (input <= range) return remapRange(input, in_min, range, out_min, val);
   else throw std::domain_error("INVALID INPUT IN MAP FUNCTION");
 }
 // maps a values to a set of maps (a piecewise function)
 auto mapSet(auto input, auto in_min, auto in_max, auto out_min, auto out_max, auto range1, auto val_1, auto... args){
-  if (input <= range1) return okapi::remapRange(input, in_min, range1, out_min, val_1);
+  if (input <= range1) return remapRange(input, in_min, range1, out_min, val_1);
   else return mapSet(input, range1, in_max, val_1, out_max, args...);
 }

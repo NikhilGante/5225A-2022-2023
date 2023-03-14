@@ -112,13 +112,13 @@ void ShooterShootParams::handle(){
   if(match_load) trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10 && disc_seen_timer.getTime() > 100;
   
   if(trigger){ // && cycle_check.getTime() >= 30){
-    subsystem_log("%d STARTED SHOOTING\n", millis());
+    subsystem_log(true, "%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);
     _Task::delay(100); // Waits for SHOOTER to extend
-    subsystem_log("%d FINISHED SHOT", millis());
+    subsystem_log(true, " %d FINISHED SHOT", millis());
     indexer_p.setState(LOW);
-    subsystem_log("%d FINISHED Retraction", millis());
+    subsystem_log(true,  "%d FINISHED Retraction", millis());
     shots_left--;
     subsystem_log("shots left: %d", shots_left);
     if (g_mag_disc_count > 0) g_mag_disc_count--;
@@ -132,7 +132,7 @@ void ShooterShootParams::handle(){
       else{
 
         g_mag_disc_count -= shots;
-        subsystem_log("SHO`````TS:%d\n", shots);
+        subsystem_log("SHOTS:%d\n", shots);
       }
       _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting

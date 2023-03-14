@@ -668,7 +668,7 @@ void utilBackground(){
       if(mot_jam_detect.isOn()){
         if (std::abs(target-cur) > 5) stall_count++;
         else stall_count = 0;
-        if (stall_count >= okapi::remapRange(std::abs(target), 0, 250, 40, 2)){
+        if (stall_count >= remapRange(std::abs(target), 0, 250, 40, 2)){
           stall_count = 0;
           alert::start(5000, "Motor %d Jammed\n", port);
           c::motor_move(port, 0);

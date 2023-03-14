@@ -1,12 +1,15 @@
 #pragma once
 #include "../util.hpp"
-#include "okapi/api/util/mathUtil.hpp"
 #include "pros/colors.hpp"
 
 struct Position;
 struct Vector;
 
 constexpr int n_printf_max = 50;
+
+template <typename E> constexpr auto toUnderlyingType(const E e) noexcept {
+  return static_cast<std::underlying_type_t<E>>(e);
+}
 
 //feel free to suggest a shorter name for term_colours
 enum class term_colours{
@@ -89,7 +92,7 @@ void newline(int count = 1);
     return buffer;
   }
   std::string convert_all_args(std::string const & fmt, auto arg) requires (std::is_enum_v<decltype(arg)>){ //General
-    return convert_all_args(fmt, okapi::toUnderlyingType(arg));
+    return convert_all_args(fmt, toUnderlyingType(arg));
   }
 
   std::string convert_all_args(std::string const & fmt, auto* arg){

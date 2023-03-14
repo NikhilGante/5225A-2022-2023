@@ -8,7 +8,7 @@ Position::Position(const Vector& point, double angle): x{point.getX()}, y{point.
 Position::Position(double x, double y, double angle): x{x}, y{y}, a{angle}{}
 
 // Position operator overloads
-Vector Position::operator +(const Position& p2) const {return Vector(x + p2.y, y + p2.y);}
+Vector Position::operator +(const Position& p2) const {return Vector(x + p2.x, y + p2.y);}
 
 Vector Position::operator -(const Position& p2) const {return Vector(x - p2.x, y - p2.y);}
 

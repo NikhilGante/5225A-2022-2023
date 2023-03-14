@@ -165,8 +165,13 @@ void trackingUpdate(){
     y_x = h_y * sin_alpha; // global x movement detected by local y (right wheel) arc
     y_y = h_y * cos_alpha; // global y movement detected by local y (right wheel) arc
 
-    tracking.reset(tracking.getPos() + Position{x_x + y_x, y_y + x_y, theta});
+    // tracking.reset(tracking.getPos() + Position{x_x + y_x, y_y + x_y, theta});
 
+    tracking.pos_mutex.take();
+    tracking.g_pos.x += x_x + y_x;
+    tracking.g_pos.y += y_y + x_y;
+    tracking.g_pos.a += theta;
+    tracking.pos_mutex.give();
 
     // tracking_log("L:%d R:%d B:%d\n", left_tracker.getVal(), right_tracker.getVal(), back_tracker.getVal());
     if(tracking_timer.getTime() > 50){
@@ -174,7 +179,7 @@ void trackingUpdate(){
       // tracking_log("POS | %lf, %lf, %lf %lf %lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
       // tracking_log("%lf\n", radToDeg(tracking.g_vel.a));
 
-      // tracking_log("x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
+      tracking_log(false, "x:%lf y:%lf a:%lf\n", tracking.getPos().x, tracking.getPos().y, radToDeg(tracking.getPos().a));
       // tracking_log("VEL| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
 
       tracking_timer.reset();
@@ -195,7 +200,7 @@ void Tracking::waitForComplete() {drive.waitToReachState(DriveIdleParams{});}
 void Tracking::waitForDistance(double distance) {WAIT_UNTIL(std::abs(drive_error.load()) <= distance);}
 
 void Tracking::init(Position pos){
-  reset(pos);
+  tracking.g_pos = pos;
   task.start(trackingUpdate);
 }
 
