@@ -6,7 +6,7 @@
 #include "pros/misc.hpp"
 
 const int toaster_rpm = 1460;
-const int barrier_rpm = 1800;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
+const int barrier_rpm = 1900;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -81,7 +81,7 @@ void ShooterShootParams::handle(){
   else{
     FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
     if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state) && get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > barrier_rpm){
-      if(fabs(flywheel_error) > 30) cycle_check.reset();
+      if(fabs(flywheel_error) > 100) cycle_check.reset();
     }
     else if(fabs(flywheel_error) > 150)  cycle_check.reset();
   }
@@ -90,7 +90,7 @@ void ShooterShootParams::handle(){
   // cycle_check.getTime() >= 30
   // flywheel_error.load() < 20
 
-  disc_seen = mag_ds.get_value() < 1000;
+  disc_seen = mag_ds.get_value() < MAG_DS_THRESH;
   if(disc_seen && !disc_seen_last){ // Just saw disc
     log("%d JUST SAW mag: %d\n", millis(), mag_ds.get_value());
 
@@ -106,7 +106,7 @@ void ShooterShootParams::handle(){
   disc_seen_last = disc_seen;
 
 
-  bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
+  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10; // Doesn't wait for flywheel because we want driver to shoot no matter what
   // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
 
   // log("%d mag: %d\n", millis(), mag_ds.get_value());
@@ -120,7 +120,11 @@ void ShooterShootParams::handle(){
   }
   
   // Takes match load shot if disc settles in mag for 100ms
-  if(match_load) trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10 && disc_seen_timer.getTime() > 100;
+  if(match_load){
+    trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 50 && disc_seen_timer.getTime() > 100;
+    master.rumble("-");
+    delay(50);
+  }
   
   if(trigger){ // && cycle_check.getTime() >= 30){
     log("%d STARTED SHOOTING\n", millis());
@@ -141,14 +145,9 @@ void ShooterShootParams::handle(){
       master.rumble("-"); // Lets driver know shooting is done
       // log("CONTROLLER RUMBLING FROM LINE 126 in file shooter.cpp");
       if(clear_mag) g_mag_disc_count = 0;
-      else{
-
-        g_mag_disc_count -= shots;
-        log("SHO`````TS:%d\n", shots);
-      }
       _Task::delay(150); // Waits for last disc to shoot
       // Sets subsystems back to their state before shooting
-      intakeOn();
+      if(mag_ds.get_value() > MAG_DS_THRESH)  intakeOn();
       shooter.changeState(ShooterIdleParams{});
 
     }
@@ -161,7 +160,6 @@ void ShooterShootParams::handle(){
     log("FINISHED MATCH LOADER, TIMED OUT\n");
 
     if(clear_mag) g_mag_disc_count = 0;
-    else  g_mag_disc_count -= shots;
     // Sets subsystems back to their state before shooting
     intakeOn();
     shooter.changeState(ShooterIdleParams{});

@@ -484,6 +484,7 @@ void autonAWP4(){
 	moveToTargetSync({102.0, 78.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
 
   aimAtBlue(0.5);
+  delay(3000);
   // moveInches(7.0);
 	shoot(3);
   shooter.waitToReachState(ShooterIdleParams{});

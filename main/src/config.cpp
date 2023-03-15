@@ -28,7 +28,7 @@ Motor back_r(13, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
 Motor intake_m(17, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
 Motor flywheel_m(18, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 
-Piston indexer_p({e_port, 'C'}, "indexer_p", true, LOW);
+Piston indexer_p({e_port, 'C'}, "indexer_p", false, LOW);
 
 ADIAnalogIn intk_ds('G');
 

@@ -371,12 +371,12 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     // else slow_count = 0;
 
     // log("%d, %lf, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(tracking.g_vel.a), radToDeg(target_velocity - tracking.g_vel.a), radToDeg(target_velocity));
-    if(fabs(tracking.r_vel) > 5.0 && fabs(gyro.get_rotation()) < 0.1){
-      power = 0;
-      moveDrive(0.0, power);
-      log("GYRO NOT PLUGGED IN?\n");
-      break;
-    }
+    // if(fabs(tracking.r_vel) > 5.0 && fabs(gyro.get_rotation()) < 0.1){
+    //   power = 0;
+    //   moveDrive(0.0, power);
+    //   log("GYRO NOT PLUGGED IN?\n");
+    //   break;
+    // }
     moveDrive(0.0, power);
     _Task::delay(10);
   }

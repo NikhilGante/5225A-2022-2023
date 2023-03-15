@@ -3,6 +3,8 @@
 #include "../config.hpp"
 #include "../Libraries/state.hpp"
 
+#define MAG_DS_THRESH 1000
+
 void intakeHandleInput();
 
 extern Timer intk_off_buzz_timer;

@@ -89,6 +89,13 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+
+  // setFlywheelVel(2260);
+  setFlywheelVel(barrier_rpm);
+  shoot(3, false, true);
+
+  WAIT_UNTIL(false);
+  
   // WAIT_UNTIL(!gyro.is_calibrating());
 	// setFlywheelVel(2115);
 	// driveBrake();
@@ -219,6 +226,15 @@ IMU THINGS:
 
 
 void opcontrol() {
+  // while(true){
+  //   distanceReset(resetPosition::leftAway);
+  //   // tracking.reset();
+  //   delay(10);
+  // }
+
+	driverPractice();
+
+
 	master.clear();
 	WAIT_UNTIL(!gyro.is_calibrating());
 	turnToAngleSync(135.0);
