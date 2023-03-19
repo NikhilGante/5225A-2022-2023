@@ -26,11 +26,11 @@ void shooterHandleInput(){
     if(master.get_digital_new_press(tripleShotBtn)){
       log("%lld | SHOOT 3 BUTTON PRESSED\n", op_control_timer.getTime());
   
-      shoot(3, false, true);
+      shoot(3);
     }
     if(master.get_digital_new_press(singleShotBtn)){
       log("%lld | SHOOT 1 BUTTON PRESSED\n", op_control_timer.getTime());
-      shoot(1);
+      shoot(1, false, false);
     }
   }
 
@@ -122,8 +122,6 @@ void ShooterShootParams::handle(){
   // Takes match load shot if disc settles in mag for 100ms
   if(match_load){
     trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 50 && disc_seen_timer.getTime() > 100;
-    master.rumble("-");
-    delay(50);
   }
   
   if(trigger){ // && cycle_check.getTime() >= 30){
@@ -186,8 +184,13 @@ void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_stat
 }
 
 void shoot(int shots, bool match_load, bool clear_mag){
-  log("Shot requested for %d shots at %d\n", millis(), shots);
+  log("Shot requested for %d shots at %d\n", shots, millis());
   shooter.changeState(ShooterShootParams{shots, match_load, clear_mag});
+}
+
+void shootSync(int shots, bool match_load, bool clear_mag){
+  shoot(shots, match_load, clear_mag);
+  shooter.waitToReachState(ShooterIdleParams{});
 }
 
 void handleRpm() {

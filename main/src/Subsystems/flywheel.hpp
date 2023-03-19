@@ -4,7 +4,7 @@
 #include "../Libraries/state.hpp"
 #include <atomic>
 
-#define SHOOTER_DS_THRESH 1000
+#define SHOOTER_DS_THRESH 600
 
 // forward declarations
 struct FlywheelIdleParams;

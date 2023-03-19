@@ -32,7 +32,7 @@ struct ShooterIdleParams{
 };
 
 struct ShooterShootParams{  
-  ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = false);
+  ShooterShootParams(int shots = 3, bool match_load = false, bool clear_mag = true);
 
   const char* getName();
   void handle();
@@ -57,6 +57,7 @@ private:
 
 
 
-void shoot(int shots = 3, bool match_load = false, bool clear_mag = false);  // Shoots x number of shots
+void shoot(int shots = 3, bool match_load = false, bool clear_mag = true);  // Shoots x number of shots
+void shootSync(int shots = 3, bool match_load = false, bool clear_mag = true);  // Shoots x number of shots
 
 void handleRpm(); // Changes rpm based on number of crietria(angle_override, goal_disturb, piston_angle)

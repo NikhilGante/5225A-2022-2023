@@ -101,18 +101,19 @@ void IntakeOnParams::handle(){  // synchronous state
     log("COUNTED 3\n");
     master.rumble("-");
     // log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
-    _Task::delay(185);
+    _Task::delay(140);
 
     // Flushes out 4th disc if in auto
-    if(g_mag_disc_count > 3 && pros::competition::is_autonomous()){
-      drive.changeState(DriveIdleParams{});
-      drive.waitToReachState(DriveIdleParams{});
-      intake_m.move(-127);
-      moveInches(-2.0);
-      intakeRev();
+    // if(g_mag_disc_count > 3 && pros::competition::is_autonomous()){
+    //   drive.changeState(DriveIdleParams{});
+    //   drive.waitToReachState(DriveIdleParams{});
+    //   intake_m.move(-127);
+    //   moveInches(-2.0);
+    //   intakeRev();
 
-    }
-    else intakeOff();
+    // }
+    // else 
+    intakeOff();
     if(angleOverride)  angler_p.setState(HIGH);
   }
 

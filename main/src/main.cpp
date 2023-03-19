@@ -75,7 +75,23 @@ void disabled() {
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+  master.clear();
+
+  WAIT_UNTIL(!gyro.is_calibrating());
+  int drift_count = 0;
+  while(true){
+    if(fabs(radToDeg(tracking.g_vel.a)) > 0.01){
+      drift_count++;
+      if(drift_count > 10){
+        master.rumble("........");
+        master.print(0, 0, "DRIFT DETECTED");
+      }
+    }
+    delay(10);
+  }
+
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -90,11 +106,48 @@ void competition_initialize() {}
  */
 void autonomous() {
 
-  // setFlywheelVel(2260);
-  setFlywheelVel(barrier_rpm);
-  shoot(3, false, true);
+  // while(true) {
+  //   tracking.reset(distanceReset(resetPosition::leftHome));
+  //   delay(10);
+  // }
 
+  autonAWP4();
+  // tracking.reset(distanceReset(resetPosition::leftHome));
+
+  // worldSkills();
   WAIT_UNTIL(false);
+
+
+  master.clear();
+  WAIT_UNTIL(!gyro.is_calibrating());
+  tracking.reset(); 
+
+  turnToAngleSync(-110);
+
+
+  // moveToTargetSync({10.0, -30.0});
+
+
+
+  // autonLine2();
+  // autonAWP4();
+
+  // turnToAngleSync(24);
+  // WAIT_UNTIL(false);
+  // worldSkills();
+  WAIT_UNTIL(false);
+
+
+  // pros::screen::set_pen(COLOR_RED);
+  // pros::screen::fill_rect(5,5,240,200);
+  // WAIT_UNTIL(false);
+
+  
+  // setFlywheelVel(2260);
+  // setFlywheelVel(barrier_rpm);
+  // shoot(3, false, true);
+
+  // WAIT_UNTIL(false);
   
   // WAIT_UNTIL(!gyro.is_calibrating());
 	// setFlywheelVel(2115);
@@ -160,7 +213,7 @@ void autonomous() {
 // thresh 3000
 
 Auton auton1("autonStack", autonStack);
-Auton auton2("autonAWP", autonAWP);
+Auton auton2("autonAWP", autonAWP5);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
@@ -226,12 +279,10 @@ IMU THINGS:
 
 
 void opcontrol() {
-  // while(true){
-  //   distanceReset(resetPosition::leftAway);
-  //   // tracking.reset();
-  //   delay(10);
-  // }
-
+  while(true){
+    tracking.reset(distanceReset(resetPosition::rightHome));
+    delay(10);
+  }
 	driverPractice();
 
 

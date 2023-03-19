@@ -2,6 +2,7 @@
 #include "pros/misc.hpp"
 #include "shooter.hpp"
 #include "../Libraries/logging.hpp"
+#include "../drive.hpp"
 
 #define DEG_TO_ROT 1/360
 #define MS_TO_MIN 60000
@@ -97,7 +98,7 @@ void FlywheelMoveVelParams::handle(){
   // output = 127;
   
   #ifdef LOGS
-  log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
+  // log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
 
   if(log_timer.getTime() > 120 && shooter_ds.get_value() < SHOOTER_DS_THRESH){
     if (shooter_ds.get_value() < SHOOTER_DS_THRESH){
@@ -121,6 +122,7 @@ void FlywheelMoveVelParams::handle(){
 
   // printf("%d\n", master.is_connected());
   if(!master.is_connected()){
+    log("%lld CONNECTION LOST, RESTARTING FLYWHEEL\n", op_control_timer.getTime());
     WAIT_UNTIL(master.is_connected());
     flywheel_m.move(0);
     delay(100);
