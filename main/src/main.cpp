@@ -106,42 +106,11 @@ void competition_initialize() {
  */
 void autonomous() {
 
-  // while(true) {
-  //   tracking.reset(distanceReset(resetPosition::leftHome));
-  //   delay(10);
-  // }
+  // setFlywheelVel(2260);
+//   setFlywheelVel(barrier_rpm);
+//   shoot(3, false, true);
 
-  autonAWP4();
-  // tracking.reset(distanceReset(resetPosition::leftHome));
-
-  // worldSkills();
-  WAIT_UNTIL(false);
-
-
-  master.clear();
-  WAIT_UNTIL(!gyro.is_calibrating());
-  tracking.reset(); 
-
-  turnToAngleSync(-110);
-
-
-  // moveToTargetSync({10.0, -30.0});
-
-
-
-  // autonLine2();
-  // autonAWP4();
-
-  // turnToAngleSync(24);
-  // WAIT_UNTIL(false);
-  // worldSkills();
-  WAIT_UNTIL(false);
-
-
-  // pros::screen::set_pen(COLOR_RED);
-  // pros::screen::fill_rect(5,5,240,200);
-  // WAIT_UNTIL(false);
-
+//   WAIT_UNTIL(false);
   
   // setFlywheelVel(2260);
   // setFlywheelVel(barrier_rpm);
@@ -277,12 +246,28 @@ IMU THINGS:
 // 60deg -> 650 ms
 // 90deg -> 700 ms
 
-
 void opcontrol() {
-  while(true){
-    tracking.reset(distanceReset(resetPosition::rightHome));
-    delay(10);
-  }
+
+	master.clear();
+	WAIT_UNTIL(!gyro.is_calibrating());
+	while(!master.get_digital_new_press(DIGITAL_A)){
+		master.print(1, 0, "Gyro: %lf     ", radToDeg(tracking.g_pos.a));
+		delay(50);
+	}
+	
+
+
+	turnToAngleSync(31, E_Brake_Modes::brake, 1);
+
+
+
+	WAIT_UNTIL(false);
+  // while(true){
+  //   distanceReset(resetPosition::leftAway);
+  //   // tracking.reset();
+  //   delay(10);
+  // }
+
 	driverPractice();
 
 

@@ -2,7 +2,7 @@
 #include "main.h"
 #include <iostream>
 
-#define LOGS
+// #define LOGS
 
 using namespace pros;
 using namespace std;

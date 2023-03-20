@@ -84,11 +84,21 @@ void trackingUpdate(){
   Timer tracking_timer{"timer"};
 
   double last_gyro_angle = 0.0;
+  int cur = 0, prev = 0;
+  int count_reach = 0, count_failed = 0;
 
 	gyro.tare_rotation();
 
   while(true){
-
+    cur = micros();
+    if (cur-prev > 10500) {
+      count_failed += 1;
+      log("Massive issue with tracking: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
+    } else {
+      count_reach += 1;
+      // log("Tracking is good: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
+    }
+    prev = cur;
 
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
@@ -190,10 +200,17 @@ void trackingUpdate(){
 		
     // pros::lcd::print(2, "h_x:%lf, h_y: %lf", h_x, h_y);
     // pros::lcd::print(0, "L:%d R:%d B:%d", new_left, new_right, new_back);
+    
     pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), right_tracker.get_position(), -back_tracker.get_position());
 		pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), fmod(radToDeg(tracking.g_pos.a), 360));
-
-    delay(10);
+    
+    int time = int((micros()-cur)/1000);
+    // log("%d, cur: %d\n", time, cur);
+    if (time < 10){
+      delay(10-time);
+    } else {
+      log("TRACKING TOOK OVER 10ms");
+    }
   }
 }
 
@@ -300,7 +317,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   end_error = degToRad(end_error);
   double start_err = fabs(radToDeg(nearAngle(getAngleFunc(), tracking.g_pos.a)));
 
-  double kP, kI, kD;
+  double kP, kI, kD, max_vel = 40, l_bound = 1;
   if(start_err >= 150){
     kP = 4.7;
     kI = 0.0;
@@ -321,19 +338,22 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     kI = 0.03;
     kD = 0.0;
   }
-  else if(start_err < 50 && start_err > 10){
-    kP = 4.8;
+  else if(start_err < 50 && start_err > 30){
+    kP = 5.5;
     kI = 0.02;
-    kD = 120.0;
+    kD = 0.0;
+    max_vel = 60;
   }
   else {
-    kP = 6.0;
+    kP = 7;
     kI = 0.03;
     kD = 0.0;
-  }  
+    max_vel = 70;
+    l_bound = 10;
+  }
 
   log("Start err: %lf | kP:%lf kI:%lf kD:%lf\n", start_err, kP, kI, kD);
-  PID angle_pid(kP, kI, kD, 0.0, true, degToRad(1.0), degToRad(20.0));
+  PID angle_pid(kP, kI, kD, 0.0, true, degToRad(l_bound), degToRad(20.0));
 
 
 
@@ -341,12 +361,17 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   Timer motion_timer{"motion_timer"};
   double kP_vel = 8.0;
   int slow_count = 3;
+  int cur, time;
   do{
+    cur = micros();
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
     if(fabs(power) > max_power) power = sgn(power) * max_power;
-    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < 40) power = sgn(power) * tracking.min_move_power_a;
+    else if(fabs(power) < tracking.min_move_power_a && fabs(radToDeg(tracking.g_vel.a)) < max_vel) power = sgn(power) * tracking.min_move_power_a;
+
+
+
     // log("error:%.2lf base:%.2lf p:%.2lf targ_vel:%.2lf vel:%lf power:%.2lf\n", radToDeg(angle_pid.getError()), kB * target_velocity, kP_vel * (target_velocity - tracking.g_vel.a), radToDeg(target_velocity), radToDeg(tracking.g_vel.a), power);
     // if(sgn(tracking.drive_error.load()) != sgn(power))  power = 0;
     // log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
@@ -361,14 +386,32 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     //   break;
     // }
     moveDrive(0.0, power);
-    _Task::delay(10);
+    time = int((micros()-cur)/1000);
+    _Task::delay(10-time);
   }
   while(fabs(angle_pid.getError()) > end_error || slow_count < 3);
   handleBrake(brake_mode);
-  master.print(2, 0, "time:%lld",  motion_timer.getTime());
+  master.print(0, 0, "time:%lld                ",  motion_timer.getTime());
+  master.print(1, 0, "Tar: %lf", radToDeg(getAngleFunc()));
+  master.print(2, 0, "A: %lf", radToDeg(tracking.g_pos.a));
+
   log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(getAngleFunc()), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
 }
+
+
+/*
+No Jitter:
+674
+
+
+Jitter:
+910
+660
+870
+660
+647
+*/
 
 // STATE MACHINE STUFF 
 
