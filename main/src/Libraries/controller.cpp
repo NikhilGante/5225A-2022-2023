@@ -58,36 +58,17 @@ void _Controller::queueHandle(){
   }
 }
 
-//template this at some point (done in header_clean)
-void _Controller::print(std::uint8_t line, std::uint8_t col, const char* fmt, ... ){
-  char buffer[19];
-  std::va_list args;
-  va_start(args, fmt);
-  vsnprintf(buffer, 19, fmt, args);
-  va_end(args);
-  string buffer_cpy = buffer;
-  std::function<void()> func = [&, line, col, buffer_cpy](){
-    pros::Controller::print(line, col, buffer_cpy.c_str());
-    // printf("printing %s to %d", buffer_cpy.c_str(), this->controller_num);
-  };
-  queue.push(func);
-  // printf("adding print to queue for controller %d", this->controller_num);
-}
-void _Controller::print(std::uint8_t line, std::uint8_t col, std::string str){
-  std::function<void()> func = [&, line, col, str](){
-    pros::Controller::print(line, col, str.c_str());
-    printf("printing %s to %d\n", str.c_str(), this->controller_num);
-  };
-  queue.push(func);
-  printf("adding print to queue for controller %d\n", this->controller_num);
-}
-
 void _Controller::clear_line (std::uint8_t line){
   std::function<void()> func = [&, line](){
     pros::Controller::clear_line(line);
     printf("clearing line %d for controller %d", line, this->controller_num);
   };
   queue.push(func);
+  switch(line){
+    case 0: line_0 = ""; break;
+    case 1: line_1 = ""; break;
+    case 2: line_2 = ""; break;
+  }
   printf("adding clear_line to queue for controller %d\n", this->controller_num);
 }
 
@@ -97,6 +78,7 @@ void _Controller::clear(){
     printf("clearing %d", this->controller_num);
   };
   queue.push(func);
+  line_0 = line_1 = line_2 = "";
   printf("adding clear to queue for controller %d\n", this->controller_num);
 }
 
@@ -109,7 +91,6 @@ void _Controller::rumble(const string& rumble_pattern){
   queue.push(func);
   printf("adding rumble to queue for controller %d\n", this->controller_num);
 }
-
 
 controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_e_t> buttons, int timeout){
   int start_time = millis();

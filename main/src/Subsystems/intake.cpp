@@ -114,7 +114,6 @@ void IntakeOnParams::handle(){  // synchronous state
     // }
     // else 
     intakeOff();
-    if(angleOverride)  angler_p.setState(HIGH);
   }
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());

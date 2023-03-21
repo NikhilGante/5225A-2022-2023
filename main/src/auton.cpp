@@ -689,7 +689,7 @@ void worldSkills(){
   intakeOn();
 
   // Intaking Stack on Arc
-  moveToTargetSync({45, 30}, E_Brake_Modes::coast, 127, 1.0, 30.0);
+  moveToTargetSync({45, 30}, E_Brake_Modes::coast, 127, 1.0);
 
   // tracking.waitForDistance(10.0);
   moveToTargetSync({73.0, 50.0}, E_Brake_Modes::brake, 60);

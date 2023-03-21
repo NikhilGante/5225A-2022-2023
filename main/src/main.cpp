@@ -49,9 +49,9 @@ void initialize() {
 	delay(300);
 
 	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 }
 
@@ -237,7 +237,7 @@ IMU THINGS:
 
 // #define PROG_SKILLS
 // #define DRIVER_SKILLS
-#define MATCH
+// #define MATCH
 // #define SELECT
 
 // 10deg -> 600 ms
@@ -248,61 +248,27 @@ IMU THINGS:
 
 void opcontrol() {
 
+	
+	master.print(0, 0, "TEST: %d", 10);
+
+
+	WAIT_UNTIL(false);
+
 	master.clear();
 	WAIT_UNTIL(!gyro.is_calibrating());
 	while(!master.get_digital_new_press(DIGITAL_A)){
 		master.print(1, 0, "Gyro: %lf     ", radToDeg(tracking.g_pos.a));
 		delay(50);
 	}
-	
+	master.print(1, 0, "STARTED");
 
+	turnToAngleSync(90);
 
-	turnToAngleSync(31, E_Brake_Modes::brake, 1);
-
-
+	master.print(1, 0, "Stopped");
 
 	WAIT_UNTIL(false);
-  // while(true){
-  //   distanceReset(resetPosition::leftAway);
-  //   // tracking.reset();
-  //   delay(10);
-  // }
-
-	driverPractice();
 
 
-	master.clear();
-	WAIT_UNTIL(!gyro.is_calibrating());
-	turnToAngleSync(135.0);
-	WAIT_UNTIL(false);
-
-	// setFlywheelVel(barrier_rpm - 50);
-	// shoot(9, true);	
-	// shooter.waitToReachState(ShooterIdleParams{});
-	driverPractice();
-
-	flattenAgainstWallSync();
-	tracking.reset(distanceReset(resetPosition::leftHome));
-	spinRoller(600);
-	intake.waitToReachState(IntakeOffParams{});
-	moveInches(1);
-	WAIT_UNTIL(false);
-	// WAIT_UNTIL(!gyro.is_calibrating());
-
-
-	// while(true){
-	// 	lcd::print(3, "ultra: %lf %lf", ultra_left.get_value()/25.4, ultra_right.get_value()/25.4);
-	// 	delay(10);
-	// }
-
-	// while(true){
-	// 	Position pos = distanceReset(resetPosition::rightAway);
-
-	// 	lcd::print(3, "RES| X:%.2lf y:%.2lf, A:%.2lf\n", pos.x, pos.y, radToDeg(pos.a), r_reset_dist.get());
-	// 	lcd::print(5, "dist_l: %d dist_r:%d\n", l_reset_dist.get(), r_reset_dist.get());
-		
-	// 	delay(10);
-	// }
 
 #ifdef PROG_SKILLS
 	WAIT_UNTIL(!gyro.is_calibrating());

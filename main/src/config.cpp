@@ -9,7 +9,7 @@ static constexpr int e_port = 2;
 // ADIEncoder LeftEncoder(1, 2, false), RightEncoder(5, 6, true), BackEncoder(3, 4, false);
 
 // tank-drive motor config
-Rotation left_tracker(3), right_tracker(10), back_tracker(19);
+Rotation left_tracker(10), right_tracker(19), back_tracker(3);
 
 
 

@@ -49,6 +49,7 @@ private:
   // std::array<std::function<void()>,20> queue;
   static std::array<_Controller*, num_controller> objs;
   int controller_num;
+  std::string line_0, line_1, line_2;
 
   // button handling data
   bool cur_press_arr[12] = {0};
@@ -64,8 +65,6 @@ public:
   static _Task controller_task;
   static void init();
 
-  void print(std::uint8_t line, std::uint8_t col, const char* fmt, ... );
-  void print(std::uint8_t line, std::uint8_t col, std::string str);
   void clear_line (std::uint8_t line);
   void clear();
   void rumble(const string & rumble_pattern);
@@ -78,6 +77,37 @@ public:
    * @return the button that was pressed. 0 if nothing pressed
    */
   controller_digital_e_t waitForPress(std::vector<controller_digital_e_t> buttons, int timeout = 0);
+
+  void print(std::uint8_t line, std::uint8_t col, std::string fmt, auto... args){
+    char buffer[19];
+    snprintf(buffer, 19, fmt.c_str(), args...);
+    std::string str = buffer;
+    str += std::string(19-str.length(), ' ');
+    queue.push([=, this](){
+      Controller::print(line, col, str.c_str());
+      // printf("printing %s to %d", str, this->controller_num);
+    });
+    // printf("adding print to queue for controller %d", this->controller_num);
+
+    switch(line){
+      case 0: line_0 = str; break;
+      case 1: line_1 = str; break;
+      case 2: line_2 = str; break;
+    }
+  }
+
+  void printScroll(std::string fmt, auto... args){
+    char buffer[19];
+    snprintf(buffer, 19, fmt.c_str(), args...);
+    std::string str = buffer;
+    // if (line_2 != ""){
+    //   if (line_1 != "") print(0, 0, line_1);
+    //   print(1, 0, line_2);
+    // }
+    print(0, 0, line_1);
+    print(1, 0, line_2);
+    print(2, 0, str);
+  }
 
   // button handling methods
   // NOTE: all the following methods are only updated every cycle as opposed to every function call, unlike the pros API

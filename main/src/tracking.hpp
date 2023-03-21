@@ -8,8 +8,8 @@
 
 
 constexpr double DRIVEBASE_WIDTH = 13.5;
-constexpr double LEFT_DIST_OFFSET = 0.75;  // How far in the left sensor is from left edge
-constexpr double RIGHT_DIST_OFFSET = 0.75;  // How far in the right sensor is from right edge
+constexpr double LEFT_DIST_OFFSET = 0.0;  // How far in the left sensor is from left edge
+constexpr double RIGHT_DIST_OFFSET = 0.0;  // How far in the right sensor is from right edge
 constexpr double BACK_DIST_OFFSET = 6.9375;  // How far in the ultrasonics are from tracking centre
 constexpr double DISTANCE_DIST_OFFSET = 2.0;  // How far the distance sensor is from the tracking center on the local x axis
 
@@ -65,6 +65,7 @@ public:
   void reset(Position pos = {0.0, 0.0, 0.0}); // Resets the global tracking position to pos
   void savePosToSD(); // Writes tracking pos to file on SD
   void loadPosFromSD(); // Loads position from file on SD into tracking pos
+  void printTrackingValues(); // Prints tracking values to the lcd
 };
 extern Tracking tracking;
 
@@ -74,8 +75,8 @@ void trackingUpdate();
 void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in
 
 // Wrapper functions for drive states (motion algorithms)
-void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, double exit_power = 0.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
-void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, double exit_power = 0.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 
 void turnToAngleSync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
 void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
@@ -120,12 +121,11 @@ struct DriveOpControlParams{
 struct DriveMttParams{
   Vector target;
   E_Brake_Modes brake_mode = E_Brake_Modes::brake;
-  double max_power;
+  uint8_t max_power;
   double end_error_x;
-  double exit_power;
   E_Robot_Sides robot_side = E_Robot_Sides::automatic;
 
-  DriveMttParams(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, double exit_power = 0.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+  DriveMttParams(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 
   const char* getName();
   void handle();
