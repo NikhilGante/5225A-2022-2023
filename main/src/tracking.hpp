@@ -8,10 +8,10 @@
 
 
 constexpr double DRIVEBASE_WIDTH = 13.5;
-constexpr double LEFT_DIST_OFFSET = 0.0;  // How far in the left sensor is from left edge
+constexpr double LEFT_DIST_OFFSET = 0.75;  // How far in the left sensor is from left edge
 constexpr double RIGHT_DIST_OFFSET = 0.0;  // How far in the right sensor is from right edge
-constexpr double BACK_DIST_OFFSET = 6.9375;  // How far in the ultrasonics are from tracking centre
-constexpr double DISTANCE_DIST_OFFSET = 2.0;  // How far the distance sensor is from the tracking center on the local x axis
+constexpr double BACK_DIST_OFFSET = 6.5;  // How far in the ultrasonics are from tracking centre
+constexpr double DISTANCE_DIST_OFFSET = 1.6;  // How far the distance sensor is from the tracking center on the local x axis
 
 
 #define MAX_TURNING_POWER 127
@@ -50,7 +50,7 @@ Position distanceReset(resetPosition pos);
 class Tracking{
   
 public:
-  const double min_move_power_y = 25.0, min_move_power_a = 35.0;
+  const double min_move_power_y = 20.0, min_move_power_a = 25.0;
   // Odometry related variables
   double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
   Mutex pos_mutex; // locks g_pos
@@ -75,6 +75,7 @@ void trackingUpdate();
 void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in
 
 // Wrapper functions for drive states (motion algorithms)
+void moveForwardSync(double inches, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 

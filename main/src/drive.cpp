@@ -77,13 +77,16 @@ void driveBrake(){
 }
 
 Timer curve_print_timer{"curve_print_timer"};
+int slew_val = 3;
 int slew = 5;
 Timer backwards_timer{"backwards_timer"};
 bool backwards = false;
 bool last_backwards = false;
 
-
+double l_power_last, r_power_last;
 void driveHandleInput(){
+  double left_power, right_power;
+  double last_left_power = 0, last_right_power = 0;
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
@@ -114,12 +117,58 @@ void driveHandleInput(){
 
   // }
 
-  moveDrive(power_y, power_a);
+  double l_power = power_y + power_a;
+  double r_power = power_y - power_a;
+
+  if(fabs(l_power - l_power_last) > slew) l_power = l_power_last + slew*sgn(l_power - l_power_last);
+  if(fabs(r_power - r_power_last) > slew) r_power = r_power_last + slew*sgn(r_power - r_power_last);
+
+  l_power_last = l_power,  r_power_last = r_power;
+
+  printf("L:%f, R:%f, Last L: %f Last R: %f, Power_y: %f, Power_a: %f\n", left_power, right_power, last_left_power, last_right_power, power_y, power_a);
+  moveDriveSide(left_power, right_power);
 
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
   lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
   lcd::print(7, "intk:%.lf flywheel:%.lf", intake_m.get_temperature(), flywheel_m.get_temperature());
 
+}
+
+
+void driveHandleInputProg(){
+  int power_x, power_y, power_a;
+
+  power_y = master.get_analog(ANALOG_LEFT_Y);
+  power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+
+  if(abs(power_y) < deadzone) power_y = 0;
+  if(abs(power_a) < deadzone) power_a = 0;
+  // if(power_y < -30){
+  //   power_y = -30;
+  //   // master.rumble("-");
+  // }
+  if(abs(power_a) > 65) power_a = sgn(power_a) * 65;
+
+
+  double l_power = power_y + power_a;
+  double r_power = power_y - power_a;
+
+  if(fabs(l_power - l_power_last) > slew_val) l_power = l_power_last + slew_val*sgn(l_power - l_power_last);
+  if(fabs(r_power - r_power_last) > slew_val) r_power = r_power_last + slew_val*sgn(r_power - r_power_last);
+
+  // printf("%lf %lf %lf %lf\n", l_power, l_power_last, r_power, r_power_last);
+  moveDriveSide(l_power, r_power);
+  l_power_last = l_power,  r_power_last = r_power;
+  lcd::print(4, "intk: %.lf", intake_m.get_temperature());
+  lcd::print(5, "L| f:%.lf c:%.lf, b:%.lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
+  lcd::print(6, "R| f:%.lf c:%.lf, b:%.lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
+
+
+  if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50){
+    moveDrive(0, 0);
+    master.rumble("----------");
+    WAIT_UNTIL(false);
+  } 
 }
 
 void driverPractice(){  // Initializes state and runs driver code logic in loop

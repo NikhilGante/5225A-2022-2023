@@ -49,9 +49,9 @@ void initialize() {
 	delay(300);
 
 	drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 }
 
@@ -132,7 +132,7 @@ void autonomous() {
 
 	// provSkillsLow();
 	// provSkills();
-	autonAWP4();
+	// autonAWP4();
 
 	// backupSkills();
 
@@ -140,116 +140,78 @@ void autonomous() {
 	// provSkills();
 }
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
-
-
-// start (70, 129.5)
-// end: (71, 11.5)
-
-// coords of high goal (approx)
-// Red: (18.0, 123.0)
-
-// STACK TRACE
-
-
-// acc: 
-
-// tracking:
-// (69.75, 134.625, 180)
-
-// 2600, 2000 red
-// 350, 200 blue
-// THRESH: 1000
-
-// 2900 red
-// 420 blue
-
-//1/4/2023
-// red: 4100-5600
-// blue: 1170
-// thresh 3000
 
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP5);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
-
-
-// thinks: (133.69, 122.40, -90.0) 
-// at: (133.75 , 112.25, -90.0)
-
-
-/*
-Things to get done:
-	- Test Flywheel Angle(Has to be good for close shots, skills, matchLoads, and autons)
-	- Test flywheel drop after shot - Test for compression
-	- Test toaster shots
-	- Test flywheel Overheat
-	- Test flywheel curve and calculate against old curve(10-12 degrees was old curve)
-	- Test how fast we can shoot triple shot with flywheel
-	- Test at what angles we can intake at and the range
-	- 
-Programmer Things:
-	- Tune motions(Angle and drive to target)
-	- Test tracking wheels with imu
-		* Test for resets
-		* Test for accuracy
-		* Test for corkscrew and how much it affects along with movement of 1-3mm of the wheels
-	- 
-*/
-
-/*
-IMU THINGS:
-	* A:
-		- 
-	* B:
-		- 
-	* C:
-		- Multiply by 1.0108
-		- Original Sensor
-		- Doesn't drift much
-*/
-
-// 4.58, 4.53, 4.5, 4.57
-
-// struct driveVar {
-// 	std::string name;
-// 	double value;
-
-// 	driveVar(std::string n, double v): name(n), value(v){};
-// };
-
-// At x:33.471447 y:13.344594, a:97.183773 (fail)
-// Target:102.447318 | At x:33.821090 y:14.427238, a:100.672574
-
+#define MAIN
 // #define PROG_SKILLS
 // #define DRIVER_SKILLS
 // #define MATCH
 // #define SELECT
 
-// 10deg -> 600 ms
-// 30deg -> 500 ms
-// 45deg -> 700 ms
-// 60deg -> 650 ms
-// 90deg -> 700 ms
+/*
+Auton CheckList:
+	- Make sure discs/tiles are setup consistenly(Check game manual)
+	- After every move, measure the position of the robot relative to one game element(disc) and the field permiter
+		- Log this info so if it fails, you can compare it to previous things
+	- Save multiple logs of working autons
 
+
+Next year layout??:
+	Async vs Sync:
+		- For autons, all movement of the drivebase will be inline while all other subsystems will be tasks
+		- For driver, the control of drivebase and buttons will be inline while all other subsystems will be tasks
+	File Layout:
+		Libraries(These have to be flawless - no issues occuring):
+			- Geometry
+			- Timer
+			- Queue(fix)
+			- PID
+			- Util
+			- Logging(change)
+		Devices(These should just be wrappers):
+			- Controller
+			- Piston
+			- Motors(maybe)
+		- Main
+		- Tracking
+		- Drive(This will include motion algorithms)
+		- Auton(Should include menu)
+		- Config
+		- ALL SUBSYSTEMS
+	Testing tools:
+		- logging
+		- a controller print queue that scrolls through prints at a 250-500ms rate
+		- Really good pre-auton notification/testing program
+			- Checks sensors and motors
+			- Checks for drift and zeroed gyro
+			- Auton selector
+		- settings.txt file in the sd that stores all the settings for drive code
+			- a settings menu that allows driver to change these settings
+			- Settings:
+				- Turn speed
+				- Slewing(if applicable)
+				- Min turn speed
+				- Dead zone
+
+*/
 void opcontrol() {
-
-	
-	master.print(0, 0, "TEST: %d", 10);
+#ifdef MAIN
+	turnToAngleSync(9.6);
+	WAIT_UNTIL(false);
+	// master.clear();
+	// WAIT_UNTIL(!gyro.is_calibrating());
+	// // turnToAngleSync(30);
+	// spinRoller();
+	// intake.waitToReachState(IntakeOffParams{});	
+	// moveForwardSync(5);
+	// tracking.reset(distanceReset(resetPosition::leftHome));
+	// aimAtBlue(0.5);
+	// turnToTargetSync({80, 54});
+	// moveToTargetSync({80, 54});
 
 
 	WAIT_UNTIL(false);
@@ -268,7 +230,7 @@ void opcontrol() {
 
 	WAIT_UNTIL(false);
 
-
+#endif
 
 #ifdef PROG_SKILLS
 	WAIT_UNTIL(!gyro.is_calibrating());
@@ -298,5 +260,4 @@ void opcontrol() {
 	Auton::selectAuton();
 	WAIT_UNTIL(false);
 #endif
-
 }

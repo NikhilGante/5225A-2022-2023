@@ -68,8 +68,8 @@ void trackingUpdate(){
   double dist_lr = 9.8, dist_b = 0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
-  double last_left = left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = right_tracker.get_position()*TICKS_TO_INCHES;
+  double last_left = -left_tracker.get_position()*TICKS_TO_INCHES;
+  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES;
   double last_back = -back_tracker.get_position()*TICKS_TO_INCHES;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0, theta_gyro = 0;
@@ -93,15 +93,15 @@ void trackingUpdate(){
   while(true){
     curMillis = millis();
     cur = micros();
-    if (cur-prev > 10020) log("Massive issue with tracking: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
+    if (cur-prev > 10050) log("Massive issue with tracking: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
     prev = cur;
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
     // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
     // lcd::print(3, "dist_lr: %lf", dist_lr);
 
-    new_left = left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
+    new_left = -left_tracker.get_position()*TICKS_TO_INCHES;
+    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
     new_back = -back_tracker.get_position()*TICKS_TO_INCHES;
     
     
@@ -177,11 +177,11 @@ void trackingUpdate(){
     tracking.pos_mutex.give();
 
 
-    if(tracking_timer.getTime() > 100){
+    if(tracking_timer.getTime() > 250){
       // lcd::print(2, "l:%lf r:%lf", new_left, new_right);
       lcd::print(4, "GYRO:%.2lf deg: %.2lf", gyro.get_rotation() * 1.0027, radToDeg(tracking.g_pos.a));
       // log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
-      // log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.b_vel, (tracking.l_vel + tracking.r_vel)/2);
+      // log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.a, (tracking.l_vel + tracking.r_vel)/2);
       // log("%lf\n", radToDeg(tracking.g_vel.a));
       // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
       // log("VELS| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
@@ -258,6 +258,10 @@ void handleBrake(E_Brake_Modes brake_mode){
 
 
 // Wrapper functions for drive states (motion algorithms)
+void moveForwardSync(double inches, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side){
+  drive.changeState(DriveMttParams{{inches*sin(tracking.g_pos.a)+tracking.g_pos.x, inches*cos(tracking.g_pos.a)+tracking.g_pos.y}, brake_mode, max_power, end_error_x, robot_side});
+  tracking.waitForComplete();
+}
 void moveToTargetSync(Vector target, E_Brake_Modes brake_mode, uint8_t max_power, double end_error_x, E_Robot_Sides robot_side){
   drive.changeState(DriveMttParams{target, brake_mode, max_power, end_error_x, robot_side});
   tracking.waitForComplete();
@@ -317,7 +321,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     kD = 120.0;
   }
   else if(start_err < 150 && start_err > 75){
-    kP = 4.9;
+    kP = 4.4;
     kI = 0.0;
     kD = 0.0;
   }
@@ -327,22 +331,31 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     kD = 0.0;
   }
   else if(start_err < 65 && start_err > 50){
-    kP = 5.5;
-    kI = 0.03;
-    kD = 0.0;
+    kP = 5;
+    kI = 0.00;
+    kD = 50;
+    max_vel = 70;
   }
   else if(start_err < 50 && start_err > 30){
-    kP = 5.5;
-    kI = 0.02;
+    kP = 5;
+    kI = 0.00;
     kD = 0.0;
-    max_vel = 60;
+    max_vel = 70;
+  }
+  else if(start_err < 30 && start_err > 11){
+    kP = 5.5;
+    kI = 0.01;
+    kD = 50;
+    max_vel = 70;
+    l_bound = 3;
+    
   }
   else {
     kP = 7;
-    kI = 0.03;
+    kI = 0.02;
     kD = 0.0;
     max_vel = 70;
-    l_bound = 10;
+    l_bound = 5;
   }
 
   log("Start err: %lf | kP:%lf kI:%lf kD:%lf\n", start_err, kP, kI, kD);
@@ -350,9 +363,9 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
 
 
 
-  double kB = 15; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
+  double kB = 13; // ratio of motor power to target velocity (in radians) i.e. multiply vel by this to get motor power
   Timer motion_timer{"motion_timer"};
-  double kP_vel = 8.0;
+  double kP_vel = 6.0;
   int slow_count = 3;
   int cur, time;
   do{
@@ -382,7 +395,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     time = int((millis()-cur));
     _Task::delay(10-time);
   }
-  while(fabs(angle_pid.getError()) > end_error || slow_count < 3);
+  while(fabs(angle_pid.getError()) > end_error);
   handleBrake(brake_mode);
   master.print(0, 0, "time:%lld                ",  motion_timer.getTime());
   master.print(1, 0, "Tar: %lf", radToDeg(getAngleFunc()));
@@ -423,7 +436,7 @@ const char* DriveOpControlParams::getName(){
   return "DriveOpControl";
 }
 void DriveOpControlParams::handle(){
-  driveHandleInput();
+  driveHandleInputProg();
 }
 void DriveOpControlParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 
@@ -436,6 +449,7 @@ const char* DriveMttParams::getName(){
   return "DriveMoveToTarget";
 }
 void DriveMttParams::handle(){
+  double slew = 2;
   Vector line_error = target - tracking.g_pos;  // Displacement from robot's position to target
   double line_angle = M_PI_2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
@@ -443,6 +457,13 @@ void DriveMttParams::handle(){
   Timer motion_timer{"motion_timer"};
   PID y_pid(4.5, 0.00, 00.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
+
+  if (line_error.getMagnitude() <= 24){
+    max_power = 127;
+    slew = 127;
+  } else {
+    max_power = 100;
+  }
   switch(robot_side){
     case E_Robot_Sides::front:
       power_sgn = 1;
@@ -458,7 +479,7 @@ void DriveMttParams::handle(){
   // log("power_sgn: %d\n", power_sgn);
   const double kP_a = 2.5;  // proportional multiplier for angular error
   log("MTT MOTION STARTED | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
-
+  double last_left_power = 0, last_right_power = 0;
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
@@ -486,6 +507,14 @@ void DriveMttParams::handle(){
         left_power = power_y * exp(correction), right_power = power_y;
         break;
     }
+    if (fabs(left_power-last_left_power) > slew && sgn(left_power-last_left_power) == power_sgn) left_power = last_left_power+sgn(left_power-last_left_power)*slew;
+    if (fabs(right_power-last_right_power) > slew && sgn(right_power-last_right_power) == power_sgn) right_power = last_right_power+sgn(right_power-last_right_power)*slew;
+
+
+    last_left_power = left_power;
+    last_right_power = right_power;
+
+    
     // x, y, a, l, r, errA
     // log("%lf, %lf, %lf, %lf, %lf, %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, radToDeg(error_a));
 
@@ -494,12 +523,13 @@ void DriveMttParams::handle(){
     // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
 
     // log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
-
+    
     moveDriveSide(left_power, right_power);
     _Task::delay(10);
   }  
   while(line_error.getY() > 0.5);
   handleBrake(brake_mode);
+  master.printScroll("Time: %lld", motion_timer.getTime());
   log("MTT MOTION DONE took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
 }
