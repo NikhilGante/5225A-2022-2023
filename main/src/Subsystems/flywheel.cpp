@@ -136,9 +136,9 @@ void FlywheelMoveVelParams::handle(){
   if(flywheelOn) flywheel_m.move(output);
   else flywheel_m.move(0);
   
-  _Task::delay(10);
-  
 }
+
+
 void FlywheelMoveVelParams::handleStateChange(FLYWHEEL_STATE_TYPES_VARIANT prev_state){
   log_timer.reset();
 }

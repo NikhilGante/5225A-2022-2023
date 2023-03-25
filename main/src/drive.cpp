@@ -85,8 +85,6 @@ bool last_backwards = false;
 
 double l_power_last, r_power_last;
 void driveHandleInput(){
-  double left_power, right_power;
-  double last_left_power = 0, last_right_power = 0;
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
   double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
@@ -117,16 +115,7 @@ void driveHandleInput(){
 
   // }
 
-  double l_power = power_y + power_a;
-  double r_power = power_y - power_a;
-
-  if(fabs(l_power - l_power_last) > slew) l_power = l_power_last + slew*sgn(l_power - l_power_last);
-  if(fabs(r_power - r_power_last) > slew) r_power = r_power_last + slew*sgn(r_power - r_power_last);
-
-  l_power_last = l_power,  r_power_last = r_power;
-
-  printf("L:%f, R:%f, Last L: %f Last R: %f, Power_y: %f, Power_a: %f\n", left_power, right_power, last_left_power, last_right_power, power_y, power_a);
-  moveDriveSide(left_power, right_power);
+  moveDrive(power_y, power_a);
 
   lcd::print(5, "L| f:%.lf c:.%lf, b:%lf", front_l.get_temperature(), centre_l.get_temperature(), back_l.get_temperature());
   lcd::print(6, "R| f:%.lf c:.%lf, b:%lf", front_r.get_temperature(), centre_r.get_temperature(), back_r.get_temperature());
@@ -260,7 +249,8 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     if(front_l.get_temperature() >= 50 || centre_l.get_temperature() >= 50 || back_l.get_temperature() >= 50 || front_r.get_temperature() >= 50 || centre_r.get_temperature() >= 50 || back_r.get_temperature() >= 50 || intake_m.get_temperature() >= 50 || flywheel_m.get_temperature() >= 50){
       master.rumble("-");
-      log("CONTROLLER RUMBLING FROM LINE 280 in file drive.cpp");
+      // log("CONTROLLER RUMBLING FROM LINE 280 in file drive.cpp\n");
+
       delay(50);
       // moveDrive(0, 0);
       // intake.changeState(IntakeOffParams{});

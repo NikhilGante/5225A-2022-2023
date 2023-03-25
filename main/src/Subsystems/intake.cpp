@@ -185,34 +185,15 @@ void IntakeRollerParams::handle(){
   drive.changeState(DriveIdleParams{});
   drive.waitToReachState(DriveIdleParams{});
 
+	
+	moveDrive(-50, 0);
+  intake_m.move(127);
+	WAIT_UNTIL(getDistBack()<13.5 || roller_timer.getTime() > 1500);
+  double cur_position = intake_m.get_position();
+	WAIT_UNTIL(fabs(intake_m.get_position()-cur_position)>degrees || roller_timer.getTime() > 1800);
+  intake_m.move(0);
   moveDrive(0, 0);
-	// FLATTEN CODE
-	pros::lcd::print(4, "dist: %lf   ", error);
-	moveDrive(-40, 0);
- 
-	delay(300); // Waits for velocity to rise
-
-  WAIT_UNTIL(tracking.r_vel > -3);
-
-	master.rumble("-");
-  // log("CONTROLLER RUMBLING FROM LINE 158 in file intake.cpp");
-
-	moveDrive(-10, 0);
-  log("Turning roller\n");
-  intake_m.move_relative(degrees, 200);  // should be 500 for skills, should be 300 for auton
-  WAIT_UNTIL(fabs(intake_m.get_target_position() - intake_m.get_position()) < 10); // wait for intake to reach poisiton 
-  log("Finished spinning roller\n");
-
-	master.rumble("-");
-  // log("CONTROLLER RUMBLING FROM LINE 167 in file intake.cpp");
-	moveDrive(0, 0);
-  printf("**DONE ROLLER\n");
-	roller_timer.print();
-  drive.changeState(DriveOpControlParams{});
-  master.rumble("-"); // Notifies driver spinning roller has finished
-  // log("CONTROLLER RUMBLING FROM LINE 173 in file intake.cpp");
-	moveDrive(0, 0);
-  intakeOff();
+	intakeOff();
 
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){

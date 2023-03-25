@@ -86,10 +86,10 @@ void _Controller::clear(){
 void _Controller::rumble(const string& rumble_pattern){
   std::function<void()> func = [&, rumble_pattern](){
     pros::Controller::rumble(rumble_pattern.c_str());
-    printf("rumble controller %d", this->controller_num);
+    // printf("rumble controller %d", this->controller_num);
   };
   queue.push(func);
-  printf("adding rumble to queue for controller %d\n", this->controller_num);
+  // printf("adding rumble to queue for controller %d\n", this->controller_num);
 }
 
 controller_digital_e_t _Controller::waitForPress(std::vector<controller_digital_e_t> buttons, int timeout){

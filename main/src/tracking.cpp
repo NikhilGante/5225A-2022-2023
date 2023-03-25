@@ -1,5 +1,6 @@
 #include <cmath>
 #include "config.hpp"
+#include "drive.hpp"
 #include "tracking.hpp"
 #include "Libraries/timer.hpp"
 #include "util.hpp"
@@ -84,16 +85,16 @@ void trackingUpdate(){
   Timer tracking_timer{"timer"};
 
   double last_gyro_angle = 0.0;
-  int cur = 0, prev = 0;
+  int cur = micros(), prev = cur;
   uint32_t curMillis = 0;
   int count_reach = 0, count_failed = 0;
 
 	gyro.tare_rotation();
 
+  curMillis = millis();
   while(true){
-    curMillis = millis();
     cur = micros();
-    if (cur-prev > 10050) log("Massive issue with tracking: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
+    if (cur-prev > 10000) log("Massive issue with tracking: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
     prev = cur;
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
@@ -355,7 +356,6 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     kI = 0.02;
     kD = 0.0;
     max_vel = 70;
-    l_bound = 5;
   }
 
   log("Start err: %lf | kP:%lf kI:%lf kD:%lf\n", start_err, kP, kI, kD);
@@ -383,8 +383,10 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     // log("%d err:%lf power: %lf\n", millis(), radToDeg(error), power);
     // if(fabs(radToDeg(tracking.g_vel.a)) < 30) slow_count++;
     // else slow_count = 0;
-
+    int t = millis();
     log("%d, %lf, %lf, %lf, %lf, %lf\n", millis(), radToDeg(tracking.drive_error), power, radToDeg(tracking.g_vel.a), radToDeg(target_velocity - tracking.g_vel.a), radToDeg(target_velocity));
+    int t1 = millis();
+    // log("bad code lmao\n");
     // if(fabs(tracking.r_vel) > 5.0 && fabs(gyro.get_rotation()) < 0.1){
     //   power = 0;
     //   moveDrive(0.0, power);
@@ -393,6 +395,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     // }
     moveDrive(0.0, power);
     time = int((millis()-cur));
+    printf("Time: %d Log: %d\n", (10-time), t1-t);
     _Task::delay(10-time);
   }
   while(fabs(angle_pid.getError()) > end_error);
@@ -436,7 +439,7 @@ const char* DriveOpControlParams::getName(){
   return "DriveOpControl";
 }
 void DriveOpControlParams::handle(){
-  driveHandleInputProg();
+  driveHandleInput();
 }
 void DriveOpControlParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
 

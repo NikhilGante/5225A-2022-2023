@@ -100,6 +100,7 @@ public:
   void runMachine(){
     task.start([&](){
       while(true){
+        uint32_t delayCycle = millis();
         try{
           visit([](auto&& arg){arg.handle();}, state);  // Calls handler for current state
         }
@@ -118,7 +119,7 @@ public:
 
           state_change_requested = false;
         }
-        delay(10);
+        Task::delay_until(&delayCycle, 10);
       }
     });
   }
