@@ -6,18 +6,12 @@
 
 
 _Task::_Task(const char* name): name(name)
-{
-}
+{}
 
 // private method
 bool _Task::isAlive(){
   return task_handle && task_get_state(task_handle) != E_TASK_STATE_DELETED;
 }
-
-
-// void _Task::start(task_fn_t function, void* parameters, uint8_t prio, uint16_t stack_depth){
-
-// }
 
 void _Task::killUnsafe(){
   if(isAlive()) task_delete(task_handle); // remove the task from scheduler if it's running
@@ -69,4 +63,30 @@ void _Task::delay(uint32_t delay_time){
     pros::delay(min<int32_t>(time_left < 0 ? 0: time_left, 10l));
   }
   while(delay_timer.getTime() < delay_time);
+}
+
+
+void _Task::delay_until(std::uint32_t* const prev_time, uint32_t delta){
+  int32_t time_left = *prev_time+delta-millis();
+  do {
+    task_t current_task = task_get_current();
+    // Handle notifications from current task
+    switch((notify_types_2)task_notify_take(true, 0)){
+      case notify_types_2::none:
+        break;
+      case notify_types_2::interrupt:
+        printf("%s interrupted\n", task_get_name(current_task));
+        throw TaskEndException{};
+        break;
+      case notify_types_2::suspend:
+        printf("%s suspended\n", task_get_name(current_task));
+        task_suspend(current_task);
+        break;
+    }
+    // Ensures to sleep at most 10ms, or time left if that's less than 10ms 
+    time_left = *prev_time+delta-millis();
+    pros::delay(min<int32_t>(time_left < 0 ? 0: time_left, 10l));
+  } while(time_left > 0);
+
+  *prev_time = millis();
 }

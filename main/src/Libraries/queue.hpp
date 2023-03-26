@@ -51,6 +51,7 @@ public:
     queue_mutex.take();
     if(isFull()){
       printf("Queue \"%s\" is full, push of value \"%d\" failed\n", name, val);
+      queue_mutex.give();
       return;
     }
     // cout << "pushed" << val << endl;
@@ -89,6 +90,7 @@ public:
     queue_mutex.take();
     if(isEmpty()){
       printf("Queue \"%s\" is empty, pop failed\n", name);
+      queue_mutex.give();
       return std::numeric_limits<T>::min();
     }
 

@@ -147,10 +147,10 @@ Auton auton2("autonAWP", autonAWP5);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
-// #define MAIN
+#define MAIN
 // #define PROG_SKILLS
 // #define DRIVER_SKILLS
-#define MATCH
+// #define MATCH
 // #define SELECT
 
 /*
@@ -201,63 +201,18 @@ Next year layout??:
 */
 void opcontrol() {
 #ifdef MAIN
-	// while (true){
-	// 	int t = millis();
-	// 	log("LOGGING SUCKS: %d\n", millis());
-	// 	int t1 = millis();
-	// 	if (t1-t > 5) printf("LOGGING TOOK %d\n", t1-t);
-	// 	delay(25);
-	// }
+	_Task testing{"testing_task"};
+	testing.start([](){
+		uint32_t cycle_time = millis();
+		while (true){
+			printf("Testing Tasks... Time: %d\n", millis());
+			delay(5);
+			_Task::delay_until(&cycle_time, 10);
+		}
+	});
 
-	int t = micros();
-
-	for (int i = 0; i < 1000; i++){
-		log("TEST: %d\n", i);
-		delay(10);
-	}
-
-	int t1 = micros();
-	printf("Time: %d\n", t1-t);
-
-
-	WAIT_UNTIL(false);
-
-	moveForwardSync(9.5);
 	delay(1000);
-	tracking.reset({0, 9.5, 0});
-	aimAtBlue(0.5);
-	// driverPractice();
-
-	WAIT_UNTIL(false);
-	master.clear();
-	WAIT_UNTIL(!gyro.is_calibrating());
-	while(!master.get_digital_new_press(DIGITAL_A)){
-		master.print(1, 0, "Gyro: %lf     ", radToDeg(tracking.g_pos.a));
-		delay(50);
-	}
-	master.print(1, 0, "STARTED");
-
-	turnToAngleSync(90);
-
-	// master.print(1, 0, "Stopped");
-
-	WAIT_UNTIL(false);
-
-	master.clear();
-	WAIT_UNTIL(!gyro.is_calibrating());
-	// turnToAngleSync(30);
-
-	Timer auton_timer{"Auton_timer"};
-	spinRoller();
-	intake.waitToReachState(IntakeOffParams{});
-	Position reset_pos = distanceReset(resetPosition::leftHome);
-	tracking.reset({34.2, reset_pos.y, reset_pos.a});
-	moveForwardSync(9.5);
-	aimAtBlue(0.5);
-	// turnToTargetSync({80, 54});
-	// moveToTargetSync({80, 54});
-	master.printScroll("Final T: %lld", auton_timer.getTime());
-
+	testing.kill();
 
 
 

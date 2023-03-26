@@ -99,8 +99,8 @@ public:
 
   void runMachine(){
     task.start([&](){
+      uint32_t delayCycle = millis();
       while(true){
-        uint32_t delayCycle = millis();
         try{
           visit([](auto&& arg){arg.handle();}, state);  // Calls handler for current state
         }

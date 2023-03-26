@@ -4,7 +4,6 @@
 using namespace pros;
 using namespace pros::c;
 
-int increment_controller_line();
 
 class TaskEndException: public std::exception{
 public:
@@ -17,7 +16,6 @@ enum class notify_types_2{
   suspend,  // suspends the task
 };
 
-extern int controller_line_counter;
 
 class _Task{
   task_t task_handle = 0; // handle to the pros task
@@ -38,5 +36,7 @@ public:
   void resume();  // resume the task
   
   static void delay(uint32_t delay_time = 10);  // special delay that handles notifications
+
+  static void delay_until(uint32_t* const prev_time, uint32_t delta = 10);
 
 };
