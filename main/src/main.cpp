@@ -201,18 +201,9 @@ Next year layout??:
 */
 void opcontrol() {
 #ifdef MAIN
-	_Task testing{"testing_task"};
-	testing.start([](){
-		uint32_t cycle_time = millis();
-		while (true){
-			printf("Testing Tasks... Time: %d\n", millis());
-			delay(5);
-			_Task::delay_until(&cycle_time, 10);
-		}
-	});
+	
 
-	delay(1000);
-	testing.kill();
+	
 
 
 

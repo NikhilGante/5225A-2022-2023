@@ -86,16 +86,12 @@ void trackingUpdate(){
 
   double last_gyro_angle = 0.0;
   int cur = micros(), prev = cur;
-  uint32_t curMillis = 0;
   int count_reach = 0, count_failed = 0;
 
 	gyro.tare_rotation();
 
-  curMillis = millis();
+  uint32_t cycle_time = millis();
   while(true){
-    cur = micros();
-    if (cur-prev > 10010) log("Massive issue with tracking: Cur: %d, Prev: %d, diff: %d, Reached: %d, Failed: %d\n", cur, prev, cur-prev, count_reach, count_failed);
-    prev = cur;
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
     // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
@@ -177,7 +173,6 @@ void trackingUpdate(){
     tracking.g_pos.a += theta_gyro;
     tracking.pos_mutex.give();
 
-
     if(tracking_timer.getTime() > 250){
       // lcd::print(2, "l:%lf r:%lf", new_left, new_right);
       lcd::print(4, "GYRO:%.2lf deg: %.2lf", gyro.get_rotation() * 1.0027, radToDeg(tracking.g_pos.a));
@@ -197,7 +192,7 @@ void trackingUpdate(){
       tracking_timer.reset();
     }
     
-    Task::delay_until(&curMillis, 10);
+    _Task::delayUntil(cycle_time, 10, "Tracking_Task");
   }
 }
 
@@ -367,9 +362,9 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   Timer motion_timer{"motion_timer"};
   double kP_vel = 6.0;
   int slow_count = 3;
-  int cur, time;
+  uint32_t cycle_time = millis();
   do{
-    cur = millis();
+    
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
     double target_velocity = angle_pid.compute(-tracking.drive_error, 0.0);
     double power = kB * target_velocity + kP_vel * (target_velocity - tracking.g_vel.a);
@@ -394,9 +389,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     //   break;
     // }
     moveDrive(0.0, power);
-    time = int((millis()-cur));
-    // printf("Time: %d Log: %d\n", (10-time), t1-t);
-    _Task::delay(10-time);
+    _Task::delayUntil(cycle_time, 10, "Turn to angle");
   }
   while(fabs(angle_pid.getError()) > end_error);
   handleBrake(brake_mode);
@@ -483,6 +476,7 @@ void DriveMttParams::handle(){
   const double kP_a = 2.5;  // proportional multiplier for angular error
   log("MTT MOTION STARTED | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   double last_left_power = 0, last_right_power = 0;
+  uint32_t cycle_time = millis();
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
@@ -528,7 +522,7 @@ void DriveMttParams::handle(){
     // log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
     
     moveDriveSide(left_power, right_power);
-    _Task::delay(10);
+    _Task::delayUntil(cycle_time, 10, "Drive move to");
   }  
   while(line_error.getY() > 0.5);
   handleBrake(brake_mode);

@@ -37,6 +37,6 @@ public:
   
   static void delay(uint32_t delay_time = 10);  // special delay that handles notifications
 
-  static void delay_until(uint32_t* const prev_time, uint32_t delta = 10);
+  static void delayUntil(uint32_t& prev_time, uint32_t delta = 10, const char* overflow_log = "");
 
 };

@@ -187,6 +187,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
   master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
 
+  uint32_t cycle_time = millis();
 	while(true){
     master.updateButtons();
 
@@ -261,7 +262,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
       // WAIT_UNTIL(false);
     } 
-		delay(50);
+		Task::delay_until(&cycle_time, 10);
 	}
 }
 

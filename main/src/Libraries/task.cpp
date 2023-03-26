@@ -66,8 +66,13 @@ void _Task::delay(uint32_t delay_time){
 }
 
 
-void _Task::delay_until(std::uint32_t* const prev_time, uint32_t delta){
-  int32_t time_left = *prev_time+delta-millis();
+void _Task::delayUntil(std::uint32_t& prev_time, uint32_t delta, const char* overflow_log){
+  int32_t time_left = prev_time+delta-millis();
+
+  if (time_left < 0){
+    log("%s | cycle took: %d, should have taken at most: %d\n", overflow_log, delta-time_left, delta);
+  }
+
   do {
     task_t current_task = task_get_current();
     // Handle notifications from current task
@@ -84,9 +89,9 @@ void _Task::delay_until(std::uint32_t* const prev_time, uint32_t delta){
         break;
     }
     // Ensures to sleep at most 10ms, or time left if that's less than 10ms 
-    time_left = *prev_time+delta-millis();
+    time_left = prev_time+delta-millis();
     pros::delay(min<int32_t>(time_left < 0 ? 0: time_left, 10l));
   } while(time_left > 0);
 
-  *prev_time = millis();
+  prev_time = millis();
 }
