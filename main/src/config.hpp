@@ -7,7 +7,6 @@ using namespace pros;
 extern _Controller master;
 extern _Controller partner;
 extern Motor front_l, front_r, back_l, back_r, centre_l, centre_r, flywheel_m, intake_m;
-// extern pros::ADIEncoder LeftEncoder, RightEncoder, BackEncoder;
 extern Rotation left_tracker, right_tracker, back_tracker;
 
 extern Piston indexer_p;
@@ -28,7 +27,3 @@ extern Imu gyro;
 
 extern Distance l_reset_dist;
 extern Distance r_reset_dist;
-
-// extern Link radio;
-
-// extern Motor b_lift_m;

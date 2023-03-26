@@ -21,7 +21,7 @@ void _Task::killUnsafe(){
 void _Task::kill(){
   if(isAlive()){
     // sends a notification to kill the task
-    task_notify_ext(task_handle, (int)notify_types_2::interrupt, E_NOTIFY_ACTION_OWRITE, nullptr);
+    task_notify_ext(task_handle, (int)E_Notify_Types::interrupt, E_NOTIFY_ACTION_OWRITE, nullptr);
     if(task_get_state(task_handle) == E_TASK_STATE_SUSPENDED) resume();
   }
   else printf("%s | Already dead, kill failed\n", name);
@@ -29,7 +29,7 @@ void _Task::kill(){
 
 void _Task::suspend(){
   if(isAlive()){
-    task_notify_ext(task_handle, (int)notify_types_2::suspend, E_NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
+    task_notify_ext(task_handle, (int)E_Notify_Types::suspend, E_NOTIFY_ACTION_OWRITE, nullptr); // sends a notification to kill task
     WAIT_UNTIL(task_get_state(task_handle) == E_TASK_STATE_SUSPENDED); // wait for the task to suspend
   }
   else log("%s | suspend failed, task is dead\n", name);
@@ -46,14 +46,14 @@ void _Task::delay(uint32_t delay_time){
   do {
     task_t current_task = task_get_current();
     // Handle notifications from current task
-    switch((notify_types_2)task_notify_take(true, 0)){
-      case notify_types_2::none:
+    switch((E_Notify_Types)task_notify_take(true, 0)){
+      case E_Notify_Types::none:
         break;
-      case notify_types_2::interrupt:
+      case E_Notify_Types::interrupt:
         printf("%s interrupted\n", task_get_name(current_task));
         throw TaskEndException{};
         break;
-      case notify_types_2::suspend:
+      case E_Notify_Types::suspend:
         printf("%s suspended\n", task_get_name(current_task));
         task_suspend(current_task);
         break;
@@ -76,14 +76,14 @@ void _Task::delayUntil(std::uint32_t& prev_time, uint32_t delta, const char* ove
   do {
     task_t current_task = task_get_current();
     // Handle notifications from current task
-    switch((notify_types_2)task_notify_take(true, 0)){
-      case notify_types_2::none:
+    switch((E_Notify_Types)task_notify_take(true, 0)){
+      case E_Notify_Types::none:
         break;
-      case notify_types_2::interrupt:
+      case E_Notify_Types::interrupt:
         printf("%s interrupted\n", task_get_name(current_task));
         throw TaskEndException{};
         break;
-      case notify_types_2::suspend:
+      case E_Notify_Types::suspend:
         printf("%s suspended\n", task_get_name(current_task));
         task_suspend(current_task);
         break;

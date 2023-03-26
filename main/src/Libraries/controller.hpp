@@ -14,7 +14,7 @@ using namespace std;
 
 // Buttons
 // ------------------------------ Direction Buttons ------------------------------
-extern controller_digital_e_t goalDisturbBtn;
+extern controller_digital_e_t flywheelToggleBtn;
 extern controller_digital_e_t endgameBtnLeft;
 // Up and Down Taken by Adjusting Disc count
 

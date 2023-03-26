@@ -10,7 +10,7 @@ public:
   const char* what();
 };
 
-enum class notify_types_2{
+enum class E_Notify_Types{
   none, // no notification received
   interrupt,  // kills the task safely
   suspend,  // suspends the task

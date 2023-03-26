@@ -49,10 +49,10 @@ void initialize() {
 	_Controller::init();
 
 
-	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// drive.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 	
 }
 
@@ -201,11 +201,6 @@ Next year layout??:
 */
 void opcontrol() {
 #ifdef MAIN
-	
-
-	
-
-
 
 #endif
 

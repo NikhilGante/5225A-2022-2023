@@ -14,7 +14,7 @@ public:
   double error, last_error, kP, kI, kD, proportional, integral, integral_lower_bound, integral_upper_bound, derivative, bias, output;
 
 public:
-  PID(double kP, double kI, double kD, double bias, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = DBL_MAX);
+  PID(double kP, double kI = 0.0, double kD = 0.0, double bias = 0.0, bool integralSgnReset = true, double integralLowerBound = 0, double integralUpperBound = DBL_MAX);
   double getError() const;
   double getOutput() const;
   double getProportional() const;

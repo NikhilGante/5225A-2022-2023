@@ -59,19 +59,9 @@ const char* FlywheelMoveVelParams::getName(){
 }
 void FlywheelMoveVelParams::handle(){
   rot_vel = 60*(double)flywheel_rot_sensor.get_velocity()/360;	// Actual velocity of flywheel
-  // printf("vel:%d\n", rot_vel);
-  // error = target_vel - rot_vel;
-  // output = kB * target_vel + kP * error;
-  // output = std::clamp(output, -1.0, 127.0);	// Decelerates at -1.0 at the most
-  // flywheel_m.move(output);
-  // printf("%d, %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), flywheel_ds.get_value(), target_vel, rot_vel, error.load(), output, target_vel * kB, kP*error);
-
-// ***********************
-
-  // if(master.get_digital_new_press(DIGITAL_UP))  target_vel += 25;
-  // if(master.get_digital_new_press(DIGITAL_DOWN))  target_vel -= 25;
 
   // Calculating filtered velocity
+  /*
   if(motor_vel_read.getTime() >= 40){
     double pos = flywheel_m.get_position() * CARTRIDGE_TO_RAW * MS_TO_MIN * SPROCKET_RATIO * DEG_TO_ROT;
     manual_vel = (pos - last_pos)/motor_vel_read.getTime();
@@ -82,16 +72,12 @@ void FlywheelMoveVelParams::handle(){
 
     motor_vel_read.reset();
   }
+  */
 
   // Velocity control
   flywheel_error = target_vel - rot_vel;
 
-  double correction;
-  // Flywheel doesn't correct vel while disc is passing through
-  // if(target_vel > barrier_rpm && disc_correction_timer.getTime() < 250 && disc_correction_timer.isPlaying()) correction = 0;
-  // else correction = flywheel_error*kP;
-  
-  correction = flywheel_error*kP;
+  double correction = flywheel_error*kP;
 
   output = kB * target_vel + correction;
   output = std::clamp(output, -5.0, 127.0);
@@ -113,14 +99,6 @@ void FlywheelMoveVelParams::handle(){
   
   #endif
 
-  // if (flywheel_m.get_temperature() >= 50){
-  //   master.rumble("-");
-  //   flywheel_m.move(0);
-  //   WAIT_UNTIL(false);
-
-  // }
-
-  // printf("%d\n", master.is_connected());
   if(!master.is_connected()){
     log("%lld CONNECTION LOST, RESTARTING FLYWHEEL\n", op_control_timer.getTime());
     WAIT_UNTIL(master.is_connected());
@@ -129,9 +107,7 @@ void FlywheelMoveVelParams::handle(){
     
   }
 
-  if(master.get_digital_new_press(goalDisturbBtn)){
-    flywheelOn = !flywheelOn;
-  }
+  if(master.get_digital_new_press(flywheelToggleBtn)) flywheelOn = !flywheelOn;
 
   if(flywheelOn) flywheel_m.move(output);
   else flywheel_m.move(0);

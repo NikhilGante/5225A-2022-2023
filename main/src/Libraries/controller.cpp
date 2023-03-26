@@ -4,7 +4,7 @@
 
 
 // ------------------------------ Direction Buttons ------------------------------
-controller_digital_e_t goalDisturbBtn = DIGITAL_LEFT;
+controller_digital_e_t flywheelToggleBtn = DIGITAL_LEFT;
 controller_digital_e_t endgameBtnLeft = DIGITAL_RIGHT;
 
 // Up and Down Taken by Adjusting Disc count
