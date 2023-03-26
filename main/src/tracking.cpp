@@ -191,7 +191,6 @@ void trackingUpdate(){
       
       tracking_timer.reset();
     }
-    
     _Task::delayUntil(cycle_time, 10, "Tracking_Task");
   }
 }

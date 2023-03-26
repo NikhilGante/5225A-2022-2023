@@ -45,7 +45,7 @@ void initialize() {
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
 
-	// Data::init();
+	Data::init();
 	_Controller::init();
 
 
@@ -201,6 +201,25 @@ Next year layout??:
 */
 void opcontrol() {
 #ifdef MAIN
+	// _Task test_a;
+	// test_a.start([](){
+	// 	for(int i = 0; i < 100; i++){
+	// 		for(int i = 0; i < 110; i++){
+	// 			log("a");
+	// 		}
+	// 		log("\n");
+	// 	}
+	// });
+	// Task test_b([](){
+	// 	for(int i = 0; i < 100; i++){
+	// 		for(int i = 0; i < 110; i++){
+	// 			log("b");
+	// 		}
+	// 		log("\n");
+	// 	}
+	// });
+
+	
 
 #endif
 

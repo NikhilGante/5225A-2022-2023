@@ -1,8 +1,10 @@
 #include "logging.hpp"
+#include <cstring>
 using namespace std;
 using namespace pros;
 FILE* logfile = NULL;
 
+Data LOG;
 pros::Mutex log_mutex;
 
 void log_init() {
@@ -14,24 +16,26 @@ void log_init() {
 }
 
 void log(const char * format, ...){
-  va_list arguments;
-  va_start(arguments,format);
-  vprintf(format,arguments);
-  // printf("\n");
-  if(logfile == NULL) return;
-  log_mutex.take();
-  logfile = fopen("/usd/log.txt","a");
-  vfprintf(logfile, format, arguments);
-  fclose(logfile);
-  va_end(arguments);
-  log_mutex.give();
+  const int buffer_size = 256;  // max amount of chars allowed to be printed
+  char buffer[buffer_size];
+  va_list args;
+  va_start (args, format);
+  int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
+  if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
+  va_end (args);
+
+
+  LOG.print(buffer);
 }
 
 // ACTUAL LOGGING START
 
 // static data members
 E_Log_Levels Data::g_log_level = E_Log_Levels::debug;
-Queue<char, QUEUE_SIZE> Data::queue("log queue");
+// Queue<char, QUEUE_SIZE> Data::queue("log queue");
+char Data::queue[QUEUE_SIZE];
+pros::Mutex Data::log_mutex;
+size_t Data::queue_size = 0;
 _Task Data::task("log_task");
 Timer Data::log_timer("log_timer");
 
@@ -45,16 +49,30 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
     while(true){
-      if(queue.getDataSize() > 500 || log_timer.getTime() > 500){
-        queuePrintFile(queue, log_file, "/usd/log.txt");
+      if(queue_size > 2000 || log_timer.getTime() > 500 && queue_size != 0){
+        
+        log_mutex.take();
+        print_queue(queue, log_file, "/usd/log.txt");
+        log_mutex.give();
+        
         log_timer.reset();
       }
       _Task::delay(10);
     }
   }
   catch(const TaskEndException& exception){
-    queuePrintFile(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
+    print_queue(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
   }
+}
+
+void Data::print_queue(const char queue[QUEUE_SIZE],  ofstream& log_file, std::string file_name){
+  long long int t = micros();
+  log_file.open(file_name, ios::app);
+  log_file.write(queue, min<int32_t>(queue_size, QUEUE_SIZE));  // prints from front to rear of queue
+  log_file.close();
+  long long int t1 = micros();
+  printf("FLUSH, Took: %lld at: %d, chars printed: %d\n", t1-t, millis(), queue_size);
+  queue_size = 0;
 }
 
 void Data::print(const char* format, ...){
@@ -66,7 +84,14 @@ void Data::print(const char* format, ...){
   if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
   va_end (args);
 
-  queue.push(buffer, strlen(buffer)); // pushes buffer to queue
+  if (queue_size+chars_printed > QUEUE_SIZE) {
+    printf("QUEUE OVERFLOW, TIME: %d\n", millis());
+    chars_printed = QUEUE_SIZE-queue_size;
+  }
+  log_mutex.take();
+  memcpy(queue+queue_size, buffer, chars_printed);
+  queue_size += chars_printed;
+  log_mutex.give();
 }
 
 
