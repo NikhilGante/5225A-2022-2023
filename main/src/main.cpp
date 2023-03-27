@@ -199,8 +199,19 @@ Next year layout??:
 				- Dead zone
 
 */
+
+// 100 = 36ms
+// 1 = 2.6ms
 void opcontrol() {
 #ifdef MAIN
+
+
+	while (true){
+		log("TEST");
+		delay(5);
+	}
+	
+
 	// _Task test_a;
 	// test_a.start([](){
 	// 	for(int i = 0; i < 100; i++){

@@ -1,4 +1,5 @@
 #include "logging.hpp"
+#include "../config.hpp"
 #include <cstring>
 using namespace std;
 using namespace pros;
@@ -28,6 +29,7 @@ void log(const char * format, ...){
   LOG.print(buffer);
 }
 
+
 // ACTUAL LOGGING START
 
 // static data members
@@ -52,7 +54,8 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
       if(queue_size > 2000 || log_timer.getTime() > 500 && queue_size != 0){
         
         log_mutex.take();
-        print_queue(queue, log_file, "/usd/log.txt");
+        if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");
+        else master.rumble("-");
         log_mutex.give();
         
         log_timer.reset();
