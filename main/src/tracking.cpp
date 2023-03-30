@@ -60,17 +60,19 @@ Vector r_goal = {123.0, 18.0}, b_goal = {18.0, 123.0};
 
 Tracking tracking; // singleton tracking object
 
-#define TICKS_TO_INCHES 1/36000.0 *(3.25*M_PI);
+atomic<bool> tracking_pause = false;
+
+#define TICKS_TO_INCHES 1/36000.0 *(2.75*M_PI);
 void trackingUpdate(){
   // LeftEncoder.reset(); RightEncoder.reset(); BackEncoder.reset();
   left_tracker.reset_position(); right_tracker.reset_position(); back_tracker.reset_position();
   left_tracker.set_data_rate(5), right_tracker.set_data_rate(5), back_tracker.set_data_rate(5);
   // -1.43
-  double dist_lr = 9.8, dist_b = 0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
+  double dist_lr = 9.215, dist_b = 0;  // distance between left and right tracking wheels, and distance from back wheel to tracking centre
   double left, right, back, new_left, new_right, new_back;
 
   double last_left = -left_tracker.get_position()*TICKS_TO_INCHES;
-  double last_right = -right_tracker.get_position()*TICKS_TO_INCHES;
+  double last_right = right_tracker.get_position()*TICKS_TO_INCHES;
   double last_back = -back_tracker.get_position()*TICKS_TO_INCHES;
 
   double theta = 0.0, beta = 0.0, alpha = 0.0, theta_gyro = 0;
@@ -92,13 +94,14 @@ void trackingUpdate(){
 
   uint32_t cycle_time = millis();
   while(true){
+
     // if(master.get_digital_new_press(DIGITAL_A)) tracking.reset();
     // else if(master.get_digital_new_press(DIGITAL_UP)) dist_lr += 0.001;
     // else if(master.get_digital_new_press(DIGITAL_DOWN)) dist_lr -= 0.001;
     // lcd::print(3, "dist_lr: %lf", dist_lr);
 
     new_left = -left_tracker.get_position()*TICKS_TO_INCHES;
-    new_right = -right_tracker.get_position()*TICKS_TO_INCHES;
+    new_right = right_tracker.get_position()*TICKS_TO_INCHES;
     new_back = -back_tracker.get_position()*TICKS_TO_INCHES;
     
     
@@ -137,40 +140,50 @@ void trackingUpdate(){
     
     if(!gyro.is_calibrating()){
       double gyro_angle = gyro.get_rotation() * 1.0027;
-      theta_gyro = gyro_angle - last_gyro_angle;
-      if(fabs(theta_gyro) < 0.006) theta_gyro = 0.0;  // drift reducer
-      theta_gyro = degToRad(theta_gyro);
+      theta = gyro_angle - last_gyro_angle;
+      if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
+      theta = degToRad(theta);
       last_gyro_angle = gyro_angle;
     }
 
     back = 0;
 
-    if (theta != 0){  // if the robot has travelled in an arc
-      radius_r = right/theta;
-      radius_b = back/theta;
-      beta = theta/2.0;
-      sin_beta = sin(beta);
-      h_y = (radius_r + dist_lr/2) * 2 * sin_beta; // distance travelled by local y (right wheel) arc
-      h_x = (radius_b + dist_b) * 2 * sin_beta; // distance travelled by local x (back wheel) arc
-    }
-    else{
-      h_y = right;
-      h_x = back;
-      beta = 0.0;
-    }
-    alpha = tracking.g_pos.a + beta;  // angle of local x and y vectors
-    sin_alpha = sin(alpha);
-    cos_alpha = cos(alpha);
+    if (!tracking_pause){
+    
+      if (theta != 0){  // if the robot has travelled in an arc
+        radius_r = right/theta;
+        radius_b = back/theta;
+        beta = theta/2.0;
+        sin_beta = sin(beta);
+        h_y = (radius_r + dist_lr/2) * 2 * sin_beta; // distance travelled by local y (right wheel) arc
+        h_x = (radius_b + dist_b) * 2 * sin_beta; // distance travelled by local x (back wheel) arc
+      }
+      else{
+        h_y = right;
+        h_x = back;
+        beta = 0.0;
+      }
+      alpha = tracking.g_pos.a + beta;  // angle of local x and y vectors
+      sin_alpha = sin(alpha);
+      cos_alpha = cos(alpha);
 
-    x_x = h_x * cos_alpha; // global x movement detected by local x (back wheel) arc
-    x_y = h_x * -sin_alpha; // global y movement detected by local x (back wheel) arc
-    y_x = h_y * sin_alpha; // global x movement detected by local y (right wheel) arc
-    y_y = h_y * cos_alpha; // global y movement detected by local y (right wheel) arc
+      x_x = h_x * cos_alpha; // global x movement detected by local x (back wheel) arc
+      x_y = h_x * -sin_alpha; // global y movement detected by local x (back wheel) arc
+      y_x = h_y * sin_alpha; // global x movement detected by local y (right wheel) arc
+      y_y = h_y * cos_alpha; // global y movement detected by local y (right wheel) arc
+
+    } else {
+      x_x = 0.0;
+      x_y = 0.0;
+      y_x = 0.0;
+      y_y = 0.0;
+    }
+
 
     tracking.pos_mutex.take();
     tracking.g_pos.x += x_x + y_x;
     tracking.g_pos.y += y_y + x_y;
-    tracking.g_pos.a += theta_gyro;
+    tracking.g_pos.a += theta;
     tracking.pos_mutex.give();
 
     if(tracking_timer.getTime() > 250){
@@ -316,7 +329,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     kD = 120.0;
   }
   else if(start_err < 150 && start_err > 75){
-    kP = 4.4;
+    kP = 4.9;
     kI = 0.0;
     kD = 0.0;
   }
@@ -326,30 +339,22 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     kD = 0.0;
   }
   else if(start_err < 65 && start_err > 50){
-    kP = 5;
-    kI = 0.00;
-    kD = 50;
-    max_vel = 70;
+    kP = 5.5;
+    kI = 0.03;
+    kD = 0.0;
   }
   else if(start_err < 50 && start_err > 30){
-    kP = 5;
-    kI = 0.00;
-    kD = 0.0;
-    max_vel = 70;
-  }
-  else if(start_err < 30 && start_err > 11){
     kP = 5.5;
-    kI = 0.01;
-    kD = 50;
-    max_vel = 70;
-    l_bound = 3;
-    
+    kI = 0.02;
+    kD = 0.0;
+    max_vel = 60;
   }
   else {
     kP = 7;
-    kI = 0.02;
+    kI = 0.03;
     kD = 0.0;
     max_vel = 70;
+    l_bound = 10;
   }
 
   log("Start err: %lf | kP:%lf kI:%lf kD:%lf\n", start_err, kP, kI, kD);
@@ -362,6 +367,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   double kP_vel = 6.0;
   int slow_count = 3;
   uint32_t cycle_time = millis();
+  tracking_pause = true;
   do{
     
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
@@ -391,6 +397,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     _Task::delayUntil(cycle_time, 10, "Turn to angle");
   }
   while(fabs(angle_pid.getError()) > end_error);
+  tracking_pause = false;
   handleBrake(brake_mode);
   master.print(0, 0, "time:%lld                ",  motion_timer.getTime());
   master.print(1, 0, "Tar: %lf", radToDeg(getAngleFunc()));
@@ -444,7 +451,6 @@ const char* DriveMttParams::getName(){
   return "DriveMoveToTarget";
 }
 void DriveMttParams::handle(){
-  double slew = 2;
   Vector line_error = target - tracking.g_pos;  // Displacement from robot's position to target
   double line_angle = M_PI_2 - line_error.getAngle();  // Angle of line we're following, relative to the vertical
   line_error.rotate(tracking.g_pos.a);  // Now represents local displacement from robot's position to target
@@ -453,12 +459,6 @@ void DriveMttParams::handle(){
   PID y_pid(4.5, 0.00, 00.0, 0.0, true, 0.0, 8.0);
   // Assigns a sign to power depending on side of robot
 
-  if (line_error.getMagnitude() <= 24){
-    max_power = 127;
-    slew = 127;
-  } else {
-    max_power = 100;
-  }
   switch(robot_side){
     case E_Robot_Sides::front:
       power_sgn = 1;
@@ -503,12 +503,7 @@ void DriveMttParams::handle(){
         left_power = power_y * exp(correction), right_power = power_y;
         break;
     }
-    if (fabs(left_power-last_left_power) > slew && sgn(left_power-last_left_power) == power_sgn) left_power = last_left_power+sgn(left_power-last_left_power)*slew;
-    if (fabs(right_power-last_right_power) > slew && sgn(right_power-last_right_power) == power_sgn) right_power = last_right_power+sgn(right_power-last_right_power)*slew;
 
-
-    last_left_power = left_power;
-    last_right_power = right_power;
 
     
     // x, y, a, l, r, errA

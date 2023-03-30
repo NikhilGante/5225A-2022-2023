@@ -185,14 +185,11 @@ void IntakeRollerParams::handle(){
   drive.changeState(DriveIdleParams{});
   drive.waitToReachState(DriveIdleParams{});
 
-	
+	intake_m.move(127);
 	moveDrive(-50, 0);
-  intake_m.move(127);
-	WAIT_UNTIL(getDistBack()<13.5 || roller_timer.getTime() > 1500);
-  double cur_position = intake_m.get_position();
-	WAIT_UNTIL(fabs(intake_m.get_position()-cur_position)>degrees || roller_timer.getTime() > 1800);
-  intake_m.move(0);
-  moveDrive(0, 0);
+  
+
+
 	intakeOff();
 
 }

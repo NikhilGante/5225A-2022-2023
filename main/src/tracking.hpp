@@ -50,7 +50,7 @@ Position distanceReset(resetPosition pos);
 class Tracking{
   
 public:
-  const double min_move_power_y = 20.0, min_move_power_a = 30.0;
+  const double min_move_power_y = 20.0, min_move_power_a = 35.0;
   // Odometry related variables
   double l_vel, r_vel, b_vel; // Velocities of each of the tracking wheel in inches/sec
   Mutex pos_mutex; // locks g_pos
@@ -75,9 +75,9 @@ void trackingUpdate();
 void handleBrake(E_Brake_Modes brake_mode); // Brakes depending on type of brake mode passed in
 
 // Wrapper functions for drive states (motion algorithms)
-void moveForwardSync(double inches, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
-void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
-void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 1.0, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void moveForwardSync(double inches, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 0.1, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void moveToTargetSync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 0.1, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
+void moveToTargetAsync(Vector target, E_Brake_Modes brake_mode = E_Brake_Modes::brake, uint8_t max_power = MAX_DRIVE_POWER, double end_error_x = 0.1, E_Robot_Sides robot_side = E_Robot_Sides::automatic);
 
 void turnToAngleSync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
 void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);

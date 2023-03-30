@@ -49,10 +49,10 @@ void initialize() {
 	_Controller::init();
 
 
-	// drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	drive.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 	
 }
 
@@ -106,6 +106,26 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
+	WAIT_UNTIL(!gyro.is_calibrating());
+
+	// spinRoller();
+	setFlywheelVel(2350);
+	tracking.reset({34, 12.25, 0.0});
+	intakeOn();
+	moveDrive(-50, 0);
+	delay(250);
+	intakeOff();
+	moveInches(8);
+	aimAtBlue(2.5);
+	shootSync(2);
+	intakeOn();
+
+	turnToTargetSync({64, 38});
+	moveToTargetSync({64, 38}, E_Brake_Modes::brake, 80);
+
+
+
+
 
   // setFlywheelVel(2260);
 //   setFlywheelVel(barrier_rpm);
@@ -204,12 +224,29 @@ Next year layout??:
 // 1 = 2.6ms
 void opcontrol() {
 #ifdef MAIN
+	
+
+	WAIT_UNTIL(!gyro.is_calibrating());
+
+	// spinRoller();
+	setFlywheelVel(2350);
+	tracking.reset({34, 12.25, 0.0});
+	intakeOn();
+	moveDrive(-50, 0);
+	delay(250);
+	intakeOff();
+	moveInches(8);
+	aimAtBlue(2.5);
+	shoot(2);
+	
+
+	
 
 
-	while (true){
-		log("TEST");
-		delay(5);
-	}
+	// while (true){
+	// 	log("TEST");
+	// 	delay(5);
+	// }
 	
 
 	// _Task test_a;
