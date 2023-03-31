@@ -28,6 +28,7 @@
 
 #include <cmath>
 
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -79,18 +80,7 @@ void disabled() {
 void competition_initialize() {
   master.clear();
 
-  WAIT_UNTIL(!gyro.is_calibrating());
-  int drift_count = 0;
-  while(true){
-    if(fabs(radToDeg(tracking.g_vel.a)) > 0.01){
-      drift_count++;
-      if(drift_count > 10){
-        master.rumble("........");
-        master.print(0, 0, "DRIFT DETECTED");
-      }
-    }
-    delay(10);
-  }
+  
 
 }
 
@@ -113,57 +103,7 @@ void autonomous() {
 
 	// spinRoller();
 
-	Timer auton_timer{"Auton_timer"};
-	tracking.reset({126.5, 82.25, degToRad(-90)});
-	setFlywheelVel(2350);
-	intakeOn();
-
-	moveToTargetSync({106, 82.25});
-	master.printScroll("Time: %lld", auton_timer.getTime());
-
-	aimAtBlue(2.5);
-
-	shootSync(3);
-	intakeOn();
-
-
-	turnToTargetSync({82, 59});
-	master.printScroll("After turn: %lld", auton_timer.getTime());
-	moveToTargetSync({82, 59});
-	master.printScroll("After move: %lld", auton_timer.getTime());
-
-
-	aimAtBlue(2.5);
-	master.printScroll("After turn: %lld", auton_timer.getTime());
-	shootSync(2);
-	intakeOff();
-
-	turnToTargetSync({123, 111}, 0.0, true);
-	moveToTargetSync({123, 111}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
-
-	turnToAngleSync(-90);
-
-	moveDrive(-40, 0);
-	delay(250);
-	WAIT_UNTIL(tracking.r_vel < 2);
-	intakeOn();
-	delay(250);
-	intakeOff();
-	moveDrive(0, 0);
-	moveInches(2);
-
-
-
-
-
-
-
-
-
-	
-
-	master.printScroll("Final: %lld", auton_timer.getTime()); // End
-
+	autonLine();
 
 
 
@@ -210,11 +150,12 @@ Auton auton2("autonAWP", autonAWP5);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 Auton auton4("Skills", provSkillsLow);
 
-#define MAIN
+// #define MAIN
 // #define PROG_SKILLS
 // #define DRIVER_SKILLS
 // #define MATCH
 // #define SELECT
+#define util
 
 /*
 Auton CheckList:
@@ -272,9 +213,178 @@ NOTES:
 	- Write menu to run quick turns, and motion algorithms(With images)
 
 */
+#ifdef util
+	namespace UtilProgram {
+		struct Test {
+			function<void()> test_function;
+			std::string name;
+
+			Test(function<void()> test_function, std::string name): test_function(test_function), name(name) {}
+
+			void run_function() {
+				test_function();
+			}
+		};
+
+		struct TestingSubsection{
+			std::vector<Test> test;
+			std::string name;
+
+			TestingSubsection(std::vector<Test> tests, std::string name) : test(tests), name(name) {}
+
+			void print(int index){
+				master.print(2, 0, "%s", test[(index-1)%(test.size())].name.c_str());
+				master.print(1, 0, "%s---------------", test[(index)%(test.size())].name.c_str());
+				master.print(0, 0, "%s", test[(index+1)%(test.size())].name.c_str());
+
+				cout << (index)%(test.size()) << endl;
+			}
+
+			void selectTest(){
+				std::string input; 
+				int index = 1;
+
+				print(index);
+
+				while (true){ // not b is press
+					
+					if (master.get_digital_new_press(DIGITAL_UP)){
+						index++;
+						print(index);
+					} else if (master.get_digital_new_press(DIGITAL_DOWN)){
+						index--;
+						print(index);
+					} else if (master.get_digital_new_press(DIGITAL_A)){
+						test[index%test.size()].run_function();
+					} else if (master.get_digital_new_press(DIGITAL_B)){
+						break;
+					}
+
+					delay(50);
+				}
+			}
+		};
+
+		void turn45() {
+			cout << "Turning 45 degrees\n";
+		}
+		void turn90() {
+			cout << "Turning 90 degrees\n";
+		}
+		void turn15() {
+			cout << "Turning 15 degrees\n";
+		}
+		void turnX(){
+			int degrees = 25;
+			master.clear();
+			master.print(0, 0, "Inches: %d", degrees);
+			while (true){
+				if (master.get_digital_new_press(DIGITAL_UP)) master.print(0, 0, "Inches: %d", degrees += 1);
+				else if (master.get_digital_new_press(DIGITAL_DOWN)) master.print(0, 0, "Inches: %d", degrees -= 1);
+				else if (master.get_digital_new_press(DIGITAL_LEFT)) master.print(0, 0, "Inches: %d", degrees -= 5);
+				else if (master.get_digital_new_press(DIGITAL_RIGHT)) master.print(0, 0, "Inches: %d", degrees += 5);
+				else if (master.get_digital_new_press(DIGITAL_A)) {moveForwardSync(degrees); break;}
+				else if (master.get_digital_new_press(DIGITAL_B)) break;
+
+				delay(50);
+			}
+
+			
+		}
 
 
+		void move70() {
+			cout << "Moving 70 inches\n";
+		}
+		void move24() {
+			cout << "Moving 24 inches\n";
+		}
+		void move10() {
+			cout << "Moving 10 inches\n";
+		}
+		void moveX(){
+			int inches = 25;
+			master.clear();
+			master.print(0, 0, "Inches: %d", inches);
+			while (true){
+				if (master.get_digital_new_press(DIGITAL_UP)) {inches++; master.print(0, 0, "Inches: %d", inches);}
+				else if (master.get_digital_new_press(DIGITAL_DOWN)) {inches--; master.print(0, 0, "Inches: %d", inches);}
+				else if (master.get_digital_new_press(DIGITAL_LEFT)) {inches -= 5; master.print(0, 0, "Inches: %d", inches);}
+				else if (master.get_digital_new_press(DIGITAL_RIGHT)) {inches += 5; master.print(0, 0, "Inches: %d", inches);}
+				else if (master.get_digital_new_press(DIGITAL_A)) {moveForwardSync(inches); break;}
+				else if (master.get_digital_new_press(DIGITAL_B)) break;
+
+				delay(50);
+			}
+
+			
+		}
+
+		void gyroCheck(){
+			master.clear();
+			WAIT_UNTIL(!gyro.is_calibrating());
+			int drift_count = 0;
+			while(true){
+				if(fabs(radToDeg(tracking.g_vel.a)) > 0.01){
+					drift_count++;
+					if(drift_count > 10){
+						master.rumble("........");
+						master.print(0, 0, "DRIFT DETECTED");
+					}
+				} else if (master.get_digital_new_press(DIGITAL_B)){
+					break;
+				}
+				delay(10);
+			}
+		}
+		
+
+		void run() {
+			TestingSubsection turns{{{turn45, "Turn45"}, {turn90, "Turn90"}, {turn15, "turn15"}, {turnX, "turnX"}}, "Turns"};
+			TestingSubsection moves{{{move70, "move70"}, {move24, "move24"}, {move10, "move10"}, {moveX, "moveX"}}, "Moves"};
+			TestingSubsection checks{{{move70, "gyro_drift"}, {move24, "gyro_zero"}, {move10, "tracking_0"}}, "Checks"};
+			
+
+			std::string input;
+			int index = 0;
+
+			TestingSubsection test_sub[] = {turns, moves, checks};
+
+			master.print(0, 0, "%s", test_sub[(index-1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+			master.print(1, 0, "%s---------------", test_sub[(index  )%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+			master.print(2, 0, "%s", test_sub[(index+1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+
+			while (true){
+
+				if (master.get_digital_new_press(DIGITAL_UP)){
+					index++;
+					master.print(2, 0, "%s", test_sub[(index-1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+					master.print(1, 0, "%s---------------", test_sub[(index  )%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+					master.print(0, 0, "%s", test_sub[(index+1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+				} else if (master.get_digital_new_press(DIGITAL_DOWN)){
+					index--;
+					master.print(2, 0, "%s", test_sub[(index-1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+					master.print(1, 0, "%s---------------", test_sub[(index  )%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+					master.print(0, 0, "%s", test_sub[(index+1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+				} else if (master.get_digital_new_press(DIGITAL_A)){
+					test_sub[index%(sizeof(test_sub) / sizeof(test_sub[0]))].selectTest();
+					master.print(2, 0, "%s", test_sub[(index-1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+					master.print(1, 0, "%s---------------", test_sub[(index  )%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+					master.print(0, 0, "%s", test_sub[(index+1)%(sizeof(test_sub) / sizeof(test_sub[0]))].name.c_str());
+				}
+
+				cout << (index+1)%(sizeof(test_sub) / sizeof(test_sub[0])) << endl;
+
+
+				delay(50);
+			}
+			moves.selectTest();
+		}
+
+	}
+#endif
 void opcontrol() {
+	
 #ifdef MAIN
 	
 
@@ -292,7 +402,7 @@ void opcontrol() {
 	// 	log("TEST");
 	// 	delay(5);
 	// }
-	
+
 
 	// _Task test_a;
 	// test_a.start([](){
@@ -314,6 +424,11 @@ void opcontrol() {
 
 	
 
+#endif
+
+#ifdef util
+	UtilProgram::run();
+	
 #endif
 
 #ifdef PROG_SKILLS

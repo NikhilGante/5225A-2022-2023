@@ -476,6 +476,7 @@ void DriveMttParams::handle(){
   log("MTT MOTION STARTED | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   double last_left_power = 0, last_right_power = 0;
   uint32_t cycle_time = millis();
+  int safety_count = 0;
   do{
     line_error = target - tracking.g_pos;
     // How much robot has to turn to face target
@@ -515,6 +516,18 @@ void DriveMttParams::handle(){
 
     log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
     
+    if(fabs(tracking.r_vel) < 1 && fabs(tracking.b_vel) < 1){
+      safety_count++;
+      if(safety_count > 20){
+        moveDrive(0, 0);
+        master.rumble(".");
+        log("MTT MOTION SAFETY TRIGGERED took %lld ms | Targ x:%lf, y:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), target.getX(), target.getY(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+        drive.changeState(DriveIdleParams{});
+        return;
+      }
+    }
+    else  safety_count = 0;
+
     moveDriveSide(left_power, right_power);
     _Task::delayUntil(cycle_time, 10, "Drive move to");
   }  

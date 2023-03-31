@@ -291,124 +291,47 @@ void autonAWP5(){
 
 
 void autonLine(){ // No moving after start
-  WAIT_UNTIL(!gyro.is_calibrating());
-  tracking.reset({11.5, 55.00, degToRad(180.0)});
+  Timer auton_timer{"Auton_timer"};
+	tracking.reset({126.5, 82.25, degToRad(-90)});
+	setFlywheelVel(2350);
+	intakeOn();
 
-  Timer timer1{"timer"};
-  setFlywheelVel(2280, 415);
-  moveToTargetSync({tracking.g_pos.x, 29}); // move in front of roller
-  turnToAngleSync(90.0, E_Brake_Modes::brake, 2.0, 127);
+	moveToTargetSync({106, 82.25});
+	master.printScroll("Time: %lld", auton_timer.getTime());
 
-  flattenAgainstWallSync();
-  Position pos = distanceReset(resetPosition::rightHome);
-  if(fabs(pos.x - tracking.g_pos.x) < 3 && fabs(pos.y - tracking.g_pos.y) < 3)  tracking.reset(pos);
-  // tracking.reset(distanceReset(resetPosition::rightAway));
+	aimAtBlue(2.5);
 
-
-  spinRoller();
-  intake.waitToReachState(IntakeOffParams{});
-
-  moveInches(5);
-  intakeOn();
-  turnToTargetSync({38.0, 62.0}); // Drives through line
-  moveToTargetSync({36.0, 60.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtRed(4);
-  driveBrake();
-  shootSync(3);
-  shooter.waitToReachState(ShooterIdleParams{});
-
-  turnToTargetSync({58.0, 81.0}); // Drives through line
-  setFlywheelVel(2210, 423);
-  moveToTargetSync({58.0, 81.0},  E_Brake_Modes::brake, 127); // Drives through line
-  aimAtRed(4);
-  driveBrake();
-  shootSync(2);
-  shooter.waitToReachState(ShooterIdleParams{});
-  master.print(2,0, "total:%ld", timer1.getTime());
+	shootSync(3);
+	intakeOn();
 
 
-  /*  Timer timer1{"timer"};
-  angler_p.setState(LOW);
-
-  flattenAgainstWallSync();
-  tracking.reset({131.25, 141-getDistR(), degToRad(-90.0)});
-  trans_p.setState(HIGH);
-
-  setFlywheelVel(2215);
-  intakeOn();
-  moveToTargetSync({96, 82}); // move to single disc in front
-  aimAtBlue(10.5);
+	turnToTargetSync({82, 59});
+	master.printScroll("After turn: %lld", auton_timer.getTime());
+	moveToTargetSync({82, 59});
+	master.printScroll("After move: %lld", auton_timer.getTime());
 
 
-  driveBrake();
-  shootSync(3);
+	aimAtBlue(2.5);
+	master.printScroll("After turn: %lld", auton_timer.getTime());
+	shootSync(2);
+	intakeOff();
 
-  shooter.waitToReachState(ShooterIdleParams{});
-  setFlywheelVel(2250);
+	turnToTargetSync({123, 111}, 0.0, true);
+	moveToTargetSync({123, 111}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
 
-  moveToTargetSync({102, 78}); // Backup
-  intakeOn();
-  turnToTargetSync({84, 60}, 0.0, false, E_Brake_Modes::brake, 3);
-  moveToTargetSync({84, 60}); // Pickup line
-  aimAtBlue(11);
-  shootSync(3);
-  shooter.waitToReachState(ShooterIdleParams{});
+	turnToAngleSync(-90);
 
-
-  turnToTargetSync({126, 108}, 0.0, true); // Turn to face corner
-  intakeOff();
-  moveToTargetSync({128, 108}, E_Brake_Modes::coast); // Backup to corner
-
-  intakeRev();
-  drive.changeState(DriveIdleParams{});
-  drive.waitToReachState(DriveIdleParams{});
-  
-  double intake_pos = intake_m.get_position();
-
-  moveDrive(-40, 0);
-  WAIT_UNTIL(fabs(intake_pos- intake_m.get_position()) > 450);
-  intakeOff();
-  moveInches(2.0);
-
-  // intake.waitToReachState(IntakeOffParams{});
-  
-  master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
- 
-  */
-}
+	moveDrive(-40, 0);
+	delay(250);
+	WAIT_UNTIL(tracking.r_vel < 2);
+	intakeOn();
+	delay(250);
+	intakeOff();
+	moveDrive(0, 0);
+	moveInches(2);
 
 
-void autonLine2(){ // No moving after start
-  WAIT_UNTIL(!gyro.is_calibrating());
-
-  Timer timer1{"timer"};
-  setFlywheelVel(2250, 415);
-  tracking.reset(distanceReset(resetPosition::rightHome));
-
-  intakeOn();
-  moveToTargetSync({33.0, 59.0});
-  aimAtRed(0.5);
-  moveInches(7.0);  // Get closer to autonLine
-  aimAtRed(1.5);
-  shootSync(3);
-  moveInches(-7.0);  // backup
-
-  // Intake Line (go to midfield)
-  setFlywheelVel(2200, 430);
-  turnToTargetSync({60, 84});
-  moveToTargetSync({60, 84});
-  aimAtRed(3);
-  shootSync(2);
-
-  // Return to Roller
-  turnToTargetSync({14, 34.0}, 0.0, true);
-  moveToTargetSync({14, 34.0});
-  turnToAngleSync(90);
-  spinRoller();
-  intake.waitToReachState(IntakeOffParams{});
-  moveInches(1.0);
-  master.print(2,0, "total:%ld", timer1.getTime());
+	master.printScroll("Final: %lld", auton_timer.getTime()); // End
 
 }
 
@@ -909,6 +832,5 @@ void provSkillsLow(){
   endgame_d_p.setState(HIGH);
 }
 
-/*
 
-*/
+
