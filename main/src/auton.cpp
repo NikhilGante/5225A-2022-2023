@@ -173,53 +173,26 @@ X: 72.3, Y: 49.72, A: -34.99
 
 
 void autonStack(){
-  WAIT_UNTIL(!gyro.is_calibrating());
-  tracking.reset({30.75, 9.0, degToRad(0.0)});
-  Timer timer1{"timer"};
-  setFlywheelVel(2350);
-	angler_p.setState(LOW);
+  Timer auton_timer{"Auton_timer"};
 
-  Position pos = distanceReset(resetPosition::leftHome);
-  if(fabs(pos.x - tracking.g_pos.x) < 2 && fabs(pos.y - tracking.g_pos.y) < 2)  tracking.reset(distanceReset(resetPosition::leftHome));
-
-  spinRoller();
-  intake.waitToReachState(IntakeOffParams{});
-
-  // tracking.reset({31.0, 7.375, degToRad(0.0)});
-	// moveToTargetSync({37.0, 12.5});  // Move away from wall
-  moveInches(5.0);
-	aimAtBlue(1.5);
-  printf("DONE AIMING: %lld %d\n", timer1.getTime(), millis());
-	shootSync(2);
-  shooter.waitToReachState(ShooterIdleParams{});
-
-	setFlywheelVel(2180);
-  turnToTargetSync({73.0, 50.0}); // Faces stack
+	setFlywheelVel(2350);
+	tracking.reset({34, 12.25, 0.0});
 	intakeOn();
-	moveToTargetSync({73.0, 50.0}, E_Brake_Modes::brake, 70); // Pickup stack of discs
+	moveDrive(-50, 0);
+	delay(250);
+	intakeOff();
+	moveInches(6);
+	aimAtBlue(2.5);
+	shootSync(2);
+	intakeOn();
 
-	aimAtBlue(1.5);
+	turnToTargetSync({66, 40});
+	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
 
-  // shootSync(1);
-  // shooter.waitToReachState(ShooterIdleParams{});
-  // intakeOn();
-  // moveInches(7.0);
-	// aimAtBlue(1.5);
-
-
-  driveBrake();
+	aimAtBlue(2.5);
 	shootSync(3);
-  shooter.waitToReachState(ShooterIdleParams{});
 
-	// turnToTargetSync({69.0, 43.0});
-	// intakeOn();
-	// moveToTargetSync({69.0, 43.0}); // Pickup stack of discs
-	// aimAtBlue(11.0);
-	// shootSync(3);
-  // shooter.waitToReachState(ShooterIdleParams{});
-  master.print(2,0, "total:%ld", timer1.getTime());
-	lcd::print(6, "total:%ld", timer1.getTime());
-
+	master.printScroll("Time: %d", auton_timer.getTime());
 }
 
 void autonAWP4(){

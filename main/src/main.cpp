@@ -105,23 +105,66 @@ void competition_initialize() {
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+
+
+
 void autonomous() {
 	WAIT_UNTIL(!gyro.is_calibrating());
 
 	// spinRoller();
+
+	Timer auton_timer{"Auton_timer"};
+	tracking.reset({126.5, 82.25, degToRad(-90)});
 	setFlywheelVel(2350);
-	tracking.reset({34, 12.25, 0.0});
-	intakeOn();
-	moveDrive(-50, 0);
-	delay(250);
-	intakeOff();
-	moveInches(8);
-	aimAtBlue(2.5);
-	shootSync(2);
 	intakeOn();
 
-	turnToTargetSync({64, 38});
-	moveToTargetSync({64, 38}, E_Brake_Modes::brake, 80);
+	moveToTargetSync({106, 82.25});
+	master.printScroll("Time: %lld", auton_timer.getTime());
+
+	aimAtBlue(2.5);
+
+	shootSync(3);
+	intakeOn();
+
+
+	turnToTargetSync({82, 59});
+	master.printScroll("After turn: %lld", auton_timer.getTime());
+	moveToTargetSync({82, 59});
+	master.printScroll("After move: %lld", auton_timer.getTime());
+
+
+	aimAtBlue(2.5);
+	master.printScroll("After turn: %lld", auton_timer.getTime());
+	shootSync(2);
+	intakeOff();
+
+	turnToTargetSync({123, 111}, 0.0, true);
+	moveToTargetSync({123, 111}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
+
+	turnToAngleSync(-90);
+
+	moveDrive(-40, 0);
+	delay(250);
+	WAIT_UNTIL(tracking.r_vel < 2);
+	intakeOn();
+	delay(250);
+	intakeOff();
+	moveDrive(0, 0);
+	moveInches(2);
+
+
+
+
+
+
+
+
+
+	
+
+	master.printScroll("Final: %lld", auton_timer.getTime()); // End
+
+
 
 
 
@@ -222,6 +265,15 @@ Next year layout??:
 
 // 100 = 36ms
 // 1 = 2.6ms
+
+/*
+NOTES:
+	- Write rotation sensor safety
+	- Write menu to run quick turns, and motion algorithms(With images)
+
+*/
+
+
 void opcontrol() {
 #ifdef MAIN
 	
@@ -229,15 +281,8 @@ void opcontrol() {
 	WAIT_UNTIL(!gyro.is_calibrating());
 
 	// spinRoller();
-	setFlywheelVel(2350);
-	tracking.reset({34, 12.25, 0.0});
-	intakeOn();
-	moveDrive(-50, 0);
-	delay(250);
-	intakeOff();
-	moveInches(8);
-	aimAtBlue(2.5);
-	shoot(2);
+	// moveToTargetSync({0, 34});
+	
 	
 
 	

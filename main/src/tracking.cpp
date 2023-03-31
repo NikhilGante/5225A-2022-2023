@@ -399,9 +399,9 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   while(fabs(angle_pid.getError()) > end_error);
   tracking_pause = false;
   handleBrake(brake_mode);
-  master.print(0, 0, "time:%lld                ",  motion_timer.getTime());
-  master.print(1, 0, "Tar: %lf", radToDeg(getAngleFunc()));
-  master.print(2, 0, "A: %lf", radToDeg(tracking.g_pos.a));
+  master.printScroll("time:%lld                ",  motion_timer.getTime());
+  master.printScroll("Tar: %lf", radToDeg(getAngleFunc()));
+  master.printScroll("A: %lf", radToDeg(tracking.g_pos.a));
 
   log("TURN TO ANGLE MOTION DONE took %lld ms | Target:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), radToDeg(getAngleFunc()), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
   drive.changeState(DriveIdleParams{});
@@ -513,7 +513,7 @@ void DriveMttParams::handle(){
     // log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
     // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
 
-    // log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
+    log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
     
     moveDriveSide(left_power, right_power);
     _Task::delayUntil(cycle_time, 10, "Drive move to");
@@ -546,11 +546,9 @@ const char* DriveTurnToTargetParams::getName(){
   return "DriveTurnToAngle";
 }
 void DriveTurnToTargetParams::handle(){
-  log("Values Before AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), radToDeg(M_PI_2 - (b_goal-tracking.g_pos).getAngle()));
-  turnToAngleInternal(function([&](){
+   turnToAngleInternal(function([&](){
     return M_PI_2 - (target - tracking.g_pos).getAngle() + degToRad(offset) + (reverse? M_PI : 0);
   }), brake_mode, end_error, max_power);
-  log("Values After AimAtBlue -- x:%lf y:%lf a:%lf --- Target Angle %lf \n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), radToDeg(M_PI_2 - (b_goal-tracking.g_pos).getAngle()));
 
 }
 void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
