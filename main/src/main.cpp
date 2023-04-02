@@ -11,7 +11,7 @@
 #include "auton.hpp"
 #include "menu.hpp"
 
-#include "programUtil.hpp"
+#include "programutil.hpp"
 #include "pros/misc.h"
 #include "tracking.hpp"
 #include "drive.hpp"
