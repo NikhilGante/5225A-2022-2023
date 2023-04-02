@@ -368,6 +368,7 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
   int slow_count = 3;
   uint32_t cycle_time = millis();
   tracking_pause = true;
+  int safety_count = 0;
   do{
     
     tracking.drive_error = nearAngle(getAngleFunc(), tracking.g_pos.a);
@@ -393,6 +394,20 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
     //   log("GYRO NOT PLUGGED IN?\n");
     //   break;
     // }
+
+    if(radToDeg(fabs(tracking.g_vel.a)) < 1){
+      safety_count++;
+      if(safety_count > 20){
+        moveDrive(0, 0);
+        master.rumble(".");
+        log("MTT MOTION SAFETY TRIGGERED took %lld ms | Targ a:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), getAngleFunc(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+        drive.changeState(DriveIdleParams{});
+        return;
+      }
+    }
+    else  safety_count = 0;
+
+    
     moveDrive(0.0, power);
     _Task::delayUntil(cycle_time, 10, "Turn to angle");
   }
@@ -516,7 +531,7 @@ void DriveMttParams::handle(){
 
     log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
     
-    if(fabs(tracking.r_vel) < 1 && fabs(tracking.b_vel) < 1){
+    if(fabs(tracking.r_vel) < 1 && fabs(tracking.g_vel.a) < 0.1){
       safety_count++;
       if(safety_count > 20){
         moveDrive(0, 0);

@@ -22,6 +22,41 @@ int Auton::getAuton(){	// Returns selected Auton as an int
 	return auton_num;
 }
 
+void Auton::selectAutonLcd(){
+	int cur_auton = 0;
+	int cur = 0, prev = 0;
+	master.clear();
+	lcd::print(7, "%s%s", std::string(16-sizeof(auton_arr[cur_auton]->name) ,' '), auton_arr[cur_auton]->name);
+	printf("constructed: %d\n", autons_constructed);
+	while(true){
+		cur = pros::lcd::read_buttons();
+		if (cur != prev){
+			printf("CHECKING\n");
+			if(cur == 1 && cur_auton < autons_constructed - 1){
+				cur_auton++;
+				lcd::print(7, "%s%s", std::string(16-sizeof(auton_arr[cur_auton]->name) ,' '), auton_arr[cur_auton]->name);
+			}
+			if(cur == 4 && cur_auton > 0){
+				cur_auton--;
+				lcd::print(7, "%s%s", std::string(16-sizeof(auton_arr[cur_auton]->name) ,' '), auton_arr[cur_auton]->name);
+			}
+			if(cur == 2){	// Press A to save
+				master.clear();
+				log_mutex.take();
+				ofstream myfile ("/usd/auton.txt", ios::out);
+				myfile << cur_auton << endl; 
+				myfile.close();
+				log_mutex.give();
+				master.print(0, 0, "Saved.");
+				break;
+			}
+		}
+		
+		delay(10);
+		prev = cur;
+	}
+}
+
 void Auton::selectAuton(){
 	int cur_auton = 0;
 	master.clear();

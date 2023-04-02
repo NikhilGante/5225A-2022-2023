@@ -28,6 +28,7 @@ public:
 	E_Auton_Reset_Types getResetType(); // Getter
 	static int getAuton();	// Returns selected Auton as an int
 	static void selectAuton();
+	static void selectAutonLcd();
 	static void runAuton();	// Reads auton from SD card and runs it
 	void run();
 };

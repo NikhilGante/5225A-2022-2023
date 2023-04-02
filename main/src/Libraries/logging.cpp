@@ -92,6 +92,7 @@ void Data::print(const char* format, ...){
     chars_printed = QUEUE_SIZE-queue_size;
   }
   log_mutex.take();
+  printf("%s", buffer);
   memcpy(queue+queue_size, buffer, chars_printed);
   queue_size += chars_printed;
   log_mutex.give();
