@@ -122,6 +122,8 @@ namespace UtilProgram {
 		int index = 1;
 		master.clear();
 
+
+
 		TestingSubsection test_sub[] = {turns, moves};
 
 		#define print_util_options \
@@ -166,10 +168,9 @@ enum class E_Util_Options{
 	UTIL,
 	SELECT,
 	TEST,
-	DRIVER_SKILLS,
-	AUTON
+	DRIVER_SKILLS
 };
-array<std::string, 5> util_names {"UTIL", "SELECT AUTON", "TEST", "DRIVER_SKILLS", "RUN AUTON"};
+array<std::string, 4> util_names {"UTIL", "SELECT AUTON", "TEST", "DRIVER_SKILLS"};
 
 void print_options(int index){
 	master.print(0, 0, "%s%s%s", std::string(9-util_names[(index-1)%util_names.size()].length()/2, ' ').c_str(), util_names[(index-1)%util_names.size()].c_str(), std::string(9-util_names[(index-1)%util_names.size()].length()/2, ' ').c_str());
@@ -211,9 +212,6 @@ void util_selector(){
 					break;
 				case E_Util_Options::TEST:
                     match_tests();
-					break;
-				case E_Util_Options::AUTON:
-					return;
 					break;
 			}
 
@@ -268,7 +266,7 @@ void match_tests(){
     lcd::print(7, "      Please move the robot");
     master.print(0, 0, "Move the robot");
     test_check.reset();
-    WAIT_UNTIL(tracking.r_vel > 0.1 || test_check.getTime() > 1500);
+    WAIT_UNTIL(tracking.r_vel != 0.0 || test_check.getTime() > 1500);
     if (test_check.getTime() > 1500){
         master.print(0, 0, "WHEEL's ZEROED");
         master.rumble("-----");
@@ -279,8 +277,9 @@ void match_tests(){
         screen_erase();
         return;
     } else {
+		master.print(1, 0, "CHECKING GYRO");
         test_check.reset();
-        WAIT_UNTIL(tracking.g_vel.a > 0.1|| test_check.getTime() > 1500);
+        WAIT_UNTIL(1.0 != 0.0 || test_check.getTime() > 1500);
         if (test_check.getTime() > 1500){
             master.print(0, 0, "GYRO's ZEROED");
             master.rumble("-----");
@@ -306,7 +305,6 @@ array<std::string, 4> program_names {"SELECT", "DRIVER_SKILLS", "MATCH", "TEST"}
 E_Program_Options program_state = E_Program_Options::MATCH;
 
 bool handle_program(E_Program_Options program_type){
-    printf("HANDING PROGRAM\n");
     switch(program_type){
         case E_Program_Options::SELECT:
             Auton::selectAutonLcd();
@@ -321,7 +319,7 @@ bool handle_program(E_Program_Options program_type){
             break;
         case E_Program_Options::MATCH:
             lcd::print(7, "         READY FOR MATCH");
-            log("SELECTED MATCH");
+            log("SELECTED MATCH\n");
             program_state = program_type;
             return true;
             break;

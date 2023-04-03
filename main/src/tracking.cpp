@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include "config.hpp"
 #include "drive.hpp"
@@ -6,53 +7,9 @@
 #include "util.hpp"
 
 
-double getDistL(){
-  return (l_reset_dist.get()/25.4) - LEFT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
-}
-
-double getDistR(){
-  return (r_reset_dist.get()/25.4) - RIGHT_DIST_OFFSET + DRIVEBASE_WIDTH/2;
-}
-
-double getDistBack(){
-  return ((double)(ultra_left.get_value() + ultra_right.get_value())/2/25.4) + BACK_DIST_OFFSET;
-}
 
 //x:13.711525 y:10.399731 a:50.518857
-Position distanceReset(resetPosition pos){
-  double angle = atan((ultra_left.get_value()-ultra_right.get_value())/(12*25.4));
-  printf("angle: %f\n", angle);
-  printf("angle: %f\n", degToRad(angle));
-  double x, y;
-  double angleOffset = 0;  // In degrees
-  switch(pos){
-    case resetPosition::leftHome:
-    printf("cos1: %f, cos2: %f, distBack: %f \n", cos(angle), cos(degToRad(angle)), getDistBack());
-      cout << "L " << getDistL() << endl;
-      x = cos(angle)*(getDistL()) + sin(angle)*DISTANCE_DIST_OFFSET;
-      y = cos(angle)*getDistBack();
-      angleOffset = 0;
-      break;
-    case resetPosition::rightAway:
-      x = 141-cos(degToRad(angle))*getDistBack();
-      y = 141-(cos(angle)*(getDistR()) - sin(angle)*DISTANCE_DIST_OFFSET);
-      angleOffset = -90;
-      break;
-    case resetPosition::leftAway:
-      x = 141 - (cos(angle)*(getDistL()) + sin(angle)*DISTANCE_DIST_OFFSET);
-      y = 141-cos(degToRad(angle))*getDistBack();
-      angleOffset = 180;
-      break;
-    case resetPosition::rightHome:
-      x = cos(degToRad(angle))*getDistBack();
-      y = cos(angle)*(getDistR()) - sin(angle)*DISTANCE_DIST_OFFSET;
-      angleOffset = 90;
-      break;
-  }
-  lcd::print(3, "RES| X:%.2lf y:%.2lf, A:%.2lf\n", x, y, radToDeg(angle) + angleOffset); 
-  return {x, y, angle + degToRad(angleOffset)};
-  // cout << x << " " << y << " " << radToDeg(angle)+angleOffset << endl;
-}
+
 
 
 // Coords of high goal
@@ -140,6 +97,24 @@ void trackingUpdate(){
     
     if(!gyro.is_calibrating()){
       double gyro_angle = gyro.get_rotation() * 1.0027;
+      // double gyro_angle2 = gyro2.get_rotation() * 1;
+      // double gyro_angle3 = gyro3.get_rotation() * 1;
+
+      // std::array<double, 3> gyro_angles = {gyro_angle, gyro_angle2, gyro_angle3};
+      // std::sort(gyro_angles.begin(), gyro_angles.end());
+      // double avg = (gyro_angles[0]+gyro_angles[1]+gyro_angles[2])/3;
+
+      // if (gyro_angles[1]-gyro_angles[0] > gyro_angles[2]-gyro_angles[1] && gyro_angles[2]-gyro_angles[1] < 0.1){
+      //   //  0 is wrong
+      // }
+      // else if (gyro_angles[1]-gyro_angles[0] > 0.1){
+      //   //ALL OF THEM ARE WRONG, lmao is wrong
+      // } else {
+      //   // 2 is wrong
+      // }
+
+
+
       theta = gyro_angle - last_gyro_angle;
       if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
@@ -531,7 +506,7 @@ void DriveMttParams::handle(){
 
     log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
     
-    if(fabs(tracking.r_vel) < 1 && fabs(tracking.g_vel.a) < 0.1){
+    if(fabs(tracking.r_vel) < 1){
       safety_count++;
       if(safety_count > 20){
         moveDrive(0, 0);
@@ -598,13 +573,13 @@ void DriveFlattenParams::handle(){  // Flattens against wall
 	double power;
 	double error_rate, last_error;
 	do {
-		error  = ultra_right.get_value()-ultra_left.get_value();
+		// error  = ultra_right.get_value()-ultra_left.get_value();
 		error_rate = error - last_error;
 		last_error = error;
 
-		pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
-		pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
-		pros::lcd::print(2, "error: %lf   ", error);
+		// pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
+		// pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
+		// pros::lcd::print(2, "error: %lf   ", error);
 
 		power = error*0.8;
 		if(fabs(error) <= 2) power = 0;

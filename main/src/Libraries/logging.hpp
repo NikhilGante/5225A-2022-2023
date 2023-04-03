@@ -54,7 +54,7 @@ public:
   E_Log_Locations log_location;
   E_Log_Levels log_level;
 
-  void print(const char* format, ...);
+  void print(std::string str);
 
 };
 

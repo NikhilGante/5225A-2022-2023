@@ -15,15 +15,13 @@ extern ADIAnalogIn intk_ds;
 extern ADIAnalogIn mag_ds;
 extern ADIAnalogIn shooter_ds;
 
-extern ADIUltrasonic ultra_left;
-extern ADIUltrasonic ultra_right;
 
 extern Rotation flywheel_rot_sensor;
 
 extern Piston angler_p, trans_p, endgame_s_p, endgame_d_p;
 
 
-extern Imu gyro;
+extern Imu gyro, gyro2, gyro3;
 
 extern Distance l_reset_dist;
 extern Distance r_reset_dist;

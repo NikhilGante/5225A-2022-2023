@@ -14,6 +14,8 @@ void log_init() {
   else printf("logfile found\n");
   if(logfile != NULL)fprintf(logfile, "\n>>>>>START LOGGING FOR PROGRAM\n");
   fclose(logfile);
+
+  Data::init();
 }
 
 void log(const char * format, ...){
@@ -78,22 +80,13 @@ void Data::print_queue(const char queue[QUEUE_SIZE],  ofstream& log_file, std::s
   queue_size = 0;
 }
 
-void Data::print(const char* format, ...){
-  const int buffer_size = 256;  // max amount of chars allowed to be printed
-  char buffer[buffer_size];
-  va_list args;
-  va_start (args, format);
-  int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
-  if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
-  va_end (args);
+void Data::print(std::string str){
+  int chars_printed = str.length();
+  
 
-  if (queue_size+chars_printed > QUEUE_SIZE) {
-    printf("QUEUE OVERFLOW, TIME: %d\n", millis());
-    chars_printed = QUEUE_SIZE-queue_size;
-  }
   log_mutex.take();
-  printf("%s", buffer);
-  memcpy(queue+queue_size, buffer, chars_printed);
+  printf("%s", str.c_str());
+  memcpy(queue+queue_size, str.c_str(), chars_printed);
   queue_size += chars_printed;
   log_mutex.give();
 }

@@ -106,7 +106,7 @@ void ShooterShootParams::handle(){
   disc_seen_last = disc_seen;
 
 
-  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10; // Doesn't wait for flywheel because we want driver to shoot no matter what
+  bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
   // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
 
   // log("%d mag: %d\n", millis(), mag_ds.get_value());

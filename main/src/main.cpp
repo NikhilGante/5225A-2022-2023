@@ -11,6 +11,7 @@
 #include "auton.hpp"
 #include "menu.hpp"
 
+#include "programutil.hpp"
 #include "programUtil.hpp"
 #include "pros/misc.h"
 #include "tracking.hpp"
@@ -49,8 +50,6 @@ void initialize() {
 	delay(300);
 	_Task tracking_task("tracking_update_task");
 	tracking_task.start(trackingUpdate);
-
-	Data::init();
 	_Controller::init();
 
 
@@ -112,5 +111,5 @@ Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 
 
 void opcontrol() {
-	driverPractice();
+	util_selector();
 }
