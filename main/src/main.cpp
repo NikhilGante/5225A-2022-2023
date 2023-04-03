@@ -44,20 +44,20 @@ void initialize() {
 
 	tracking.g_pos = {0.0, 0.0, 0.0};
 
-	log_init();
+	// log_init();
+	Data::init();
 
 	delay(300);
-	_Task tracking_task("tracking_update_task");
-	tracking_task.start(trackingUpdate);
+	// _Task tracking_task("tracking_update_task");
+	// tracking_task.start(trackingUpdate);
 
-	Data::init();
 	_Controller::init();
 
 
-	drive.runMachine();
-	intake.runMachine();
-	flywheel.runMachine();
-	shooter.runMachine();
+	// drive.runMachine();
+	// intake.runMachine();
+	// flywheel.runMachine();
+	// shooter.runMachine();
 
 }
 
@@ -112,5 +112,69 @@ Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 
 
 void opcontrol() {
-	driverPractice();
+	Data d;
+
+
+	// char str[] = "a";
+	// char str1[] = "\n";
+
+	d.print("aaaaa\n");
+	d.print("bbbbb\n");
+	d.print("ccccc\n");
+	d.print("ddddd\n");
+	d.print("eeeee\n");
+
+
+
+
+	for(int i = 0; i < 100; i++){
+		for(int i = 0; i < 50; i++){
+			d.print("a");
+			// cout.write("a", 1);
+		}
+		// cout.write("\n", 1);
+		
+		d.print("\n");
+		delay(1);
+	}
+	// d.print("aaaaaaaaaa\n");
+	// d.print("bbbbbbbbbb\n");
+	// delay(600);
+	// // Data::queue.print();
+	// d.print("cccccccccc");
+	// Data::queue.print();
+
+
+	// // cout << flush
+	// ;
+	// delay(100);
+
+	// // d.print("yooo\n");
+
+
+
+	// // driverPractice();
+
+// 	Queue<int, 20> q("intq");
+// 	// q.push(69);
+// 	int str[] = {0, 1, 2, 3}; 
+// 	q.push(str, 4);
+
+// 	int str1[] = {4, 5, 6, 7}; 
+// 	q.push(str1, 4);
+
+// 	int str2[] = {8, 9, 10, 11}; 
+// 	q.push(str2, 4);
+
+// // 0 1 2 3 0 4 5 6 7 0 
+// 	// q.push('a');
+// 	// q.push('b');
+// 	// q.push('c');
+// 	// q.push('d');
+// 	// q.push('e');
+
+// 	// q.pop();
+// 	q.print();
+
+
 }

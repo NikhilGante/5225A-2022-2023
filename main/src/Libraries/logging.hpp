@@ -3,7 +3,6 @@
 #include <fstream>
 #include <stdarg.h>
 
-#include "pros/rtos.hpp"
 #include "queue.hpp"
 #include "task.hpp"
 #include "timer.hpp"
@@ -37,15 +36,11 @@ enum class E_Log_Locations
 
 
 class Data{
-  // static Queue<char, QUEUE_SIZE> queue;
-  static char queue[QUEUE_SIZE];
   static _Task task;
   static void logHandle(); // runs in task to flush out contents of queue to file
-  static void print_queue(const char queue[QUEUE_SIZE],  ofstream& log_file, std::string file_name);
-  static size_t queue_size;
   static Timer log_timer;
-  static pros::Mutex log_mutex;
 public:
+  static Queue<char, QUEUE_SIZE> queue;
   static ofstream log_file;
   static void init(); // starts log task
 

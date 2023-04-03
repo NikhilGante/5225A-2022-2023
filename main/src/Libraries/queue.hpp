@@ -5,7 +5,10 @@
 #include <array>
 #include <limits.h>
 #include <fstream>
+// #include "logging.hpp"
 using namespace std;
+
+extern pros::Mutex log_mutex;
 
 template <typename T, size_t size>
 class Queue{
@@ -63,6 +66,7 @@ public:
   }
 
   void push(T arr[], size_t arr_len){ // enqueue multiple elements
+    log_mutex.take();
     size_t elements_available = size - getDataSize();
     if(arr_len > elements_available){
       // pros::lcd::print();
@@ -78,12 +82,14 @@ public:
     }
     else{
       if (isEmpty()){
-        front = rear = 0; // inserts first element if queue is empty
-        memcpy(data + rear, arr, arr_len * t_size);  // copies arr to rear
+        front = 0; // Initializes front because queue is no longer empty
+        memcpy(data, arr, arr_len * t_size);  // copies arr to rear
+
       }
       else  memcpy(data + rear + 1, arr, arr_len * t_size);  // copies arr to rear
       rear += arr_len;
     }
+    log_mutex.give();
   }
 
   T pop(){ // dequeue
@@ -117,12 +123,24 @@ public:
 // prints the contents of a char queue to a file (used for logging)
 template<size_t size_cpy>
 void queuePrintFile(Queue<char, size_cpy>& queue, ofstream& file, const char* file_name){
+  log_mutex.take();
   file.open(file_name, ios::app);
   if(queue.rear < queue.front){ // if the queue rolls over
     file.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
-    file.write(queue.data, queue.rear + 1);  // prints from start to rear of queue    
+    file.write(queue.data, queue.rear + 1);  // prints from start to rear of queue
+    cout.write(queue.data + queue.front, size_cpy - queue.front);  // prints from front to end of queue
+    cout.write(queue.data, queue.rear + 1);  // prints from start to rear of queue   
+    cout << "\n ***********************OVERFLOW\n\n\n";
   }
-  else  file.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
+  else{
+    file.write(queue.data + queue.front, queue.rear - queue.front + 1);  // prints from front to rear of queue
+    cout.write(queue.data + queue.front, queue.rear - queue.front + 1);
+    cout << "\n ***********************PRINTING\n\n\n";
+
+  }
+  // cout << flush;
+  
   file.close();
   queue.clear();
+  log_mutex.give();
 }
