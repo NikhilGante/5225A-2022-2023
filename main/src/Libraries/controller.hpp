@@ -83,7 +83,7 @@ public:
     snprintf(buffer, 19, fmt.c_str(), args...);
     std::string str = buffer;
     str += std::string(19-str.length(), ' ');
-    queue.push([=, this](){
+    queue.enqueue([=, this](){
       Controller::print(line, col, str.c_str());
       // printf("printing %s to %d", str, this->controller_num);
     });

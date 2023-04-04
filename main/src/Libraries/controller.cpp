@@ -54,7 +54,7 @@ void _Controller::init(){
 void _Controller::queueHandle(){
   if(!queue.isEmpty()){
     // printf("running command on controller %d", controller_num);
-    queue.pop()();  // run the next function
+    queue.dequeue()();  // run the next function
   }
 }
 
@@ -63,7 +63,7 @@ void _Controller::clear_line (std::uint8_t line){
     pros::Controller::clear_line(line);
     printf("clearing line %d for controller %d", line, this->controller_num);
   };
-  queue.push(func);
+  queue.enqueue(func);
   switch(line){
     case 0: line_0 = ""; break;
     case 1: line_1 = ""; break;
@@ -77,7 +77,7 @@ void _Controller::clear(){
     pros::Controller::clear();
     printf("clearing %d", this->controller_num);
   };
-  queue.push(func);
+  queue.enqueue(func);
   line_0 = line_1 = line_2 = "";
   printf("adding clear to queue for controller %d\n", this->controller_num);
 }
@@ -88,7 +88,7 @@ void _Controller::rumble(const string& rumble_pattern){
     pros::Controller::rumble(rumble_pattern.c_str());
     // printf("rumble controller %d", this->controller_num);
   };
-  queue.push(func);
+  queue.enqueue(func);
   // printf("adding rumble to queue for controller %d\n", this->controller_num);
 }
 

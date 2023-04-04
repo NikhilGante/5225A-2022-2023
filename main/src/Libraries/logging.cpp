@@ -46,7 +46,8 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
     while(true){
-      if(queue.getDataSize() > 2000 || (log_timer.getTime() > 500 && !queue.isEmpty())){
+      if(queue.getSize() > 2000 || (log_timer.getTime() > 500 && !queue.isEmpty())){
+        printf("datasize:%d\n", queue.getSize());
         queuePrintFile(queue, log_file, "/usd/log.txt");
         log_timer.reset();
       }
@@ -54,7 +55,7 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
     }
   }
   catch(const TaskEndException& exception){
-    queuePrintFile(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
+    queuePrintFile(queue, log_file, "/usd/log.txt");  // Empty the queue if the task gets killed
   }
 }
 
@@ -66,8 +67,7 @@ void Data::print(const char* format, ...){
   int chars_printed = vsnprintf(buffer, buffer_size, format, args);  // prints formatted string to buffer
   if(chars_printed > buffer_size) printf("Only %d chars printed\n", chars_printed);
   va_end (args);
-
-  queue.push(buffer, strlen(buffer)); // pushes buffer to queue
+  queue.enqueue(buffer, strlen(buffer)); // pushes buffer to queue
 }
 
 

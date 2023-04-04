@@ -113,36 +113,44 @@ Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
 
 void opcontrol() {
 	Data d;
+	// d.print("aaaaa\n");
+	// d.print("bbbbb\n");
+	// d.print("ccccc\n");
+	// d.print("ddddd\n");
+	// d.print("eeeee\n");
 
 
-	// char str[] = "a";
-	// char str1[] = "\n";
+	// d.print("a");
+	// d.print("\n");
 
-	d.print("aaaaa\n");
-	d.print("bbbbb\n");
-	d.print("ccccc\n");
-	d.print("ddddd\n");
-	d.print("eeeee\n");
-
-
-
-
-	for(int i = 0; i < 100; i++){
-		for(int i = 0; i < 50; i++){
-			d.print("a");
-			// cout.write("a", 1);
-		}
-		// cout.write("\n", 1);
+	_Task t;
+	t.start([&](){
+		for(int i = 0; i < 500; i++){
+			for(int j = 0; j < 100; j++){
+				d.print("b");
+			}
 		
 		d.print("\n");
 		delay(1);
 	}
-	// d.print("aaaaaaaaaa\n");
-	// d.print("bbbbbbbbbb\n");
-	// delay(600);
-	// // Data::queue.print();
-	// d.print("cccccccccc");
+	});
+
+	Timer timer{"timer"};
+	for(int i = 0; i < 500; i++){
+		for(int j = 0; j < 100; j++){
+			d.print("a");
+		}
+		
+		d.print("\n");
+		delay(2);
+	}
+	timer.print();
+	d.print("aaaaaaaaaa\n");
+	d.print("bbbbbbbbbb\n");
+	delay(600);
 	// Data::queue.print();
+	d.print("cccccccccc");
+	Data::queue.print();
 
 
 	// // cout << flush
@@ -155,16 +163,17 @@ void opcontrol() {
 
 	// // driverPractice();
 
-// 	Queue<int, 20> q("intq");
-// 	// q.push(69);
-// 	int str[] = {0, 1, 2, 3}; 
-// 	q.push(str, 4);
+/*
+	Queue<int, 20> q("intq");
+	// q.push(69);
+	int str[] = {4, 5, 6, 7}; 
+	q.enqueue(str, 4);
 
-// 	int str1[] = {4, 5, 6, 7}; 
-// 	q.push(str1, 4);
+	int str1[] = {8, 9, 10, 11}; 
+	q.enqueue(str1, 4);
 
-// 	int str2[] = {8, 9, 10, 11}; 
-// 	q.push(str2, 4);
+	int str2[] = {0, 1, 2, 3}; 
+	q.enqueue(str2, 4);
 
 // // 0 1 2 3 0 4 5 6 7 0 
 // 	// q.push('a');
@@ -173,8 +182,9 @@ void opcontrol() {
 // 	// q.push('d');
 // 	// q.push('e');
 
-// 	// q.pop();
-// 	q.print();
-
-
+	q.dequeue();
+	int a = q.getSize();
+	q.print();
+	cout << endl << a << endl;
+*/
 }
