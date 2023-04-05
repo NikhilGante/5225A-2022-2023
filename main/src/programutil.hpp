@@ -168,9 +168,9 @@ enum class E_Util_Options{
 	UTIL,
 	SELECT,
 	TEST,
-	DRIVER_SKILLS
+	DRIVER
 };
-array<std::string, 4> util_names {"UTIL", "SELECT AUTON", "TEST", "DRIVER_SKILLS"};
+array<std::string, 4> util_names {"UTIL", "SELECT AUTON", "TEST", "DRIVER"};
 
 void print_options(int index){
 	master.print(0, 0, "%s%s%s", std::string(9-util_names[(index-1)%util_names.size()].length()/2, ' ').c_str(), util_names[(index-1)%util_names.size()].c_str(), std::string(9-util_names[(index-1)%util_names.size()].length()/2, ' ').c_str());
@@ -204,7 +204,7 @@ void util_selector(){
 					Auton::selectAuton();
 					print_options(index);
 					break;
-				case E_Util_Options::DRIVER_SKILLS:
+				case E_Util_Options::DRIVER:
 					driverPractice();
 					break;
 				case E_Util_Options::UTIL:
@@ -279,7 +279,7 @@ void match_tests(){
     } else {
 		master.print(1, 0, "CHECKING GYRO");
         test_check.reset();
-        WAIT_UNTIL(1.0 != 0.0 || test_check.getTime() > 1500);
+        WAIT_UNTIL(gyro.get_rotation() != 0.0 || test_check.getTime() > 1500);
         if (test_check.getTime() > 1500){
             master.print(0, 0, "GYRO's ZEROED");
             master.rumble("-----");
@@ -294,6 +294,13 @@ void match_tests(){
     }
     
 }
+
+
+
+
+
+
+
 enum class E_Program_Options{
 	SELECT,
 	DRIVER_SKILLS,

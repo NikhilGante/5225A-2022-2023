@@ -85,8 +85,6 @@ void turnToAngleAsync(double angle, E_Brake_Modes brake_mode = E_Brake_Modes::br
 void turnToTargetSync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
 void turnToTargetAsync(Vector target, double offset = 0.0, bool reverse = false, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
 
-void flattenAgainstWallSync();
-void flattenAgainstWallAsync();
 
 // Takes a function that returns an angle in radians
 void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = TURNING_END_ERROR, double max_power = MAX_TURNING_POWER);
@@ -101,9 +99,8 @@ struct DriveOpControlParams;
 struct DriveMttParams;
 struct DriveTurnToAngleParams;
 struct DriveTurnToTargetParams;
-struct DriveFlattenParams;
 
-#define DRIVE_STATE_TYPES DriveIdleParams, DriveOpControlParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams, DriveFlattenParams
+#define DRIVE_STATE_TYPES DriveIdleParams, DriveOpControlParams, DriveMttParams, DriveTurnToAngleParams, DriveTurnToTargetParams
 
 #define DRIVE_STATE_TYPES_VARIANT std::variant<DRIVE_STATE_TYPES>
 
@@ -158,12 +155,6 @@ struct DriveTurnToTargetParams{
 
   const char* getName();
   void handle();
-  void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
-};
-
-struct DriveFlattenParams{
-  const char* getName();
-  void  handle();
   void handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state);
 };
 

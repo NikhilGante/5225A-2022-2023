@@ -7,12 +7,13 @@
 #include "util.hpp"
 // #include <sys/wait.h>
 
-void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
+void moveInches(double target, double max_power, E_Brake_Modes brake_mode, double end_error){
 	Timer move_timer{"move_timer"};
 	double start = right_tracker.get_position()*1/36000.0 *(2.75*M_PI);
 	double error;
   	log("Starting move %d inches\n", target);
 	int safety_count = 0;
+	uint32_t cycle_timer = millis();
 	do{
 		double cur_y = right_tracker.get_position()*1/36000.0 *(2.75*M_PI) - start;
 		error = target - cur_y;
@@ -23,7 +24,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 		// if(fabs(power) > 100) power = sgn(error) * 100;
 		moveDrive(power, 0.0);
 
-		if(fabs(tracking.r_vel) < 0.5){
+		if(fabs(tracking.r_vel) < 0.1){
 			safety_count++;
 			if(safety_count > 20){
 				moveDrive(0, 0);
@@ -35,7 +36,9 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 		}
 		else  safety_count = 0;
 
-	}while(fabs(error) > 0.5);
+		_Task::delayUntil(cycle_timer, 10);
+
+	}while(fabs(error) > end_error);
 	// master.print(2, 0, "time: %ld", move_timer.getTime());
   log("Move %lf inches done, took %lld ms\n", target, move_timer.getTime());
 	handleBrake(brake_mode);
@@ -46,48 +49,69 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode){
 void autonStack(){
   Timer auton_timer{"Auton_timer"};
 
-	setFlywheelVel(2350);
-	tracking.reset({34, 12.25, 0.0});
+	setFlywheelVel(2400);
+	tracking.reset({31.75, 13.5, degToRad(-45)});
 	intakeOn();
+	moveInches(10, 127, E_Brake_Modes::brake, 4);
+	moveInches(-10, 127, E_Brake_Modes::brake, 4);
+
+	turnToAngleSync(0);
+
+
 	moveDrive(-50, 0);
 	delay(250);
 	intakeOff();
 	moveInches(6);
-	aimAtBlue(2.5);
+	aimAtBlue(1);
 	shootSync(2);
 	intakeOn();
+	setFlywheelVel(2325);
 
 	turnToTargetSync({66, 40});
-	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
+	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 60);
 
-	aimAtBlue(2.5);
+	aimAtBlue(1);
 	shootSync(3);
 
-	master.printScroll("Time: %d", auton_timer.getTime());
+	moveInches(16, 127, E_Brake_Modes::brake, 4);
+	moveInches(-10, 127, E_Brake_Modes::brake, 6);
+	aimAtBlue(1);
+	WAIT_UNTIL(mag_ds.get_value() < MAG_DS_THRESH);
+	delay(250);
+	shootSync(1);
+
+	master.printScroll("Time: %lld", auton_timer.getTime());
 }
 
 void autonAWP(){
-
+	int temp = millis();
 	Timer auton_timer{"Auton_timer"};
-	setFlywheelVel(2190);
+	setFlywheelVel(2210);
 
 
-	tracking.reset({34, 12.25, 0.0}); // HAS TO ADJUST RESET
+	tracking.reset({34, 12.25, 0.0});
 
 	intakeOn();
 	moveDrive(-30, 0);
 	delay(250);
 	intakeOff();
 
-	moveToTargetSync({69.0, 55.0}); // Go to centre field
+	moveInches(12, 127, E_Brake_Modes::brake, 4);
+	
+	turnToTargetSync({71.0, 54.0}, 0.5); // Go to centre field
+	moveToTargetSync({71.0, 54.0}); // Go to centre field
 
 	aimAtBlue(1);
+	
+
 	shootSync(2);
   
-	setFlywheelVel(2280);
-	moveInches(-4);  // backup
+	setFlywheelVel(2320);
+	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
 
 	turnToTargetSync({102.0, 78.0}); // Face line
+
+
 
 	moveToTargetSync({102.0, 78.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
 
@@ -95,28 +119,45 @@ void autonAWP(){
   	// intake.waitToReachState(IntakeOffParams{});
 	shootSync(3);
 	
-	turnToTargetSync({128.0, 103.0}, -20.0, true); // Face roller
-	moveToTargetAsync({128.0, 103.0}, E_Brake_Modes::coast); // move to roller
+	turnToTargetSync({125.0, 108.0}, -20.0, true); // Face roller
+	moveToTargetSync({125.0, 108.0}, E_Brake_Modes::brake); // move to roller
 
-	// DO SKETCHY THING TO BREAK ONE SIDE OF DRIVEBASE FOR QUICK TURN AND THEN MOVE BACKWARDS
+	turnToAngleSync(-90);
 
-	master.print(2,0, "total:%ld", auton_timer.getTime());
+	moveDrive(-50, 0);
+	delay(300);
+	intakeOn();
+	WAIT_UNTIL(tracking.r_vel < 2);
+	intakeOff();
+	moveInches(8, 127, E_Brake_Modes::brake, 6);
+
+
+	master.printScroll("Time: %d  ", millis()-temp);
+	master.print(0, 0, "Time: %lld  ", auton_timer.getTime());
 
 }
 
-void autonLine(){ // No moving after start
-  Timer auton_timer{"Auton_timer"};
+void autonLine(){
+  	Timer auton_timer{"Auton_timer"};
 	tracking.reset({126.5, 82.25, degToRad(-90)});
-	setFlywheelVel(2350);
+	setFlywheelVel(2345);
 	intakeOn();
 
 	moveToTargetSync({106, 82.25});
 	master.printScroll("Time: %lld", auton_timer.getTime());
 
-	aimAtBlue(2.5);
+	aimAtBlue(0.5);
 
 	shootSync(3);
 	intakeOn();
+	setFlywheelVel(2300);
+	
+	// WAIT_UNTIL(false);
+
+	// turnToTargetSync({93, 93});
+	// moveInches(13, 127, E_Brake_Modes::brake, 4);
+	// moveInches(-13, 127, E_Brake_Modes::brake, 4);
+	// move to disc and away
 
 
 	turnToTargetSync({82, 59});
@@ -125,9 +166,9 @@ void autonLine(){ // No moving after start
 	master.printScroll("After move: %lld", auton_timer.getTime());
 
 
-	aimAtBlue(2.5);
+	aimAtBlue(0.5);
 	master.printScroll("After turn: %lld", auton_timer.getTime());
-	shootSync(2);
+	shootSync(3);
 	intakeOff();
 
 	turnToTargetSync({123, 111}, 0.0, true);
@@ -142,7 +183,7 @@ void autonLine(){ // No moving after start
 	delay(250);
 	intakeOff();
 	moveDrive(0, 0);
-	moveInches(2);
+	moveInches(5, 127, E_Brake_Modes::brake, 3);
 
 
 	master.printScroll("Final: %lld", auton_timer.getTime()); // End

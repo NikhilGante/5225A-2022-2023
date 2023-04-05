@@ -102,16 +102,8 @@ void trackingUpdate(){
 
       // std::array<double, 3> gyro_angles = {gyro_angle, gyro_angle2, gyro_angle3};
       // std::sort(gyro_angles.begin(), gyro_angles.end());
-      // double avg = (gyro_angles[0]+gyro_angles[1]+gyro_angles[2])/3;
 
-      // if (gyro_angles[1]-gyro_angles[0] > gyro_angles[2]-gyro_angles[1] && gyro_angles[2]-gyro_angles[1] < 0.1){
-      //   //  0 is wrong
-      // }
-      // else if (gyro_angles[1]-gyro_angles[0] > 0.1){
-      //   //ALL OF THEM ARE WRONG, lmao is wrong
-      // } else {
-      //   // 2 is wrong
-      // }
+      // theta = gyro_angles[1];
 
 
 
@@ -268,15 +260,6 @@ void turnToTargetSync(Vector target, double offset, bool reverse, E_Brake_Modes 
 
 void turnToTargetAsync(Vector target, double offset, bool reverse, E_Brake_Modes brake_mode, double end_error){
   drive.changeState(DriveTurnToTargetParams{target, offset, reverse, brake_mode, end_error});
-}
-
-void flattenAgainstWallSync(){
-  drive.changeState(DriveFlattenParams{});
-  tracking.waitForComplete();
-}
-
-void flattenAgainstWallAsync(){
-  drive.changeState(DriveFlattenParams{});
 }
 
 // Wrapper functions to aim at high goals
@@ -504,7 +487,7 @@ void DriveMttParams::handle(){
     // log("powers: %lf %lf power_y:%lf error_line_y: %lf\n", left_power, right_power, power_y, line_error.getY());
     // log("power_y: %lf, error_x: %lf, error_a: %lf\n", power_y, error_x, radToDeg(error_a));
 
-    log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
+    // log("%d, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), left_power, right_power, power_y, line_error.getY(), error_x, radToDeg(error_a), -line_error.getX(), radToDeg(line_angle), radToDeg(nearAngle(tracking.g_pos.a, line_angle)));
     
     if(fabs(tracking.r_vel) < 1){
       safety_count++;
@@ -555,48 +538,3 @@ void DriveTurnToTargetParams::handle(){
 
 }
 void DriveTurnToTargetParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
-
-// Drive Flatten state
-
-double rpmToInches(double rpm){
-  return (rpm / 60) * 3.25 * M_PI * 2/3;
-}
-
-const char* DriveFlattenParams::getName(){
-  return "DriveFlatten";
-}
-void DriveFlattenParams::handle(){  // Flattens against wall
-  double error;
-	// trans_p.setState(LOW);
-	// delay(100); // wait for tranmission to shift
-	Timer flatten_timeout{"flatten_timeout"};
-	double power;
-	double error_rate, last_error;
-	do {
-		// error  = ultra_right.get_value()-ultra_left.get_value();
-		error_rate = error - last_error;
-		last_error = error;
-
-		// pros::lcd::print(0, "Left: %d   ", ultra_left.get_value());
-		// pros::lcd::print(1, "Right: %d   ", ultra_right.get_value());
-		// pros::lcd::print(2, "error: %lf   ", error);
-
-		power = error*0.8;
-		if(fabs(error) <= 2) power = 0;
-		else if(fabs(power) < 30 && error_rate < 5) power = sgn(error) * tracking.min_move_power_a;
-		printf("Err: %lf pow: %lf\n", error, power);
-
-		moveDrive(0, power);
-		delay(10);
-
-	}
-	while (fabs(error) > 15 && flatten_timeout.getTime() < 1000);
-  moveDrive(0, 0); // frees drive
-	master.rumble("-");
-  log("CONTROLLER RUMBLING FROM LINE 458 in file tracking.cpp");
-
-  log("DRIVE ALIGN DONE, took %lld ms\n", flatten_timeout.getTime());
-  drive.changeState(DriveIdleParams{});
-}
-void DriveFlattenParams::handleStateChange(DRIVE_STATE_TYPES_VARIANT prev_state){}
-

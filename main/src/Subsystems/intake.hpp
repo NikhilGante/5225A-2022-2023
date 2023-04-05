@@ -3,7 +3,7 @@
 #include "../config.hpp"
 #include "../Libraries/state.hpp"
 
-#define MAG_DS_THRESH 1000
+#define MAG_DS_THRESH 1500
 
 void intakeHandleInput();
 

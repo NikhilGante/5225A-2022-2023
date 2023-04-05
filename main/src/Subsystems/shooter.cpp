@@ -128,7 +128,7 @@ void ShooterShootParams::handle(){
     log("%d STARTED SHOOTING\n", millis());
     shoot_timer.reset();
     indexer_p.setState(HIGH);	
-    _Task::delay(100); // Waits for SHOOTER to extend
+    _Task::delay(125); // Waits for SHOOTER to extend
     log(" %d FINISHED SHOT\n", millis());
     indexer_p.setState(LOW);
     log("%d FINISHED Retraction\n", millis());
@@ -152,7 +152,7 @@ void ShooterShootParams::handle(){
 
   }
   // Ends shooting if disc hasn't been seen for 2 seconds
-  if((match_load && disc_absence_timer.getTime() > 2000) || (shots_left <= 0 && clear_mag && disc_absence_timer.getTime() > 100)){
+  if((match_load && disc_absence_timer.getTime() > 2000) || (shots_left <= 0 && clear_mag && disc_absence_timer.getTime() > 250)){
     master.rumble("-"); // Lets driver know shooting is done
     // log("CONTROLLER RUMBLING FROM LINE 140 in file shooter.cpp");
     log("FINISHED MATCH LOADER, TIMED OUT\n");
@@ -167,6 +167,76 @@ void ShooterShootParams::handle(){
   }
 
 }
+
+/*
+void ShooterShootParams::handle(){
+
+    FLYWHEEL_STATE_TYPES_VARIANT temp_flywheel_state = flywheel.getState();
+    if(get_if<FlywheelMoveVelParams>(&temp_flywheel_state) && get_if<FlywheelMoveVelParams>(&temp_flywheel_state)->target_vel > barrier_rpm){
+      if(fabs(flywheel_error) > 100) cycle_check.reset();
+    }
+    else if(fabs(flywheel_error) > 150)  cycle_check.reset();
+    
+
+  disc_seen = mag_ds.get_value() < MAG_DS_THRESH;
+  if(disc_seen && !disc_seen_last){ // Disc Exited
+    log("%d JUST SAW mag: %d\n", millis(), mag_ds.get_value());
+
+    disc_seen_timer.reset();
+    disc_absence_timer.reset(false);
+  }
+  else if(disc_seen_last && !disc_seen){  // Disc left
+    log("%d JUST LOST DISK mag: %d\n", millis(), mag_ds.get_value());
+
+    disc_seen_timer.reset(false);
+    disc_absence_timer.reset();
+  }
+  disc_seen_last = disc_seen;
+
+
+  bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
+
+  if (angler_p.getState() == HIGH) trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
+  else if(pros::competition::is_autonomous()) trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50; // Trigger for autons
+  else if (match_load) trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 50 && disc_seen_timer.getTime() > 100; // Takes match load shot if disc settles in mag for 100ms
+  
+  
+  
+  if(trigger){
+    log("%d STARTED SHOOTING\n", millis());
+    shoot_timer.reset();
+    indexer_p.setState(HIGH);	
+    _Task::delay(100); // Waits for SHOOTER to extend
+    log(" %d FINISHED SHOT\n", millis());
+    indexer_p.setState(LOW);
+    log("%d FINISHED Retraction\n", millis());
+    shots_left--;
+    log("shots left: %d\n", shots_left);
+    if (g_mag_disc_count > 0) g_mag_disc_count--;
+    
+
+    _Task::delay(75); // wait for SHOOTER to retract
+
+  }
+
+  
+  if (shots_left <= -2 || (clear_mag && disc_absence_timer.getTime() > 100 && shots_left <= 0) || (match_load && disc_absence_timer.getTime() > 2000) || (!clear_mag && shots_left <= 0)){
+      master.rumble("-");
+      log("FINISHED SHOOTING\n");
+      if (clear_mag) g_mag_disc_count = 0;
+      _Task::delay(150);
+      if(mag_ds.get_value() > MAG_DS_THRESH)  intakeOn();
+      
+      shooter.changeState(ShooterIdleParams{});
+      
+      
+      
+  }
+ 
+
+}
+*/
+
 void ShooterShootParams::handleStateChange(SHOOTER_STATE_TYPES_VARIANT prev_state){
   // angler_p.setState(LOW);
   log("INIT shots_left %d\n", shots_left);

@@ -30,7 +30,7 @@ ADIAnalogIn shooter_ds('A');
 Rotation flywheel_rot_sensor(7);
 
 Piston angler_p({e_port, 'E'}, "angler_p", false, LOW); 
-Piston trans_p({e_port, 'C'}, "trans_p", true, HIGH);
+Piston trans_p({e_port, 'F'}, "trans_p", true, HIGH);
 Piston endgame_s_p('B', "endgame_s_p", false, LOW); // Single acting
 Piston endgame_d_p('C', "endgame_d_p", false, LOW); // Double acting
 

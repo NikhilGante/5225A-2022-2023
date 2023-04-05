@@ -17,7 +17,6 @@
 #include "drive.hpp"
 #include "config.hpp"
 #include "Libraries/controller.hpp"
-#include "programutil.hpp"
 
 #include "pros/llemu.hpp"
 #include "pros/rtos.h"
@@ -98,7 +97,7 @@ void autonomous() {
 
 	WAIT_UNTIL(!gyro.is_calibrating());
 
-	if (program_state != E_Program_Options::DRIVER_SKILLS) Auton::runAuton();
+	Auton::runAuton();
 
 }
 
@@ -106,9 +105,11 @@ void autonomous() {
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
+Auton auton4("Blank", [](){master.print(0, 0, "BLANK AUTON");});
 
 
 
 void opcontrol() {
+	// tracking.reset({32, 12.25, degToRad(53.0)});
 	util_selector();
 }

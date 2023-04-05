@@ -4,7 +4,7 @@
 using namespace pros;
 
 
-void moveInches(double target, double max_power = 127, E_Brake_Modes brake_mode = E_Brake_Modes::brake);
+void moveInches(double target, double max_power = 127, E_Brake_Modes brake_mode = E_Brake_Modes::brake, double end_error = 0.5);
 
 void autonStack();
 void autonAWP();

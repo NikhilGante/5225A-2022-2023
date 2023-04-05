@@ -83,7 +83,6 @@ void FlywheelMoveVelParams::handle(){
   output = std::clamp(output, -5.0, 127.0);
   // output = 127;
   
-  #ifdef LOGS
   // log("%d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %d\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, smoothed_vel, mag_ds.get_value());
 
   if(log_timer.getTime() > 120 && shooter_ds.get_value() < SHOOTER_DS_THRESH){
@@ -97,7 +96,6 @@ void FlywheelMoveVelParams::handle(){
     // log("FLYWHEEL , %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel, intake_m.get_actual_velocity());
   }
   
-  #endif
 
   if(!master.is_connected()){
     log("%lld CONNECTION LOST, RESTARTING FLYWHEEL\n", op_control_timer.getTime());
