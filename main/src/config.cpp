@@ -31,8 +31,8 @@ Rotation flywheel_rot_sensor(7);
 
 Piston angler_p({e_port, 'E'}, "angler_p", false, LOW); 
 Piston trans_p({e_port, 'F'}, "trans_p", true, HIGH);
-Piston endgame_s_p('B', "endgame_s_p", false, LOW); // Single acting
-Piston endgame_d_p('C', "endgame_d_p", false, LOW); // Double acting
+Piston endgame_s_p({e_port, 'A'}, "endgame_s_p", false, LOW); // Single acting
+Piston endgame_d_p('B', "endgame_d_p", false, LOW); // Double acting
 
 Imu gyro(9);
 

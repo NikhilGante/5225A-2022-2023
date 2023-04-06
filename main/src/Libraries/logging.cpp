@@ -53,7 +53,7 @@ void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
     while(true){
-      if(queue_size > 2000 || log_timer.getTime() > 500 && queue_size != 0){
+      if(queue_size > 2000 || (log_timer.getTime() > 500 && queue_size != 0)){
         
         log_mutex.take();
         if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");

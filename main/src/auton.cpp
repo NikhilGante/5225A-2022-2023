@@ -49,36 +49,24 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode, doubl
 void autonStack(){
   Timer auton_timer{"Auton_timer"};
 
-	setFlywheelVel(2400);
-	tracking.reset({31.75, 13.5, degToRad(-45)});
+	setFlywheelVel(2350);
+	tracking.reset({34, 12.25, 0.0});
 	intakeOn();
-	moveInches(10, 127, E_Brake_Modes::brake, 4);
-	moveInches(-10, 127, E_Brake_Modes::brake, 4);
-
-	turnToAngleSync(0);
-
-
 	moveDrive(-50, 0);
 	delay(250);
 	intakeOff();
 	moveInches(6);
-	aimAtBlue(1);
+	aimAtBlue(2.5);
 	shootSync(2);
 	intakeOn();
-	setFlywheelVel(2325);
 
 	turnToTargetSync({66, 40});
-	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 60);
+	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
 
-	aimAtBlue(1);
+	aimAtBlue(2.5);
 	shootSync(3);
 
-	moveInches(16, 127, E_Brake_Modes::brake, 4);
-	moveInches(-10, 127, E_Brake_Modes::brake, 6);
-	aimAtBlue(1);
-	WAIT_UNTIL(mag_ds.get_value() < MAG_DS_THRESH);
-	delay(250);
-	shootSync(1);
+	master.printScroll("Time: %d", auton_timer.getTime());
 
 	master.printScroll("Time: %lld", auton_timer.getTime());
 }
