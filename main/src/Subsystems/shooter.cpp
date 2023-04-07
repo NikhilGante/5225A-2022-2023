@@ -5,8 +5,8 @@
 #include "../Libraries/logging.hpp"
 #include "pros/misc.hpp"
 
-const int toaster_rpm = 1460;
-const int barrier_rpm = 1800;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
+const int toaster_rpm = 1470;
+const int barrier_rpm = 1780;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -30,6 +30,9 @@ void shooterHandleInput(){
     }
     if(master.get_digital_new_press(singleShotBtn)){
       log("%lld | SHOOT 1 BUTTON PRESSED\n", op_control_timer.getTime());
+      if(angler_p.getState()){
+        
+      }
       shoot(1, false, false);
     }
   }
@@ -106,7 +109,7 @@ void ShooterShootParams::handle(){
   disc_seen_last = disc_seen;
 
 
-  bool trigger = shoot_timer.getTime() > 250 && cycle_check.getTime() >= 10; // Doesn't wait for flywheel because we want driver to shoot no matter what
+  bool trigger = shoot_timer.getTime() > 280; // Doesn't wait for flywheel because we want driver to shoot no matter what
   // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
 
   // log("%d mag: %d\n", millis(), mag_ds.get_value());
@@ -143,21 +146,28 @@ void ShooterShootParams::handle(){
       master.rumble("-"); // Lets driver know shooting is done
       // log("CONTROLLER RUMBLING FROM LINE 126 in file shooter.cpp");
       if(clear_mag) g_mag_disc_count = 0;
-      _Task::delay(150); // Waits for last disc to shoot
+      _Task::delay(150); // Waits for last disc to exit magazine before turning intake off
       // Sets subsystems back to their state before shooting
-      if(mag_ds.get_value() > MAG_DS_THRESH)  intakeOn();
+      if(angler_p.getState() && mag_ds.get_value() < MAG_DS_THRESH)  intakeOff();
+      else  intakeOn();
+      log("Shooting finished because shots finished are done\n");
       shooter.changeState(ShooterIdleParams{});
 
     }
 
   }
-  // Ends shooting if disc hasn't been seen for 2 seconds
-  if((match_load && disc_absence_timer.getTime() > 2000) || (shots_left <= 0 && clear_mag && disc_absence_timer.getTime() > 250)){
+  // Ends shooting if mag is empty for 2 seconds while match loading or mag is empty for > 150 ms
+  // if((match_load && disc_absence_timer.getTime() > 2000) || (clear_mag && disc_absence_timer.getTime() > 150)){
+  
+  
+  if(clear_mag && disc_absence_timer.getTime() > (angler_p.getState() ? 230: 70)){  // Ends shooting if mag is empty for > 150 ms
+
     master.rumble("-"); // Lets driver know shooting is done
     // log("CONTROLLER RUMBLING FROM LINE 140 in file shooter.cpp");
-    log("FINISHED MATCH LOADER, TIMED OUT\n");
+    log("Shooting finished because MAG EMPTY\n");
 
-    if(clear_mag) g_mag_disc_count = 0;
+
+    g_mag_disc_count = 0;
     // Sets subsystems back to their state before shooting
     intakeOn();
     shooter.changeState(ShooterIdleParams{});

@@ -112,9 +112,9 @@ public:
           variant<StateTypes...> target_state_cpy = getTargetState();
           variant<StateTypes...> state_cpy = getState();
           // Calls handle state change method for target state and logs the change
-          log("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          // log("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
-          log("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
+          // log("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           setState(target_state_cpy);
 
           state_change_requested = false;

@@ -87,7 +87,7 @@ void FlywheelMoveVelParams::handle(){
 
   if(log_timer.getTime() > 120 && shooter_ds.get_value() < SHOOTER_DS_THRESH){
     disc_correction_timer.reset();  // Flywheel rpm shouldn't be corrected for the next 200 ms
-    log("DISC CONTACTED FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel);
+    log("DISC CONTACTED FLYWHEEL | %d, %d, %d, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n", millis(), shooter_ds.get_value()+1000, target_vel, flywheel_error.load(), output, target_vel * kB, correction, rot_vel);
     // log("DISC CONTACTED FLYWHEEL\n");
     log_timer.reset();
 

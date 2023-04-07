@@ -43,7 +43,7 @@ struct IntakeOnParams{
 private:
   int mag_ds_val;
   bool mag_disc_detected = false, mag_disc_detected_last = false;
-  static const int mag_disc_thresh = 1000;
+  static const int intk_disc_thresh = 1500;
 };
 
 void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on

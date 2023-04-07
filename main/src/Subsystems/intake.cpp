@@ -82,8 +82,8 @@ const char* IntakeOnParams::getName(){
 void IntakeOnParams::handle(){  // synchronous state
   mag_ds_val = intk_ds.get_value();
   // printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
-  // mag_ds_val = mag_disc_thresh + 1;
-  mag_disc_detected = mag_ds_val < mag_disc_thresh;
+  // mag_ds_val = intk_disc_thresh + 1;
+  mag_disc_detected = mag_ds_val < intk_disc_thresh;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
