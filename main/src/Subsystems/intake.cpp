@@ -80,7 +80,14 @@ const char* IntakeOnParams::getName(){
   return "IntakeOn";
 }
 void IntakeOnParams::handle(){  // synchronous state
-  mag_ds_val = intk_ds.get_value();
+
+
+  if (intake_m.get_actual_velocity() < 100) jam_cycle++;
+  else jam_cycle = 0;
+
+
+  if (disc_override) mag_ds_val = intk_disc_thresh+1;
+  else mag_ds_val = intk_ds.get_value();
   // printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
   // mag_ds_val = intk_disc_thresh + 1;
   mag_disc_detected = mag_ds_val < intk_disc_thresh;
@@ -97,11 +104,24 @@ void IntakeOnParams::handle(){  // synchronous state
   // If mag is full, don't let any more discs in
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
+  if (jam_cycle >= 20){
+    master.rumble("...");
+    log("INTAKE JAM LMAO\n");
+
+    intakeOff();
+  }
+
   if(g_mag_disc_count >= 3) {
     log("COUNTED 3\n");
     master.rumble("-");
     // log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
-    _Task::delay(140);
+
+
+    int x = intake_m.get_position();
+    WAIT_UNTIL(fabs(x-intake_m.get_position()) > 200);
+
+    
+    // _Task::delay(20);
 
     // Flushes out 4th disc if in auto
     // if(g_mag_disc_count > 3 && pros::competition::is_autonomous()){
@@ -119,6 +139,7 @@ void IntakeOnParams::handle(){  // synchronous state
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
 void IntakeOnParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
+  jam_cycle = 0;
   angler_p.setState(LOW);
   intake_m.move(speed);
   handleRpm();

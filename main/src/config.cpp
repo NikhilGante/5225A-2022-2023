@@ -22,7 +22,7 @@ Motor flywheel_m(18, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 
 Piston indexer_p({e_port, 'G'}, "indexer_p", false, LOW);
 
-ADIAnalogIn intk_ds('G');
+ADIAnalogIn intk_ds('C');
 
 ADIAnalogIn mag_ds({e_port, 'D'});
 ADIAnalogIn shooter_ds('A');

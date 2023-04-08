@@ -49,24 +49,30 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode, doubl
 void autonStack(){
   Timer auton_timer{"Auton_timer"};
 
-	setFlywheelVel(2350);
+	setFlywheelVel(2420);
 	tracking.reset({34, 12.25, 0.0});
 	intakeOn();
 	moveDrive(-50, 0);
 	delay(250);
 	intakeOff();
 	moveInches(6);
-	aimAtBlue(2.5);
+	aimAtBlue(1);
 	shootSync(2);
 	intakeOn();
+	setFlywheelVel(2325);
 
 	turnToTargetSync({66, 40});
 	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
 
-	aimAtBlue(2.5);
+	aimAtBlue(1);
 	shootSync(3);
 
-	master.printScroll("Time: %d", auton_timer.getTime());
+
+	delay(100);
+	angler_p.toggleState();
+	delay(150);
+	angler_p.toggleState();
+
 
 	master.printScroll("Time: %lld", auton_timer.getTime());
 }
@@ -97,25 +103,35 @@ void autonAWP(){
 	setFlywheelVel(2320);
 	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
 
-	turnToTargetSync({102.0, 78.0}); // Face line
+	turnToTargetSync({100.0, 76.0}); // Face line
 
 
 
-	moveToTargetSync({102.0, 78.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
+	moveToTargetSync({100.0, 76.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
 
   	aimAtBlue(0.5);
   	// intake.waitToReachState(IntakeOffParams{});
 	shootSync(3);
 	
-	turnToTargetSync({125.0, 108.0}, -20.0, true); // Face roller
-	moveToTargetSync({125.0, 108.0}, E_Brake_Modes::brake); // move to roller
+	turnToTargetSync({122.0, 108.0}, 0, true); // Face roller
+	moveToTargetAsync({122.0, 108.0}, E_Brake_Modes::brake); // move to roller
 
+	delay(100);
+	angler_p.toggleState();
+	delay(150);
+	angler_p.toggleState();
+
+
+	tracking.waitForComplete();
+
+	intakeOff();
 	turnToAngleSync(-90);
 
 	moveDrive(-50, 0);
 	delay(300);
 	intakeOn();
-	WAIT_UNTIL(tracking.r_vel < 2);
+	log("INIT VEL OF ROLLER: %f", tracking.r_vel);
+	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
 	intakeOff();
 	moveInches(8, 127, E_Brake_Modes::brake, 6);
 
@@ -159,14 +175,21 @@ void autonLine(){
 	shootSync(3);
 	intakeOff();
 
-	turnToTargetSync({123, 111}, 0.0, true);
-	moveToTargetSync({123, 111}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
+	turnToTargetSync({122, 108}, 0.0, true);
+	moveToTargetAsync({122, 108}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
+
+	delay(100);
+	angler_p.toggleState();
+	delay(150);
+	angler_p.toggleState();
+
+	tracking.waitForComplete();
 
 	turnToAngleSync(-90);
 
 	moveDrive(-40, 0);
 	delay(250);
-	WAIT_UNTIL(tracking.r_vel < 2);
+	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
 	intakeOn();
 	delay(250);
 	intakeOff();

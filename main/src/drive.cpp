@@ -9,7 +9,7 @@
 Timer op_control_timer{"shoot_timer"};
 
 double drive_curvature = 1.0;
-double angle_curvature = 2.0;
+double angle_curvature = 2;
 
 const int deadzone = 7;
 
@@ -86,7 +86,7 @@ bool last_backwards = false;
 double l_power_last, r_power_last;
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = 0.65 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
   if(fabs(power_y) < deadzone) power_y = 0;
  
@@ -128,7 +128,7 @@ void driveHandleInputProg(){
   int power_x, power_y, power_a;
 
   power_y = master.get_analog(ANALOG_LEFT_Y);
-  power_a = 0.7 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  power_a = 0.6 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
 
   if(abs(power_y) < deadzone) power_y = 0;
   if(abs(power_a) < deadzone) power_a = 0;

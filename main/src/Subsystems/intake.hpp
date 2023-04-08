@@ -41,9 +41,10 @@ struct IntakeOnParams{
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 
 private:
-  int mag_ds_val;
+  int mag_ds_val, jam_cycle = 0;
   bool mag_disc_detected = false, mag_disc_detected_last = false;
   static const int intk_disc_thresh = 1500;
+  bool disc_override = false;
 };
 
 void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on
