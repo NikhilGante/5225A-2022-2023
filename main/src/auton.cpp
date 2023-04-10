@@ -92,8 +92,8 @@ void autonAWP(){
 
 	moveInches(12, 127, E_Brake_Modes::brake, 4);
 	
-	turnToTargetSync({71.0, 54.0}, 0.5); // Go to centre field
-	moveToTargetSync({71.0, 54.0}); // Go to centre field
+	turnToTargetSync({68.0, 51.0}, 0.5); // Go to centre field
+	moveToTargetSync({68.0, 51.0}); // Go to centre field
 
 	aimAtBlue(1);
 	
@@ -107,7 +107,7 @@ void autonAWP(){
 
 
 
-	moveToTargetSync({100.0, 76.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
+	moveToTargetSync({103.0, 79.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
 
   	aimAtBlue(0.5);
   	// intake.waitToReachState(IntakeOffParams{});
@@ -198,5 +198,72 @@ void autonLine(){
 
 
 	master.printScroll("Final: %lld", auton_timer.getTime()); // End
+
+}
+void autonAWP2(){
+	int temp = millis();
+	Timer auton_timer{"Auton_timer"};
+	setFlywheelVel(2210);
+
+
+	tracking.reset({34, 12.25, 0.0});
+
+	intakeOn();
+	moveDrive(-30, 0);
+	delay(250);
+	intakeOff();
+
+	moveInches(12, 127, E_Brake_Modes::brake, 4);
+	
+	turnToTargetSync({68.0, 51.0}, 0.5); // Go to centre field
+	moveToTargetSync({68.0, 51.0}); // Go to centre field
+
+	aimAtBlue(1);
+	
+
+	shootSync(2);
+  
+	setFlywheelVel(2340);
+	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
+
+	turnToTargetSync({100.0, 76.0}); // Face line
+
+
+
+	moveToTargetSync({100.0, 79.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
+
+  	aimAtBlue(0.5);
+  	// intake.waitToReachState(IntakeOffParams{});
+	shootSync(3);
+	
+	turnToTargetSync({118.0, 108.0}, 0, true); // Face roller4
+	moveToTargetAsync({118.0, 108.0}, E_Brake_Modes::brake, 127, 2.0); // move to roller
+
+
+	delay(100);
+	angler_p.toggleState();
+	delay(150);
+	angler_p.toggleState();
+
+
+	tracking.waitForDistance(25.0);
+	intakeOff();
+	moveToTargetAsync({134.0, 108.0}, E_Brake_Modes::brake, 127, 2.0); // move to roller
+	tracking.waitForDistance(12.0);
+	drive.changeState(DriveIdleParams{});
+
+	// turnToAngleSync(-90);
+
+	moveDrive(-50, 0);
+	delay(300);
+	intakeOn();
+	log("INIT VEL OF ROLLER: %f", tracking.r_vel);
+	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
+	intakeOff();
+	moveInches(8, 127, E_Brake_Modes::brake, 6);
+
+
+	master.printScroll("Time: %d  ", millis()-temp);
+	master.print(0, 0, "Time: %lld  ", auton_timer.getTime());
 
 }

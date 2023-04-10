@@ -11,7 +11,10 @@ extern Rotation left_tracker, right_tracker, back_tracker;
 
 extern Piston indexer_p;
 
-extern ADIAnalogIn intk_ds;
+extern ADIAnalogIn uptk_ds, intk_ds;
+extern ADIDigitalIn intk_lim_switch;
+extern Distance intk_dist;
+
 extern ADIAnalogIn mag_ds;
 extern ADIAnalogIn shooter_ds;
 

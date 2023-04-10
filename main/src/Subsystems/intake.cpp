@@ -81,16 +81,25 @@ const char* IntakeOnParams::getName(){
 }
 void IntakeOnParams::handle(){  // synchronous state
 
+  /*
+  case 1 (3 in mag, no other discs):
+    turn off
+  case 2 (3 in mag, 1 in uptk):
+    turn off, notify driver
+    Detection: 3 in mag and line tracker
+  case 3 (3 in mag, 1 in intk):
+    turn off, notify driver
+    Detection: 3 in mag and 1 on lim switch 
+  */
 
   if (intake_m.get_actual_velocity() < 100) jam_cycle++;
   else jam_cycle = 0;
 
 
-  if (disc_override) mag_ds_val = intk_disc_thresh+1;
-  else mag_ds_val = intk_ds.get_value();
+  mag_ds_val = uptk_ds.get_value();
   // printf("INTK | %d %d, count: %d\n", millis(), mag_ds_val, g_mag_disc_count.load());
   // mag_ds_val = intk_disc_thresh + 1;
-  mag_disc_detected = mag_ds_val < intk_disc_thresh;
+  mag_disc_detected = mag_ds_val < UPTK_DS_THRESH;
 
   if(!mag_disc_detected && mag_disc_detected_last){	// disk just now left mag sensor (entered mag)
     g_mag_disc_count++;
@@ -106,7 +115,7 @@ void IntakeOnParams::handle(){  // synchronous state
   
   if (jam_cycle >= 20){
     master.rumble("...");
-    log("INTAKE JAM LMAO\n");
+    log("%d INTAKE JAM LMAO\n", millis());
 
     intakeOff();
   }
@@ -117,10 +126,15 @@ void IntakeOnParams::handle(){  // synchronous state
     // log("CONTROLLER RUMBLING FROM LINE 72 in file intake.cpp");
 
 
-    int x = intake_m.get_position();
-    WAIT_UNTIL(fabs(x-intake_m.get_position()) > 200);
+    int x = millis();
+    WAIT_UNTIL(millis() - x > 50 || uptk_ds.get_value() < UPTK_DS_THRESH);
 
-    
+    if(!pros::competition::is_autonomous()){
+      if(diskInIntake())  intakeOff();
+      else intakeRev();
+
+    }
+    else intakeOff();
     // _Task::delay(20);
 
     // Flushes out 4th disc if in auto
@@ -133,8 +147,9 @@ void IntakeOnParams::handle(){  // synchronous state
 
     // }
     // else 
-    intakeOff();
   }
+
+  printf("Sensors: %d %d %d %d\n", intk_lim_switch.get_value(), intk_dist.get(), intk_ds.get_value(), uptk_ds.get_value());
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }
@@ -154,7 +169,13 @@ void intakeOn(int8_t speed){
 const char* IntakeOffParams::getName(){
   return "IntakeOff";
 }
-void IntakeOffParams::handle(){}
+void IntakeOffParams::handle(){
+
+  if(g_mag_disc_count >= 3 && diskInIntake() && possession_notify_timer.getTime() > 200) {
+    master.rumble("..");
+    possession_notify_timer.reset();
+  }
+}
 void IntakeOffParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
   intake_m.move(0);
 }
@@ -219,4 +240,8 @@ void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state
 
 void spinRoller(double degrees){  // Wrapper function to make intake index discs
   intake.changeState(IntakeRollerParams{degrees});
+}
+
+bool diskInIntake(){
+  return intk_ds.get_value() < 2300 || !intk_lim_switch.get_value() || intk_dist.get() < 50 || uptk_ds.get_value() < UPTK_DS_THRESH; 
 }

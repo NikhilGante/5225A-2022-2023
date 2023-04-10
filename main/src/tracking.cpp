@@ -156,7 +156,7 @@ void trackingUpdate(){
     if(tracking_timer.getTime() > 250){
       // lcd::print(2, "l:%lf r:%lf", new_left, new_right);
       lcd::print(4, "GYRO:%.2lf deg: %.2lf", gyro.get_rotation() * 1.0027, radToDeg(tracking.g_pos.a));
-      // log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
+      log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
       // log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.a, (tracking.l_vel + tracking.r_vel)/2);
       // log("%lf\n", radToDeg(tracking.g_vel.a));
       // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));

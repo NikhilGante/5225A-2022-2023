@@ -4,6 +4,7 @@
 #include "../Libraries/state.hpp"
 
 #define MAG_DS_THRESH 1500
+#define UPTK_DS_THRESH 1500
 
 void intakeHandleInput();
 
@@ -43,8 +44,7 @@ struct IntakeOnParams{
 private:
   int mag_ds_val, jam_cycle = 0;
   bool mag_disc_detected = false, mag_disc_detected_last = false;
-  static const int intk_disc_thresh = 1500;
-  bool disc_override = false;
+  bool disc_override = true;
 };
 
 void intakeOn(int8_t speed = 127);  // Wrapper function to turn intake on
@@ -53,6 +53,8 @@ struct IntakeOffParams{
   const char* getName();
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
+private:
+  Timer possession_notify_timer{"possession_notify_timer"};
 };
 
 void intakeOff();  // Wrapper function to turn intake off
@@ -91,3 +93,5 @@ struct IntakeRollerParams{
 };
 
 void spinRoller(double degrees = 300);  // Wrapper function to make intake index discs
+
+bool diskInIntake();

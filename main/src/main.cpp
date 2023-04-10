@@ -110,7 +110,11 @@ Auton auton4("Blank", [](){master.print(0, 0, "BLANK AUTON");});
 
 
 void opcontrol() {
-
+	// while(true){
+	// 	printf("Sensors: %d %d %d %d\n", intk_lim_switch.get_value(), intk_dist.get(), intk_ds.get_value(), uptk_ds.get_value());
+	// 	// printf("%d\n", diskInIntake());
+	// 	delay(10);
+	// }
 
 	// util_selector();
 	driverPractice();

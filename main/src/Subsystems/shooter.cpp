@@ -109,13 +109,13 @@ void ShooterShootParams::handle(){
   disc_seen_last = disc_seen;
 
 
-  bool trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
+  bool trigger = shoot_timer.getTime() > 250 && (clear_mag ? disc_seen: true); // Doesn't wait for flywheel because we want driver to shoot no matter what
   // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 50;
 
   // log("%d mag: %d\n", millis(), mag_ds.get_value());
 
   if (angler_p.getState() == HIGH){
-    trigger = shoot_timer.getTime() > 250; // Doesn't wait for flywheel because we want driver to shoot no matter what
+    trigger = shoot_timer.getTime() > 250 && (clear_mag ? disc_seen: true); // Doesn't wait for flywheel because we want driver to shoot no matter what
     // trigger = shoot_timer.getTime() > 400 && cycle_check.getTime() >= 30;
   } 
   else if(pros::competition::is_autonomous()){
@@ -160,7 +160,7 @@ void ShooterShootParams::handle(){
   // if((match_load && disc_absence_timer.getTime() > 2000) || (clear_mag && disc_absence_timer.getTime() > 150)){
   
   
-  if(clear_mag && disc_absence_timer.getTime() > (angler_p.getState() ? 230: 125) && shots_left <= 0){  // Ends shooting if mag is empty for > 150 ms
+  if(clear_mag && disc_absence_timer.getTime() > (angler_p.getState() ? 230: 125)){  // Ends shooting if mag is empty for > 150 ms
 
     master.rumble("-"); // Lets driver know shooting is done
     // log("CONTROLLER RUMBLING FROM LINE 140 in file shooter.cpp");
