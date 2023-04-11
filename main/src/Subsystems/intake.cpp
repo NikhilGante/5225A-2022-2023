@@ -92,8 +92,8 @@ void IntakeOnParams::handle(){  // synchronous state
     Detection: 3 in mag and 1 on lim switch 
   */
 
-  if (intake_m.get_actual_velocity() < 100) jam_cycle++;
-  else jam_cycle = 0;
+  // if (intake_m.get_actual_velocity() < 100) jam_cycle++;
+  // else jam_cycle = 0;
 
 
   mag_ds_val = uptk_ds.get_value();
@@ -113,12 +113,12 @@ void IntakeOnParams::handle(){  // synchronous state
   // If mag is full, don't let any more discs in
   // printf("%d MAG| %d %d\n", millis(), mag_ds_val, g_mag_disc_count.load());  
   
-  if (jam_cycle >= 20){
-    master.rumble("...");
-    log("%d INTAKE JAM LMAO\n", millis());
+  // if (jam_cycle >= 20){
+  //   master.rumble("...");
+  //   log("%d INTAKE JAM LMAO\n", millis());
 
-    intakeOff();
-  }
+  //   intakeOff();
+  // }
 
   if(g_mag_disc_count >= 3) {
     log("COUNTED 3\n");
