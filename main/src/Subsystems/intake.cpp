@@ -217,29 +217,25 @@ void intakeIndex(int8_t speed){  // Wrapper function to make intake index discs
 }
 
 
-IntakeRollerParams::IntakeRollerParams(double degrees): degrees(degrees){}
+IntakeRollerParams::IntakeRollerParams(){}
 
 const char* IntakeRollerParams::getName(){
   return "IntakeRoller";
 }
 void IntakeRollerParams::handle(){
-  Timer roller_timer{"roller_timer"};
-  drive.changeState(DriveIdleParams{});
-  drive.waitToReachState(DriveIdleParams{});
 
-	intake_m.move(127);
-	moveDrive(-50, 0);
-  
+  intake_m.move(127);
+  WAIT_UNTIL(!master.get_digital(singleShotBtn));
 
+  intake.changeState(intake.getPrevState());
 
-	intakeOff();
 
 }
 void IntakeRollerParams::handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state){
 }
 
-void spinRoller(double degrees){  // Wrapper function to make intake index discs
-  intake.changeState(IntakeRollerParams{degrees});
+void rollerOpControl(){  // Wrapper function to make intake index discs
+  intake.changeState(IntakeRollerParams{});
 }
 
 bool diskInIntake(){

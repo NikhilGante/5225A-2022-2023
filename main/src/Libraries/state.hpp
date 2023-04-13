@@ -47,8 +47,8 @@ using namespace pros;
 template <typename... StateTypes>
 class Machine{
   // The Base state is what the machine returns to after any operation, and the first state it enters
-  variant<StateTypes...> state, target_state, base_state;
-  pros::Mutex state_mutex, target_state_mutex;
+  variant<StateTypes...> state, target_state, base_state, prev_state;
+  pros::Mutex state_mutex, target_state_mutex, prev_state_mutex;
   const char* name;
 
   atomic<bool> state_change_requested = false;
@@ -89,6 +89,13 @@ public:
     return temp;
   }
 
+  variant<StateTypes...> getPrevState(){
+    prev_state_mutex.take(TIMEOUT_MAX);
+    variant<StateTypes...> temp = prev_state;
+    prev_state_mutex.give();
+    return temp;
+  }
+
   variant<StateTypes...> getTargetState(){
     target_state_mutex.take(TIMEOUT_MAX);
     variant<StateTypes...> temp = target_state;
@@ -114,6 +121,9 @@ public:
           // Calls handle state change method for target state and logs the change
           // log("%s state change started from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           visit([&](auto&& arg){arg.handleStateChange(state_cpy);}, target_state_cpy);
+          prev_state_mutex.take();
+          prev_state = state_cpy;
+          prev_state_mutex.give();
           // log("%s state change finished from %s to %s\n", name, getStateName(state_cpy), getStateName(target_state_cpy));
           setState(target_state_cpy);
 

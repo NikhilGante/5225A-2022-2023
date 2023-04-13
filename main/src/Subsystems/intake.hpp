@@ -84,14 +84,13 @@ struct IntakeIndexParams{
 void intakeIndex(int8_t speed = -127);  // Wrapper function to make intake index discs
 
 struct IntakeRollerParams{
-  double degrees; // How many degrees to spin the roller
-  IntakeRollerParams(double degrees = 300); // 300 for auto, 500 for skills
+  IntakeRollerParams(); // 300 for auto, 500 for skills
 
   const char* getName();
   void handle();
   void handleStateChange(INTAKE_STATE_TYPES_VARIANT prev_state);
 };
 
-void spinRoller(double degrees = 300);  // Wrapper function to make intake index discs
+void rollerOpControl();  // Wrapper function to make intake index discs
 
 bool diskInIntake();

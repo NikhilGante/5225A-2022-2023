@@ -19,6 +19,8 @@ Timer ShooterShootParams::disc_absence_timer{"disc_absence_timer"};
 bool angleOverride = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
+Timer roller_timer("roller_time");
+
 
 void shooterHandleInput(){
   SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
@@ -29,13 +31,19 @@ void shooterHandleInput(){
       shoot(3);
     }
     if(master.get_digital_new_press(singleShotBtn)){
+      roller_timer.reset();
+    }
+    if (roller_timer.getTime() > 300){
+      roller_timer.reset(false);
+      rollerOpControl();
+    }
+    if (roller_timer.getTime() <= 300 && master.isFalling(singleShotBtn)){
+      roller_timer.reset(false);
       log("%lld | SHOOT 1 BUTTON PRESSED\n", op_control_timer.getTime());
-      if(angler_p.getState()){
-        
-      }
       shoot(1, false, false);
     }
   }
+
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
     log("%lld | ANGLER TOGGLE BUTTON PRESSED\n", op_control_timer.getTime());
@@ -44,16 +52,6 @@ void shooterHandleInput(){
     else if(g_mag_disc_count < 3) intakeOn();
     handleRpm();
   } 
-
-  // if (master.get_digital_new_press(angleOverrideBtn)) {
-  //   angleOverride = !angleOverride; 
-  //   handleRpm();
-  // }
-
-  // if(master.get_digital_new_press(goalDisturbBtn)){
-  //   goal_disturb = !goal_disturb;
-  //   if(goal_disturb && angler_p.getState() == 1)  setFlywheelVel(3600);
-  // }
   
   
 }
