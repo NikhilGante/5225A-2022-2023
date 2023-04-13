@@ -45,13 +45,7 @@ void intakeHandleInput(){
   // Spin roller if btn is pressed and not already spinning
   if(master.isRising(rollerBtn) && !get_if<IntakeIndexParams>(&cur_state)){
     log("%lld | ROLLER BUTTON RISING\n", op_control_timer.getTime());
-    intake.changeState(IntakeIdleParams{});
-    intake.waitToReachState(IntakeIdleParams{});
-    intake_m.move(127); // Operates intake manually so disc count doesn't turn it off
-  }
-  else if (master.isFalling(rollerBtn)){
-    log("%lld | ROLLER BUTTON RELEASED\n", op_control_timer.getTime());
-    intakeOff();
+    rollerOpControl();
   }
 
   
@@ -225,7 +219,7 @@ const char* IntakeRollerParams::getName(){
 void IntakeRollerParams::handle(){
 
   intake_m.move(127);
-  WAIT_UNTIL(!master.get_digital(singleShotBtn));
+  WAIT_UNTIL(master.isFalling(rollerBtn));
 
   intake.changeState(intake.getPrevState());
 

@@ -27,14 +27,14 @@ extern controller_digital_e_t endgameBtnLeft;
 extern controller_digital_e_t intakeToggleBtn;
 extern controller_digital_e_t intakeRevBtn;
 extern controller_digital_e_t endgameBtnRight;
-extern controller_digital_e_t rollerBtn;
+// extern controller_digital_e_t rollerBtn;
 
 
 // ------------------------------ Front Buttons ------------------------------
 extern controller_digital_e_t anglerToggleBtn;
 extern controller_digital_e_t transToggleBtn;
-extern controller_digital_e_t singleShotBtn;
-extern controller_digital_e_t tripleShotBtn;
+extern controller_digital_e_t ShotBtn;
+extern controller_digital_e_t rollerBtn;
 
 
 

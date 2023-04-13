@@ -19,29 +19,25 @@ Timer ShooterShootParams::disc_absence_timer{"disc_absence_timer"};
 bool angleOverride = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
-Timer roller_timer("roller_time");
+Timer shoot_timer("shoot_timer", false);
 
 
 void shooterHandleInput(){
   SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
   if(get_if<ShooterIdleParams>(&cur_state)){
-    if(master.get_digital_new_press(tripleShotBtn)){
-      log("%lld | SHOOT 3 BUTTON PRESSED\n", op_control_timer.getTime());
-  
-      shoot(3);
-    }
-    if(master.get_digital_new_press(singleShotBtn)){
-      roller_timer.reset();
-    }
-    if (roller_timer.getTime() > 300){
-      roller_timer.reset(false);
-      rollerOpControl();
-    }
-    if (roller_timer.getTime() <= 300 && master.isFalling(singleShotBtn)){
-      roller_timer.reset(false);
-      log("%lld | SHOOT 1 BUTTON PRESSED\n", op_control_timer.getTime());
+    if(master.get_digital_new_press(ShotBtn)){
+      shoot_timer.reset();
       shoot(1, false, false);
     }
+
+    if(shoot_timer.getTime() > 300){
+      shoot(2);
+      shoot_timer.reset(false);
+    }
+  }
+
+  if (master.isFalling(ShotBtn)){
+    shoot_timer.pause();
   }
 
 
