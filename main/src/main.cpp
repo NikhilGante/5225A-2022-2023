@@ -105,6 +105,7 @@ void autonomous() {
 Auton auton1("autonStack", autonStack);
 Auton auton2("autonAWP", autonAWP2);
 Auton auton3("autonLine", autonLine, E_Auton_Reset_Types::far);
+Auton skills("Skills", worldsSkills);
 Auton auton4("Blank", [](){master.print(0, 0, "BLANK AUTON");});
 
 

@@ -41,7 +41,8 @@ void trackingUpdate(){
 
   Position last_position; // last position of robot
   Timer velocity_timer{"velocity_timer"};
-  Timer tracking_timer{"timer"};
+  Timer tracking_timer_lcd{"timer"};
+  Timer tracking_timer_logs{"timer"};
 
   double last_gyro_angle = 0.0;
   int cur = micros(), prev = cur;
@@ -153,13 +154,12 @@ void trackingUpdate(){
     tracking.g_pos.a += theta;
     tracking.pos_mutex.give();
 
-    if(tracking_timer.getTime() > 250){
+    if(tracking_timer_lcd.getTime() > 250){
       // lcd::print(2, "l:%lf r:%lf", new_left, new_right);
       lcd::print(4, "GYRO:%.2lf deg: %.2lf", gyro.get_rotation() * 1.0027, radToDeg(tracking.g_pos.a));
       log("%lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.x, tracking.g_vel.y);
       // log("POS | %lf, %lf, %lf %lf %lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), tracking.g_vel.a, (tracking.l_vel + tracking.r_vel)/2);
       // log("%lf\n", radToDeg(tracking.g_vel.a));
-      // log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
       // log("VELS| x:%lf y:%lf a:%lf\n", tracking.g_vel.x, tracking.g_vel.y, radToDeg(tracking.g_vel.a));
       // printf("a_vel: %lf\n", radToDeg(tracking.g_vel.a));
       // printf("L:%d R:%d B:%d", LeftEncoder.get_value(), RightEncoder.get_value(), BackEncoder.get_value());
@@ -169,7 +169,12 @@ void trackingUpdate(){
       pros::lcd::print(0, "L:%d R:%d B:%d", left_tracker.get_position(), right_tracker.get_position(), -back_tracker.get_position());
       pros::lcd::print(1, "x:%.2lf y:%.2lf a:%.2lf %.2lf", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a), fmod(radToDeg(tracking.g_pos.a), 360));
       
-      tracking_timer.reset();
+      tracking_timer_lcd.reset();
+    }
+    if (tracking_timer_logs.getTime() > 50){
+      log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+
+      tracking_timer_logs.reset();
     }
     _Task::delayUntil(cycle_time, 10, "Tracking_Task");
   }

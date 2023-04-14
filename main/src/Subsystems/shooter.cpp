@@ -30,7 +30,7 @@ void shooterHandleInput(){
       shoot(1, false, false);
     }
 
-    if(shoot_timer.getTime() > 300){
+    if(shoot_timer.getTime() > 150){
       shoot(2);
       shoot_timer.reset(false);
     }
