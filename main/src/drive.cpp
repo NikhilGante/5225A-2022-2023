@@ -206,7 +206,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     if(master.get_digital_new_press(endgameBtnLeft)){
       if(endgame_dbl_click_left) {
         log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
-        endgame_s_p.setState(HIGH);
+        endgame_lower_b.setState(HIGH);
       }
       else endgame_dbl_click_left = true;
       endgame_click_timer_left.reset();
@@ -219,7 +219,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     if(master.get_digital_new_press(endgameBtnRight)){
       if(endgame_dbl_click_right) {
         log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
-        endgame_d_p.setState(HIGH);
+        endgame_top_b.setState(HIGH);
       }
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();

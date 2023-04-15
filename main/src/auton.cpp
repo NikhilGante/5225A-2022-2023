@@ -36,7 +36,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode, doubl
 		}
 		else  safety_count = 0;
 
-		_Task::delayUntil(cycle_timer, 10);
+		_Task::delayUntil(cycle_timer, 10, "Move_Inches");
 
 	}while(fabs(error) > end_error);
 	// master.print(2, 0, "time: %ld", move_timer.getTime());
@@ -59,7 +59,7 @@ void autonStack(){
 	aimAtBlue(1);
 	shootSync(2);
 	intakeOn();
-	setFlywheelVel(2325);
+	setFlywheelVel(2335);
 
 	turnToTargetSync({66, 40});
 	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
@@ -70,7 +70,7 @@ void autonStack(){
 
 	delay(100);
 	angler_p.toggleState();
-	delay(150);
+	delay(250);
 	angler_p.toggleState();
 
 

@@ -7,6 +7,8 @@
 
 const int toaster_rpm = 1500;
 const int barrier_rpm = 1800;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
+
+bool disc_leave_time = false;
 // const int barrier_rpm = 2235;
 
 bool goal_disturb = false;
@@ -19,25 +21,35 @@ Timer ShooterShootParams::disc_absence_timer{"disc_absence_timer"};
 bool angleOverride = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
-Timer shoot_timer("shoot_timer", false);
+Timer shoot_btn_timer("shoot_timer", false);
 
 
 void shooterHandleInput(){
   SHOOTER_STATE_TYPES_VARIANT cur_state = shooter.getState();
   if(get_if<ShooterIdleParams>(&cur_state)){
-    if(master.get_digital_new_press(ShotBtn)){
-      shoot_timer.reset();
+    if(master.isRising(ShotBtn)){
+      log("SHOOT TIMER RESET\n");
+      log("REETTING HERE, 32, %d\n", millis());
+      shoot_btn_timer.reset();
       shoot(1, false, false);
     }
 
-    if(shoot_timer.getTime() > 150){
+    if(shoot_btn_timer.getTime() > 150 ){
+      disc_leave_time = false;
       shoot(2);
-      shoot_timer.reset(false);
+      log("REETTING HERE, 39, %d\n", millis());
+      shoot_btn_timer.reset(false);
     }
   }
 
-  if (master.isFalling(ShotBtn)){
-    shoot_timer.pause();
+  // log("SHOTBTN STATE: %d\n", master.get_digital(ShotBtn));
+  if (master.isFalling(ShotBtn) || shoot_btn_timer.getTime() > 150 && master.get_digital(ShotBtn)){
+    shoot_btn_timer.pause();
+
+    if (shoot_btn_timer.getTime() > 150){
+      disc_leave_time = true;
+      log("DISC LEAVE TIME IS SET TO TRUE \n");
+    }
   }
 
 
@@ -140,10 +152,18 @@ void ShooterShootParams::handle(){
       master.rumble("-"); // Lets driver know shooting is done
       // log("CONTROLLER RUMBLING FROM LINE 126 in file shooter.cpp");
       if(clear_mag) g_mag_disc_count = 0;
-      _Task::delay(150); // Waits for last disc to exit magazine before turning intake off
+
+      if (!disc_leave_time) {
+        _Task::delay(150); // Waits for last disc to exit magazine before turning intake off
+        log("TASK DELAY HAPPENING: %d %d\n", millis(), disc_leave_time);
+      }
+
       // Sets subsystems back to their state before shooting
-      if(angler_p.getState() && mag_ds.get_value() < MAG_DS_THRESH)  intakeOff();
-      else  intakeOn();
+      if (!disc_leave_time){
+        if(angler_p.getState() && mag_ds.get_value() < MAG_DS_THRESH)  intakeOff();
+        else  intakeOn();
+      }
+      
       log("Shooting finished because shots finished are done\n");
       shooter.changeState(ShooterIdleParams{});
 

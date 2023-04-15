@@ -143,7 +143,7 @@ void IntakeOnParams::handle(){  // synchronous state
     // else 
   }
 
-  printf("Sensors: %d %d %d %d\n", intk_lim_switch.get_value(), intk_dist.get(), intk_ds.get_value(), uptk_ds.get_value());
+  // printf("Sensors: %d %d %d %d\n", intk_lim_switch.get_value(), intk_dist.get(), intk_ds.get_value(), uptk_ds.get_value());
 
   // lcd::print(3, "count:%d", g_mag_disc_count.load());
 }

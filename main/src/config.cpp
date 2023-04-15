@@ -35,12 +35,21 @@ Rotation flywheel_rot_sensor(7);
 
 Piston angler_p({e_port, 'E'}, "angler_p", false, LOW); 
 Piston trans_p({e_port, 'F'}, "trans_p", true, HIGH);
-Piston endgame_s_p({e_port, 'A'}, "endgame_s_p", false, LOW); // Single acting
-Piston endgame_d_p('B', "endgame_d_p", false, LOW); // Double acting
+
+
+Piston endgame_top_b('E', "endgame_top_b", false, LOW);
+Piston endgame_top_f('F', "endgame_top_f", false, LOW);
+Piston endgame_lower_b('G', "endgame_lower_b", false, LOW);
+
+
+// Piston endgame_lower_f('A', "endgame_lower_f", false, LOW);
+
+
+
 
 Imu gyro(9);
 
-Distance l_reset_dist(1), r_reset_dist(20);
+// Distance l_reset_dist(1), r_reset_dist(20);
 
 
 

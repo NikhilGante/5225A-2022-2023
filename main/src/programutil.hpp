@@ -168,9 +168,10 @@ enum class E_Util_Options{
 	UTIL,
 	SELECT,
 	TEST,
-	DRIVER
+	DRIVER,
+	FILL
 };
-array<std::string, 4> util_names {"UTIL", "SELECT AUTON", "TEST", "DRIVER"};
+array<std::string, 5> util_names {"UTIL", "SELECT AUTON", "TEST", "DRIVER", "FILL"};
 
 void print_options(int index){
 	master.print(0, 0, "%s%s%s", std::string(9-util_names[(index-1)%util_names.size()].length()/2, ' ').c_str(), util_names[(index-1)%util_names.size()].c_str(), std::string(9-util_names[(index-1)%util_names.size()].length()/2, ' ').c_str());
@@ -213,6 +214,22 @@ void util_selector(){
 				case E_Util_Options::TEST:
                     match_tests();
 					break;
+				case E_Util_Options::FILL:
+
+					master.clear();
+					master.printScroll("FILLING AIR");
+					endgame_top_f.setState(HIGH);
+					endgame_top_b.setState(HIGH);
+					endgame_lower_b.setState(HIGH);
+					// endgame_lower_f.setState(HIGH);
+					
+
+					WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
+
+					endgame_top_b.setState(LOW);
+					endgame_lower_b.setState(LOW);
+
+					endgame_top_f.setState(LOW);
 			}
 
             print_options(index);
