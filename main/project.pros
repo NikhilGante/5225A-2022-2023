@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "driver-practice",
+    "project_name": "Fill Air",
     "target": "v5",
     "templates": {
       "kernel": {
@@ -311,7 +311,7 @@
     "upload_options": {
       "description": "",
       "icon": "pros",
-      "slot": 7
+      "slot": 4
     }
   }
 }
