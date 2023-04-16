@@ -172,7 +172,7 @@ void trackingUpdate(){
       tracking_timer_lcd.reset();
     }
     if (tracking_timer_logs.getTime() > 50){
-      log("x:%lf y:%lf a:%lf\n", tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+      log("%d| x:%lf y:%lf a:%lf\n", millis(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
 
       tracking_timer_logs.reset();
     }
@@ -363,7 +363,8 @@ void turnToAngleInternal(function<double()> getAngleFunc, E_Brake_Modes brake_mo
       if(safety_count > 20){
         moveDrive(0, 0);
         master.rumble(".");
-        log("MTT MOTION SAFETY TRIGGERED took %lld ms | Targ a:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), getAngleFunc(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+        log("TURN MOTION SAFETY TRIGGERED took %lld ms | Targ a:%lf | At x:%lf y:%lf, a:%lf\n", motion_timer.getTime(), getAngleFunc(), tracking.g_pos.x, tracking.g_pos.y, radToDeg(tracking.g_pos.a));
+        tracking_pause = false;
         drive.changeState(DriveIdleParams{});
         return;
       }

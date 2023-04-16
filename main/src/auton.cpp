@@ -11,7 +11,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode, doubl
 	Timer move_timer{"move_timer"};
 	double start = right_tracker.get_position()*1/36000.0 *(2.75*M_PI);
 	double error;
-  	log("Starting move %d inches\n", target);
+  	log("Starting move %lf inches\n", target);
 	int safety_count = 0;
 	uint32_t cycle_timer = millis();
 	do{
@@ -226,11 +226,11 @@ void autonAWP2(){
 	setFlywheelVel(2340);
 	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
 
-	turnToTargetSync({100.0, 76.0}); // Face line
+	turnToTargetSync({100.0, 77.0}); // Face line
 
 
 
-	moveToTargetSync({100.0, 79.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
+	moveToTargetSync({100.0, 77.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
 
   	aimAtBlue(0.5);
   	// intake.waitToReachState(IntakeOffParams{});

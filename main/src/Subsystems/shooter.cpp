@@ -8,8 +8,7 @@
 const int toaster_rpm = 1500;
 const int barrier_rpm = 1800;// 2380 For long shots, 1775 for short shots, 2125 for middle shots
 
-bool disc_leave_time = false;
-// const int barrier_rpm = 2235;
+bool end_shooting = true;
 
 bool goal_disturb = false;
 
@@ -17,7 +16,6 @@ Timer ShooterShootParams::shoot_timer{"shoot_timer"};
 Timer ShooterShootParams::disc_seen_timer{"disc_seen_timer"};
 Timer ShooterShootParams::disc_absence_timer{"disc_absence_timer"};
 
-// 1820
 bool angleOverride = false;
 
 Machine<SHOOTER_STATE_TYPES> shooter("shooter", ShooterIdleParams{});
@@ -29,28 +27,24 @@ void shooterHandleInput(){
   if(get_if<ShooterIdleParams>(&cur_state)){
     if(master.isRising(ShotBtn)){
       log("SHOOT TIMER RESET\n");
-      log("REETTING HERE, 32, %d\n", millis());
+      log("RESETTING HERE, 31, %d\n", millis());
       shoot_btn_timer.reset();
+      end_shooting = true;
       shoot(1, false, false);
     }
 
-    if(shoot_btn_timer.getTime() > 150 ){
-      disc_leave_time = false;
+    if(!end_shooting){  // If first shot is finished and btn is held, shoot 2 more
+      end_shooting = true;
       shoot(2);
-      log("REETTING HERE, 39, %d\n", millis());
-      shoot_btn_timer.reset(false);
     }
   }
 
-  // log("SHOTBTN STATE: %d\n", master.get_digital(ShotBtn));
-  if (master.isFalling(ShotBtn) || shoot_btn_timer.getTime() > 150 && master.get_digital(ShotBtn)){
-    shoot_btn_timer.pause();
-
-    if (shoot_btn_timer.getTime() > 150){
-      disc_leave_time = true;
-      log("DISC LEAVE TIME IS SET TO TRUE \n");
-    }
+  if(shoot_btn_timer.getTime() > 150){  // Doesn't wait after first shot ends if btn is held
+    shoot_btn_timer.reset(false);
+    end_shooting = false;
+    log("DISC LEAVE TIME IS SET TO TRUE \n");
   }
+  if(master.isFalling(ShotBtn)) shoot_btn_timer.reset(false);
 
 
   if(master.get_digital_new_press(anglerToggleBtn)) {
@@ -153,13 +147,12 @@ void ShooterShootParams::handle(){
       // log("CONTROLLER RUMBLING FROM LINE 126 in file shooter.cpp");
       if(clear_mag) g_mag_disc_count = 0;
 
-      if (!disc_leave_time) {
-        _Task::delay(150); // Waits for last disc to exit magazine before turning intake off
-        log("TASK DELAY HAPPENING: %d %d\n", millis(), disc_leave_time);
-      }
+      // Waits for last disc to exit magazine before turning intake off
+      if (end_shooting) {
+        _Task::delay(150);
+        log("TASK DELAY HAPPENING: %d %d\n", millis(), end_shooting);
 
-      // Sets subsystems back to their state before shooting
-      if (!disc_leave_time){
+        // Sets subsystems back to their state before shooting
         if(angler_p.getState() && mag_ds.get_value() < MAG_DS_THRESH)  intakeOff();
         else  intakeOn();
       }
