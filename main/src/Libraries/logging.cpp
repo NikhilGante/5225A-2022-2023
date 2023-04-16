@@ -52,26 +52,32 @@ void Data::init(){
 void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
-    while(true){
-      if(queue_size > 2000 || (log_timer.getTime() > 500 && queue_size != 0)){
+  while(true){
+    if(queue_size > 2000 || (log_timer.getTime() > 500 && queue_size != 0)){
+      
+      log_mutex.take();
+
+      if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");
+      else {
+        printf("SD CARD IS UNPLUGGED\n");
+        master.rumble("-");
         
-        log_mutex.take();
-        if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");
-        else master.rumble("-");
-        log_mutex.give();
-        
-        log_timer.reset();
       }
-      _Task::delay(10);
+      log_mutex.give();
+      
+      log_timer.reset();
     }
+    _Task::delay(10);
+  }
   }
   catch(const TaskEndException& exception){
-    print_queue(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
+    if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
   }
 }
 
 void Data::print_queue(const char queue[QUEUE_SIZE],  ofstream& log_file, std::string file_name){
   long long int t = micros();
+  printf("STARTING FLUSH\n");
   log_file.open(file_name, ios::app);
   log_file.write(queue, min<int32_t>(queue_size, QUEUE_SIZE));  // prints from front to rear of queue
   log_file.close();
@@ -82,6 +88,11 @@ void Data::print_queue(const char queue[QUEUE_SIZE],  ofstream& log_file, std::s
 
 void Data::print(std::string str){
   int chars_printed = str.length();
+
+  if (queue_size+chars_printed > QUEUE_SIZE || !pros::usd::is_installed()){
+    printf("QUEUE_Size overflow or no SD \n");
+    return;
+  }
   
 
   log_mutex.take();

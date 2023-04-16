@@ -126,12 +126,7 @@ void opcontrol() {
 
 	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
 
-	// endgame_top_b.setState(LOW);
-	// endgame_lower_b.setState(LOW);
-
-	// endgame_top_f.setState(LOW);	
-
-
 	// util_selector();
-	// driverPractice();
+	driverPractice();
 }
+
