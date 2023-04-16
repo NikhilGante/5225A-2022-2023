@@ -51,10 +51,10 @@ void initialize() {
 	_Controller::init();
 
 
-	// drive.runMachine();
-	// intake.runMachine();
-	// flywheel.runMachine();
-	// shooter.runMachine();
+	drive.runMachine();
+	intake.runMachine();
+	flywheel.runMachine();
+	shooter.runMachine();
 
 }
 
@@ -111,6 +111,7 @@ Auton auton4("Blank", [](){master.print(0, 0, "BLANK AUTON");});
 
 
 void opcontrol() {
+	driverPractice();
 
 	master.clear();
 	master.printScroll("Press A to fire");

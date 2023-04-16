@@ -29,6 +29,7 @@ void shooterHandleInput(){
       log("SHOOT TIMER RESET\n");
       log("RESETTING HERE, 31, %d\n", millis());
       shoot_btn_timer.reset();
+      end_shooting = true;
       shoot(1, false, false);
     }
 
@@ -38,7 +39,8 @@ void shooterHandleInput(){
     }
   }
 
-  if(shoot_btn_timer.getTime() > 150 && end_shooting){  // Doesn't wait after first shot ends if btn is held
+  if(shoot_btn_timer.getTime() > 150){  // Doesn't wait after first shot ends if btn is held
+    shoot_btn_timer.reset(false);
     end_shooting = false;
     log("DISC LEAVE TIME IS SET TO TRUE \n");
   }
