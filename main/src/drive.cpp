@@ -206,7 +206,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     }
     if(master.get_digital_new_press(endgameBtnLeft)){
       if(endgame_dbl_click_left) {
-        log("%lld | LEFT ENDGAME FIRED\n", op_control_timer.getTime());
+        log("%lld | Bottom ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_lower_b.setState(HIGH);
       }
       else endgame_dbl_click_left = true;
@@ -219,8 +219,9 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     }
     if(master.get_digital_new_press(endgameBtnRight)){
       if(endgame_dbl_click_right) {
-        log("%lld | RIGHT ENDGAME FIRED\n", op_control_timer.getTime());
+        log("%lld | Both ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_top_b.setState(HIGH);
+        endgame_lower_b.setState(HIGH);
       }
       else endgame_dbl_click_right = true;
       endgame_click_timer_right.reset();
