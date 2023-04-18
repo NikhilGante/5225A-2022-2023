@@ -111,22 +111,7 @@ Auton auton4("Blank", [](){master.print(0, 0, "BLANK AUTON");});
 
 
 void opcontrol() {
-	driverPractice();
-
-	master.clear();
-	master.printScroll("Press A to fire");
-	WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
-
-	endgame_lower_b.setState(HIGH);
-	endgame_top_b.setState(HIGH);
-
-	// endgame_lower_b.setState(HIGH);
-	// // endgame_lower_f.setState(HIGH);
-	
-
-	// WAIT_UNTIL(master.get_digital_new_press(DIGITAL_A));
 
 	// util_selector();
 	driverPractice();
 }
-

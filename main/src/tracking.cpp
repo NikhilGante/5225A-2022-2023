@@ -106,22 +106,27 @@ void trackingUpdate(){
       std::array<double, 3> gyro_angles = {gyro_angle1 - last_gyro_angle_1, gyro_angle2 - last_gyro_angle_2, gyro_angle3 - last_gyro_angle_3};
       std::sort(gyro_angles.begin(), gyro_angles.end());
 
-      // All 3 values are too far apart
 
-      if(fabs(gyro_angles[1] - gyro_angles[0]) > drift_thresh && fabs(gyro_angles[2] - gyro_angles[1]) > drift_thresh){
-        theta = gyro_angles[1];
+      if (fabs(gyro_angles[1] - gyro_angles[0]) < drift_thresh && fabs(gyro_angles[2] - gyro_angles[1]) < drift_thresh){
+        // theta = gyro_angles[1];
+      }
+      else if(fabs(gyro_angles[1] - gyro_angles[0]) > drift_thresh && fabs(gyro_angles[2] - gyro_angles[1]) > drift_thresh){
+        log("TRACKING: ALL 3 GYROS ARE FAR APRAT, DIfferences: %lf, %lf, %lf", gyro_angles[1], gyro_angles[2], gyro_angles[3]);
+        // theta = gyro_angles[1];
       }
       else if(fabs(gyro_angles[1] - gyro_angles[0]) < drift_thresh){
-        theta = (gyro_angles[1] + gyro_angles[0]) / 2;
+        log("TRACKING: Gyro 3 is off %lf, %lf, %lf", gyro_angles[1], gyro_angles[2], gyro_angles[3]);
+        // theta = (gyro_angles[1] + gyro_angles[0]) / 2;
       }
       else if(fabs(gyro_angles[2] - gyro_angles[1]) < drift_thresh){
-        theta = (gyro_angles[2] + gyro_angles[1]) / 2;
+        log("TRACKING: Gyro 1 is off %lf, %lf, %lf", gyro_angles[1], gyro_angles[2], gyro_angles[3]);
+        // theta = (gyro_angles[2] + gyro_angles[1]) / 2;
       }
       else{
-        theta = gyro_angle1 - last_gyro_angle_1;
+        // theta = gyro_angle1 - last_gyro_angle_1;
       }
 
-
+      theta = gyro_angle1-last_gyro_angle_1;
       if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
 

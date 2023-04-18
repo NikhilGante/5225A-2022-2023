@@ -21,7 +21,7 @@ extern ADIAnalogIn shooter_ds;
 
 extern Rotation flywheel_rot_sensor;
 
-extern Piston angler_p, trans_p, endgame_top_b, endgame_top_f, endgame_lower_b;
+extern Piston angler_p, trans_p, endgame_top_b, endgame_f, endgame_lower_b;
 
 
 extern Imu gyro, gyro2, gyro3;

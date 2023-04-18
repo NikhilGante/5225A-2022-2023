@@ -218,7 +218,7 @@ void util_selector(){
 
 					master.clear();
 					master.printScroll("FILLING AIR");
-					endgame_top_f.setState(HIGH);
+					endgame_f.setState(HIGH);
 					endgame_top_b.setState(HIGH);
 					endgame_lower_b.setState(HIGH);
 					// endgame_lower_f.setState(HIGH);
@@ -229,7 +229,7 @@ void util_selector(){
 					endgame_top_b.setState(LOW);
 					endgame_lower_b.setState(LOW);
 
-					endgame_top_f.setState(LOW);
+					endgame_f.setState(LOW);
 			}
 
             print_options(index);

@@ -121,7 +121,7 @@ void IntakeOnParams::handle(){  // synchronous state
 
 
     int x = millis();
-    WAIT_UNTIL(millis() - x > 50 || uptk_ds.get_value() < UPTK_DS_THRESH);
+    WAIT_UNTIL(millis() - x > 80 || uptk_ds.get_value() < UPTK_DS_THRESH);
 
     if(!pros::competition::is_autonomous()){
       if(diskInIntake())  intakeOff();

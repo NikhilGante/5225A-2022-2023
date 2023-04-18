@@ -320,6 +320,16 @@ void worldsSkills(){
 	intakeOff();
 	moveDrive(0, 0);
 
+	moveInches(2);
+
+
+	turnToTargetSync({120, 120});
+	moveToTargetSync({120, 120});
+
+	turnToAngleSync(-135);
+
+	// Fire endgame
+
 
 
 	master.printScroll("Time: %lld", auton_timer.getTime());

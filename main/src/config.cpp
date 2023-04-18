@@ -6,7 +6,7 @@ _Controller partner(E_CONTROLLER_PARTNER);
 
 static constexpr int e_port = 1;
 
-Rotation left_tracker(10), right_tracker(19), back_tracker(3);
+Rotation left_tracker(10), right_tracker(19), back_tracker(4);
 
 Motor front_l(16, E_MOTOR_GEARSET_06, false, E_MOTOR_ENCODER_DEGREES);
 Motor centre_l(15, E_MOTOR_GEARSET_06, true, E_MOTOR_ENCODER_DEGREES);
@@ -38,18 +38,16 @@ Piston trans_p({e_port, 'F'}, "trans_p", true, HIGH);
 
 
 Piston endgame_top_b('E', "endgame_top_b", false, LOW);
-Piston endgame_top_f('F', "endgame_top_f", false, LOW);
+Piston endgame_f('F', "endgame_f", false, LOW);
 Piston endgame_lower_b('G', "endgame_lower_b", false, LOW);
 
-
-// Piston endgame_lower_f('A', "endgame_lower_f", false, LOW);
 
 
 
 
 Imu gyro(9);
-
-// Distance l_reset_dist(1), r_reset_dist(20);
+Imu gyro2(1);
+Imu gyro3(20);
 
 
 
