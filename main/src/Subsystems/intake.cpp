@@ -166,7 +166,7 @@ const char* IntakeOffParams::getName(){
 void IntakeOffParams::handle(){
 
   if(g_mag_disc_count >= 3 && diskInIntake() && possession_notify_timer.getTime() > 200) {
-    master.rumble("..");
+    master.rumble(".....");
     possession_notify_timer.reset();
   }
 }

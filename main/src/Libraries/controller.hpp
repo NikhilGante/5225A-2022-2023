@@ -40,7 +40,7 @@ extern controller_digital_e_t rollerBtn;
 
 // partner buttons
 
-#define num_controller 1
+#define num_controller 2
 
 class _Task;
 

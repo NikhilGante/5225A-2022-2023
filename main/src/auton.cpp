@@ -277,17 +277,28 @@ void autonAWP2(){
 void worldsSkills(){
 	Timer auton_timer{"Auton_timer"};
 	tracking.reset({34, 12.25, 0.0});
-	setFlywheelVel(2200);
+	setFlywheelVel(2420);
 
 	moveDrive(-40, 0);
 	intakeOn();
-	delay(400);
+	delay(500);
 
-	moveForwardSync(32, E_Brake_Modes::brake, 65);
-	aimAtBlue(6);
+	moveInches(3);
+
+	aimAtBlue(2);
+
+	shootSync(2);
+
+	turnToAngleSync(0);
+	setFlywheelVel(2200);
+
+
+
+	moveForwardSync(29, E_Brake_Modes::brake, 65);
+	aimAtBlue(2);
 	WAIT_UNTIL(g_mag_disc_count >= 3);
 	delay(100);
-	shootSync(3);
+	shootSync(2);
 
 	setFlywheelVel(1920);
 
@@ -297,7 +308,7 @@ void worldsSkills(){
 	turnToTargetSync({60, 84});
 	moveToTargetSync({60, 84});
 
-	aimAtBlue(4);
+	aimAtBlue(2);
 	shootSync(3);
 
 
@@ -305,7 +316,7 @@ void worldsSkills(){
 	setFlywheelVel(2190);
 	moveToTargetSync({96, 120}, E_Brake_Modes::brake, 70);
 
-	aimAtBlue(5);
+	aimAtBlue(2);
 	shootSync(3);
 
 	turnToTargetSync({112, 122}, 0, true);
@@ -322,9 +333,25 @@ void worldsSkills(){
 
 	moveInches(2);
 
+	turnToTargetSync({125, 115});
+	moveToTargetSync({125, 115});
 
-	turnToTargetSync({120, 120});
-	moveToTargetSync({120, 120});
+	turnToAngleSync(-90);
+	intakeOn();
+
+	moveDrive(-30, 0);
+	delay(300);
+	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
+	delay(200);
+	intakeOff();
+	moveDrive(0, 0);
+
+	moveInches(2);
+
+
+
+	turnToTargetSync({124, 118});
+	moveToTargetSync({124, 118});
 
 	turnToAngleSync(-135);
 

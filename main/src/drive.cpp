@@ -84,9 +84,10 @@ bool backwards = false;
 bool last_backwards = false;
 
 double l_power_last, r_power_last;
+double turn_speed =  0.65;
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = 0.65 * polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = (master.get_digital(DIGITAL_X) ? 1: 0.65)* polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
   if(fabs(power_y) < deadzone) power_y = 0;
  
@@ -186,8 +187,10 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   int g_mag_disc_count_lst = g_mag_disc_count;  // Mag count from last cycle
 
   master.print(0,0, "disc count: %d  ", g_mag_disc_count.load());
+  partner.clear();
 
   uint32_t cycle_time = millis();
+  int flywheel_offset = 0;
 	while(true){
     log( "Intake: %d, Flywheel: %d, Left: %d, %d, %d, Right: %d, %d, %d\n", intake_m.get_current_draw(), flywheel_m.get_current_draw(), front_l.get_current_draw(), centre_l.get_current_draw(), back_l.get_current_draw(), front_r.get_current_draw(), centre_r.get_current_draw(), back_r.get_current_draw());
     master.updateButtons();
@@ -195,10 +198,10 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     if(master.get_digital_new_press(transToggleBtn))  shiftTrans(!trans_p.getState());
   
-    if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
-      low_gear_buzz_timer.reset();
-      master.rumble("-");
-    }
+    // if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
+    //   low_gear_buzz_timer.reset();
+    //   master.rumble("-");
+    // }
 
     if(endgame_click_timer_left.getTime() > 300){
       endgame_click_timer_left.reset(false);
@@ -235,8 +238,22 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 		// driveHandleInput();
 		shooterHandleInput();
 		intakeHandleInput();
-		if((master.get_digital_new_press(DIGITAL_UP) || partner.get_digital_new_press(DIGITAL_UP)) && g_mag_disc_count < 3)	g_mag_disc_count++;
-		if((master.get_digital_new_press(DIGITAL_DOWN) || partner.get_digital_new_press(DIGITAL_DOWN)) && g_mag_disc_count > 0)	g_mag_disc_count--; 
+		if(master.get_digital_new_press(DIGITAL_UP) && g_mag_disc_count < 3)	g_mag_disc_count++;
+		if(master.get_digital_new_press(DIGITAL_DOWN) && g_mag_disc_count > 0)	g_mag_disc_count--; 
+
+
+  	if(partner.get_digital_new_press(DIGITAL_UP))	{
+      flywheel_offset += 25;
+
+      setFlywheelVel(barrier_rpm+flywheel_offset);
+      partner.print(0, 0, "Rpm: %d", (int)barrier_rpm+flywheel_offset);
+    }
+		if(partner.get_digital_new_press(DIGITAL_DOWN))	{
+      flywheel_offset -= 25;
+
+      setFlywheelVel(barrier_rpm+flywheel_offset);
+      partner.print(0, 0, "Rpm: %d", (int)barrier_rpm+flywheel_offset);
+    }
 
 
 		if(g_mag_disc_count != g_mag_disc_count_lst){
