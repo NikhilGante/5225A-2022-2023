@@ -198,16 +198,16 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
 
     if(master.get_digital_new_press(transToggleBtn))  shiftTrans(!trans_p.getState());
   
-    // if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
-    //   low_gear_buzz_timer.reset();
-    //   master.rumble("-");
-    // }
+    if(trans_p.getState() == LOW && low_gear_buzz_timer.getTime() > 800){  // Buzzes if in low gear for driver
+      low_gear_buzz_timer.reset();
+      master.rumble("-");
+    }
 
     if(endgame_click_timer_left.getTime() > 300){
       endgame_click_timer_left.reset(false);
       endgame_dbl_click_left = false;
     }
-    if(master.get_digital_new_press(endgameBtnLeft)){
+    if(master.get_digital_new_press(endgameBtnRight)){
       if(endgame_dbl_click_left) {
         log("%lld | Bottom ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_lower_b.setState(HIGH);
@@ -220,7 +220,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
       endgame_click_timer_right.reset(false);
       endgame_dbl_click_right = false;
     }
-    if(master.get_digital_new_press(endgameBtnRight)){
+    if(master.get_digital_new_press(endgameBtnLeft)){
       if(endgame_dbl_click_right) {
         log("%lld | Both ENDGAME FIRED\n", op_control_timer.getTime());
         endgame_top_b.setState(HIGH);

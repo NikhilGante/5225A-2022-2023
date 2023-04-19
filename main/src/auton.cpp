@@ -45,7 +45,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode, doubl
 
   log("CONTROLLER RUMBLING FROM LINE 31 in file auton.cpp");
 }
-
+// 5 Disc Stack
 void autonStack(){
   Timer auton_timer{"Auton_timer"};
 
@@ -77,70 +77,40 @@ void autonStack(){
 	master.printScroll("Time: %lld", auton_timer.getTime());
 }
 
-void autonAWP(){
-	int temp = millis();
-	Timer auton_timer{"Auton_timer"};
-	setFlywheelVel(2210);
+// 5 disc Stack with moving back
+void autonStackMoveBack(){
+  Timer auton_timer{"Auton_timer"};
 
-
+	setFlywheelVel(2420);
 	tracking.reset({34, 12.25, 0.0});
-
 	intakeOn();
-	moveDrive(-30, 0);
+	moveDrive(-50, 0);
 	delay(250);
 	intakeOff();
+	moveInches(6);
+	aimAtBlue(1);
+	shootSync(2);
+	intakeOn();
+	setFlywheelVel(2365);
 
-	moveInches(12, 127, E_Brake_Modes::brake, 4);
-	
-	turnToTargetSync({68.0, 51.0}, 0.5); // Go to centre field
-	moveToTargetSync({68.0, 51.0}); // Go to centre field
+	turnToTargetSync({66, 40});
+	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
+	delay(500);
+	moveForwardSync(-10);
 
 	aimAtBlue(1);
-	
-
-	shootSync(2);
-  
-	setFlywheelVel(2320);
-	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
-
-	turnToTargetSync({100.0, 76.0}); // Face line
-
-
-
-	moveToTargetSync({103.0, 79.0}, E_Brake_Modes::brake, 127, 2.0); // Move to corner
-
-  	aimAtBlue(0.5);
-  	// intake.waitToReachState(IntakeOffParams{});
 	shootSync(3);
-	
-	turnToTargetSync({122.0, 108.0}, 0, true); // Face roller
-	moveToTargetAsync({122.0, 108.0}, E_Brake_Modes::brake); // move to roller
+
 
 	delay(100);
 	angler_p.toggleState();
-	delay(150);
+	delay(250);
 	angler_p.toggleState();
 
 
-	tracking.waitForComplete();
-
-	intakeOff();
-	turnToAngleSync(-90);
-
-	moveDrive(-50, 0);
-	delay(300);
-	intakeOn();
-	log("INIT VEL OF ROLLER: %f", tracking.r_vel);
-	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
-	intakeOff();
-	moveInches(8, 127, E_Brake_Modes::brake, 6);
-
-
-	master.printScroll("Time: %d  ", millis()-temp);
-	master.print(0, 0, "Time: %lld  ", auton_timer.getTime());
-
+	master.printScroll("Time: %lld", auton_timer.getTime());
 }
-
+// 5 Disc Line
 void autonLine(){
   	Timer auton_timer{"Auton_timer"};
 	tracking.reset({126.5, 82.25, degToRad(-90)});
@@ -200,7 +170,47 @@ void autonLine(){
 	master.printScroll("Final: %lld", auton_timer.getTime()); // End
 
 }
-void autonAWP2(){
+// 3 Disc Line
+void autonLineShort(){
+  	Timer auton_timer{"Auton_timer"};
+	tracking.reset({126.5, 82.25, degToRad(-90)});
+	setFlywheelVel(2345);
+	intakeOn();
+
+	moveToTargetSync({106, 82.25});
+	master.printScroll("Time: %lld", auton_timer.getTime());
+
+	aimAtBlue(0.5);
+
+	shootSync(3);
+
+	turnToTargetSync({122, 108}, 0.0, true);
+	moveToTargetAsync({122, 108}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
+
+	delay(100);
+	angler_p.toggleState();
+	delay(150);
+	angler_p.toggleState();
+
+	tracking.waitForComplete();
+
+	turnToAngleSync(-90);
+
+	moveDrive(-40, 0);
+	delay(250);
+	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
+	intakeOn();
+	delay(250);
+	intakeOff();
+	moveDrive(0, 0);
+	moveInches(5, 127, E_Brake_Modes::brake, 3);
+
+
+	master.printScroll("Final: %lld", auton_timer.getTime()); // End
+
+}
+// 5 Disc AWP
+void autonAWP(){
 	int temp = millis();
 	Timer auton_timer{"Auton_timer"};
 	setFlywheelVel(2210);

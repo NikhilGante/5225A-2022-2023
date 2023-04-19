@@ -52,23 +52,25 @@ void Data::init(){
 void Data::logHandle(){ // runs in task to flush out contents of queue to file
   log_timer.reset();
   try{
-  while(true){
-    if(queue_size > 2000 || (log_timer.getTime() > 500 && queue_size != 0)){
-      
-      log_mutex.take();
-
-      if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");
-      else {
-        printf("SD CARD IS UNPLUGGED\n");
-        master.rumble("-");
+    while(true){
+      if(queue_size > 2000 || (log_timer.getTime() > 500 && queue_size != 0)){
         
+        log_mutex.take();
+
+        if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");
+        else {
+          printf("SD CARD IS UNPLUGGED\n");
+          master.rumble("-");
+          pros::screen::set_pen(2);
+          pros::screen::draw_rect(0, 0, 10000, 10000);
+
+        }
+        log_mutex.give();
+        
+        log_timer.reset();
       }
-      log_mutex.give();
-      
-      log_timer.reset();
+      _Task::delay(10);
     }
-    _Task::delay(10);
-  }
   }
   catch(const TaskEndException& exception){
     if (pros::usd::is_installed()) print_queue(queue, log_file, "/usd/log.txt");  // empty the queue when the task gets killed
