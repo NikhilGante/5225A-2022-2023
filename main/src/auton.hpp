@@ -8,6 +8,8 @@ void moveInches(double target, double max_power = 127, E_Brake_Modes brake_mode 
 
 
 void autonAWP();
+void shortAutonAWP();
+
 
 void autonStack();
 void autonStackMoveBack();

@@ -87,7 +87,7 @@ double l_power_last, r_power_last;
 double turn_speed =  0.65;
 void driveHandleInput(){
   double power_y = polynomial(master.get_analog(ANALOG_LEFT_Y), drive_curvature);
-  double power_a = (master.get_digital(DIGITAL_X) ? 1: 0.65)* polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
+  double power_a = (master.get_digital(fast_turn_btn) ? 1: 0.65)* polynomial(master.get_analog(ANALOG_RIGHT_X), angle_curvature);
  
   if(fabs(power_y) < deadzone) power_y = 0;
  
@@ -223,6 +223,7 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
     if(master.get_digital_new_press(endgameBtnLeft)){
       if(endgame_dbl_click_right) {
         log("%lld | Both ENDGAME FIRED\n", op_control_timer.getTime());
+        flywheelOn = false;
         endgame_top_b.setState(HIGH);
         endgame_lower_b.setState(HIGH);
       }

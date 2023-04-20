@@ -15,7 +15,7 @@ controller_digital_e_t endgameBtnLeft = DIGITAL_RIGHT;
 controller_digital_e_t intakeToggleBtn = DIGITAL_A;
 controller_digital_e_t intakeRevBtn = DIGITAL_X;
 controller_digital_e_t endgameBtnRight = DIGITAL_Y;
-// controller_digital_e_t rollerBtn = DIGITAL_B;
+controller_digital_e_t fast_turn_btn = DIGITAL_B;
 
 
 // ------------------------------ Front Buttons ------------------------------

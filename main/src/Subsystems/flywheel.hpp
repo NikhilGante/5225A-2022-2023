@@ -6,6 +6,8 @@
 
 #define SHOOTER_DS_THRESH 600
 
+extern bool flywheelOn;
+
 // forward declarations
 struct FlywheelIdleParams;
 struct FlywheelOffParams;
