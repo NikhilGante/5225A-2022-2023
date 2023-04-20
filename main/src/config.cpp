@@ -46,8 +46,6 @@ Piston endgame_lower_b('G', "endgame_lower_b", false, LOW);
 
 
 Imu gyro(9);
-Imu gyro2(1);
-Imu gyro3(20);
 
 
 

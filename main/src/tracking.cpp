@@ -44,7 +44,7 @@ void trackingUpdate(){
   Timer tracking_timer_lcd{"timer"};
   Timer tracking_timer_logs{"timer"};
 
-  double last_gyro_angle_1 = 0.0, last_gyro_angle_2 = 0.0, last_gyro_angle_3 = 0.0;
+  double last_gyro_angle = 0.0;
   int cur = micros(), prev = cur;
   int count_reach = 0, count_failed = 0;
 
@@ -97,44 +97,13 @@ void trackingUpdate(){
     theta = (left-right)/dist_lr; // change in robot's angle
     
     if(!gyro.is_calibrating()){
-      const double drift_thresh = 0.05;
+      double gyro_angle = gyro.get_rotation() * 1.0027;
 
-      double gyro_angle1 = gyro.get_rotation() * 1.0027;
-      double gyro_angle2 = gyro2.get_rotation() * 1;
-      double gyro_angle3 = gyro3.get_rotation() * 1;
-
-      std::array<double, 3> gyro_angles = {gyro_angle1 - last_gyro_angle_1, gyro_angle2 - last_gyro_angle_2, gyro_angle3 - last_gyro_angle_3};
-      std::sort(gyro_angles.begin(), gyro_angles.end());
-
-
-      if (fabs(gyro_angles[1] - gyro_angles[0]) < drift_thresh && fabs(gyro_angles[2] - gyro_angles[1]) < drift_thresh){
-        // theta = gyro_angles[1];
-      }
-      else if(fabs(gyro_angles[1] - gyro_angles[0]) > drift_thresh && fabs(gyro_angles[2] - gyro_angles[1]) > drift_thresh){
-        log("TRACKING: ALL 3 GYROS ARE FAR APRAT, DIfferences: %lf, %lf, %lf", gyro_angles[1], gyro_angles[2], gyro_angles[3]);
-        // theta = gyro_angles[1];
-      }
-      else if(fabs(gyro_angles[1] - gyro_angles[0]) < drift_thresh){
-        log("TRACKING: Gyro 3 is off %lf, %lf, %lf", gyro_angles[1], gyro_angles[2], gyro_angles[3]);
-        // theta = (gyro_angles[1] + gyro_angles[0]) / 2;
-      }
-      else if(fabs(gyro_angles[2] - gyro_angles[1]) < drift_thresh){
-        log("TRACKING: Gyro 1 is off %lf, %lf, %lf", gyro_angles[1], gyro_angles[2], gyro_angles[3]);
-        // theta = (gyro_angles[2] + gyro_angles[1]) / 2;
-      }
-      else{
-        // theta = gyro_angle1 - last_gyro_angle_1;
-      }
-
-      theta = gyro_angle1-last_gyro_angle_1;
+      theta = gyro_angle-last_gyro_angle;
       if(fabs(theta) < 0.006) theta = 0.0;  // drift reducer
       theta = degToRad(theta);
 
-      last_gyro_angle_1 = gyro_angle1; 
-      last_gyro_angle_2 = gyro_angle2; 
-      last_gyro_angle_3 = gyro_angle3; 
-
-
+      last_gyro_angle = gyro_angle; 
     }
     else if(millis() > 2500){
       log("GYRO DISABLED BUT CALIBRATING\n");
