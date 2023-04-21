@@ -48,6 +48,12 @@ void trackingUpdate(){
   int cur = micros(), prev = cur;
   int count_reach = 0, count_failed = 0;
 
+  double last_gyro_angle_1 = 0.0;
+  double last_gyro_angle_2 = 0.0;
+  double last_gyro_angle_3 = 0.0;
+
+  bool drift_detected = false;
+
 	gyro.tare_rotation();
 
   uint32_t cycle_time = millis();

@@ -50,6 +50,20 @@ void initialize() {
 	tracking_task.start(trackingUpdate);
 	_Controller::init();
 
+	/*
+	_Task battery_check("Battery_Checker");
+	battery_check.start([](){
+		while(true){
+			// if(pros::battery::get_voltage()){master.}
+			// printf("%d\n\n\n", pros::c::battery_get_voltage());
+			if(pros::c::battery_get_voltage() < 12200){
+				master.rumble("-");
+			}
+			delay(2000);
+
+		}
+	});
+	*/
 
 
 	drive.runMachine();
@@ -117,6 +131,11 @@ Auton autonL2("lineShort", autonLineShort, E_Auton_Reset_Types::far);
 
 void opcontrol() {
 
-	util_selector();
-	// driverPractice();
+	// if(master.get_digital_new_press(DIGITAL_A)){
+	// 	gyro2.calibrate();
+	// 	gyro3.calibrate();
+	// }
+
+	// util_selector();
+	driverPractice();
 }

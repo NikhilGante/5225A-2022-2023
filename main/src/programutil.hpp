@@ -359,6 +359,15 @@ bool handle_program(E_Program_Options program_type){
 
 // This is used for matches(on the screen). Able to reselect auton, run match, or driverskills/prog_skills
 void program_selector(){
+		// SD CARD DETECTOR
+		master.clear();
+		if(!usd::is_installed()){
+			master.rumble(".....");
+			master.print(0, 0, "SD NOT INSTALLED");
+			WAIT_UNTIL(usd::is_installed());
+			master.rumble("-");	// Lets user know sd card has been sucessfully inserted
+		}
+
     int index = 1, cur = 0, prev = 0;
     
     lcd::print(7, "%s%s%s",  std::string(16-program_names[index].length()/2, ' '), program_names[index], std::string(16-program_names[index].length()/2, ' '));

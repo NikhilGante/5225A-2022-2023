@@ -221,7 +221,8 @@ void IntakeRollerParams::handle(){
   intake_m.move(127);
   WAIT_UNTIL(master.isFalling(rollerBtn));
 
-  intake.changeState(intake.getPrevState());
+  intakeOff();
+  // intake.changeState(intake.getPrevState());
 
 
 }

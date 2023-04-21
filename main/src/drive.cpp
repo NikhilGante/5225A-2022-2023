@@ -192,7 +192,6 @@ void driverPractice(){  // Initializes state and runs driver code logic in loop
   uint32_t cycle_time = millis();
   int flywheel_offset = 0;
 	while(true){
-    log( "Intake: %d, Flywheel: %d, Left: %d, %d, %d, Right: %d, %d, %d\n", intake_m.get_current_draw(), flywheel_m.get_current_draw(), front_l.get_current_draw(), centre_l.get_current_draw(), back_l.get_current_draw(), front_r.get_current_draw(), centre_r.get_current_draw(), back_r.get_current_draw());
     master.updateButtons();
 
 
