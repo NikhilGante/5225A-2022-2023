@@ -114,7 +114,7 @@ void autonStackMoveBack(){
 void autonLine(){
   	Timer auton_timer{"Auton_timer"};
 	tracking.reset({126.5, 82.25, degToRad(-90)});
-	setFlywheelVel(2345);
+	setFlywheelVel(2320);
 	intakeOn();
 
 	moveToTargetSync({106, 82.25});
@@ -124,7 +124,7 @@ void autonLine(){
 
 	shootSync(3);
 	intakeOn();
-	setFlywheelVel(2300);
+	setFlywheelVel(2250);
 	
 	// WAIT_UNTIL(false);
 
@@ -174,7 +174,7 @@ void autonLine(){
 void autonLineShort(){
   	Timer auton_timer{"Auton_timer"};
 	tracking.reset({126.5, 82.25, degToRad(-90)});
-	setFlywheelVel(2345);
+	setFlywheelVel(2320);
 	intakeOn();
 
 	moveToTargetSync({106, 82.25});
@@ -213,7 +213,7 @@ void autonLineShort(){
 void autonAWP(){
 	int temp = millis();
 	Timer auton_timer{"Auton_timer"};
-	setFlywheelVel(2210);
+	setFlywheelVel(2160);
 
 
 	tracking.reset({34, 12.25, 0.0});
@@ -233,7 +233,7 @@ void autonAWP(){
 
 	shootSync(2);
   
-	setFlywheelVel(2340);
+	setFlywheelVel(2290);
 	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
 
 	turnToTargetSync({100.0, 77.0}); // Face line
@@ -288,7 +288,7 @@ void autonAWP(){
 void shortAutonAWP(){
 	int temp = millis();
 	Timer auton_timer{"Auton_timer"};
-	setFlywheelVel(2210);
+	setFlywheelVel(2160);
 
 
 	tracking.reset({34, 12.25, 0.0});
@@ -308,7 +308,8 @@ void shortAutonAWP(){
 
 	shootSync(2);
   
-	setFlywheelVel(2340);
+	setFlywheelVel(2290);
+
 	moveInches(-12, 127, E_Brake_Modes::brake, 8);  // backup
 
 	turnToTargetSync({100.0, 77.0}); // Face line
@@ -338,7 +339,7 @@ void worldsSkills(){
 
 	moveDrive(-40, 0);
 	intakeOn();
-	delay(500);
+	delay(600);
 
 	moveInches(3);
 
@@ -384,7 +385,7 @@ void worldsSkills(){
 	moveDrive(-30, 0);
 	delay(300);
 	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
-	delay(200);
+	delay(300);
 	intakeOff();
 	moveDrive(0, 0);
 
@@ -399,7 +400,7 @@ void worldsSkills(){
 	moveDrive(-30, 0);
 	delay(300);
 	WAIT_UNTIL(fabs(tracking.r_vel) < 2);
-	delay(200);
+	delay(300);
 	intakeOff();
 	moveDrive(0, 0);
 
@@ -413,7 +414,8 @@ void worldsSkills(){
 	turnToAngleSync(-135);
 
 	// Fire endgame
-
+	endgame_top_b.setState(HIGH);
+	endgame_lower_b.setState(HIGH);
 
 
 	master.printScroll("Time: %lld", auton_timer.getTime());
