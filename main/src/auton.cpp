@@ -110,6 +110,46 @@ void autonStackMoveBack(){
 
 	master.printScroll("Time: %lld", auton_timer.getTime());
 }
+
+// 5 Disc Stack
+void autonStackLong(){
+  Timer auton_timer{"Auton_timer"};
+
+	setFlywheelVel(2370);
+	tracking.reset({34, 12.25, 0.0});
+	intakeOn();
+	moveDrive(-50, 0);
+	delay(250);
+	intakeOff();
+	moveInches(6);
+	aimAtBlue(1);
+	shootSync(2);
+	intakeOn();
+	setFlywheelVel(2300);
+
+	turnToTargetSync({66, 40});
+	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
+
+	aimAtBlue(1);
+	shootSync(3);
+
+
+	// Last 2 discs
+	setFlywheelVel(2250);
+	turnToTargetSync({114, 100}, 0.0, true);
+	moveToTargetAsync({114, 100}, E_Brake_Modes::brake, 127, 1, E_Robot_Sides::back);
+	aimAtBlue(1);
+	shootSync(2);
+
+	delay(100);
+	angler_p.toggleState();
+	delay(250);
+	angler_p.toggleState();
+
+
+	master.printScroll("Time: %lld", auton_timer.getTime());
+}
+
 // 5 Disc Line
 void autonLine(){
   	Timer auton_timer{"Auton_timer"};

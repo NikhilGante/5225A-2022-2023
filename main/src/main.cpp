@@ -126,6 +126,7 @@ Auton skills("Skills", worldsSkills);
 Auton auton4("Blank", [](){master.print(0, 0, "BLANK AUTON");});
 Auton autonS2("StackBack", autonStackMoveBack);
 Auton autonL2("lineShort", autonLineShort, E_Auton_Reset_Types::far);
+Auton autonS3("stackLong", autonStackLong);
 
 
 
@@ -136,6 +137,6 @@ void opcontrol() {
 	// 	gyro3.calibrate();
 	// }
 
-	// util_selector();
-	driverPractice();
+	util_selector();
+	// driverPractice();
 }
