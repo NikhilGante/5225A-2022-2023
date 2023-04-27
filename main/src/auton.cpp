@@ -49,7 +49,7 @@ void moveInches(double target, double max_power, E_Brake_Modes brake_mode, doubl
 void autonStack(){
   Timer auton_timer{"Auton_timer"};
 
-	setFlywheelVel(2420);
+	setFlywheelVel(2370);
 	tracking.reset({34, 12.25, 0.0});
 	intakeOn();
 	moveDrive(-50, 0);
@@ -59,7 +59,7 @@ void autonStack(){
 	aimAtBlue(1);
 	shootSync(2);
 	intakeOn();
-	setFlywheelVel(2335);
+	setFlywheelVel(2300);
 
 	turnToTargetSync({66, 40});
 	moveToTargetSync({66, 40}, E_Brake_Modes::brake, 70);
@@ -81,7 +81,7 @@ void autonStack(){
 void autonStackMoveBack(){
   Timer auton_timer{"Auton_timer"};
 
-	setFlywheelVel(2420);
+	setFlywheelVel(2370);
 	tracking.reset({34, 12.25, 0.0});
 	intakeOn();
 	moveDrive(-50, 0);
@@ -91,7 +91,7 @@ void autonStackMoveBack(){
 	aimAtBlue(1);
 	shootSync(2);
 	intakeOn();
-	setFlywheelVel(2340);
+	setFlywheelVel(2300);
 
 	turnToTargetSync({70, 44});
 	moveToTargetSync({70, 44}, E_Brake_Modes::brake, 70);
