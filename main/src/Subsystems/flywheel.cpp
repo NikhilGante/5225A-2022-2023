@@ -103,7 +103,7 @@ void FlywheelMoveVelParams::handle(){
     
   }
 
-  if(master.get_digital_new_press(flywheelToggleBtn)) flywheelOn = !flywheelOn;
+  if(master.get_digital_new_press(flywheelToggleBtn)) flywheelOn = true;
 
   if(flywheelOn) flywheel_m.move(output);
   else flywheel_m.move(0);
